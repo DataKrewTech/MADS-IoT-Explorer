@@ -10,6 +10,16 @@ config :acqdat_api, AcqdatIotWeb.Endpoint,
   http: [port: 4004],
   server: false
 
+# Configure Guardian
+config :acqdat_api, AcqdatApiWeb.Guardian,
+  issuer: "acqdat_api",
+  secret_key: "y3jw57GEKtRZJrTPEl6T2p4GHfPZtr5XuF9+DK04cH/8FkMYPy0xbeH6YXbuSj1E"
+
+# Configure Guardian
+config :acqdat_iot, AcqdatIotWeb.Guardian,
+  issuer: "acqdat_iot",
+  secret_key: "y3jw57GEKtRZJrTPEl6T2p4GHfPZtr5XuF9+DK04cH/8FkMYPy0xbeH6YXbuSj1E"
+
 # Print only warnings and errors during test
 config :logger, level: :warn
 

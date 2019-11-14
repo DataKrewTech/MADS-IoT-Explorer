@@ -32,12 +32,12 @@ config :phoenix, :json_library, Jason
 # Configure Guardian
 config :acqdat_api, AcqdatApiWeb.Guardian,
   issuer: "acqdat_api",
-  secret_key: "CaTqqe1yk8ofdh1Cmn8Oh9yOiaVYw06rsjnJWMBqoIMw+w4wnFweNkWAoyeWsjK9"
+  secret_key: System.get_env("GUARDIAN_API_KEY")
 
 # Configure Guardian
 config :acqdat_iot, AcqdatIotWeb.Guardian,
   issuer: "acqdat_iot",
-  secret_key: "CaTqqe1yk8ofdh1Cmn8Oh9yOiaVYw06rsjnJWMBqoIMw+w4wnFweNkWAoyeWsjK9"
+  secret_key: System.get_env("GUARDIAN_IOT_KEY")
 
 # Configure authentication pipeline
 config :acqdat_api, AcqdatApiWeb.AuthenticationPipe,

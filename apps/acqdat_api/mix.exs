@@ -41,7 +41,14 @@ defmodule AcqdatApi.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:acqdat_core, in_umbrella: true}
+      {:acqdat_core, in_umbrella: true},
+
+      # authentication
+      {:guardian, "~> 2.0"},
+
+      # validation api params
+      {:params, "~> 2.0"},
+
     ]
   end
 end

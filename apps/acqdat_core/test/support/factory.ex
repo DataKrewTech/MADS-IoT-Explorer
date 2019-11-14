@@ -20,10 +20,10 @@ defmodule AcqdatCore.Support.Factory do
 
   def user_factory() do
     %User{
-      first_name: "Tony",
-      last_name: "Stark",
-      email: "tony@starkindustries.com",
-      password_hash: ""
+      first_name: sequence(:first_name, &"Tony-#{&1}"),
+      last_name: sequence(:last_name, &"Stark-#{&1}"),
+      email: sequence(:email, &"ceo-#{&1}@stark.com"),
+      password_hash: "NOTASECRET",
     }
   end
 

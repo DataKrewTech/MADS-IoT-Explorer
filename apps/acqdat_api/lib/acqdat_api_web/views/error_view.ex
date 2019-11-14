@@ -13,4 +13,50 @@ defmodule AcqdatApiWeb.ErrorView do
   def template_not_found(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
+
+  def render("200.json", assigns) do
+     handle_assign_error("", assigns)
+  end
+
+  def render("400.json", assigns) do
+    :bad_request |> err() |> handle_assign_error(assigns)
+  end
+
+  def render("404.json", assigns) do
+    :not_found |> err() |> handle_assign_error(assigns)
+  end
+
+  def render("500.json", assigns) do
+      err(:server_error) |> handle_assign_error(assigns)
+  end
+
+  defp handle_assign_error(default_message, assigns) do
+    case has_assign_error_key?(assigns) do
+        {:ok, errors} ->
+            %{errors: %{message: errors}}
+        _ ->
+            %{errors: %{message: default_message}}
+    end
+  end
+
+  defp has_assign_error_key?(assigns) do
+    if Map.has_key?(assigns, :errors)  do
+        {:ok, assigns.errors}
+    else
+        nil
+    end
+  end
+
+  defp err(message) do
+    case message do
+        :server_error -> "Server Error"
+        :not_found -> "Not Found"
+        :unknown_resource_type -> "Unknown resource type"
+        :unauthenticated -> "Unauthenticated"
+        :unauthorized -> "Unauthorized"
+        :unexpected_state -> "unexpected_state"
+        :bad_request -> "Bad Request"
+    end
+  end
+
 end

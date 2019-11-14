@@ -4,16 +4,28 @@ defmodule AcqdatApiWeb.Router do
   if Mix.env == :dev do
     # If using Phoenix
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
+  end
 
-    # If using Plug.Router, make sure to add the `to`
-    forward "/sent_emails", to: Bamboo.SentEmailViewerPlug
+  pipeline :api_bearer_auth do
+    plug AcqdatApiWeb.BearerAuthPipeline
+  end
+
+  pipeline :api_ensure_auth do
+    plug AcqdatApiWeb.EnsureAuthPipeline
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "json-api"]
   end
 
-  scope "/api", AcqdatApiWeb do
+  scope "/", AcqdatApiWeb do
     pipe_through :api
+
+    post "/sign-in", AuthController, :sign_in
+    post "/refresh", AuthController, :refresh_token
+  end
+
+  scope "/", AcqdatApiWeb do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
   end
 end
