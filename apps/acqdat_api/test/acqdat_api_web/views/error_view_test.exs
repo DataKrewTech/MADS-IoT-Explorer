@@ -5,11 +5,11 @@ defmodule AcqdatApiWeb.ErrorViewTest do
   import Phoenix.View
 
   test "renders 404.json" do
-    assert render(AcqdatApiWeb.ErrorView, "404.json", []) == %{errors: %{detail: "Not Found"}}
+    assert render(AcqdatApiWeb.ErrorView, "404.json", []) == %{errors: %{message: "Not Found"}}
   end
 
   test "renders 500.json" do
     assert render(AcqdatApiWeb.ErrorView, "500.json", []) ==
-             %{errors: %{detail: "Internal Server Error"}}
+             %{errors: %{message: "Server Error"}}
   end
 end

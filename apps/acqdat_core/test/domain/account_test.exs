@@ -1,18 +1,17 @@
 defmodule AcqdatCore.Domain.AccountTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
+  import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.User
   alias AcqdatCore.Domain.Account
 
   describe "authenticate/2" do
     setup do
-      params = %{
-        first_name: "Tony",
-        last_name: "Stark",
-        email: "tony@starkindustries.com",
-        password: "stark1234",
-        password_confirmation: "stark1234"
-      }
+      params =
+        build(:user)
+        |> Map.put(:password, "stark1234")
+        |> Map.put(:password_confirmation, "stark1234")
+        |> Map.from_struct()
 
       {:ok, user} = User.create(params)
       [user: user, user_params: params]
