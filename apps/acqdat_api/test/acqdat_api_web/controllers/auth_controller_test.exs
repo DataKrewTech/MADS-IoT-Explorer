@@ -22,7 +22,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       %{conn: conn, user: user} = context
       data = %{email: user.email, password: "acb124"}
       conn = post(conn, Routes.auth_path(conn, :sign_in), data)
-      response = conn |> json_response(200)
+      response = conn |> json_response(401)
       assert response == %{"errors" => %{"message" => "unauthenticated"}}
     end
 
@@ -46,13 +46,98 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       conn = post(conn, Routes.auth_path(conn, :sign_in), data)
       result = conn |> json_response(200)
 
-      [access_token: result["access_token"], refresh_token: result["refresh_token"]]
+      [
+        access_token: result["access_token"],
+        refresh_token: result["refresh_token"]
+      ]
     end
 
     test "returns a new access token", context do
       %{access_token: access_token, refresh_token: refresh_token} = context
-      params = %{access_token: access_token, refresh_token: refresh_token}
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
+
+      params = %{refresh_token: refresh_token}
       conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+
+      result = conn |> json_response(200)
+      assert result["access_token"] != access_token
+      assert result["refresh_token"] != refresh_token
+    end
+
+    test "returns error if refresh token not valid", context do
+      %{refresh_token: refresh_token} = context
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
+
+      params = %{refresh_token: invalid_token()}
+      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+
+      result = conn |> json_response(400)
+      assert result == %{"errors" => %{"message" => "invalid_token"}}
+    end
+
+    test "returns error if refresh token garbage", context do
+      %{refresh_token: refresh_token} = context
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
+
+      params = %{refresh_token: "avcbd123489u"}
+      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+
+      result = conn |> json_response(400)
+
+      assert %{
+               "errors" => %{
+                 "message" => %{
+                   "__exception__" => true,
+                   "message" => "argument error: [\"avcbd123489u\"]"
+                 }
+               }
+             } == result
+    end
+
+    test "fails if authorization header not found" do
+      params = %{refresh_token: "avcbd123489u"}
+      conn = build_conn()
+      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
+  describe "sign_out/2" do
+    setup :setup_user_with_conn
+
+    setup %{conn: conn, user: user, user_params: params} do
+      data = %{email: user.email, password: params.password}
+      conn = post(conn, Routes.auth_path(conn, :sign_in), data)
+      result = conn |> json_response(200)
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{result["refresh_token"]}")
+
+      [
+        access_token: result["access_token"],
+        refresh_token: result["refresh_token"],
+        conn: conn
+      ]
+    end
+
+    test "sign out successfully", context do
+      %{access_token: access_token, refresh_token: refresh_token, conn: conn} = context
+      params = %{access_token: access_token, refresh_token: refresh_token}
+      conn = post(conn, Routes.auth_path(conn, :sign_out), params)
+      result = conn |> json_response(200)
+      assert result == %{"status" => "Signed Out"}
     end
   end
 
@@ -71,5 +156,11 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       |> put_req_header("content-type", "application/json")
 
     [user: user, user_params: params, conn: conn]
+  end
+
+  def invalid_token() do
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0N\
+    TY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJS\
+    MeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
   end
 end

@@ -17,7 +17,7 @@ defmodule AcqdatApiWeb.AuthController do
         send_error(conn, 400, error)
 
       {:login, {:error, message}} ->
-        send_error(conn, 200, message)
+        send_error(conn, 401, message)
     end
   end
 
@@ -34,10 +34,24 @@ defmodule AcqdatApiWeb.AuthController do
         send_error(conn, 400, error)
 
       {:refresh, {:error, message}} ->
-        send_error(conn, 200, message)
+        send_error(conn, 400, message)
     end
   end
 
   def sign_out(conn, params) do
+    changeset = verify_sign_out_params(params)
+
+    with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+         {:signout, {:ok, message}} <- {:signout, Account.sign_out(data)} do
+      conn
+      |> put_status(200)
+      |> render("signout.json", message: message)
+    else
+      {:extract, {:error, error}} ->
+        send_error(conn, 400, error)
+
+      {:signout, {:error, message}} ->
+        send_error(conn, 400, message)
+    end
   end
 end

@@ -18,6 +18,14 @@ defmodule AcqdatApiWeb.ErrorView do
     handle_assign_error("", assigns)
   end
 
+  def render("401.json", assigns) do
+    :unauthenticated |> err() |> handle_assign_error(assigns)
+  end
+
+  def render("403.json", assigns) do
+    :unauthorized |> err() |> handle_assign_error(assigns)
+  end
+
   def render("400.json", assigns) do
     :bad_request |> err() |> handle_assign_error(assigns)
   end
@@ -42,11 +50,21 @@ defmodule AcqdatApiWeb.ErrorView do
 
   defp has_assign_error_key?(assigns) do
     if Map.has_key?(assigns, :errors) do
-      {:ok, assigns.errors}
+      {:ok, parse_errors(assigns.errors)}
     else
       nil
     end
   end
+
+  defp parse_errors(args) when is_map(args) do
+    if Map.has_key?(args, :__struct__) do
+      Map.from_struct(args)
+    else
+      args
+    end
+  end
+
+  defp parse_errors(args), do: args
 
   defp err(message) do
     case message do

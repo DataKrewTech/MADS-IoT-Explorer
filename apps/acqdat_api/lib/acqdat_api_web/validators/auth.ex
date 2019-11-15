@@ -14,6 +14,12 @@ defmodule AcqdatApiWeb.Validators.Auth do
 
   defparams(
     verify_refresh_params(%{
+      refresh_token!: :string
+    })
+  )
+
+  defparams(
+    verify_sign_out_params(%{
       access_token!: :string,
       refresh_token!: :string
     })

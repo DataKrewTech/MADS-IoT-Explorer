@@ -32,12 +32,30 @@ defmodule AcqdatApi.Account do
   > To be used when the `access_token` is expired.
   """
   @spec refresh_token(map) :: {:ok, String.t()} | {:error, String.t()}
-  def refresh_token(refresh_token) do
-    case Guardian.exchange(refresh_token, "refresh", "access", ttl: @access_time_hours) do
-      {:ok, token, _claims} ->
-        {:ok, token}
+  def refresh_token(%{refresh_token: refresh_token}) do
+    case Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours}) do
+      {:ok, _old_stuff, {new_token, _new_claims}} ->
+        {:ok, new_token}
 
       {:error, _reason} = error ->
+        error
+    end
+  end
+
+  @doc """
+  Signs out a user by revoking the tokens(`access`, `refresh`).
+
+  #TODO: Use GuardianDB to revoke tokens and track them. At present tokens
+        are not being tracked.
+  """
+  def sign_out(params) do
+    %{refresh_token: refresh, access_token: access} = params
+
+    with {:ok, _} <- Guardian.revoke(refresh),
+         {:ok, _} <- Guardian.revoke(access) do
+      {:ok, "Signed Out"}
+    else
+      {:error, _} = error ->
         error
     end
   end
