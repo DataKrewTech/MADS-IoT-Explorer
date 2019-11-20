@@ -1,5 +1,4 @@
 defmodule AcqdatApi.Device do
-  alias AcqdatCore.Schema.Device
   alias AcqdatCore.Model.Device, as: DeviceModel
   import AcqdatApiWeb.Helpers
 

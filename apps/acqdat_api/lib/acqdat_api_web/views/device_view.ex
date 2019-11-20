@@ -1,6 +1,5 @@
 defmodule AcqdatApiWeb.DeviceView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.ErrorView
   alias AcqdatApiWeb.DeviceView
 
   def render("device.json", %{device: device}) do

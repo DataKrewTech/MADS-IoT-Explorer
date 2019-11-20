@@ -1,5 +1,4 @@
 defmodule AcqdatApi.SensorType do
-  alias AcqdatCore.Schema.SensorType
   alias AcqdatCore.Model.SensorType, as: SensorTypeModel
   import AcqdatApiWeb.Helpers
 
