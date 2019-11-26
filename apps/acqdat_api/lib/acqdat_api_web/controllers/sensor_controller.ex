@@ -38,7 +38,7 @@ defmodule AcqdatApiWeb.SensorController do
         {:list, device_sensors} =
           {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
 
-        {:list, policies} = {:list, SensorNotificationModel.get_policies()}
+        {:list, policies} = {:list, SensorNotificationModel.get_policies_with_preferences()}
 
         conn
         |> put_status(200)
