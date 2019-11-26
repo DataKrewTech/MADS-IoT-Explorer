@@ -139,7 +139,8 @@ defmodule AcqdatApiWeb.SensorControllerTest do
               "id" => sensor.sensor_type.id,
               "identifier" => sensor.sensor_type.identifier,
               "make" => sensor.sensor_type.make,
-              "name" => sensor.sensor_type.name
+              "name" => sensor.sensor_type.name,
+              "value_keys" => sensor.sensor_type.value_keys
             },
             "sensor_type_id" => sensor.sensor_type_id,
             "uuid" => sensor.uuid
