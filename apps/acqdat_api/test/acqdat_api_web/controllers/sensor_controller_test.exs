@@ -112,6 +112,7 @@ defmodule AcqdatApiWeb.SensorControllerTest do
 
     test "sensors of a device with invalid device id", %{conn: conn} do
       sensor = insert(:sensor)
+
       params = %{
         device_id: 3
       }
@@ -123,33 +124,35 @@ defmodule AcqdatApiWeb.SensorControllerTest do
 
     test "sensors of a device with valid device id", %{conn: conn} do
       sensor = insert(:sensor)
+
       params = %{
         device_id: sensor.device_id
       }
 
       conn = get(conn, Routes.sensor_path(conn, :sensor_by_criteria, params.device_id))
       result = conn |> json_response(200)
+
       assert result == %{
-        "sensors" => [
-          %{
-            "device_id" => sensor.device_id,
-            "id" => sensor.id,
-            "name" => sensor.name,
-            "sensor_type" => %{
-              "id" => sensor.sensor_type.id,
-              "identifier" => sensor.sensor_type.identifier,
-              "make" => sensor.sensor_type.make,
-              "name" => sensor.sensor_type.name,
-              "value_keys" => sensor.sensor_type.value_keys
-            },
-            "sensor_type_id" => sensor.sensor_type_id,
-            "uuid" => sensor.uuid
-          }
-        ]
-      }
+               "sensors" => [
+                 %{
+                   "device_id" => sensor.device_id,
+                   "id" => sensor.id,
+                   "name" => sensor.name,
+                   "sensor_type" => %{
+                     "id" => sensor.sensor_type.id,
+                     "identifier" => sensor.sensor_type.identifier,
+                     "make" => sensor.sensor_type.make,
+                     "name" => sensor.sensor_type.name,
+                     "value_keys" => sensor.sensor_type.value_keys
+                   },
+                   "sensor_type_id" => sensor.sensor_type_id,
+                   "uuid" => sensor.uuid
+                 }
+               ]
+             }
     end
   end
-  
+
   describe "update/2" do
     setup :setup_conn
 

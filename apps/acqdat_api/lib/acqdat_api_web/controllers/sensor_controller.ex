@@ -37,18 +37,19 @@ defmodule AcqdatApiWeb.SensorController do
       nil ->
         {:list, device_sensors} =
           {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
-        {:list, policies} = {:list, SensorNotificationModel.get_policies()}   
-          conn
-          |> put_status(200)
-          |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
-        
+
+        {:list, policies} = {:list, SensorNotificationModel.get_policies()}
+
+        conn
+        |> put_status(200)
+        |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
 
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
     end
   end
-  
+
   def create(conn, params) do
     case conn.status do
       nil ->
