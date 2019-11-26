@@ -26,6 +26,17 @@ defmodule AcqdatApiWeb.SensorView do
     }
   end
 
+  def render("device_sensor_with_preloads.json", %{sensor: sensor}) do
+    %{
+      id: sensor.id,
+      name: sensor.name,
+      uuid: sensor.uuid,
+      device_id: sensor.device_id,
+      sensor_type_id: sensor.sensor_type_id,
+      sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json")
+    }
+  end
+
   def render("index.json", sensor) do
     %{
       sensors: render_many(sensor.entries, SensorView, "sensor_with_preloads.json"),
@@ -33,6 +44,12 @@ defmodule AcqdatApiWeb.SensorView do
       page_size: sensor.page_size,
       total_entries: sensor.total_entries,
       total_pages: sensor.total_pages
+    }
+  end
+
+  def render("device_sensor_with_preloads.json", %{device_sensors: device_sensors}) do
+    %{
+      sensors: render_many(device_sensors, SensorView, "device_sensor_with_preloads.json"),
     }
   end
 end

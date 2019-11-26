@@ -14,7 +14,7 @@ defmodule AcqdatApiWeb.DeviceController do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
         {:list, device} = {:list, DeviceModel.get_all(data)}
-
+        
         conn
         |> put_status(200)
         |> render("index.json", device)

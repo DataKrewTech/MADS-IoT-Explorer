@@ -9,6 +9,7 @@ defmodule AcqdatApiWeb.SensorController do
 
   plug :load_device_and_sensor_type when action in [:create]
   plug :load_sensor when action in [:update, :delete]
+  plug :load_device when action in [:sensor_by_criteria]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -28,6 +29,25 @@ defmodule AcqdatApiWeb.SensorController do
     end
   end
 
+  def sensor_by_criteria(conn, %{"device_id" => device_id}) do
+    {device_id, _} = Integer.parse(device_id)
+
+    case conn.status do
+      nil ->
+        {:list, device_sensors} =
+          {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
+          
+          conn
+          |> put_status(200)
+          |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
+        
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+  
   def create(conn, params) do
     case conn.status do
       nil ->
@@ -129,6 +149,19 @@ defmodule AcqdatApiWeb.SensorController do
             conn
             |> put_status(404)
         end
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
+    end
+  end
+
+  defp load_device(%{params: %{"device_id" => device_id}} = conn, _params) do
+    {device_id, _} = Integer.parse(device_id)
+
+    case DeviceModel.get(device_id) do
+      {:ok, device} ->
+        assign(conn, :device, device)
 
       {:error, _message} ->
         conn

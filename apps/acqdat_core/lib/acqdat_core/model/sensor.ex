@@ -57,6 +57,15 @@ defmodule AcqdatCore.Model.Sensor do
     Repo.all(query)
   end
 
+  def get_all_by_device(device_id, preloads) do
+    query =
+      from(sensor in Sensor,
+        where: sensor.device_id == ^device_id,
+        select: sensor
+      )
+     Repo.all(query) |> Repo.preload(preloads)
+  end
+
   def update(sensor, params) do
     changeset = Sensor.update_changeset(sensor, params)
     Repo.update(changeset)
