@@ -47,9 +47,17 @@ defmodule AcqdatApiWeb.SensorView do
     }
   end
 
-  def render("device_sensor_with_preloads.json", %{device_sensors: device_sensors}) do
+  def render("policy.json", %{sensor: sensor_policy}) do
+      %{
+        policy_type: elem(sensor_policy, 0),
+        policy_module: elem(sensor_policy, 1)
+      }
+  end
+
+  def render("device_sensor_with_preloads.json", %{device_sensors: device_sensors, policies: policies}) do
     %{
       sensors: render_many(device_sensors, SensorView, "sensors_details.json"),
+      policies: render_many(policies, SensorView, "policy.json")
     }
   end
 end

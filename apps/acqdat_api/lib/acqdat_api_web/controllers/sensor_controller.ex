@@ -40,7 +40,7 @@ defmodule AcqdatApiWeb.SensorController do
         {:list, policies} = {:list, SensorNotificationModel.get_policies()}   
           conn
           |> put_status(200)
-          |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
+          |> render("device_sensor_with_preloads.json", [device_sensors: device_sensors, policies: policies])
         
 
       404 ->
