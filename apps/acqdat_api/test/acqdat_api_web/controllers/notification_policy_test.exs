@@ -4,10 +4,10 @@ defmodule AcqdatApiWeb.NotificationPolicyTest do
   use AcqdatCore.DataCase
   alias AcqdatCore.Model.User
   import AcqdatCore.Support.Factory
-  
+
   describe "index/2" do
     setup :setup_conn
-    
+
     test "fails if invalid token in authorization header", %{conn: conn} do
       bad_access_token = "qwerty1234567qwerty12"
 
@@ -31,7 +31,7 @@ defmodule AcqdatApiWeb.NotificationPolicyTest do
       assert Map.has_key?(policy_list, "rule_name")
     end
   end
-  
+
   def setup_conn(%{conn: conn}) do
     params =
       build(:user)

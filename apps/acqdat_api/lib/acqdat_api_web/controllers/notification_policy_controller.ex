@@ -2,9 +2,8 @@ defmodule AcqdatApiWeb.NotificationPolicyController do
   use AcqdatApiWeb, :controller
   alias AcqdatCore.Model.SensorNotification, as: SensorNotificationModel
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.Sensor
 
-  def index(conn, params) do
+  def index(conn, _params) do
     with {:list, [policies]} = {:list, SensorNotificationModel.get_policies_with_preferences()} do
       conn
       |> put_status(200)

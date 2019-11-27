@@ -37,8 +37,6 @@ defmodule AcqdatApiWeb.SensorController do
         {:list, device_sensors} =
           {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
 
-        
-
         conn
         |> put_status(200)
         |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
