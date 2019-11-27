@@ -52,6 +52,17 @@ defmodule AcqdatCore.Model.SensorNotification do
     end)
   end
 
+  def get_policies_with_preferences() do
+    policies = PolicyMap.policies()
+
+    Enum.map(policies, fn policy ->
+      module = String.to_existing_atom(policy)
+      rule_name = module.rule_name
+      preferences = policy_preferences(policy, %{})
+      %{rule_name: rule_name, policy_name: policy, preferences: preferences}
+    end)
+  end
+
   def policy_preferences(module, params) do
     module = String.to_existing_atom(module)
     module.rule_preferences(params)

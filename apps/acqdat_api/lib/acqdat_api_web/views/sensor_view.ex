@@ -33,7 +33,8 @@ defmodule AcqdatApiWeb.SensorView do
       uuid: sensor.uuid,
       device_id: sensor.device_id,
       sensor_type_id: sensor.sensor_type_id,
-      sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type_with_value_keys.json")
+      sensor_type:
+        render_one(sensor.sensor_type, SensorTypeView, "sensor_type_with_value_keys.json")
     }
   end
 
@@ -47,17 +48,9 @@ defmodule AcqdatApiWeb.SensorView do
     }
   end
 
-  def render("policy.json", %{sensor: sensor_policy}) do
-      %{
-        policy_type: elem(sensor_policy, 0),
-        policy_module: elem(sensor_policy, 1)
-      }
-  end
-
-  def render("device_sensor_with_preloads.json", %{device_sensors: device_sensors, policies: policies}) do
+  def render("device_sensor_with_preloads.json", %{device_sensors: device_sensors}) do
     %{
-      sensors: render_many(device_sensors, SensorView, "sensors_details.json"),
-      policies: render_many(policies, SensorView, "policy.json")
+      sensors: render_many(device_sensors, SensorView, "sensors_details.json")
     }
   end
 end

@@ -4,7 +4,6 @@ defmodule AcqdatApiWeb.SensorController do
   alias AcqdatCore.Model.Device, as: DeviceModel
   alias AcqdatCore.Model.Sensor, as: SensorModel
   alias AcqdatCore.Model.SensorType, as: SensorTypeModel
-  alias AcqdatCore.Model.SensorNotification, as: SensorNotificationModel
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Sensor
 
@@ -37,18 +36,19 @@ defmodule AcqdatApiWeb.SensorController do
       nil ->
         {:list, device_sensors} =
           {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
-        {:list, policies} = {:list, SensorNotificationModel.get_policies()}   
-          conn
-          |> put_status(200)
-          |> render("device_sensor_with_preloads.json", [device_sensors: device_sensors, policies: policies])
+
         
+
+        conn
+        |> put_status(200)
+        |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
 
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
     end
   end
-  
+
   def create(conn, params) do
     case conn.status do
       nil ->
