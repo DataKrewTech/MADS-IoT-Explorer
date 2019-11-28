@@ -30,7 +30,7 @@ defmodule AcqdatApi.Sensor do
      }}
   end
 
-  defp verify_sensor({:error, device}) do
-    {:error, %{error: extract_changeset_error(device)}}
+  defp verify_sensor({:error, sensor}) do
+    {:error, %{error: extract_changeset_error(sensor)}}
   end
 end

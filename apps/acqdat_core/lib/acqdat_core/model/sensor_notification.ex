@@ -2,7 +2,7 @@ defmodule AcqdatCore.Model.SensorNotification do
   @moduledoc """
   Models functions for configuring data for sensor notifications.
   """
-
+  import Ecto.Query
   alias AcqdatCore.Schema.SensorNotifications, as: SNotifications
   alias AcqdatCore.Repo
   alias AcqdatCore.Notification.PolicyMap
@@ -36,6 +36,21 @@ defmodule AcqdatCore.Model.SensorNotification do
     SNotifications |> Repo.all() |> Repo.preload(sensor: :device)
   end
 
+  def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
+    paginated_sensor_notification_data =
+      SNotifications |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+
+    sensor_notification_data_with_preloads = paginated_sensor_notification_data.entries |> Repo.preload(preloads)
+
+    %{
+      entries: sensor_notification_data_with_preloads,
+      page_number: paginated_sensor_notification_data.page_number,
+      page_size: paginated_sensor_notification_data.page_size,
+      total_entries: paginated_sensor_notification_data.total_entries,
+      total_pages: paginated_sensor_notification_data.total_pages
+    }
+  end
+  
   def delete(id) do
     SNotifications
     |> Repo.get(id)
