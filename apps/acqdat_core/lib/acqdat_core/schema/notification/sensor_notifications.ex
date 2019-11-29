@@ -65,7 +65,7 @@ defmodule AcqdatCore.Schema.SensorNotifications do
 
   defp validate_embedded_data(%Ecto.Changeset{valid?: true} = changeset) do
     {:ok, rule_values} = fetch_change(changeset, :rule_values)
-
+    
     rule_values
     |> run_rule_validations()
     |> data_reduce_filter(changeset)

@@ -67,7 +67,7 @@ defmodule AcqdatCore.Support.Factory do
       sensor: build(:sensor),
       rule_values: %{
         "temp" => %{
-          "module" => 0,
+          "module" => "Elixir.AcqdatCore.Schema.Notification.RangeBased",
           "preferences" => %{"lower_limit" => "10.0", "upper_limit" => "20"}
         }
       }
