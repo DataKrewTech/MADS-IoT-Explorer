@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.SensorNotificationController do
 
   plug :check_sensor when action in [:create]
   plug :load_sensor_notification when action in [:update, :delete]
-  
+
   def index(conn, params) do
     changeset = verify_index_params(params)
 
@@ -31,9 +31,9 @@ defmodule AcqdatApiWeb.SensorNotificationController do
     case conn.status do
       nil ->
         changeset = verify_sensor_notification_params(params)
+
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, sensor_notification}} <- {:create, SensorNotification.create(data)} do
-
           conn
           |> put_status(200)
           |> render("sensor_notification.json", %{sensor_notification: sensor_notification})
@@ -44,6 +44,7 @@ defmodule AcqdatApiWeb.SensorNotificationController do
           {:create, {:error, message}} ->
             send_error(conn, 400, message)
         end
+
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
@@ -94,7 +95,7 @@ defmodule AcqdatApiWeb.SensorNotificationController do
         conn
         |> send_error(404, "Resource Not Found")
     end
-  end 
+  end
 
   defp check_sensor(%{params: %{"sensor_id" => id}} = conn, _params) do
     case SensorModel.get(id) do

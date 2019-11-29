@@ -22,9 +22,9 @@ defmodule AcqdatApi.SensorNotification do
   defp verify_sensor({:ok, sensor_notification}) do
     {:ok,
      %{
-        rule_values: sensor_notification.rule_values,
-        alarm_status: sensor_notification.alarm_status,
-        sensor_id: sensor_notification.sensor_id
+       rule_values: sensor_notification.rule_values,
+       alarm_status: sensor_notification.alarm_status,
+       sensor_id: sensor_notification.sensor_id
      }}
   end
 

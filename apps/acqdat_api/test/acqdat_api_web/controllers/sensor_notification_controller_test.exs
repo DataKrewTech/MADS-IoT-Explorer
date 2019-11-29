@@ -11,12 +11,13 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
     test "sensor notification create", %{conn: conn} do
       sensor_notification_manifest = build(:sensor_notification)
       sensor_manifest = insert(:sensor)
-      
+
       data = %{
         rule_values: sensor_notification_manifest.rule_values,
         alarm_status: sensor_notification_manifest.alarm_status,
         sensor_id: sensor_manifest.id
       }
+
       conn = post(conn, Routes.sensor_notification_path(conn, :create), data)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "rule_values")
@@ -50,16 +51,22 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
       conn = post(conn, Routes.sensor_notification_path(conn, :create), data)
       conn = post(conn, Routes.sensor_notification_path(conn, :create), data)
       response = conn |> json_response(400)
+
       assert response == %{
-        "errors" => %{
-          "message" => %{"error" => %{"sensor_id" => ["has already been taken"]}}
-        }
-      }
+               "errors" => %{
+                 "message" => %{"error" => %{"sensor_id" => ["has already been taken"]}}
+               }
+             }
     end
 
     test "fails if required params are missing", %{conn: conn} do
       sensor_manifest = insert(:sensor)
-      conn = post(conn, Routes.sensor_notification_path(conn, :create), %{sensor_id: sensor_manifest.id})
+
+      conn =
+        post(conn, Routes.sensor_notification_path(conn, :create), %{
+          sensor_id: sensor_manifest.id
+        })
+
       response = conn |> json_response(400)
       assert response == %{"errors" => %{"message" => %{"rule_values" => ["can't be blank"]}}}
     end
@@ -70,8 +77,9 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
 
     test "sensor notification update", %{conn: conn} do
       sensor_notification = insert(:sensor_notification)
+
       data = %{
-        rule_values:  %{
+        rule_values: %{
           "sense" => %{
             "module" => "Elixir.AcqdatCore.Schema.Notification.RangeBased",
             "preferences" => %{"lower_limit" => "110.0", "upper_limit" => "120"}
@@ -79,8 +87,10 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
         },
         alarm_status: false
       }
-    
-      conn = put(conn, Routes.sensor_notification_path(conn, :update, sensor_notification.id), data)
+
+      conn =
+        put(conn, Routes.sensor_notification_path(conn, :update, sensor_notification.id), data)
+
       response = conn |> json_response(200)
       assert Map.has_key?(response, "rule_values")
       assert Map.has_key?(response, "alarm_status")
@@ -98,7 +108,14 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
       data = %{
         alarm_status: false
       }
-      conn = put(conn, Routes.sensor_notification_path(conn, :update, sensor_notification_manifest.id), data)
+
+      conn =
+        put(
+          conn,
+          Routes.sensor_notification_path(conn, :update, sensor_notification_manifest.id),
+          data
+        )
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -110,7 +127,9 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
     test "sensor type delete", %{conn: conn} do
       sensor_notification = insert(:sensor_notification)
 
-      conn = delete(conn, Routes.sensor_notification_path(conn, :delete, sensor_notification.id), %{})
+      conn =
+        delete(conn, Routes.sensor_notification_path(conn, :delete, sensor_notification.id), %{})
+
       response = conn |> json_response(200)
       assert Map.has_key?(response, "rule_values")
       assert Map.has_key?(response, "alarm_status")
@@ -125,7 +144,9 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-      conn = delete(conn, Routes.sensor_notification_path(conn, :delete, sensor_notification.id), %{})
+      conn =
+        delete(conn, Routes.sensor_notification_path(conn, :delete, sensor_notification.id), %{})
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end

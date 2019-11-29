@@ -32,6 +32,8 @@ defmodule AcqdatApiWeb.Router do
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index]
     get "/sensor/:device_id", SensorController, :sensor_by_criteria
     resources "/policies", NotificationPolicyController, only: [:index]
-    resources "/sensor_notification", SensorNotificationController, only: [:create, :update, :delete, :index]
+
+    resources "/sensor_notification", SensorNotificationController,
+      only: [:create, :update, :delete, :index]
   end
 end
