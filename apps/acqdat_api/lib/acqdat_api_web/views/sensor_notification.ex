@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.SensorNotificationView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.SensorNotificationView
   alias AcqdatApiWeb.SensorView
+  alias AcqdatApiWeb.DeviceView
 
   def render("index.json", sensor_notification) do
     %{
@@ -24,6 +25,16 @@ defmodule AcqdatApiWeb.SensorNotificationView do
       sensor_id: sensor_notification.sensor_id,
       alarm_status: sensor_notification.alarm_status,
       sensor: render_one(sensor_notification.sensor, SensorView, "sensor.json")
+    }
+  end
+
+  def render("sensor_notification_with_device.json", %{sensor_notification: sensor_notification}) do
+    %{
+      rule_values: sensor_notification.rule_values,
+      sensor_id: sensor_notification.sensor_id,
+      alarm_status: sensor_notification.alarm_status,
+      sensor: render_one(sensor_notification.sensor, SensorView, "sensor.json"),
+      device: render_one(sensor_notification.sensor.device, DeviceView, "device.json")
     }
   end
 

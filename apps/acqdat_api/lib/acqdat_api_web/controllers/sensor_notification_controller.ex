@@ -7,7 +7,22 @@ defmodule AcqdatApiWeb.SensorNotificationController do
   import AcqdatApiWeb.Validators.SensorNotification
 
   plug :check_sensor when action in [:create]
-  plug :load_sensor_notification when action in [:update, :delete]
+  plug :load_sensor_notification when action in [:update, :delete, :show]
+
+  def show(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        {:list, {:ok, sensor_notification}} = {:list, SensorNotificationModel.get(id)}
+
+        conn
+        |> put_status(200)
+        |> render("sensor_notification_with_device.json", sensor_notification)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
   def index(conn, params) do
     changeset = verify_index_params(params)
