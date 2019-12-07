@@ -6,6 +6,7 @@ defmodule AcqdatCore.Model.SensorNotification do
   alias AcqdatCore.Schema.SensorNotifications, as: SNotifications
   alias AcqdatCore.Repo
   alias AcqdatCore.Notification.PolicyMap
+  alias AcqdatCore.Model.Helper, as: ModelHelper
 
   def create(params) do
     changeset = SNotifications.changeset(%SNotifications{}, params)
@@ -43,13 +44,10 @@ defmodule AcqdatCore.Model.SensorNotification do
     sensor_notification_data_with_preloads =
       paginated_sensor_notification_data.entries |> Repo.preload(preloads)
 
-    %{
-      entries: sensor_notification_data_with_preloads,
-      page_number: paginated_sensor_notification_data.page_number,
-      page_size: paginated_sensor_notification_data.page_size,
-      total_entries: paginated_sensor_notification_data.total_entries,
-      total_pages: paginated_sensor_notification_data.total_pages
-    }
+    ModelHelper.paginated_response(
+      sensor_notification_data_with_preloads,
+      paginated_sensor_notification_data
+    )
   end
 
   def delete(id) do

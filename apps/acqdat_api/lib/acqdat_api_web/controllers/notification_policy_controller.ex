@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.NotificationPolicyController do
 
   def index(conn, _params) do
     {:list, policies} = {:list, SensorNotificationModel.get_policies_with_preferences()}
+
     conn
     |> put_status(200)
     |> render("policies.json", policies: policies)

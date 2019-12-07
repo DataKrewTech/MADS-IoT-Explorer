@@ -1,6 +1,7 @@
 defmodule AcqdatCore.Model.Sensor do
   alias AcqdatCore.Schema.{Sensor, SensorData}
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
   def create(params) do
@@ -28,13 +29,7 @@ defmodule AcqdatCore.Model.Sensor do
 
     sensor_data_with_preloads = paginated_sensor_data.entries |> Repo.preload(preloads)
 
-    %{
-      entries: sensor_data_with_preloads,
-      page_number: paginated_sensor_data.page_number,
-      page_size: paginated_sensor_data.page_size,
-      total_entries: paginated_sensor_data.total_entries,
-      total_pages: paginated_sensor_data.total_pages
-    }
+    ModelHelper.paginated_response(sensor_data_with_preloads, paginated_sensor_data)
   end
 
   def get(query) when is_map(query) do
