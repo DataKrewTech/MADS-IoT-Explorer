@@ -42,7 +42,7 @@ defmodule AcqdatCore.Model.SensorNotification do
       SNotifications |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
 
     sensor_notification_data_with_preloads =
-      paginated_sensor_notification_data.entries |> Repo.preload(preloads)
+      paginated_sensor_notification_data.entries |> Repo.preload(sensor: preloads)
 
     ModelHelper.paginated_response(
       sensor_notification_data_with_preloads,

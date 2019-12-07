@@ -30,7 +30,9 @@ defmodule AcqdatApiWeb.SensorNotificationController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor_notification} = {:list, SensorNotificationModel.get_all(data, [:sensor])}
+
+        {:list, sensor_notification} =
+          {:list, SensorNotificationModel.get_all(data, [:sensor_type, :device])}
 
         conn
         |> put_status(200)

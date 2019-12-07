@@ -24,7 +24,8 @@ defmodule AcqdatApiWeb.SensorNotificationView do
       rule_values: sensor_notification.rule_values,
       sensor_id: sensor_notification.sensor_id,
       alarm_status: sensor_notification.alarm_status,
-      sensor: render_one(sensor_notification.sensor, SensorView, "sensor.json")
+      sensor: render_one(sensor_notification.sensor, SensorView, "sensor.json"),
+      device: render_one(sensor_notification.sensor.device, DeviceView, "device.json")
     }
   end
 
