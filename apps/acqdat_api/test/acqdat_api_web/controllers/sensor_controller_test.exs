@@ -238,6 +238,14 @@ defmodule AcqdatApiWeb.SensorControllerTest do
       assert assertion_sensor["sensor_type"]["name"] == test_sensor.sensor_type.name
     end
 
+    test "if params are missing", %{conn: conn} do
+      insert_list(3, :sensor)
+      conn = get(conn, Routes.sensor_path(conn, :index, %{}))
+      response = conn |> json_response(200)
+      assert response["total_pages"] == 1
+      assert length(response["sensors"]) == response["total_entries"]
+    end
+
     test "Big page size", %{conn: conn} do
       insert_list(3, :sensor)
 

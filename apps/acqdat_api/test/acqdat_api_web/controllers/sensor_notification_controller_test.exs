@@ -8,6 +8,37 @@ defmodule AcqdatApiWeb.SensorNotificationControllerTest do
   describe "create/2" do
     setup :setup_conn
 
+    test "invalid rule values", %{conn: conn} do
+      sensor_notification_manifest = build(:sensor_notification)
+      sensor_manifest = insert(:sensor)
+
+      data = %{
+        rule_values: %{
+          "temp" => %{
+            "module" => "Elixir.AcqdatCore.Schema.Notification.RangeBased",
+            "preferences" => %{"lower_limit" => "20.0", "upper_limit" => "10"}
+          }
+        },
+        alarm_status: sensor_notification_manifest.alarm_status,
+        sensor_id: sensor_manifest.id
+      }
+
+      conn = post(conn, Routes.sensor_notification_path(conn, :create), data)
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "errors" => %{
+                 "message" => %{
+                   "error" => %{
+                     "rule_values" => [
+                       "{\"temp\":{\"lower_limit\":[\"lower limit should be less than upper\"]}}"
+                     ]
+                   }
+                 }
+               }
+             }
+    end
+
     test "sensor notification create", %{conn: conn} do
       sensor_notification_manifest = build(:sensor_notification)
       sensor_manifest = insert(:sensor)
