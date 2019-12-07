@@ -10,7 +10,7 @@ defmodule AcqdatApi.SensorNotification do
       sensor_id: sensor_id
     } = params
 
-    verify_sensor(
+    verify_sensor_notification(
       SensorNotificationModel.create(%{
         rule_values: rule_values,
         alarm_status: alarm_status,
@@ -19,7 +19,7 @@ defmodule AcqdatApi.SensorNotification do
     )
   end
 
-  defp verify_sensor({:ok, sensor_notification}) do
+  defp verify_sensor_notification({:ok, sensor_notification}) do
     {:ok,
      %{
        rule_values: sensor_notification.rule_values,
@@ -28,7 +28,7 @@ defmodule AcqdatApi.SensorNotification do
      }}
   end
 
-  defp verify_sensor({:error, sensor_notification}) do
+  defp verify_sensor_notification({:error, sensor_notification}) do
     {:error, %{error: extract_changeset_error(sensor_notification)}}
   end
 end
