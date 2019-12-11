@@ -29,17 +29,20 @@ defmodule AcqdatApiWeb.SensorController do
     end
   end
 
-  def sensor_by_criteria(conn, %{"device_id" => device_id}) do
-    {device_id, _} = Integer.parse(device_id)
-
+  def sensor_by_criteria(conn, params) do
     case conn.status do
       nil ->
-        {:list, device_sensors} =
+        %{"device_id" => device_id} = params
+        {device_id, _} = Integer.parse(device_id)
+
+        {:list, sensors_by_criteria} =
           {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
 
         conn
         |> put_status(200)
-        |> render("device_sensor_with_preloads.json", device_sensors: device_sensors)
+        |> render("sensors_by_criteria_with_preloads.json",
+          sensors_by_criteria: sensors_by_criteria
+        )
 
       404 ->
         conn
