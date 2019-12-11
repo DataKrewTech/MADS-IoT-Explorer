@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.SensorController do
   alias AcqdatCore.Model.Device, as: DeviceModel
   alias AcqdatCore.Model.Sensor, as: SensorModel
   alias AcqdatCore.Model.SensorType, as: SensorTypeModel
+  alias AcqdatApi.Context.Sensor, as: SensorContext
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Sensor
 
@@ -32,11 +33,7 @@ defmodule AcqdatApiWeb.SensorController do
   def sensor_by_criteria(conn, params) do
     case conn.status do
       nil ->
-        %{"device_id" => device_id} = params
-        {device_id, _} = Integer.parse(device_id)
-
-        {:list, sensors_by_criteria} =
-          {:list, SensorModel.get_all_by_device(device_id, [:sensor_type])}
+        {:list, sensors_by_criteria} = SensorContext.sensor_by_criteria(params)
 
         conn
         |> put_status(200)
