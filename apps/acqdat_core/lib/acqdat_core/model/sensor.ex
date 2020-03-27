@@ -67,6 +67,15 @@ defmodule AcqdatCore.Model.Sensor do
     Repo.update(changeset)
   end
 
+  def child_sensors(root) do
+    query =
+      from(sensor in Sensor,
+        where: sensor.parent_id == ^root.id
+      )
+
+    Repo.all(query)
+  end
+
   def get_all() do
     Repo.all(Sensor)
   end

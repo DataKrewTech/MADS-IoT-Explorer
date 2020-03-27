@@ -52,6 +52,9 @@ defmodule AcqdatUmbrella.MixProject do
       # http client
       {:httpoison, "~> 1.4"},
 
+      # slugger
+      {:slugger, "~> 0.3"},
+
       # code quality
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},

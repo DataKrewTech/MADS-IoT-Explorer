@@ -52,6 +52,12 @@ defmodule AcqdatCore.MixProject do
       {:comeonin, "~> 4.1.1"},
       {:argon2_elixir, "~> 1.2"},
 
+      # neseted sets
+      {:as_nested_set, "~> 3.2"},
+
+      # json
+      {:jason, "~> 1.0"},
+
       # Pagination
       {:scrivener_ecto, "~> 2.0"},
 
@@ -75,6 +81,9 @@ defmodule AcqdatCore.MixProject do
       {:hackney, "~> 1.6"},
       {:poison, "~> 3.1"},
       {:sweet_xml, "~> 0.6"},
+
+      # slugger
+      {:slugger, "~> 0.3"},
 
       # mailer
       {:poison, "~> 3.1"},

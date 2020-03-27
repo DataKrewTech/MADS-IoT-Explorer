@@ -5,18 +5,27 @@
 
 #   alias AcqdatCore.Model.Sensor
 
-#   describe "get_all_by_device" do
-#     setup do
-#       device = insert(:device)
-#       [device: device]
-#     end
+  describe "get_by_id/1" do
+    test "returns a particular sensor" do
+      sensor = insert(:sensor)
 
-#     test "returns all sensors for a device", context do
-#       %{device: device} = context
-#       sensors = insert_list(3, :sensor, device: device)
+      {:ok, result} = Sensor.get(sensor.id)
+      assert not is_nil(result)
+      assert result.id == sensor.id
+    end
 
-#       result = Sensor.get_all_by_device(device.id)
-#       assert length(sensors) == length(result)
-#     end
-#   end
-# end
+    test "returns error not found, if sensor is not present" do
+      {:error, result} = Sensor.get(-1)
+      assert result == "not found"
+    end
+  end
+
+  describe "create/2" do
+  end
+
+  describe "update/2" do
+  end
+
+  describe "delete" do
+  end
+end

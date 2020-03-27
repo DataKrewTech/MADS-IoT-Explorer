@@ -1,33 +1,31 @@
-defmodule AcqdatCore.Schema.Sensor do
+defmodule AcqdatCore.Schema.Gateway do
   @moduledoc """
-  Models a sensor in the system.
+  Models a Gateway in the system.
 
-  A sensor is responsible for sensing IoT data and sending it to
-  server via the gateway. A sensor may belong to an asset. A sensor
-  not connected to an asset belongs to the organisation.
+  A Gateway can be any entity which receives data from sensor and send data
+  to and forth in our given platform.
   """
-
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.{Gateway, Organisation}
+
+  alias AcqdatCore.Schema.Organisation
 
   @typedoc """
-  `uuid`: A universallly unique id for the sensor.
-  `name`: A unique name for sensor per device. Note the same
-          name can be used for sensor associated with another
-          device.
-  `parent_type`: The type of entity to which the sensor belongs. A parent
-          could be an `asset` or `organisation`.
-  `parent_id`: Id of the `parent_entity`.
-  `parameters`: The different parameters of the sensor.
+  `uuid`: A universally unique id to identify the gateway.
+  `name`: Name for easy identification of the gateway.
+  `access_token`: Access token to be used while sending data
+              to server from the gateway.
   """
   @type t :: %__MODULE__{}
 
-  schema("acqdat_sensors") do
+  schema("acqdat_gateway") do
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
     field(:name, :string)
-    field(:parent_id, :integer)
     field(:parent_type, :string)
+    field(:parent_id, :integer)
+    field(:description, :string)
+    field(:access_token, :string, null: false)
+    field(:serializer, :map)
 
     embeds_many :parameters, Parameters do
       field(:name, :string, null: false)
@@ -35,16 +33,16 @@ defmodule AcqdatCore.Schema.Sensor do
       field(:data_type, :string, null: false)
     end
 
-    # associations
+    # field(:image_url, :string)
+    # field(:image, :any, virtual: true)
+
     belongs_to(:org, Organisation, on_replace: :delete)
-    belongs_to(:gateway, Gateway, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(org_id uuid slug name)a
-  @optional_params ~w(gateway_id parent_id parent_type)a
-  @embedded_required_params ~w(name uuid data_type)a
+  @required_params ~w(access_token slug uuid org_id)a
+  @optional_params ~w(name parent_type description parent_id parameters serializer)a
 
   @permitted @required_params ++ @optional_params
 
@@ -52,28 +50,29 @@ defmodule AcqdatCore.Schema.Sensor do
           __MODULE__.t(),
           map
         ) :: Ecto.Changeset.t()
-  def changeset(%__MODULE__{} = sensor, params) do
-    sensor
+  def changeset(%__MODULE__{} = gateway, params) do
+    gateway
     |> cast(params, @permitted)
-    |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
     |> common_changeset()
   end
 
-  def update_changeset(%__MODULE__{} = sensor, params) do
-    sensor
+  def update_changeset(%__MODULE__{} = gateway, params) do
+    gateway
     |> cast(params, @permitted)
-    |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
 
   def common_changeset(changeset) do
     changeset
+    |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> assoc_constraint(:org)
-    |> assoc_constraint(:gateway)
+    |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
+    |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
+    |> unique_constraint(:access_token, name: :acqdat_gateway_access_token_index)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
