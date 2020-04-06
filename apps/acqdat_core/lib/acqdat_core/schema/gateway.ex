@@ -2,8 +2,8 @@ defmodule AcqdatCore.Schema.Gateway do
   @moduledoc """
   Models a Gateway in the system.
 
-  A Gateway can be any entity which will interact with our sensor and send data to and forth in our given 
-  platform.
+  A Gateway can be any entity which receives data from sensor and send data
+  to and forth in our given platform.
   """
   use AcqdatCore.Schema
 
@@ -23,11 +23,15 @@ defmodule AcqdatCore.Schema.Gateway do
     field(:name, :string)
     field(:parent_type, :string)
     field(:parent_id, :integer)
-    field(:parameters, :map)
     field(:description, :string)
     field(:access_token, :string, null: false)
     field(:serializer, :map)
 
+    embeds_many :parameters, Parameters do
+      field(:name, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:data_type, :string, null: false)
+    end
     # field(:image_url, :string)
     # field(:image, :any, virtual: true)
 
@@ -63,6 +67,7 @@ defmodule AcqdatCore.Schema.Gateway do
 
   def common_changeset(changeset) do
     changeset
+    |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> assoc_constraint(:org)
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
@@ -81,5 +86,12 @@ defmodule AcqdatCore.Schema.Gateway do
 
   defp random_string(length) do
     :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  end
+
+  defp parameters_changeset(schema, params) do
+    schema
+    |> cast(params, @embedded_required_params)
+    |> add_uuid()
+    |> validate_required(@embedded_required_params)
   end
 end

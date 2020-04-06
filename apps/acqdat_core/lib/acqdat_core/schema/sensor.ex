@@ -2,11 +2,9 @@ defmodule AcqdatCore.Schema.Sensor do
   @moduledoc """
   Models a sensor in the system.
 
-  To handle a sensor entity it is being assumed that a sensor
-  can exist only with a device.
-  A sensor could have been identified by combination of sensor type
-  and device however, a device can have more than one sensor of the
-  same type.
+  A sensor is responsible for sensing IoT data and sending it to
+  server via the gateway. A sensor may belong to an asset. A sensor
+  not connected to an asset belongs to the organisation.
   """
 
   use AcqdatCore.Schema
@@ -17,6 +15,10 @@ defmodule AcqdatCore.Schema.Sensor do
   `name`: A unique name for sensor per device. Note the same
           name can be used for sensor associated with another
           device.
+  `parent_type`: The type of entity to which the sensor belongs. A parent
+          could be an `asset` or `organisation`.
+  `parent_id`: Id of the `parent_entity`.
+  `parameters`: The different parameters of the sensor.
   """
   @type t :: %__MODULE__{}
 
@@ -30,7 +32,7 @@ defmodule AcqdatCore.Schema.Sensor do
     embeds_many :parameters, Parameters do
       field(:name, :string, null: false)
       field(:uuid, :string, null: false)
-      field(:type, :string, null: false)
+      field(:data_type, :string, null: false)
     end
 
     # associations
@@ -42,7 +44,7 @@ defmodule AcqdatCore.Schema.Sensor do
 
   @required_params ~w(org_id uuid slug name)a
   @optional_params ~w(gateway_id parent_id parent_type)a
-  @embedded_required_params ~w(name uuid type)a
+  @embedded_required_params ~w(name uuid data_type)a
 
   @permitted @required_params ++ @optional_params
 

@@ -16,8 +16,6 @@ defmodule AcqdatCore.Schema.Organisation do
   schema("acqdat_organisation") do
     field(:uuid, :string)
     field(:name, :string)
-    # field(:image_url, :string)
-    # field(:image, :any, virtual: true)
     field(:metadata, :map)
     field(:description, :string)
 
