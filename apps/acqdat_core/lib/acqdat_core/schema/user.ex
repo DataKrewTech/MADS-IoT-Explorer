@@ -5,6 +5,7 @@ defmodule AcqdatCore.Schema.User do
 
   use AcqdatCore.Schema
   alias Comeonin.Argon2
+  alias AcqdatCore.Schema.UserSetting
 
   @password_min_length 8
   @type t :: %__MODULE__{}
@@ -16,6 +17,9 @@ defmodule AcqdatCore.Schema.User do
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)
     field(:password_hash, :string)
+
+    # associations
+    has_one(:user_setting, UserSetting)
 
     timestamps(type: :utc_datetime)
   end
