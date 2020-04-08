@@ -7,7 +7,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateUserSettings do
       add(:data_settings, :map)
       add(:user_id, references(:users, on_delete: :delete_all))
 
-      timestamps()
+      timestamps(type: :timestamptz)
     end
 
     create(index(:user_settings, [:user_id]))
