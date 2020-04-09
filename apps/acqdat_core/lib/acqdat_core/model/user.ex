@@ -26,7 +26,7 @@ defmodule AcqdatCore.Model.User do
   Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case (Repo.get_by(User, id: id) |> Repo.preload([:user_setting])) do
+    case Repo.get(User, id) |> Repo.preload([:user_setting]) do
       nil ->
         {:error, "not found"}
 
