@@ -3,7 +3,7 @@ defmodule AcqdatCore.Model.User do
   Exposes APIs for handling user related fields.
   """
 
-  alias AcqdatCore.Schema.User
+  alias AcqdatCore.Schema.{User, UserSetting}
   alias AcqdatCore.Repo
 
   @doc """
@@ -23,10 +23,10 @@ defmodule AcqdatCore.Model.User do
   end
 
   @doc """
-  Returns a user by the supplied email.
+  Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case Repo.get_by(User, id: id) do
+    case (Repo.get_by(User, id: id) |> Repo.preload([:user_setting])) do
       nil ->
         {:error, "not found"}
 
