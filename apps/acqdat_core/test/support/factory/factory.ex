@@ -19,6 +19,8 @@ defmodule AcqdatCore.Support.Factory do
 
   alias AcqdatCore.Schema.{
     User,
+    UserSetting,
+    Device,
     Sensor,
     DigitalTwin,
     Organisation,
@@ -43,13 +45,27 @@ defmodule AcqdatCore.Support.Factory do
     }
   end
 
+  def user_setting_factory() do
+    %UserSetting{
+      user: build(:user),
+      visual_settings: %{
+        "recently_visited_apps" => ["data_cruncher", "support", "settings", "dashboard"],
+        "taskbar_pos" => "left",
+        "desktop_wallpaper" => "default.png"
+      },
+      data_settings: %{
+        "latitude" => 11.2,
+        "longitude" => 20.22
+      }
+    }
+  end
+
   def widget_type_factory() do
     %WidgetType{
       name: sequence(:name, &"Widget_Type-#{&1}"),
       vendor: "Highcharts",
       module: "Elixir.AcqdatCore.Widgets.Schema.Vendors.HighCharts",
       vendor_metadata: %{}
-    }
   end
 
   def widget_factory() do

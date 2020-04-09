@@ -39,7 +39,13 @@ defmodule AcqdatCore.Model.UserSetting do
   Returns user_setting by the supplied id.
   """
   def get(id) when is_integer(id) do
-    Repo.get_by(UserSetting, id: id)
+    case Repo.get(UserSetting, id) do
+      nil ->
+        {:error, "not found"}
+
+      user_setting ->
+        {:ok, user_setting}
+    end
   end
 
   @doc """
