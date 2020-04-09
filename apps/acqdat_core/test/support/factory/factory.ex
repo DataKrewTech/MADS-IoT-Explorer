@@ -66,7 +66,6 @@ defmodule AcqdatCore.Support.Factory do
       vendor: "Highcharts",
       module: "Elixir.AcqdatCore.Widgets.Schema.Vendors.HighCharts",
       vendor_metadata: %{}
-    }
   end
 
   def widget_factory() do
