@@ -18,7 +18,9 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.{
     User,
     Sensor,
-    DigitalTwin
+    DigitalTwin,
+    Organisation,
+    Asset
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
@@ -68,8 +70,7 @@ defmodule AcqdatCore.Support.Factory do
 
   def digital_twin_factory() do
     %DigitalTwin{
-      name: sequence(:digital_twin, &"digital_twin#{&1}"),
-      process: build(:process)
+      name: sequence(:digital_twin, &"digital_twin#{&1}")
     }
   end
 
@@ -89,35 +90,12 @@ defmodule AcqdatCore.Support.Factory do
     }
   end
 
-  def sensor_type_factory() do
-    %SensorType{
-      name: sequence(:sensor_type_name, &"Sensor#{&1}"),
-      make: "From Adafruit",
-      identifier: sequence(:type_identifier, &"identifier#{&1}"),
-      visualizer: "pie-chart",
-      value_keys: ["temp", "humid"]
-    }
-  end
-
   def sensor_factory() do
-    asd = %Sensor{
+    %Sensor{
       uuid: UUID.uuid1(:hex),
       name: sequence(:sensor_name, &"Sensor#{&1}"),
       slug: sequence(:sensor_name, &"Sensor#{&1}"),
       org: build(:organisation)
-    }
-  end
-
-  def sensor_notification_factory() do
-    %SensorNotifications{
-      alarm_status: true,
-      sensor: build(:sensor),
-      rule_values: %{
-        "temp" => %{
-          "module" => "Elixir.AcqdatCore.Schema.Notification.RangeBased",
-          "preferences" => %{"lower_limit" => "10.0", "upper_limit" => "20"}
-        }
-      }
     }
   end
 

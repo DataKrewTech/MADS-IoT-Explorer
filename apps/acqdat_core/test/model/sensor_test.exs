@@ -1,9 +1,9 @@
-# defmodule AcqdatCore.Model.SensorTest do
-#   use ExUnit.Case, async: true
-#   use AcqdatCore.DataCase
-#   import AcqdatCore.Support.Factory
+defmodule AcqdatCore.Model.SensorTest do
+  use ExUnit.Case, async: true
+  use AcqdatCore.DataCase
+  import AcqdatCore.Support.Factory
 
-#   alias AcqdatCore.Model.Sensor
+  alias AcqdatCore.Model.Sensor
 
   describe "get_by_id/1" do
     test "returns a particular sensor" do

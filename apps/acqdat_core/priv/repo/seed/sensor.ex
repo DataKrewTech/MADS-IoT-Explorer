@@ -101,9 +101,6 @@ defmodule AcqdatCore.Seed.Sensor do
 
     Enum.each(sensors, fn sensor -> 
       changeset = Sensor.changeset(%Sensor{}, sensor)
-
-      require IEx
-      IEx.pry
       Repo.insert(changeset)
     end)
     

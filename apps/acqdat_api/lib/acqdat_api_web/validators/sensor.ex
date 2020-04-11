@@ -3,9 +3,7 @@ defmodule AcqdatApiWeb.Validators.Sensor do
 
   defparams(
     verify_sensor_params(%{
-      name!: :string,
-      device_id!: :integer,
-      sensor_type_id!: :integer
+      name!: :string
     })
   )
 

@@ -1,6 +1,5 @@
 defmodule AcqdatCore.Domain.Notification.Worker do
   use GenServer
-  alias AcqdatCore.Domain.Notification
   alias AcqdatCore.Domain.Notification.Server
 
   def start_link(_) do
@@ -17,8 +16,7 @@ defmodule AcqdatCore.Domain.Notification.Worker do
   end
 
   @impl GenServer
-  def handle_cast({:notify_handler, params}, _state) do
-    Notification.handle_notification(params)
+  def handle_cast({:notify_handler, _params}, _state) do
     Server.finished(self())
     {:noreply, nil}
   end
