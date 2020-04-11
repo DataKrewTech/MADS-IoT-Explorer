@@ -2,7 +2,7 @@ defmodule AcqdatCore.Schema.UserSetting do
   @moduledoc """
   Models a UserSetting in the system.
 
-  It will include all the user_settings related dat of users
+  It will include all the user_settings related data of users
 
   It has two important categories:
   - `data_settings`
