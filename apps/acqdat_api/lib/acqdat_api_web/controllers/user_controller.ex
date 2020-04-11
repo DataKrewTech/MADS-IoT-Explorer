@@ -22,17 +22,4 @@ defmodule AcqdatApiWeb.UserController do
         |> send_error(404, "Resource Not Found")
     end
   end
-
-  defp load_user(%{params: %{"id" => user_id}} = conn, _params) do
-    {user_id, _} = Integer.parse(user_id)
-
-    case UserModel.get(user_id) do
-      {:ok, user} ->
-        assign(conn, :user, user)
-
-      {:error, _message} ->
-        conn
-        |> put_status(404)
-    end
-  end
 end
