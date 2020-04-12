@@ -41,6 +41,7 @@ defmodule AcqdatCore.Schema.Asset do
     field(:name, :string)
     field(:parent_id, :integer)
     field(:lft, :integer)
+    field(:properties, {:array, :string})
     field(:rgt, :integer)
     field(:metadata, :map)
     field(:description, :string)
@@ -61,7 +62,7 @@ defmodule AcqdatCore.Schema.Asset do
   end
 
   @required_params ~w(uuid slug parent_id org_id)a
-  @optional_params ~w(name lft rgt metadata description)a
+  @optional_params ~w(name lft rgt metadata description properties)a
 
   @required_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
   @permitted @required_params ++ @optional_params

@@ -8,18 +8,20 @@ defmodule AcqdatCore.Seed.Asset do
     {
     "Bintan Factory",
       [
-        {"Wet Process", []},
-        {"Dry Process", []}
-      ]
+        {"Wet Process",[], ["voltage", "current", "power", "x_axis_vel", "z_axis_vel", "x_axis_acc"]},
+        {"Dry Process", [], ["temperature"]}
+      ],
+      []
     },
     {
       "Singapore Office",
       [
-        {"Common Space", []},
-        {"Executive Space", []}
-      ]
+        {"Common Space", [], ["occupancy"]},
+        {"Executive Space", [], ["occupancy"]}
+      ],
+      ["voltage", "current", "power"]
     },
-    { "Ipoh Factory", []}
+    { "Ipoh Factory", [], ["air_temperature", "o2_level", "co2_level", "co_level", "soil_humidity", "n_level", "p_level"]}
   ]
 
   def seed_asset!() do
@@ -28,7 +30,7 @@ defmodule AcqdatCore.Seed.Asset do
     end
   end
 
-  def create_taxonomy({parent, children}) do
+  def create_taxonomy({parent, children, properties}) do
     [org] = Repo.all(Organisation)
     asset =
       Repo.preload(
@@ -38,7 +40,8 @@ defmodule AcqdatCore.Seed.Asset do
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second), 
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           uuid: UUID.uuid1(:hex),
-          slug: Slugger.slugify(org.name <> parent)
+          slug: Slugger.slugify(org.name <> parent),
+          properties: properties
           },
         :org
       )
@@ -56,7 +59,7 @@ defmodule AcqdatCore.Seed.Asset do
     |> AsNestedSet.execute(Repo)
   end
 
-  defp create_taxon({parent, children}, root) do
+  defp create_taxon({parent, children, properties}, root) do
 
     child =
       Repo.preload(
@@ -67,7 +70,8 @@ defmodule AcqdatCore.Seed.Asset do
           uuid: UUID.uuid1(:hex), 
           slug: Slugger.slugify(root.org.name <> root.name <> parent), 
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second), 
-          updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+          updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+          properties: properties
           }, 
           [:org])
 

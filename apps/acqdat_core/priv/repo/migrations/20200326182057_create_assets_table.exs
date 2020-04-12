@@ -9,6 +9,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateAssetsTable do
       add(:parent_id, :integer)
       add(:lft, :integer)
       add(:rgt, :integer)
+      add(:properties, {:array, :string}, default: [])
       add(:metadata, :map)
       add(:name, :string)      
       add(:description, :text)
