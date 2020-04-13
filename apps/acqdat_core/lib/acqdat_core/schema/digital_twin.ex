@@ -7,6 +7,8 @@ defmodule AcqdatCore.Schema.DigitalTwin do
 
   use AcqdatCore.Schema
 
+  @unique_name_error "category exist for organisation"
+
   @typedoc """
   `name`: Name for easy identification of the digital twin.
   """
@@ -31,11 +33,13 @@ defmodule AcqdatCore.Schema.DigitalTwin do
     digital_twin
     |> cast(params, @permitted)
     |> validate_required(@required_params)
+    |> unique_constraint(:name, message: @unique_name_error)
   end
 
   def update_changeset(%__MODULE__{} = digital_twin, params) do
     digital_twin
     |> cast(params, @permitted)
     |> validate_required(@update_required_params)
+    |> unique_constraint(:name, message: @unique_name_error)
   end
 end

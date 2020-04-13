@@ -19,6 +19,7 @@ defmodule AcqdatCore.Schema.Asset do
   use AcqdatCore.Schema
 
   alias AcqdatCore.Schema.Organisation
+  alias AcqdatCore.Schema.AssetCategory
 
   use AsNestedSet, scope: [:org_id]
 
@@ -57,11 +58,12 @@ defmodule AcqdatCore.Schema.Asset do
     field(:image, :any, virtual: true)
 
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:asset_category, AssetCategory, on_replace: :raise)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug parent_id org_id)a
+  @required_params ~w(uuid slug parent_id org_id asset_category_id)a
   @optional_params ~w(name lft rgt metadata description properties)a
 
   @required_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
