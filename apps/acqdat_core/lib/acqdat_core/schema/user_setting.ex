@@ -63,7 +63,10 @@ defmodule AcqdatCore.Schema.UserSetting do
 
   def update_changeset(%__MODULE__{} = user_setting, params) do
     user_setting
-    |> cast(params, @params)
+    |> cast(params, @permitted)
+    |> cast_embed(:visual_settings, with: &VisualSettings.changeset/2)
+    |> cast_embed(:data_settings, with: &DataSettings.changeset/2)
+    |> validate_required(@required)
   end
 end
 

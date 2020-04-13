@@ -33,7 +33,7 @@ defmodule AcqdatApiWeb.Router do
     #   only: [:create, :update, :delete, :index, :show]
 
     resources "/users", UserController, only: [:show] do
-      resources "/settings", UserSettingController, only: [:create]
+      resources "/settings", UserSettingController, only: [:create, :update]
     end
 
     resources "/user_widgets", Widgets.UserController, only: [:index, :create]
