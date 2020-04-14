@@ -29,8 +29,8 @@ defmodule AcqdatApiWeb.Router do
     post "/sign-out", AuthController, :sign_out
     resources "/org", OrganisationController, only: [:show]
 
-    # resources "/widget-type", Widgets.WidgetTypeController,
-    #   only: [:create, :update, :delete, :index, :show]
+    resources "/widget-type", Widgets.WidgetTypeController,
+      only: [:create, :update, :delete, :index, :show]
 
     resources "/users", UserController, only: [:show] do
       resources "/settings", UserSettingController, only: [:create, :update]
@@ -40,6 +40,8 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/widget", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]
+
+    get "/search", Widgets.WidgetController, :search_widget
 
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
 

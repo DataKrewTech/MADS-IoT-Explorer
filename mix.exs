@@ -61,7 +61,10 @@ defmodule AcqdatUmbrella.MixProject do
       {:sobelow, "~> 0.7", only: [:dev, :test], runtime: false},
 
       # JSON API View
-      {:ja_serializer, "~> 0.15"}
+      {:ja_serializer, "~> 0.15"},
+
+      # elasticsearch
+      {:tirexs, "~> 0.8"}
     ]
   end
 

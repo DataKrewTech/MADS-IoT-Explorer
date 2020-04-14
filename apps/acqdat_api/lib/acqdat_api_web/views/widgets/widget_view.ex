@@ -54,4 +54,20 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
       widget_type: render_one(widget.widget_type, WidgetTypeView, "widget_type.json")
     }
   end
+
+  def render("hits.json", %{hits: hits}) do
+    %{
+      hits: render_many(hits.hits, WidgetView, "source.json")
+    }
+  end
+
+  def render("source.json", %{widget: %{_source: hits}}) do
+    %{
+      id: hits.id,
+      category: hits.category,
+      label: hits.label,
+      properties: hits.properties,
+      uuid: hits.uuid
+    }
+  end
 end
