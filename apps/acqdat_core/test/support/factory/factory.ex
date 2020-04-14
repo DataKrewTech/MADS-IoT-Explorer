@@ -1,6 +1,8 @@
 defmodule AcqdatCore.Support.Factory do
   use ExMachina.Ecto, repo: AcqdatCore.Repo
   use AcqdatCore.Schema
+  use AcqdatCore.Factory.Hierarchy
+
   alias AcqdatApiWeb.Guardian
   import Plug.Conn
 
@@ -71,22 +73,6 @@ defmodule AcqdatCore.Support.Factory do
   def digital_twin_factory() do
     %DigitalTwin{
       name: sequence(:digital_twin, &"digital_twin#{&1}")
-    }
-  end
-
-  def organisation_factory() do
-    %Organisation{
-      uuid: UUID.uuid1(:hex),
-      name: sequence(:org_name, &"org#{&1}"),
-      description: "new organisation"
-    }
-  end
-
-  def asset_factory() do
-    %Asset{
-      name: sequence(:org_name, &"org#{&1}"),
-      org: build(:organisation),
-      parent_id: UUID.uuid1(:hex)
     }
   end
 
@@ -163,6 +149,9 @@ defmodule AcqdatCore.Support.Factory do
 
     changeset = ToolReturn.changeset(%ToolReturn{}, return_params)
     Repo.insert(changeset)
+  end
+
+  def organisation() do
   end
 
   def setup_conn(%{conn: conn}) do

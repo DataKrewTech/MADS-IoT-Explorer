@@ -42,7 +42,7 @@ defmodule AcqdatCore.Schema.Organisation do
   def update_changeset(%__MODULE__{} = organisation, params) do
     organisation
     |> cast(params, @permitted)
-    |> validate_required(@update_required_params)
+    |> validate_required(@required_params)
     |> common_changeset()
   end
 

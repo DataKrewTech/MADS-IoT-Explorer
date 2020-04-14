@@ -15,7 +15,6 @@ defmodule AcqdatCore.Repo.Migrations.CreateAssetsTable do
     create table("acqdat_asset") do
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
-      add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
       add(:parent_id, :integer)
       add(:lft, :integer)
       add(:rgt, :integer)
@@ -26,10 +25,15 @@ defmodule AcqdatCore.Repo.Migrations.CreateAssetsTable do
       add(:mapped_parameters, {:array, :map}, default: [])
       add(:image_url, :string)
 
+      #associations
+      add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
+      add(:asset_category_id, references("acqdat_asset_categories", on_delete: :restrict))
+
       timestamps(type: :timestamptz)
     end
 
     create unique_index("acqdat_asset_categories", [:name, :organisation_id])
+    create unique_index("acqdat_asset_categories", [:uuid])
     create unique_index("acqdat_asset", [:name, :parent_id, :org_id])
     create unique_index("acqdat_asset", [:slug])
     create unique_index("acqdat_asset", [:uuid])

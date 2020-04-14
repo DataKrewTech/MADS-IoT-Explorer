@@ -63,8 +63,8 @@ defmodule AcqdatCore.Schema.Asset do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug parent_id org_id asset_category_id)a
-  @optional_params ~w(name lft rgt metadata description properties)a
+  @required_params ~w(uuid slug parent_id org_id )a
+  @optional_params ~w(name lft rgt metadata description properties image image_url asset_category_id)a
 
   @required_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
   @permitted @required_params ++ @optional_params
@@ -96,6 +96,10 @@ defmodule AcqdatCore.Schema.Asset do
     |> assoc_constraint(:org)
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
+    |> unique_constraint(:name,
+      name: :acqdat_asset_name_parent_id_org_id_index,
+      message: "unique name under hierarchy"
+    )
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do

@@ -1,5 +1,4 @@
 defmodule AcqdatCore.Schema.AssetCategory do
-
   @moduledoc """
   Models an AssetCategory
 
@@ -7,6 +6,7 @@ defmodule AcqdatCore.Schema.AssetCategory do
   E.g. if a truck is an asset in tracking company then we can
   create multiple assets for different trucks and group them
   under the category _truck_.
+  An asset category has unique name per organisation.
   """
 
   use AcqdatCore.Schema
@@ -20,7 +20,7 @@ defmodule AcqdatCore.Schema.AssetCategory do
     field(:description, :string)
     field(:uuid, :string)
 
-    #associations
+    # associations
     belongs_to(:organisation, Organisation)
 
     timestamps(type: :utc_datetime)
@@ -35,10 +35,10 @@ defmodule AcqdatCore.Schema.AssetCategory do
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> add_uuid()
-  end
-
-  def update_changeset() do
-
+    |> unique_constraint(:name,
+      name: :acqdat_asset_categories_name_organisation_id_index,
+      message: "unique name per organisation"
+    )
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
@@ -46,4 +46,5 @@ defmodule AcqdatCore.Schema.AssetCategory do
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
+  defp add_uuid(changeset), do: changeset
 end
