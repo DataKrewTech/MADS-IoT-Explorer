@@ -1,62 +1,76 @@
-# defmodule AcqdatCore.Schema.SensorDataTest do
-#   use ExUnit.Case, async: true
-#   use AcqdatCore.DataCase
-#   import AcqdatCore.Support.Factory
+defmodule AcqdatCore.Schema.SensorDataTest do
+  use ExUnit.Case, async: true
+  use AcqdatCore.DataCase
+  import AcqdatCore.Support.Factory
 
-#   alias AcqdatCore.Schema.SensorData
+  alias AcqdatCore.Schema.SensorsData
 
-#   describe "changeset/2" do
-#     setup do
-#       device = insert(:device)
+  describe "changeset/2" do
+    setup do
+      sensor = insert(:sensor)
 
-#       sensor_type =
-#         insert(:sensor_type,
-#           name: "Temperature",
-#           make: "From Adafruit",
-#           identifier: "temperature",
-#           visualizer: "pie-chart",
-#           value_keys: ["temp"]
-#         )
+      [sensor: sensor]
+    end
 
-#       sensor =
-#         insert(:sensor,
-#           device: device,
-#           sensor_type: sensor_type,
-#           name: "Temperature",
-#           uuid: UUID.uuid1(:hex)
-#         )
+    test "returns a valid changeset and makes insert", context do
+      %{sensor: sensor} = context
 
-#       [sensor: sensor]
-#     end
+      params = %{
+        parameters: [%{data_type: "string", name: "Voltage", value: "456"}],
+        inserted_timestamp: DateTime.utc_now(),
+        sensor_id: sensor.id,
+        org_id: sensor.org_id
+      }
 
-#     test "returns a valid changeset and makes insert", context do
-#       %{sensor: sensor} = context
+      %{valid?: validity} = changeset = SensorsData.changeset(%SensorsData{}, params)
+      assert validity
 
-#       params = %{
-#         datapoint: %{"temp" => 23, "humid" => 10},
-#         inserted_timestamp: DateTime.utc_now(),
-#         sensor_id: sensor.id
-#       }
+      assert {:ok, data} = Repo.insert(changeset)
+    end
 
-#       %{valid?: validity} = changeset = SensorData.changeset(%SensorData{}, params)
-#       assert validity
+    test "fails if inserted_timestamp is not present", context do
+      %{sensor: sensor} = context
 
-#       assert {:ok, data} = Repo.insert(changeset)
-#     end
+      params = %{
+        parameters: [%{data_type: "string", name: "Voltage", value: "456"}],
+        sensor_id: sensor.id,
+        org_id: sensor.org_id
+      }
 
-#     test "fails if sensor not found" do
-#       params = %{
-#         datapoint: %{"temp" => 23, "humid" => 10},
-#         inserted_timestamp: DateTime.utc_now(),
-#         sensor_id: -1
-#       }
+      %{valid?: validity} = changeset = SensorsData.changeset(%SensorsData{}, params)
+      refute validity
 
-#       %{valid?: validity} = changeset = SensorData.changeset(%SensorData{}, params)
-#       assert validity
+      assert %{inserted_timestamp: ["can't be blank"]} = errors_on(changeset)
+    end
 
-#       assert {:error, result_changeset} = Repo.insert(changeset)
+    test "fails if organisation not present", context do
+      %{sensor: sensor} = context
 
-#       assert %{sensor: ["does not exist"]} == errors_on(result_changeset)
-#     end
-#   end
-# end
+      params = %{
+        parameters: [%{data_type: "string", name: "Voltage", value: "456"}],
+        inserted_timestamp: DateTime.utc_now(),
+        sensor_id: sensor.id
+      }
+
+      %{valid?: validity} = changeset = SensorsData.changeset(%SensorsData{}, params)
+      refute validity
+
+      assert %{org_id: ["can't be blank"]} = errors_on(changeset)
+    end
+
+    test "fails if sensor not present", context do
+      %{sensor: sensor} = context
+
+      params = %{
+        parameters: [%{data_type: "string", name: "Voltage", value: "456"}],
+        inserted_timestamp: DateTime.utc_now(),
+        org_id: sensor.org_id
+      }
+
+      %{valid?: validity} = changeset = SensorsData.changeset(%SensorsData{}, params)
+      refute validity
+
+      assert %{sensor_id: ["can't be blank"]} = errors_on(changeset)
+    end
+  end
+end

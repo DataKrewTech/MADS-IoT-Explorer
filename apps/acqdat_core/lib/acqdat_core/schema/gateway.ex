@@ -27,12 +27,6 @@ defmodule AcqdatCore.Schema.Gateway do
     field(:access_token, :string, null: false)
     field(:serializer, :map)
 
-    embeds_many :parameters, Parameters do
-      field(:name, :string, null: false)
-      field(:uuid, :string, null: false)
-      field(:data_type, :string, null: false)
-    end
-
     # field(:image_url, :string)
     # field(:image, :any, virtual: true)
 
@@ -42,7 +36,8 @@ defmodule AcqdatCore.Schema.Gateway do
   end
 
   @required_params ~w(access_token slug uuid org_id)a
-  @optional_params ~w(name parent_type description parent_id parameters serializer)a
+  @optional_params ~w(name parent_type description parent_id serializer)a
+  @embedded_required_params ~w(name uuid data_type value)a
 
   @permitted @required_params ++ @optional_params
 
@@ -68,7 +63,6 @@ defmodule AcqdatCore.Schema.Gateway do
 
   def common_changeset(changeset) do
     changeset
-    |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> assoc_constraint(:org)
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)

@@ -22,7 +22,8 @@ defmodule AcqdatCore.Support.Factory do
     Sensor,
     DigitalTwin,
     Organisation,
-    Asset
+    Asset,
+    Gateway
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
@@ -81,6 +82,16 @@ defmodule AcqdatCore.Support.Factory do
       uuid: UUID.uuid1(:hex),
       name: sequence(:sensor_name, &"Sensor#{&1}"),
       slug: sequence(:sensor_name, &"Sensor#{&1}"),
+      org: build(:organisation)
+    }
+  end
+
+  def gateway_factory() do
+    %Gateway{
+      uuid: UUID.uuid1(:hex),
+      name: sequence(:gateway_name, &"Gateway#{&1}"),
+      access_token: sequence(:gateway_name, &"Gateway#{&1}"),
+      slug: sequence(:gateway_name, &"Gateway#{&1}"),
       org: build(:organisation)
     }
   end
