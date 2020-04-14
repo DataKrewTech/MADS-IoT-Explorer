@@ -37,6 +37,8 @@ defmodule AcqdatApiWeb.Router do
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+    resources "/widget-type", Widgets.WidgetTypeController,
+      only: [:create, :update, :delete, :index, :show]
 
     resources "/users", UserController, only: [:show] do
       resources "/settings", UserSettingController, only: [:create, :update], as: :settings
@@ -49,6 +51,8 @@ defmodule AcqdatApiWeb.Router do
 
   # TODO: Need to remove this scope, after everything is moved to new routes
   scope "/", AcqdatApiWeb do
+    get "/search", Widgets.WidgetController, :search_widget
+
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
 
     resources "/digital-twin", DigitalTwinController,

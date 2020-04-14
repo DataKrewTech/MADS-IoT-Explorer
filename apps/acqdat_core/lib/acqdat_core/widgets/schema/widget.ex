@@ -80,7 +80,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
         ) :: Ecto.Changeset.t()
   def update_changeset(%__MODULE__{} = widget, params) do
     widget
-    |> cast(params, @params)
+    |> cast(params, @permitted)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do

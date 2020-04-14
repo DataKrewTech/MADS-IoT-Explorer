@@ -1,6 +1,7 @@
 defmodule AcqdatApiWeb.Widgets.WidgetController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.Widgets.Widget
+  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.Widgets.WidgetType, as: WTModel
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
@@ -8,7 +9,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Widgets.Widget
 
-  plug :load_widget when action in [:show]
+  plug :load_widget when action in [:show, :update, :delete]
   plug :load_widget_type when action in [:create]
 
   def index(conn, params) do
@@ -46,6 +47,8 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, widget}} <- {:create, Widget.create(data)} do
+          ElasticSearch.create("widgets", widget)
+
           conn
           |> put_status(200)
           |> render("widget.json", %{widget: widget})
@@ -106,6 +109,8 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
         case WidgetModel.update(widget, params) do
           {:ok, widget} ->
+            ElasticSearch.update("widgets", widget)
+
             conn
             |> put_status(200)
             |> render("widget.json", %{widget: widget})
@@ -123,12 +128,18 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     end
   end
 
+  def search_widget(conn, %{"label" => label}) do
+    with {:ok, hits} <- ElasticSearch.search_widget(label, 3),
+         do: conn |> put_status(200) |> render("hits.json", %{hits: hits})
+  end
+
   def delete(conn, _params) do
     case conn.status do
       nil ->
         case WidgetModel.delete(conn.assigns.widget) do
           {:ok, widget} ->
-            ImageDeletion.delete_operation(widget, "widget")
+            ElasticSearch.delete("widgets", widget.id)
+            Task.async(ImageDeletion.delete_operation(widget, "widget"))
 
             conn
             |> put_status(200)

@@ -6,9 +6,8 @@ defmodule AcqdatApiWeb.Validators.Widgets.Widget do
       widget_type_id!: :integer,
       label!: :string,
       properties!: :map,
-      settings!: :map,
       policies: :map,
-      category: :string,
+      category: {:array, :string},
       default_values!: :map,
       image_url: :string
     })

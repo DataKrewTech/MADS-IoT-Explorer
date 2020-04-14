@@ -25,6 +25,8 @@ config :acqdat_api, AcqdatApiWeb.Endpoint,
 
 config :acqdat_core, AcqdatCore.Mailer, adapter: Bamboo.LocalAdapter
 
+config :tirexs, :uri, "http://127.0.0.1:9200"
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
