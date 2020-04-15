@@ -3,10 +3,11 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatApi.User
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
+  import AcqdatApiWeb.Validators.User
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
-  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update]
+  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :set_assets, :set_apps]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -42,6 +43,52 @@ defmodule AcqdatApiWeb.UserController do
               "error" => true,
               "message:" => message
             })
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def assets(conn, %{"assets" => assets}) do
+    case conn.status do
+      nil ->
+        %{assigns: %{user: user}} = conn
+
+        with {:done, {:ok, user}} <- {:done, User.set_asset(user, assets)} do
+          conn
+          |> put_status(200)
+          |> render("user_assets.json", %{user: user})
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def apps(conn, %{"apps" => apps}) do
+    case conn.status do
+      nil ->
+        %{assigns: %{user: user}} = conn
+
+        with {:done, {:ok, user}} <- {:done, User.set_apps(user, apps)} do
+          conn
+          |> put_status(200)
+          |> render("user_apps.json", %{user: user})
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message)
         end
 
       404 ->

@@ -64,6 +64,39 @@ defmodule AcqdatApiWeb.UserView do
     }
   end
 
+  def render("user_assets.json", %{user: user}) do
+    %{
+      id: user.id,
+      email: user.email,
+      assets: render_many(user.assets, UserView, "asset.json")
+    }
+  end
+
+  def render("asset.json", asset) do
+    %{
+      type: "Asset",
+      id: asset.user.id,
+      name: asset.user.name,
+      properties: asset.user.properties
+    }
+  end
+
+  def render("user_apps.json", %{user: user}) do
+    %{
+      id: user.id,
+      email: user.email,
+      apps: render_many(user.apps, UserView, "app.json")
+    }
+  end
+
+  def render("app.json", app) do
+    %{
+      id: app.user.id,
+      name: app.user.name,
+      description: app.user.description
+    }
+  end
+
   defp preload_role(id) do
     Map.from_struct(Repo.get(Role, id))
   end

@@ -18,8 +18,7 @@ defmodule AcqdatCore.Schema.Asset do
   """
   use AcqdatCore.Schema
 
-  alias AcqdatCore.Schema.Organisation
-  alias AcqdatCore.Schema.AssetCategory
+  alias AcqdatCore.Schema.{Organisation, AssetCategory, User}
 
   use AsNestedSet, scope: [:org_id]
 
@@ -59,6 +58,7 @@ defmodule AcqdatCore.Schema.Asset do
 
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:asset_category, AssetCategory, on_replace: :raise)
+    many_to_many(:users, User, join_through: "asset_user")
 
     timestamps(type: :utc_datetime)
   end
