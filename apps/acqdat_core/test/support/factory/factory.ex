@@ -26,6 +26,7 @@ defmodule AcqdatCore.Support.Factory do
     Organisation,
     Asset,
     Gateway
+    Role
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
@@ -59,6 +60,13 @@ defmodule AcqdatCore.Support.Factory do
         "latitude" => 11.2,
         "longitude" => 20.22
       }
+    }
+  end
+
+  def role_factory() do
+    %Role{
+      name: "admin",
+      description: "Admin of the organisation"
     }
   end
 
