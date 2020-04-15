@@ -93,7 +93,10 @@ defmodule AcqdatCore.MixProject do
       {:phoenix_html, "~> 2.13.2"},
 
       # Phone Number Validation
-      {:ex_phone_number, "~> 0.2"}
+      {:ex_phone_number, "~> 0.2"},
+
+      # elasticsearch
+      {:tirexs, "~> 0.8"}
     ]
   end
 
