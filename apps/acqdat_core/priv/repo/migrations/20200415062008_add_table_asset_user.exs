@@ -6,7 +6,6 @@ defmodule AcqdatCore.Repo.Migrations.AddTableAssetUser do
       add(:asset_id, references(:acqdat_asset, on_delete: :delete_all))
       add(:user_id, references(:users, on_delete: :delete_all))
     end
-
     create(index(:asset_user, [:asset_id]))
     create(index(:asset_user, [:user_id]))
 
