@@ -10,6 +10,9 @@ defmodule AcqdatCore.Seed.Widget do
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
   alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
   alias AcqdatCore.Widgets.Schema.Widget.DataSettings
+  import Tirexs.HTTP
+  import Tirexs.Search
+
 
   @non_value_types ~w(object list)a
   @highchart_struct %HighCharts{}
@@ -114,6 +117,7 @@ defmodule AcqdatCore.Seed.Widget do
     end)
     |> Enum.each(fn data ->
       Repo.insert!(data)
+      create("widgets", data)
     end)
   end
 
@@ -202,5 +206,14 @@ defmodule AcqdatCore.Seed.Widget do
     else
       %{}
     end
+  end
+
+  def create(type, params) do
+        post("#{type}/_doc/#{params.id}",
+          id: params.id,
+          label: params.label,
+          uuid: params.uuid,
+          properties: params.properties,
+          category: params.category)
   end
 end
