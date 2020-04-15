@@ -10,6 +10,8 @@ defmodule AcqdatApiWeb.UserController do
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
   plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps]
 
+  plug :load_user when action in [:set_assets, :set_apps]
+
   def show(conn, %{"id" => id}) do
     case conn.status do
       nil ->

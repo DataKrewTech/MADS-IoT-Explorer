@@ -7,7 +7,6 @@ defmodule AcqdatCore.Schema.User do
   alias Comeonin.Argon2
   alias AcqdatCore.Schema.{Role, UserSetting, Organisation, Asset, App}
   alias AcqdatCore.Repo
-  import Ecto.Query
 
   @password_min_length 8
   @type t :: %__MODULE__{}
@@ -86,6 +85,22 @@ defmodule AcqdatCore.Schema.User do
     user
     |> Repo.preload(:apps)
     |> change()
+    |> put_assoc(:apps, apps)
+  end
+
+  def associate_asset_changeset(user, assets) do
+    user = Repo.preload(user, [:assets])
+
+    user
+    |> cast(%{}, @required)
+    |> put_assoc(:assets, assets)
+  end
+
+  def associate_app_changeset(user, apps) do
+    user = Repo.preload(user, [:apps])
+
+    user
+    |> cast(%{}, @required)
     |> put_assoc(:apps, apps)
   end
 

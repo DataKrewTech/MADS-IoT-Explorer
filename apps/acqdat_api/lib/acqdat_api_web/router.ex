@@ -39,11 +39,13 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/widget-type", Widgets.WidgetTypeController,
       only: [:create, :update, :delete, :index, :show]
+    )
 
     get "/search_widgets", Widgets.WidgetController, :search_widget
 
-    resources "/digital-twin", DigitalTwinController,
+    resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
+    )
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
