@@ -3,7 +3,7 @@ defmodule AcqdatCore.Model.User do
   Exposes APIs for handling user related fields.
   """
 
-  alias AcqdatCore.Schema.{User, Asset, App, UserApp, UserAsset}
+  alias AcqdatCore.Schema.{User, Asset, App}
   alias AcqdatCore.Repo
   import Ecto.Query
 
@@ -27,7 +27,7 @@ defmodule AcqdatCore.Model.User do
   Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case Repo.get(User, id) |> Repo.preload([:user_setting]) do
+    case Repo.get(User, id) |> Repo.preload([:user_setting]) |> Repo.preload([:apps]) do
       nil ->
         {:error, "not found"}
 
@@ -86,7 +86,7 @@ defmodule AcqdatCore.Model.User do
 
     user_apps =
       App
-      |> where([app], app.id in ^app_ids)
+      |> where([app], app.id in ^new_app_ids)
       |> Repo.all()
 
     user
