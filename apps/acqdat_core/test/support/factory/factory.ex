@@ -59,7 +59,8 @@ defmodule AcqdatCore.Support.Factory do
   def app_factory() do
     %App{
       name: sequence(:name, &"App_Name-#{&1}"),
-      description: "Demo App Testing"
+      description: "Demo App Testing",
+      uuid: UUID.uuid1(:hex)
     }
   end
 
