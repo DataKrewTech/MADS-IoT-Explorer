@@ -48,6 +48,13 @@ defmodule AcqdatCore.Support.Factory do
     }
   end
 
+  def app_factory() do
+    %App{
+      name: sequence(:name, &"App_Name-#{&1}"),
+      description: "Demo App Testing"
+    }
+  end
+
   def user_setting_factory() do
     %UserSetting{
       visual_settings: %{
