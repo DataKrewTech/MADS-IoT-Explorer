@@ -13,7 +13,8 @@ defmodule AcqdatCore.Schema.UserTest do
                first_name: ["can't be blank"],
                password: ["can't be blank"],
                password_confirmation: ["can't be blank"],
-               org_id: ["can't be blank"]
+               org_id: ["can't be blank"],
+               role_id: ["can't be blank"]
              } == errors_on(changeset)
     end
 
@@ -26,7 +27,9 @@ defmodule AcqdatCore.Schema.UserTest do
         email: "tony@starkindustries.com",
         password: "marvel_connect",
         password_confirmation: "marvel",
-        org_id: org.id
+        org_id: org.id,
+        role_id: 3,
+        is_invited: false
       }
 
       changeset = User.changeset(%User{}, params)
@@ -45,7 +48,9 @@ defmodule AcqdatCore.Schema.UserTest do
         email: "tonystarkindustries.com",
         password: "marvel_connect",
         password_confirmation: "marvel_connect",
-        org_id: org.id
+        org_id: org.id,
+        role_id: 3,
+        is_invited: false
       }
 
       changeset = User.changeset(%User{}, params)
