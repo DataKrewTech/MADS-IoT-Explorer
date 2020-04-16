@@ -89,18 +89,16 @@ defmodule AcqdatCore.Schema.User do
   end
 
   def associate_asset_changeset(user, assets) do
-    user = Repo.preload(user, [:assets])
-
     user
-    |> cast(%{}, @required)
+    |> Repo.preload(:assets)
+    |> change()
     |> put_assoc(:assets, assets)
   end
 
   def associate_app_changeset(user, apps) do
-    user = Repo.preload(user, [:apps])
-
     user
-    |> cast(%{}, @required)
+    |> Repo.preload(:apps)
+    |> change()
     |> put_assoc(:apps, apps)
   end
 

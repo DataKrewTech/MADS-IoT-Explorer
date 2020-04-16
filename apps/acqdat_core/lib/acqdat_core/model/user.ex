@@ -86,7 +86,7 @@ defmodule AcqdatCore.Model.User do
 
     user_apps =
       App
-      |> where([app], app.id in ^new_app_ids)
+      |> where([app], app.id in ^app_ids)
       |> Repo.all()
 
     user
