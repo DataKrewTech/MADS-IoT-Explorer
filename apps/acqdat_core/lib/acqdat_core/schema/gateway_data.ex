@@ -28,8 +28,8 @@ defmodule AcqdatCore.Schema.GatewayData do
     end
 
     # associations
-    belongs_to(:gateway, Gateway, on_replace: :delete, primary_key: true)
-    belongs_to(:org, Organisation, on_replace: :delete, primary_key: true)
+    belongs_to(:gateway, Gateway, on_replace: :raise, primary_key: true)
+    belongs_to(:org, Organisation, on_replace: :raise, primary_key: true)
 
     timestamps(type: :utc_datetime, updated_at: false)
   end
