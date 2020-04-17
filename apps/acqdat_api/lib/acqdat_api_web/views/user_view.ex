@@ -26,6 +26,15 @@ defmodule AcqdatApiWeb.UserView do
     }
   end
 
+  def render("user_details_without_user_setting.json", %{user_details: user_details}) do
+    %{
+      id: user_details.id,
+      email: user_details.email,
+      first_name: user_details.first_name,
+      last_name: user_details.last_name
+    }
+  end
+
   def render("user_setting.json", setting) do
     %{
       user_setting_id: setting.user.id,

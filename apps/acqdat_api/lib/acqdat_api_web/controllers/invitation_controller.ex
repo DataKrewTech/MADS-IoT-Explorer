@@ -6,14 +6,13 @@ defmodule AcqdatApiWeb.InvitationController do
   # TODO: remove below alias and import, after current_user logic is implemented
   alias AcqdatCore.Schema.User
   alias AcqdatCore.Repo
-  import Ecto.Query
 
   plug :validate_inviter when action in [:create]
 
   def create(conn, %{"invitation" => invite_attrs}) do
     case conn.status do
       nil ->
-        changeset = verify_invitation_params(invite_attrs)
+        changeset = verify_create_params(invite_attrs)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:invite, {:ok, message}} <- {:invite, Invitation.create(data)} do
@@ -24,7 +23,7 @@ defmodule AcqdatApiWeb.InvitationController do
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
 
-          {:create, {:error, message}} ->
+          {:invite, {:error, message}} ->
             send_error(conn, 400, message)
         end
 

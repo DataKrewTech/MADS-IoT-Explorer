@@ -49,7 +49,7 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
     get "/users/search", UserController, :search_users
 
-    resources "/users", UserController, only: [:show, :update, :index] do
+    resources "/users", UserController, only: [:show, :create, :update, :index] do
       resources "/settings", UserSettingController, only: [:create, :update], as: :settings
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end

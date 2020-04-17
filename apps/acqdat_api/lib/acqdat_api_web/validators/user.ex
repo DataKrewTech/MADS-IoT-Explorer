@@ -12,4 +12,14 @@ defmodule AcqdatApiWeb.Validators.User do
       apps!: {:array, :map}
     })
   )
+
+  defparams(
+    verify_create_params(%{
+      email!: :string,
+      first_name: :string,
+      last_name: :string,
+      password!: :string,
+      password_confirmation!: :string
+    })
+  )
 end

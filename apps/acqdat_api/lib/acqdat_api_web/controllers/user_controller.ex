@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatApi.User
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
+  import AcqdatApiWeb.Validators.User
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.User
 
@@ -20,6 +21,37 @@ defmodule AcqdatApiWeb.UserController do
           |> render("user_details.json", %{user_details: user})
         else
           {:show, {:error, message}} ->
+            send_error(conn, 400, message)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def create(conn, %{"user" => user_params, "org_id" => org_id}) do
+    case conn.status do
+      nil ->
+        [token | _] = conn |> get_req_header("invitation-token")
+
+        user_params =
+          user_params
+          |> Map.put("token", token)
+          |> Map.put("org_id", org_id)
+
+        changeset = verify_create_params(user_params)
+
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:create, {:ok, user}} <- {:create, User.create(data)} do
+          conn
+          |> put_status(200)
+          |> render("user_details_without_user_setting.json", %{user_details: user})
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
             send_error(conn, 400, message)
         end
 

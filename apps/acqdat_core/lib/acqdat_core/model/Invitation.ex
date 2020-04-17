@@ -15,4 +15,12 @@ defmodule AcqdatCore.Model.Invitation do
     |> Invitation.changeset(attrs)
     |> Repo.insert()
   end
+
+  def get_by_email(email) do
+    Repo.get_by(Invitation, email: email)
+  end
+
+  def delete(%Invitation{} = invitation) do
+    Repo.delete(invitation)
+  end
 end
