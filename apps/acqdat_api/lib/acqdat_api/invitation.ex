@@ -1,13 +1,10 @@
 defmodule AcqdatApi.Invitation do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Model.Invitation, as: InvitationModel
-  alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatCore.Mailer.UserInvitationEmail
   alias AcqdatCore.Mailer
 
-  def create(attrs) do
-    {:ok, current_user} = UserModel.get(2)
-
+  def create(attrs, current_user) do
     %{
       email: email,
       apps: apps,

@@ -3,7 +3,6 @@ defmodule AcqdatApiWeb.InvitationController do
   alias AcqdatApi.Invitation
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Invitation
-  # TODO: remove below alias and import, after current_user logic is implemented
   alias AcqdatCore.Schema.User
   alias AcqdatCore.Repo
 
@@ -13,9 +12,13 @@ defmodule AcqdatApiWeb.InvitationController do
     case conn.status do
       nil ->
         changeset = verify_create_params(invite_attrs)
+        require IEx
+        IEx.pry()
+
+        user = conn.assigns[:current_user]
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:invite, {:ok, message}} <- {:invite, Invitation.create(data)} do
+             {:invite, {:ok, message}} <- {:invite, Invitation.create(data, user)} do
           conn
           |> put_status(200)
           |> render("invite.json", message: message)
@@ -37,16 +40,15 @@ defmodule AcqdatApiWeb.InvitationController do
          %{params: %{"invitation" => %{"email" => invitee_email}}} = conn,
          _params
        ) do
-    # TODO: Need to maintain session and gets current_user from there
-    current_user = Repo.get(User, 1)
+    user = Repo.get(User, Guardian.Plug.current_resource(conn))
 
-    case invitee_email == current_user.email do
+    case invitee_email == user.email do
       true ->
         conn
         |> put_status(404)
 
       false ->
-        conn
+        assign(conn, :current_user, user)
     end
   end
 end
