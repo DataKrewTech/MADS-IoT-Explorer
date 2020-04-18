@@ -52,6 +52,9 @@ defmodule AcqdatApiWeb.Router do
   # TODO: Need to remove this scope, after everything is moved to new routes
   scope "/", AcqdatApiWeb do
     get "/search", Widgets.WidgetController, :search_widget
+    get "/search_widgets", Widgets.WidgetController, :search_widget
+    get "/search_users", Widgets.UserController, :search_users
+    get "/index_users", Widgets.UserController, :index_users
 
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
 

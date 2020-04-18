@@ -51,19 +51,29 @@ defmodule AcqdatApi.ElasticSearch do
     )
   end
 
-  def search_widget(params, retry \\ 3) do
-    case do_search(params) do
+  def search_widget(type, params, retry \\ 3) do
+    case do_widget_search(type, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
       {:error, _return_code, _hits} ->
-        search_widget(params, retry - 1)
+        search_widget(type, params, retry - 1)
     end
   end
 
-  defp do_search(params) do
+  def search_user(type, params, retry \\ 3) do
+    case do_user_search(type, params) do
+      {:ok, _return_code, hits} ->
+        {:ok, hits.hits}
+
+      {:error, _return_code, _hits} ->
+        search_user(type, params, retry - 1)
+    end
+  end
+
+  defp do_widget_search(type, params) do
     query =
-      search index: "widgets" do
+      search index: "#{type}" do
         query do
           match("label", "#{params}")
         end
@@ -72,5 +82,23 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  def search_widget(_, _retry = 0), do: :ignore
+  defp do_user_search(type, params) do
+    query =
+      search index: "#{type}" do
+        query do
+          match("first_name", "#{params}")
+        end
+      end
+
+    Tirexs.Query.create_resource(query)
+  end
+
+  def user_indexing(page) do
+    page_size = String.to_integer(page)
+    {:ok, _return_code, hits} = get("/users/_search", size: page_size)
+    {:ok, hits.hits}
+  end
+
+  def search_widget(_, _, _retry = 0), do: :ignore
+  def search_user(_, _, _retry = 0), do: :ignore
 end
