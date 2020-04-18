@@ -23,7 +23,7 @@ defmodule AcqdatApi.MixProject do
   def application do
     [
       mod: {AcqdatApi.Application, []},
-      extra_applications: [:logger, :google_maps, :runtime_tools]
+      extra_applications: [:logger, :google_maps, :runtime_tools, :gen_retry]
     ]
   end
 

@@ -47,7 +47,6 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, widget}} <- {:create, Widget.create(data)} do
-          ElasticSearch.create("widgets", widget)
 
           conn
           |> put_status(200)

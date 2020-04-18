@@ -1,7 +1,9 @@
 defmodule AcqdatApi.Widgets.Widget do
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
   alias AcqdatCore.Repo
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
+  
 
   def create(params) do
     %{
@@ -28,6 +30,7 @@ defmodule AcqdatApi.Widgets.Widget do
   end
 
   defp verify_widget({:ok, widget}) do
+    ElasticSearch.create("widgets", widget)
     widget = widget |> Repo.preload(:widget_type)
 
     {:ok,
