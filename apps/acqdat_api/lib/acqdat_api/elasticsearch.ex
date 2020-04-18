@@ -12,6 +12,7 @@ defmodule AcqdatApi.ElasticSearch do
         category: params.category
       )
     end
+
     GenRetry.retry(create_function, retries: 3, delay: 10_000)
   end
 
@@ -26,14 +27,15 @@ defmodule AcqdatApi.ElasticSearch do
         ]
       )
     end
+
     GenRetry.retry(update_function, retries: 3, delay: 10_000)
   end
 
   def delete(type, params) do
-    delete_function = 
-      fn ->
-        delete("#{type}/_doc/#{params}")
-      end
+    delete_function = fn ->
+      delete("#{type}/_doc/#{params}")
+    end
+
     GenRetry.retry(delete_function, retries: 3, delay: 10_000)
   end
 

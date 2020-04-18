@@ -66,7 +66,7 @@ defmodule AcqdatUmbrella.MixProject do
       # elasticsearch
       {:tirexs, "~> 0.8"},
 
-      #logger
+      # logger
       {:gen_retry, "~> 1.2.0"}
     ]
   end

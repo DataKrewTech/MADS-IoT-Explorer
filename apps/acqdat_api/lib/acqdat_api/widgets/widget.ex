@@ -3,7 +3,6 @@ defmodule AcqdatApi.Widgets.Widget do
   alias AcqdatCore.Repo
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
-  
 
   def create(params) do
     %{
