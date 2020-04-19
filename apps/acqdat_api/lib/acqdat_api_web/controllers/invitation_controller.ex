@@ -12,8 +12,6 @@ defmodule AcqdatApiWeb.InvitationController do
     case conn.status do
       nil ->
         changeset = verify_create_params(invite_attrs)
-        require IEx
-        IEx.pry()
 
         user = conn.assigns[:current_user]
 
