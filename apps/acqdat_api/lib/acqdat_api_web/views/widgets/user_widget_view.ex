@@ -44,13 +44,13 @@ defmodule AcqdatApiWeb.Widgets.UserView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      hits: render_many(hits.hits, UserView, "source.json")
+      users: render_many(hits.hits, UserView, "source.json")
     }
   end
 
   def render("index_hits.json", %{hits: hits}) do
     %{
-      hits: render_many(hits.hits, UserView, "source.json")
+      users: render_many(hits.hits, UserView, "source.json")
     }
   end
 
