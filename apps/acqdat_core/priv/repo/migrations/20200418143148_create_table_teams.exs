@@ -6,7 +6,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableTeams do
       add(:name, :string, null: false)
       add(:team_lead_id, :integer)
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
-      add(:enable_tracking, :boolean, default: true)
+      add(:enable_tracking, :boolean, default: false)
       timestamps(type: :timestamptz)
     end
 
