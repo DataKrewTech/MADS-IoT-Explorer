@@ -1,6 +1,7 @@
 defmodule AcqdatApiWeb.UserView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.UserView
+  alias AcqdatApiWeb.RoleView
 
   def render("user_details.json", %{user_details: user_details}) do
     %{
@@ -8,6 +9,9 @@ defmodule AcqdatApiWeb.UserView do
       email: user_details.email,
       first_name: user_details.first_name,
       last_name: user_details.last_name,
+      is_invited: user_details.is_invited,
+      role_id: user_details.role_id,
+      role: render_one(user_details.role, RoleView, "role.json"),
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json")
     }
   end

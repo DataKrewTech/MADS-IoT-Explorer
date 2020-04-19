@@ -36,12 +36,24 @@ defmodule AcqdatCore.Schema.User do
     user
     |> cast(params, @permitted)
     |> validate_required(@required)
+    |> common_changeset
+  end
+
+  def update_changeset(%__MODULE__{} = user, params) do
+    user
+    |> cast(params, @permitted)
+    |> common_changeset
+  end
+
+  def common_changeset(changeset) do
+    changeset
     |> unique_constraint(:email, name: :unique_email)
     |> validate_confirmation(:password)
     |> validate_length(:password, min: @password_min_length)
     |> validate_format(:email, ~r/@/)
     |> put_pass_hash()
     |> assoc_constraint(:org)
+    |> assoc_constraint(:role)
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do

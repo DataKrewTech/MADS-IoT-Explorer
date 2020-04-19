@@ -51,4 +51,15 @@ defmodule AcqdatCore.Model.User do
   def delete(user_id) do
     user_id |> Repo.get!(User) |> Repo.delete()
   end
+
+  @doc """
+  Update a User.
+
+  Expects `user` and update parameters as the arguments
+  """
+  def update(%User{} = user, params) do
+    changeset = User.update_changeset(user, params)
+    {:ok, user} = Repo.update(changeset)
+    {:ok, user |> Repo.preload(:role)}
+  end
 end
