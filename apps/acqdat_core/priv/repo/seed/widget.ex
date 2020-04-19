@@ -209,9 +209,8 @@ defmodule AcqdatCore.Seed.Widget do
   end
 
   def create(type, params) do
-    
-        post("#{type}/_doc/#{params.id}",
-        id: params.id,
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
       widget_type_id: params.widget_type_id,
       label: params.label,
       properties: params.properties,
@@ -219,6 +218,6 @@ defmodule AcqdatCore.Seed.Widget do
       category: params.category,
       image_url: params.image_url,
       uuid: params.uuid
-        )
+      )
   end
 end
