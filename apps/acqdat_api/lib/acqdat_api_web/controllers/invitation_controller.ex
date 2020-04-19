@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.InvitationController do
   alias AcqdatCore.Schema.User
   alias AcqdatCore.Repo
 
-  plug :validate_inviter when action in [:create]
+  plug(:validate_inviter when action in [:create])
 
   def create(conn, %{"invitation" => invite_attrs}) do
     case conn.status do
