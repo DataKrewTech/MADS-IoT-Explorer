@@ -6,12 +6,12 @@ defmodule AcqdatCore.Repo.Migrations.CreateSensorDataTable do
     create table(:acqdat_sensors_data, primary_key: false) do
       add(:inserted_timestamp, :timestamptz, null: false, primary_key: true)
 
-      add(:org_id, references("acqdat_organisation", on_delete: :delete_all),
+      add(:org_id, references("acqdat_organisation", on_delete: :raise),
         null: false,
         primary_key: true
       )
 
-      add(:sensor_id, references("acqdat_sensors", on_delete: :delete_all),
+      add(:sensor_id, references("acqdat_sensors", on_delete: :raise),
         null: false,
         primary_key: true
       )
