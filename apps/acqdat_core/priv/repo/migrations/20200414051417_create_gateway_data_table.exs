@@ -6,12 +6,12 @@ defmodule AcqdatCore.Repo.Migrations.CreateGatewayDataTable do
     create table(:acqdat_gateway_data, primary_key: false) do
       add(:inserted_timestamp, :timestamptz, null: false, primary_key: true)
 
-      add(:org_id, references("acqdat_organisation", on_delete: :raise),
+      add(:org_id, references("acqdat_organisation", on_delete: :restrict),
         null: false,
         primary_key: true
       )
 
-      add(:gateway_id, references("acqdat_gateway", on_delete: :raise),
+      add(:gateway_id, references("acqdat_gateway", on_delete: :restrict),
         null: false,
         primary_key: true
       )
