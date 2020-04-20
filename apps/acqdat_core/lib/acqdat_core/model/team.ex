@@ -5,6 +5,7 @@ defmodule AcqdatCore.Model.Team do
 
   alias AcqdatCore.Schema.{User, Asset, App, Team}
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
   @doc """
@@ -35,6 +36,12 @@ defmodule AcqdatCore.Model.Team do
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do
-    Team |> order_by(:name) |> Repo.paginate(page: page_number, page_size: page_size)
+    paginated_team_data =
+      Team |> order_by(:name) |> Repo.paginate(page: page_number, page_size: page_size)
+
+    team_data_with_preloads =
+      paginated_team_data.entries |> Repo.preload([:users, :assets, :apps])
+
+    ModelHelper.paginated_response(team_data_with_preloads, paginated_team_data)
   end
 end
