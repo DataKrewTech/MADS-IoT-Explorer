@@ -36,9 +36,9 @@ defmodule AcqdatCore.Schema.Team do
     |> validate_required(@required)
     |> unique_constraint(:name)
     |> assoc_constraint(:org)
-    |> associate_users_changeset(params[:users])
-    |> associate_assets_changeset(params[:assets])
-    |> associate_apps_changeset(params[:apps])
+    |> associate_users_changeset(params[:users] || [])
+    |> associate_assets_changeset(params[:assets] || [])
+    |> associate_apps_changeset(params[:apps] || [])
   end
 
   defp associate_users_changeset(team, user_ids) do

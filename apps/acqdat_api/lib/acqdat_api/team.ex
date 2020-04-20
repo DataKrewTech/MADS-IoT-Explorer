@@ -13,9 +13,9 @@ defmodule AcqdatApi.Team do
       users: users
     } = attrs
 
-    asset_ids = Enum.map(assets, & &1["id"])
-    app_ids = Enum.map(apps, & &1["id"])
-    user_ids = Enum.map(users, & &1["id"])
+    asset_ids = Enum.map(assets || [], & &1["id"])
+    app_ids = Enum.map(apps || [], & &1["id"])
+    user_ids = Enum.map(users || [], & &1["id"])
 
     team_details =
       %{}

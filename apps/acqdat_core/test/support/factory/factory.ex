@@ -18,6 +18,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
 
   alias AcqdatCore.Schema.{
+    Team,
     User,
     UserSetting,
     Sensor,
@@ -70,6 +71,13 @@ defmodule AcqdatCore.Support.Factory do
       token: UUID.uuid1(:hex),
       inviter: build(:user),
       role: build(:role),
+      org: build(:organisation)
+    }
+  end
+
+  def team_factory() do
+    %Team{
+      name: sequence(:name, &"Team_Name-#{&1}"),
       org: build(:organisation)
     }
   end
