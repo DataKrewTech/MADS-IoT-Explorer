@@ -41,7 +41,7 @@ defmodule AcqdatApiWeb.Router do
     resources "/widget", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]
 
-    get "/search", Widgets.WidgetController, :search_widget
+    get "/search_widgets", Widgets.WidgetController, :search_widget
 
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
 
