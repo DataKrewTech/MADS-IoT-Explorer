@@ -11,8 +11,8 @@ defmodule AcqdatApi.Invitation do
       assets: assets
     } = attrs
 
-    app_ids = Enum.map(apps, & &1["id"])
-    asset_ids = Enum.map(assets, & &1["id"])
+    app_ids = Enum.map(apps || [], & &1["id"])
+    asset_ids = Enum.map(assets || [], & &1["id"])
 
     invitation_details = %{
       "email" => email,

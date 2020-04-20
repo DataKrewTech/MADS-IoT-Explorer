@@ -25,6 +25,10 @@ defmodule AcqdatCore.Schema.Invitation do
   @optional ~w(asset_ids app_ids)a
   @permitted @optional ++ @required
 
+  @spec changeset(
+          __MODULE__.t(),
+          map
+        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = invitation, params) do
     invitation
     |> cast(params, @permitted)

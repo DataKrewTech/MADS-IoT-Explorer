@@ -27,6 +27,7 @@ defmodule AcqdatCore.Support.Factory do
     Gateway,
     Role,
     App
+    Invitation
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
@@ -59,6 +60,14 @@ defmodule AcqdatCore.Support.Factory do
     %App{
       name: sequence(:name, &"App_Name-#{&1}"),
       description: "Demo App Testing"
+    }
+  end
+  
+  def invitation_factory() do
+    %Invitation{
+      email: sequence(:email, &"ceo-#{&1}@stark.com"),
+      token: UUID.uuid1(:hex),
+      inviter: build(:user)
     }
   end
 
