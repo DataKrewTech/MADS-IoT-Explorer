@@ -92,8 +92,8 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       params = %{access_token: invalid_token()}
       conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
-      result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+      result = conn |> json_response(400)
+      assert result == %{"errors" => %{"message" => %{"__exception__" => true, "term" => 32}}}
     end
 
     test "returns error if access token garbage", context do

@@ -1,9 +1,7 @@
 defmodule AcqdatCore.Seed.User do
   alias AcqdatCore.Schema.User
-  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Repo
   import Tirexs.HTTP
-  import Tirexs.Search
 
   def seed_user!() do
     params = %{

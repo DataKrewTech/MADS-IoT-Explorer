@@ -1,7 +1,6 @@
 defmodule AcqdatApiWeb.OrganisationView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.AssetView
-  alias AcqdatApiWeb.SensorView
 
   def render("organisation_tree.json", %{org: org}) do
     %{

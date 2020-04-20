@@ -11,7 +11,6 @@ defmodule AcqdatCore.Seed.Widget do
   alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
   alias AcqdatCore.Widgets.Schema.Widget.DataSettings
   import Tirexs.HTTP
-  import Tirexs.Search
 
 
   @non_value_types ~w(object list)a
@@ -193,7 +192,7 @@ defmodule AcqdatCore.Seed.Widget do
     }
   end
 
-  def set_default_or_given_value(key, value, metadata) do
+  def set_default_or_given_value(_key, value, metadata) do
     if metadata.data_type not in @non_value_types do
       %{
         data:

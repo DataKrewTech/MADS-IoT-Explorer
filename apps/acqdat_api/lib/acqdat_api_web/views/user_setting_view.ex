@@ -1,6 +1,5 @@
 defmodule AcqdatApiWeb.UserSettingView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.UserSettingView
 
   def render("user_setting.json", %{setting: setting}) do
     %{
