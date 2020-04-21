@@ -37,6 +37,12 @@ defmodule AcqdatCore.Support.Factory do
     ToolReturn
   }
 
+  def organisation_factory() do
+    %Organisation{
+      name: sequence(:name, &"Org-#{&1}")
+    }
+  end
+
   def user_factory() do
     %User{
       first_name: sequence(:first_name, &"Tony-#{&1}"),
