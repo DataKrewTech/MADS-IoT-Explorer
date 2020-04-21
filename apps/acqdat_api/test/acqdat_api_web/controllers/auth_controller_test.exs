@@ -161,7 +161,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
     role = insert(:role)
 
     params =
-      build(:user)
+      build(:user, org_id: org.id)
       |> Map.put(:password, "stark1234")
       |> Map.put(:password_confirmation, "stark1234")
       |> Map.put(:org_id, org.id)

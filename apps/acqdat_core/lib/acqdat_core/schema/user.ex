@@ -7,6 +7,7 @@ defmodule AcqdatCore.Schema.User do
   alias Comeonin.Argon2
   alias AcqdatCore.Schema.{Role, UserSetting, Organisation, Asset, App}
   alias AcqdatCore.Repo
+  import Ecto.Query
 
   @password_min_length 8
   @type t :: %__MODULE__{}
