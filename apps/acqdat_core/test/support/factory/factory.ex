@@ -26,6 +26,7 @@ defmodule AcqdatCore.Support.Factory do
     Asset,
     Gateway,
     Role
+    App
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
