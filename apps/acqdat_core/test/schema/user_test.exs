@@ -3,6 +3,7 @@ defmodule AcqdatCore.Schema.UserTest do
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Schema.User
+  import AcqdatCore.Support.Factory
 
   describe "changeset/2" do
     test "returns error changeset on empty params" do
