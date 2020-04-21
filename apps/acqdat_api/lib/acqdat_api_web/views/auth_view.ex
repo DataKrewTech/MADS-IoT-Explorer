@@ -9,8 +9,9 @@ defmodule AcqdatApiWeb.AuthView do
     }
   end
 
-  def render("refresh.json", manifest) do
+  def render("validate_token.json", manifest) do
     %{
+      message: "Authorized",
       access_token: manifest.token
     }
   end

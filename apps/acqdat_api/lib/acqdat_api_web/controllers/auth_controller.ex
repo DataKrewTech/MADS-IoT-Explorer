@@ -21,14 +21,16 @@ defmodule AcqdatApiWeb.AuthController do
     end
   end
 
-  def refresh_token(conn, params) do
+  def validate_token(conn, params) do
     changeset = verify_refresh_params(params)
+    refresh_token = AcqdatApiWeb.Guardian.Plug.current_token(conn)
 
     with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-         {:refresh, {:ok, result}} <- {:refresh, Account.refresh_token(data)} do
+         {:refresh, {:ok, result}} <-
+           {:refresh, Account.validate_token(Map.put(data, :refresh_token, refresh_token))} do
       conn
       |> put_status(200)
-      |> render("refresh.json", token: result)
+      |> render("validate_token.json", token: result)
     else
       {:extract, {:error, error}} ->
         send_error(conn, 400, error)

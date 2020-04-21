@@ -7,7 +7,7 @@ defmodule AcqdatApi.Account do
   alias AcqdatApiWeb.Guardian
 
   @access_time_hours 5
-  @refresh_time_weeks 4
+  @refresh_time_weeks 1
 
   @doc """
   Uses `email` and `password` supplied in params to verify the user.
@@ -24,21 +24,26 @@ defmodule AcqdatApi.Account do
   end
 
   @doc """
-  Refreshes `access` token for authorization.
+  Validates the `access` token for authorization.
 
-  Takes as input `refresh_token`, and generates a new
-  access token.
-
-  > To be used when the `access_token` is expired.
+  If the token is valid return it as such otherwise, generates an acces token
+  from the supplied `refresh_token`. In case the refresh token is also expired
+  an error tuple is returned.
   """
-  @spec refresh_token(map) :: {:ok, String.t()} | {:error, String.t()}
-  def refresh_token(%{refresh_token: refresh_token}) do
-    case Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours}) do
-      {:ok, _old_stuff, {new_token, _new_claims}} ->
-        {:ok, new_token}
+  @spec validate_token(map) :: {:ok, String.t()} | {:error, String.t()}
+  def validate_token(%{refresh_token: refresh_token, access_token: access_token}) do
+    case Guardian.decode_and_verify(access_token, %{"typ" => "access"}) do
+      {:ok, _result} ->
+        {:ok, access_token}
 
-      {:error, _reason} = error ->
-        error
+      {:error, %ArgumentError{} = result} ->
+        {:error, result}
+
+      {:error, _reason} ->
+        {:ok, _old_stuff, {new_token, _new_claims}} =
+          Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours})
+
+        {:ok, new_token}
     end
   end
 

@@ -38,7 +38,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
     end
   end
 
-  describe "refresh_token/2" do
+  describe "validate_token/2" do
     setup :setup_user_with_conn
 
     setup %{conn: conn, user: user, user_params: params} do
@@ -52,44 +52,59 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       ]
     end
 
-    test "returns a new access token", context do
+    test "returns same access token if not expired", context do
       %{access_token: access_token, refresh_token: refresh_token} = context
 
       conn =
         build_conn()
         |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-      params = %{refresh_token: refresh_token}
-      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+      params = %{access_token: access_token}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      result = conn |> json_response(200)
+      assert result["access_token"] == access_token
+      assert result["message"] == "Authorized"
+    end
+
+    test "returns a new access token if expired", context do
+      %{refresh_token: refresh_token} = context
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
+
+      access_token = invalid_token()
+      params = %{access_token: access_token}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
       result = conn |> json_response(200)
       assert result["access_token"] != access_token
-      assert result["refresh_token"] != refresh_token
+      assert result["message"] == "Authorized"
     end
 
-    test "returns error if refresh token not valid", context do
+    test "returns error if refresh token in auth header not valid" do
+      refresh_token = invalid_token()
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
+
+      params = %{access_token: invalid_token()}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "returns error if access token garbage", context do
       %{refresh_token: refresh_token} = context
 
       conn =
         build_conn()
         |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-      params = %{refresh_token: invalid_token()}
-      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
-
-      result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => "invalid_token"}}
-    end
-
-    test "returns error if refresh token garbage", context do
-      %{refresh_token: refresh_token} = context
-
-      conn =
-        build_conn()
-        |> put_req_header("authorization", "Bearer #{refresh_token}")
-
-      params = %{refresh_token: "avcbd123489u"}
-      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+      params = %{access_token: "avcbd123489u"}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
       result = conn |> json_response(400)
 
@@ -106,7 +121,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
     test "fails if authorization header not found" do
       params = %{refresh_token: "avcbd123489u"}
       conn = build_conn()
-      conn = post(conn, Routes.auth_path(conn, :refresh_token), params)
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
