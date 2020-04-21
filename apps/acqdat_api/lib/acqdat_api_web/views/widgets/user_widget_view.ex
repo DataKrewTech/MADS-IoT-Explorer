@@ -41,25 +41,4 @@ defmodule AcqdatApiWeb.Widgets.UserView do
       user: render_one(user_widget.user, UserView, "user.json")
     }
   end
-
-  def render("hits.json", %{hits: hits}) do
-    %{
-      users: render_many(hits.hits, UserView, "source.json")
-    }
-  end
-
-  def render("index_hits.json", %{hits: hits}) do
-    %{
-      users: render_many(hits.hits, UserView, "source.json")
-    }
-  end
-
-  def render("source.json", %{user: %{_source: hits}}) do
-    %{
-      id: hits.id,
-      first_name: hits.first_name,
-      last_name: hits.last_name,
-      email: hits.email
-    }
-  end
 end

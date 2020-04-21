@@ -42,7 +42,8 @@ defmodule AcqdatCore.Support.Factory do
       first_name: sequence(:first_name, &"Tony-#{&1}"),
       last_name: sequence(:last_name, &"Stark-#{&1}"),
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
-      password_hash: "NOTASECRET"
+      password_hash: "NOTASECRET",
+      org: build(:organisation)
     }
   end
 

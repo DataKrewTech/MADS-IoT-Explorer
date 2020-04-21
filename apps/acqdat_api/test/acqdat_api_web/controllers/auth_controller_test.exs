@@ -92,8 +92,8 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       params = %{access_token: invalid_token()}
       conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
-      result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => %{"__exception__" => true, "term" => 32}}}
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "returns error if access token garbage", context do
@@ -157,10 +157,13 @@ defmodule AcqdatApiWeb.AuthControllerTest do
   end
 
   def setup_user_with_conn(_context) do
+    org = insert(:organisation)
+
     params =
       build(:user)
       |> Map.put(:password, "stark1234")
       |> Map.put(:password_confirmation, "stark1234")
+      |> Map.put(:org_id, org.id)
       |> Map.from_struct()
 
     {:ok, user} = User.create(params)

@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Schema.UserTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
-
+  import AcqdatCore.Support.Factory
   alias AcqdatCore.Schema.User
 
   describe "changeset/2" do
@@ -12,17 +12,21 @@ defmodule AcqdatCore.Schema.UserTest do
                email: ["can't be blank"],
                first_name: ["can't be blank"],
                password: ["can't be blank"],
-               password_confirmation: ["can't be blank"]
+               password_confirmation: ["can't be blank"],
+               org_id: ["can't be blank"]
              } == errors_on(changeset)
     end
 
     test "returns error if password and confirm do not match" do
+      org = insert(:organisation)
+
       params = %{
         first_name: "Tony",
         last_name: "Stark",
         email: "tony@starkindustries.com",
         password: "marvel_connect",
-        password_confirmation: "marvel"
+        password_confirmation: "marvel",
+        org_id: org.id
       }
 
       changeset = User.changeset(%User{}, params)
@@ -33,12 +37,15 @@ defmodule AcqdatCore.Schema.UserTest do
     end
 
     test "returns error if email regex not matched" do
+      org = insert(:organisation)
+
       params = %{
         first_name: "Tony",
         last_name: "Stark",
         email: "tonystarkindustries.com",
         password: "marvel_connect",
-        password_confirmation: "marvel_connect"
+        password_confirmation: "marvel_connect",
+        org_id: org.id
       }
 
       changeset = User.changeset(%User{}, params)

@@ -1,15 +1,17 @@
 defmodule AcqdatCore.Seed.User do
-  alias AcqdatCore.Schema.User
+  alias AcqdatCore.Schema.{User, Organisation}
   alias AcqdatCore.Repo
   import Tirexs.HTTP
 
   def seed_user!() do
+    [org] = Repo.all(Organisation)
     params = %{
       first_name: "Chandu",
       last_name: "Developer",
       email: "chandu@stack-avenue.com",
       password: "datakrew",
       password_confirmation: "datakrew",
+      org_id: org.id
     }
     user = User.changeset(%User{}, params)
     data = Repo.insert!(user, on_conflict: :nothing)
@@ -21,6 +23,7 @@ defmodule AcqdatCore.Seed.User do
       id: params.id,
       email: params.email,
       first_name: params.first_name,
-      last_name: params.last_name)
+      last_name: params.last_name,
+      org_id: params.org_id)
   end
 end

@@ -28,6 +28,11 @@ defmodule AcqdatApiWeb.Router do
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
 
+    resources "/org", OrganisationController, only: [:show] do
+      get "/users/search", UserController, :search_users
+      resources "/users", UserController, only: [:show, :index]
+    end
+
     resources "/orgs", OrganisationController, only: [:show]
     # NOTE: Kept widgets resources out of organisation_scope currently
     resources "/widgets", Widgets.WidgetController,
@@ -53,8 +58,6 @@ defmodule AcqdatApiWeb.Router do
   scope "/", AcqdatApiWeb do
     get "/search", Widgets.WidgetController, :search_widget
     get "/search_widgets", Widgets.WidgetController, :search_widget
-    get "/search_users", Widgets.UserController, :search_users
-    get "/index_users", Widgets.UserController, :index_users
 
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
 

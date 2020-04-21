@@ -1,7 +1,6 @@
 defmodule AcqdatApiWeb.Widgets.UserController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.Widgets.User
-  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatCore.Model.Widgets.User, as: UserWidgetModel
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
@@ -67,16 +66,6 @@ defmodule AcqdatApiWeb.Widgets.UserController do
         conn
         |> send_error(404, "Resource Not Found")
     end
-  end
-
-  def search_users(conn, %{"label" => label}) do
-    with {:ok, hits} <- ElasticSearch.search_user("users", label, 3),
-         do: conn |> put_status(200) |> render("hits.json", %{hits: hits})
-  end
-
-  def index_users(conn, %{"page_size" => page_size}) do
-    with {:ok, hits} <- ElasticSearch.user_indexing(page_size),
-         do: conn |> put_status(200) |> render("index_hits.json", %{hits: hits})
   end
 
   defp verify_widget_and_user(

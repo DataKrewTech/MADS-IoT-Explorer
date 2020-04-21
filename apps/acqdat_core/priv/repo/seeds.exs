@@ -12,9 +12,8 @@
 alias AcqdatCore.Seed.{Widget, User, Sensor, Organisation, Asset}
 
 # The order here is important, don't modify it.
-
-User.seed_user!()
 Organisation.seed_organisation!()
+User.seed_user!()
 Asset.seed_asset!()
 Sensor.seed_sensors()
 Widget.seed()
