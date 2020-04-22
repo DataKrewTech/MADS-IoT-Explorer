@@ -58,7 +58,6 @@ defmodule AcqdatApi.User do
       |> Map.put(:first_name, first_name)
       |> Map.put(:last_name, last_name)
 
-    # TODO: Need to check, whether in request params, email is coming or token
     fetch_existing_invitation(token, user_details)
   end
 
