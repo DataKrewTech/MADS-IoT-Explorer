@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Validators.Invitation do
       email!: :string,
       assets: {:array, :map},
       apps: {:array, :map},
-      org_id!: :integer
+      org_id!: :string
     })
   )
 end

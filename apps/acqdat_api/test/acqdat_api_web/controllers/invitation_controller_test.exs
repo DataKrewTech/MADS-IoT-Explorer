@@ -12,7 +12,9 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
       [org: org]
     end
 
-    test "fails if authorization header not found", %{conn: conn} do
+    test "fails if authorization header not found", context do
+      %{org: org, conn: conn} = context
+
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -20,18 +22,19 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.invitation_path(conn, :create), data)
+      conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "invitation create", context do
       %{org: org, conn: conn} = context
+
       user = insert(:user)
 
-      data = %{invitation: %{email: user.email, org_id: org.id}}
+      data = %{invitation: %{email: user.email}}
 
-      conn = post(conn, Routes.invitation_path(conn, :create), data)
+      conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
 
       response = conn |> json_response(200)
 

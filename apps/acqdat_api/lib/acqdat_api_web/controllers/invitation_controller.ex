@@ -8,9 +8,13 @@ defmodule AcqdatApiWeb.InvitationController do
 
   plug(:validate_inviter when action in [:create])
 
-  def create(conn, %{"invitation" => invite_attrs}) do
+  def create(conn, %{"invitation" => invite_attrs, "org_id" => org_id}) do
     case conn.status do
       nil ->
+        invite_attrs =
+          invite_attrs
+          |> Map.put("org_id", org_id)
+
         changeset = verify_create_params(invite_attrs)
 
         user = conn.assigns[:current_user]
