@@ -94,14 +94,13 @@ defmodule AcqdatApi.Account do
     {:ok, %{access_token: access_token, user_id: resource}}
   end
 
-  defp assess_token({:error, %ArgumentError{}} = result, _access_token,
-    _refresh_token), do: result
+  defp assess_token({:error, %ArgumentError{}} = result, _access_token, _refresh_token),
+    do: result
 
   defp assess_token({:error, _reason}, _access_token, refresh_token) do
     {:ok, _old_stuff, {new_token, _new_claims}} =
-      Guardian.exchange(refresh_token, "refresh", "access",
-        ttl: {@access_time_hours, :hours}
-      )
+      Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours})
+
     resource = get_resource(new_token)
     {:ok, %{access_token: new_token, user_id: resource}}
   end
@@ -110,5 +109,4 @@ defmodule AcqdatApi.Account do
     {:ok, resource, _claims} = Guardian.resource_from_token(token)
     resource
   end
-
 end
