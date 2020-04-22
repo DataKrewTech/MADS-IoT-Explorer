@@ -32,7 +32,7 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   def update_users(type, params) do
-    update_function = fn ->
+    update = fn ->
       post("#{type}/_update/#{params.id}",
         doc: [
           id: params.id,
@@ -46,7 +46,7 @@ defmodule AcqdatApi.ElasticSearch do
       )
     end
 
-    GenRetry.retry(update_function, retries: 3, delay: 10_000)
+    GenRetry.retry(update, retries: 3, delay: 10_000)
   end
 
   def delete(type, params) do

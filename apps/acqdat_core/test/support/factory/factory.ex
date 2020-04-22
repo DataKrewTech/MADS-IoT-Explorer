@@ -51,7 +51,6 @@ defmodule AcqdatCore.Support.Factory do
 
   def user_setting_factory() do
     %UserSetting{
-      user: build(:user),
       visual_settings: %{
         "recently_visited_apps" => ["data_cruncher", "support", "settings", "dashboard"],
         "taskbar_pos" => "left",

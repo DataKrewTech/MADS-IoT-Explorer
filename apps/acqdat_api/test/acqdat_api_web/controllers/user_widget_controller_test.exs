@@ -9,13 +9,14 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
     test "user widget create", %{conn: conn, user: user} do
       widget = insert(:widget)
+      org = insert(:organisation)
 
       params = %{
         user_id: user.id,
         widget_id: widget.id
       }
 
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, params), %{})
+      conn = post(conn, Routes.user_path(conn, :create, org.id, params), %{})
       response = conn |> json_response(200)
 
       assert response == %{
@@ -27,28 +28,30 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
     test "fails if authorization header not found", %{conn: conn, user: user} do
       bad_access_token = "qwerty1234567uiop"
+      org = insert(:organisation)
 
       conn =
         conn
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, %{}), data)
+      conn = post(conn, Routes.user_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "fails if sent params are not unique", %{conn: conn, user: user} do
       widget = insert(:widget)
+      org = insert(:organisation)
 
       params = %{
         user_id: user.id,
         widget_id: widget.id
       }
 
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, params), %{})
+      conn = post(conn, Routes.user_path(conn, :create, org.id, params), %{})
 
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, params), %{})
+      conn = post(conn, Routes.user_path(conn, :create, org.id, params), %{})
       response = conn |> json_response(400)
 
       assert response == %{
@@ -59,12 +62,14 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
     end
 
     test "fails if required resource are missing", %{conn: conn, user: user} do
+      org = insert(:organisation)
+
       params = %{
         user_id: user.id,
         widget_id: 2
       }
 
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, params), %{})
+      conn = post(conn, Routes.user_path(conn, :create, org.id, params), %{})
 
       response = conn |> json_response(404)
       assert response == %{"errors" => %{"message" => "Resource Not Found"}}
@@ -76,21 +81,22 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
     test "User Widget Data", %{conn: conn, user: user} do
       widget = insert(:widget)
+      org = insert(:organisation)
 
       params = %{
         user_id: user.id,
         widget_id: widget.id
       }
 
-      conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, params), %{})
+      conn = post(conn, Routes.user_path(conn, :create, org.id, params), %{})
 
       params = %{
-        "user_id" => user.id,
-        "page_size" => 100,
-        "page_number" => 1
+        user_id: user.id,
+        page_size: 100,
+        page_number: 1
       }
 
-      conn = get(conn, Routes.user_widgets_path(conn, :index, org.id, params))
+      conn = get(conn, Routes.user_path(conn, :index, org.id), params)
       response = conn |> json_response(200)
       assert length(response["user_widgets"]) == 1
       assertion_user_widget = List.first(response["user_widgets"])
@@ -101,6 +107,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
     test "fails if invalid token in authorization header", %{conn: conn, user: user} do
       bad_access_token = "qwerty1234567qwerty12"
+      org = insert(:organisation)
 
       conn =
         conn
@@ -109,10 +116,11 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       params = %{
         "user_id" => user.id,
         "page_size" => 100,
-        "page_number" => 1
+        "page_number" => 1,
+        org_id: org.id
       }
 
-      conn = get(conn, Routes.user_widgets_path(conn, :index, org.id, params), %{})
+      conn = get(conn, Routes.user_path(conn, :index, org.id, params), %{})
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end

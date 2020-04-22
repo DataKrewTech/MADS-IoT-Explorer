@@ -36,6 +36,8 @@ defmodule AcqdatApiWeb.Router do
       end
     end
 
+    resources "/roles", RoleController, only: [:index]
+
     resources "/orgs", OrganisationController, only: [:show]
     # NOTE: Kept widgets resources out of organisation_scope currently
     resources "/widgets", Widgets.WidgetController,
@@ -45,16 +47,15 @@ defmodule AcqdatApiWeb.Router do
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
     resources "/widget-type", Widgets.WidgetTypeController,
       only: [:create, :update, :delete, :index, :show]
 
-    resources "/roles", RoleController, only: [:index]
-
     resources "/user_widgets", Widgets.UserController, only: [:index, :create]
+  end
 
   # TODO: Need to remove this scope, after everything is moved to new routes
   scope "/", AcqdatApiWeb do
-    get "/search", Widgets.WidgetController, :search_widget
     get "/search_widgets", Widgets.WidgetController, :search_widget
 
     resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]

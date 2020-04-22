@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
+  alias AcqdatCore.Model.UserSetting
   import AcqdatCore.Support.Factory
 
   describe "create/2" do
@@ -9,8 +10,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
 
     setup do
       org = insert(:organisation)
-      user = insert(:user)
-      [org: org, user: user]
+      [org: org]
     end
 
     test "fails if authorization header not found", context do
@@ -22,7 +22,10 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
+
+      conn =
+        post(conn, Routes.organisation_user_user_setting_path(conn, :create, org.id, 1), data)
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -30,7 +33,12 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
     test "fails if required params are missing", context do
       %{org: org, user: user, conn: conn} = context
 
-      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, user.id), %{})
+      conn =
+        post(
+          conn,
+          Routes.organisation_user_user_setting_path(conn, :create, org.id, user.id),
+          %{}
+        )
 
       response = conn |> json_response(400)
 
@@ -53,7 +61,12 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
         data_settings: user_setting.data_settings
       }
 
-      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, user.id), data)
+      conn =
+        post(
+          conn,
+          Routes.organisation_user_user_setting_path(conn, :create, org.id, user.id),
+          data
+        )
 
       response = conn |> json_response(200)
       assert Map.has_key?(response, "visual_settings")
@@ -78,19 +91,27 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
+
+      conn =
+        post(conn, Routes.organisation_user_user_setting_path(conn, :create, org.id, 1), data)
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "fails if required params are missing", context do
-      %{org: org, conn: conn} = context
-      user_setting = insert(:user_setting)
+      %{org: org, conn: conn, user: user} = context
+
+      {:ok, user_setting} =
+        build(:user_setting)
+        |> Map.put(:user_id, user.id)
+        |> Map.from_struct()
+        |> UserSetting.create()
 
       conn =
         put(
           conn,
-          Routes.user_settings_path(
+          Routes.organisation_user_user_setting_path(
             conn,
             :update,
             org.id,
@@ -113,8 +134,13 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
     end
 
     test "user setting update", context do
-      %{org: org, conn: conn} = context
-      user_setting = insert(:user_setting)
+      %{org: org, conn: conn, user: user} = context
+
+      {:ok, user_setting} =
+        build(:user_setting)
+        |> Map.put(:user_id, user.id)
+        |> Map.from_struct()
+        |> UserSetting.create()
 
       data = %{
         visual_settings: %{
@@ -132,7 +158,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
       conn =
         put(
           conn,
-          Routes.user_settings_path(
+          Routes.organisation_user_user_setting_path(
             conn,
             :update,
             org.id,

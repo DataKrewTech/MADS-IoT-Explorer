@@ -15,8 +15,15 @@ defmodule AcqdatApiWeb.UserView do
       last_name: user_details.last_name,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
-      role: render_one(user_details.role, RoleView, "role.json"),
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json")
+      role:
+        render_one(Map.from_struct(Repo.get(Role, user_details.role_id)), RoleView, "role.json"),
+      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
+      org:
+        render_one(
+          Map.from_struct(Repo.get(Organisation, user_details.org_id)),
+          OrganisationView,
+          "org.json"
+        )
     }
   end
 

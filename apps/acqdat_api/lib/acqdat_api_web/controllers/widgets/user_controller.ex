@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.Widgets.UserController do
   import AcqdatApiWeb.Validators.Widgets.User
 
   plug :verify_widget_and_user when action in [:create]
-  plug :verify_user when action in [:index]
+  # plug :verify_user when action in [:index]
 
   def create(conn, params) do
     case conn.status do
@@ -97,6 +97,8 @@ defmodule AcqdatApiWeb.Widgets.UserController do
          %{params: %{"user_id" => user_id}} = conn,
          _params
        ) do
+    require IEx
+    IEx.pry()
     {user_id, _} = Integer.parse(user_id)
 
     case UserModel.get(user_id) do
