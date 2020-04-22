@@ -5,13 +5,15 @@ defmodule AcqdatApiWeb.TeamController do
   import AcqdatApiWeb.Validators.Team
   import AcqdatApiWeb.Helpers
 
+  plug(AcqdatApiWeb.Plug.LoadUser)
+
   def create(conn, %{"team" => params}) do
     case conn.status do
       nil ->
         changeset = verify_create_params(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:create, {:ok, team}} <- {:create, Team.create(data)} do
+             {:create, {:ok, team}} <- {:create, Team.create(data, conn.assigns.current_user)} do
           conn
           |> put_status(200)
           |> render("team_details.json", %{team: team})

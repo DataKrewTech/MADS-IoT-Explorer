@@ -7,27 +7,32 @@ defmodule AcqdatCore.Model.TeamTest do
   describe "create/1" do
     setup do
       org = insert(:organisation)
+      user = insert(:user)
 
-      [org: org]
+      [org: org, user: user]
     end
 
     test "creates a team with supplied params", context do
-      %{org: org} = context
+      %{org: org, user: user} = context
 
       params = %{
         org_id: org.id,
         name: "Demo Team",
         assets: [1, 2],
         apps: [1, 2],
-        users: [1, 2]
+        users: [1, 2],
+        creator_id: user.id
       }
 
       assert {:ok, _team} = TeamModel.create(params)
     end
 
-    test "fails if org_id is not present" do
+    test "fails if org_id is not present", context do
+      %{user: user} = context
+
       params = %{
-        name: "Demo Team"
+        name: "Demo Team",
+        creator_id: user.id
       }
 
       assert {:error, changeset} = TeamModel.create(params)
@@ -35,14 +40,27 @@ defmodule AcqdatCore.Model.TeamTest do
     end
 
     test "fails if name is not present", context do
-      %{org: org} = context
+      %{org: org, user: user} = context
 
       params = %{
-        org_id: org.id
+        org_id: org.id,
+        creator_id: user.id
       }
 
       assert {:error, changeset} = TeamModel.create(params)
       assert %{name: ["can't be blank"]} == errors_on(changeset)
+    end
+
+    test "fails if creator is not present", context do
+      %{org: org} = context
+
+      params = %{
+        org_id: org.id,
+        name: "Demo Team Test"
+      }
+
+      assert {:error, changeset} = TeamModel.create(params)
+      assert %{creator_id: ["can't be blank"]} == errors_on(changeset)
     end
   end
 

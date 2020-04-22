@@ -4,9 +4,11 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableTeams do
   def up do
     create table(:acqdat_teams) do
       add(:name, :string, null: false)
-      add(:team_lead_id, :integer)
+      add(:team_lead_id, references(:users))
+      add(:creator_id, references(:users))
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
       add(:enable_tracking, :boolean, default: false)
+
       timestamps(type: :timestamptz)
     end
 

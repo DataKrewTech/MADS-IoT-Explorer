@@ -14,11 +14,12 @@ defmodule AcqdatCore.Schema.Team do
 
   schema("acqdat_teams") do
     field(:name, :string, null: false)
-    field(:team_lead_id, :integer)
     field(:enable_tracking, :boolean, default: false)
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:team_lead, User)
+    belongs_to(:creator, User)
     many_to_many(:users, User, join_through: "users_teams", on_replace: :delete)
     many_to_many(:assets, Asset, join_through: "teams_assets", on_replace: :delete)
     many_to_many(:apps, App, join_through: "teams_apps", on_replace: :delete)
@@ -26,7 +27,7 @@ defmodule AcqdatCore.Schema.Team do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(name org_id)a
+  @required ~w(name org_id creator_id)a
   @optional ~w(team_lead_id enable_tracking)a
   @permitted @optional ++ @required
 
@@ -36,6 +37,7 @@ defmodule AcqdatCore.Schema.Team do
     |> validate_required(@required)
     |> unique_constraint(:name)
     |> assoc_constraint(:org)
+    |> assoc_constraint(:creator)
     |> associate_users_changeset(params[:users] || [])
     |> associate_assets_changeset(params[:assets] || [])
     |> associate_apps_changeset(params[:apps] || [])

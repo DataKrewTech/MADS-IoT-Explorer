@@ -2,7 +2,7 @@ defmodule AcqdatApi.Team do
   alias AcqdatCore.Model.Team, as: TeamModel
   import AcqdatApiWeb.Helpers
 
-  def create(attrs) do
+  def create(attrs, current_user) do
     %{
       name: name,
       team_lead_id: team_lead_id,
@@ -26,6 +26,7 @@ defmodule AcqdatApi.Team do
       |> Map.put(:assets, asset_ids)
       |> Map.put(:apps, app_ids)
       |> Map.put(:users, user_ids)
+      |> Map.put(:creator_id, current_user.id)
 
     verify_team(TeamModel.create(team_details))
   end

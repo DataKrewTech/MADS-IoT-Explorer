@@ -30,6 +30,7 @@ defmodule AcqdatApiWeb.TeamControllerTest do
 
     test "team create", %{conn: conn} do
       org = insert(:organisation)
+      user = insert(:user)
 
       params = %{
         team: %{
