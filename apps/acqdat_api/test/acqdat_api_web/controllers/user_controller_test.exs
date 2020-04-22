@@ -56,25 +56,25 @@ defmodule AcqdatApiWeb.UserControllerTest do
   #     assert result == %{"errors" => %{"message" => "Unauthorized"}}
   #   end
 
-    # test "search with valid params", %{conn: conn, user: user} do
-    #   conn =
-    #     get(conn, Routes.organisation_user_path(conn, :search_users, user.org_id), %{
-    #       "label" => "Chandu"
-    #     })
+  # test "search with valid params", %{conn: conn, user: user} do
+  #   conn =
+  #     get(conn, Routes.organisation_user_path(conn, :search_users, user.org_id), %{
+  #       "label" => "Chandu"
+  #     })
 
-    #   result = conn |> json_response(200)   
-    #   assert result = %{
-    #            "users" => [
-    #              %{
-    #                "email" => "chandu@stack-avenue.com",
-    #                "first_name" => "Chandu",
-    #                "id" => 1,
-    #                "last_name" => "Developer",
-    #                "org_id" => 1
-    #              }
-    #            ]
-    #          }
-    # end
+  #   result = conn |> json_response(200)   
+  #   assert result = %{
+  #            "users" => [
+  #              %{
+  #                "email" => "chandu@stack-avenue.com",
+  #                "first_name" => "Chandu",
+  #                "id" => 1,
+  #                "last_name" => "Developer",
+  #                "org_id" => 1
+  #              }
+  #            ]
+  #          }
+  # end
 
   #   test "search with no hits ", %{conn: conn} do
   #     org = insert(:organisation)
