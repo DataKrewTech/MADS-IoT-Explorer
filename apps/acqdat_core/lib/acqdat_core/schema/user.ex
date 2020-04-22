@@ -5,8 +5,7 @@ defmodule AcqdatCore.Schema.User do
 
   use AcqdatCore.Schema
   alias Comeonin.Argon2
-  alias AcqdatCore.Schema.{UserSetting, Organisation}
-  alias AcqdatCore.Schema.Role
+  alias AcqdatCore.Schema.{Role, UserSetting, Organisation}
 
   @password_min_length 8
   @type t :: %__MODULE__{}
@@ -28,7 +27,7 @@ defmodule AcqdatCore.Schema.User do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(first_name email password is_invited password_confirmation role_id)a
+  @required ~w(first_name email password is_invited password_confirmation role_id org_id)a
   @optional ~w(password_hash last_name)a
   @permitted @optional ++ @required
 
@@ -54,6 +53,7 @@ defmodule AcqdatCore.Schema.User do
     |> put_pass_hash()
     |> assoc_constraint(:org)
     |> assoc_constraint(:role)
+    |> assoc_constraint(:org)
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do
