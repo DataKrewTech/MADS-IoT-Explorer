@@ -9,10 +9,11 @@ defmodule AcqdatApiWeb.AuthView do
     }
   end
 
-  def render("validate_token.json", manifest) do
+  def render("validate_token.json", %{data: manifest}) do
     %{
       message: "Authorized",
-      access_token: manifest.token
+      access_token: manifest.access_token,
+      user_id: manifest.user_id
     }
   end
 

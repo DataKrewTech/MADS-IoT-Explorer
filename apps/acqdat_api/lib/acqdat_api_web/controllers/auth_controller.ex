@@ -30,7 +30,7 @@ defmodule AcqdatApiWeb.AuthController do
            {:refresh, Account.validate_token(Map.put(data, :refresh_token, refresh_token))} do
       conn
       |> put_status(200)
-      |> render("validate_token.json", token: result)
+      |> render("validate_token.json", data: result)
     else
       {:extract, {:error, error}} ->
         send_error(conn, 400, error)

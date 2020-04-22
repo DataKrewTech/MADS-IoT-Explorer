@@ -30,21 +30,11 @@ defmodule AcqdatApi.Account do
   from the supplied `refresh_token`. In case the refresh token is also expired
   an error tuple is returned.
   """
-  @spec validate_token(map) :: {:ok, String.t()} | {:error, String.t()}
+  @spec validate_token(map) :: {:ok, map} | {:error, any}
   def validate_token(%{refresh_token: refresh_token, access_token: access_token}) do
-    case Guardian.decode_and_verify(access_token, %{"typ" => "access"}) do
-      {:ok, _result} ->
-        {:ok, access_token}
-
-      {:error, %ArgumentError{} = result} ->
-        {:error, result}
-
-      {:error, _reason} ->
-        {:ok, _old_stuff, {new_token, _new_claims}} =
-          Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours})
-
-        {:ok, new_token}
-    end
+    access_token
+    |> Guardian.decode_and_verify(%{"typ" => "access"})
+    |> assess_token(access_token, refresh_token)
   end
 
   @doc """
@@ -97,4 +87,28 @@ defmodule AcqdatApi.Account do
       ttl: time
     )
   end
+
+  defp assess_token({:ok, _result}, access_token, _refresh_token) do
+    resource = get_resource(access_token)
+
+    {:ok, %{access_token: access_token, user_id: resource}}
+  end
+
+  defp assess_token({:error, %ArgumentError{}} = result, _access_token,
+    _refresh_token), do: result
+
+  defp assess_token({:error, _reason}, _access_token, refresh_token) do
+    {:ok, _old_stuff, {new_token, _new_claims}} =
+      Guardian.exchange(refresh_token, "refresh", "access",
+        ttl: {@access_time_hours, :hours}
+      )
+    resource = get_resource(new_token)
+    {:ok, %{access_token: new_token, user_id: resource}}
+  end
+
+  defp get_resource(token) do
+    {:ok, resource, _claims} = Guardian.resource_from_token(token)
+    resource
+  end
+
 end
