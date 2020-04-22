@@ -3,52 +3,58 @@ defmodule AcqdatApi.ElasticSearch do
   import Tirexs.Search
 
   def create(type, params) do
-    options = [restart: :transient, max_restarts: 3]
+    create_function = fn ->
+      post("#{type}/_doc/#{params.id}",
+        id: params.id,
+        label: params.label,
+        uuid: params.uuid,
+        properties: params.properties,
+        category: params.category
+      )
+    end
 
-    Task.Supervisor.start_child(
-      Datakrew.TaskSupervisor,
-      fn ->
-        post("#{type}/_doc/#{params.id}",
-          id: params.id,
+    GenRetry.retry(create_function, retries: 3, delay: 10_000)
+  end
+
+  def update(type, params) do
+    update_function = fn ->
+      post("#{type}/_update/#{params.id}",
+        doc: [
           label: params.label,
           uuid: params.uuid,
           properties: params.properties,
           category: params.category
-        )
-      end,
-      options
-    )
+        ]
+      )
+    end
+
+    GenRetry.retry(update_function, retries: 3, delay: 10_000)
   end
 
-  def update(type, params) do
-    options = [restart: :transient, max_restarts: 3]
+  def update_users(type, params) do
+    update_function = fn ->
+      post("#{type}/_update/#{params.id}",
+        doc: [
+          id: params.id,
+          email: params.email,
+          first_name: params.first_name,
+          last_name: params.last_name,
+          org_id: params.org_id,
+          is_invited: params.is_invited,
+          role_id: params.role_id
+        ]
+      )
+    end
 
-    Task.Supervisor.start_child(
-      Datakrew.TaskSupervisor,
-      fn ->
-        post("#{type}/_update/#{params.id}",
-          doc: [
-            label: params.label,
-            uuid: params.uuid,
-            properties: params.properties,
-            category: params.category
-          ]
-        )
-      end,
-      options
-    )
+    GenRetry.retry(update_function, retries: 3, delay: 10_000)
   end
 
   def delete(type, params) do
-    options = [restart: :transient, max_restarts: 3]
+    delete_function = fn ->
+      delete("#{type}/_doc/#{params}")
+    end
 
-    Task.Supervisor.start_child(
-      Datakrew.TaskSupervisor,
-      fn ->
-        delete("#{type}/_doc/#{params}")
-      end,
-      options
-    )
+    GenRetry.retry(delete_function, retries: 3, delay: 10_000)
   end
 
   def search_widget(type, params, retry \\ 3) do

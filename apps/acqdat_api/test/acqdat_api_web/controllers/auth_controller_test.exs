@@ -158,12 +158,14 @@ defmodule AcqdatApiWeb.AuthControllerTest do
 
   def setup_user_with_conn(_context) do
     org = insert(:organisation)
+    role = insert(:role)
 
     params =
       build(:user)
       |> Map.put(:password, "stark1234")
       |> Map.put(:password_confirmation, "stark1234")
       |> Map.put(:org_id, org.id)
+      |> Map.put(:role_id, role.id)
       |> Map.from_struct()
 
     {:ok, user} = User.create(params)

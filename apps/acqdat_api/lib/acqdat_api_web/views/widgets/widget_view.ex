@@ -57,7 +57,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      hits: render_many(hits.hits, WidgetView, "source.json")
+      widgets: render_many(hits.hits, WidgetView, "source.json")
     }
   end
 

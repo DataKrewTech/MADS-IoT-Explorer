@@ -7,14 +7,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
   describe "create/2" do
     setup :setup_conn
 
-    setup do
-      org = insert(:organisation)
-      user = insert(:user)
-      [org: org, user: user]
-    end
-
-    test "user widget create", context do
-      %{org: org, user: user, conn: conn} = context
+    test "user widget create", %{conn: conn, user: user} do
       widget = insert(:widget)
 
       params = %{
@@ -32,8 +25,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
              }
     end
 
-    test "fails if authorization header not found", context do
-      %{org: org, conn: conn} = context
+    test "fails if authorization header not found", %{conn: conn, user: user} do
       bad_access_token = "qwerty1234567uiop"
 
       conn =
@@ -46,8 +38,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "fails if sent params are not unique", context do
-      %{org: org, user: user, conn: conn} = context
+    test "fails if sent params are not unique", %{conn: conn, user: user} do
       widget = insert(:widget)
 
       params = %{
@@ -67,9 +58,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
              }
     end
 
-    test "fails if required resource are missing", context do
-      %{org: org, user: user, conn: conn} = context
-
+    test "fails if required resource are missing", %{conn: conn, user: user} do
       params = %{
         user_id: user.id,
         widget_id: 2
@@ -85,14 +74,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
   describe "index/2" do
     setup :setup_conn
 
-    setup do
-      org = insert(:organisation)
-      user = insert(:user)
-      [org: org, user: user]
-    end
-
-    test "User Widget Data", context do
-      %{org: org, user: user, conn: conn} = context
+    test "User Widget Data", %{conn: conn, user: user} do
       widget = insert(:widget)
 
       params = %{
@@ -117,11 +99,8 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       assert assertion_user_widget["widget"]["widget_type_id"] == widget.widget_type_id
     end
 
-    test "fails if invalid token in authorization header", context do
-      %{org: org, user: user, conn: conn} = context
+    test "fails if invalid token in authorization header", %{conn: conn, user: user} do
       bad_access_token = "qwerty1234567qwerty12"
-      user = insert(:user)
-      org = insert(:organisation)
 
       conn =
         conn

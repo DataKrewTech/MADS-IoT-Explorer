@@ -30,7 +30,10 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/org", OrganisationController, only: [:show] do
       get "/users/search", UserController, :search_users
-      resources "/users", UserController, only: [:show, :index]
+
+      resources "/users", UserController, only: [:show, :update, :index] do
+        resources "/settings", UserSettingController, only: [:create, :update]
+      end
     end
 
     resources "/orgs", OrganisationController, only: [:show]
@@ -44,10 +47,6 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
     resources "/widget-type", Widgets.WidgetTypeController,
       only: [:create, :update, :delete, :index, :show]
-
-    resources "/users", UserController, only: [:show, :update] do
-      resources "/settings", UserSettingController, only: [:create, :update]
-    end
 
     resources "/roles", RoleController, only: [:index]
 

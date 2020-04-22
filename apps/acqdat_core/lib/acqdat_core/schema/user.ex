@@ -53,7 +53,6 @@ defmodule AcqdatCore.Schema.User do
     |> put_pass_hash()
     |> assoc_constraint(:org)
     |> assoc_constraint(:role)
-    |> assoc_constraint(:org)
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do

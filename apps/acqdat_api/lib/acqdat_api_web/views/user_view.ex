@@ -2,6 +2,10 @@ defmodule AcqdatApiWeb.UserView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.UserView
   alias AcqdatApiWeb.RoleView
+  alias AcqdatApiWeb.OrganisationView
+  alias AcqdatCore.Schema.{Role, Organisation}
+  alias AcqdatCore.Repo
+  alias AcqdatApiWeb.RoleView
 
   def render("user_details.json", %{user_details: user_details}) do
     %{
@@ -42,7 +46,15 @@ defmodule AcqdatApiWeb.UserView do
       first_name: hits.first_name,
       last_name: hits.last_name,
       email: hits.email,
-      org_id: hits.org_id
+      org_id: hits.org_id,
+      role_id: hits.role_id,
+      role: render_one(Map.from_struct(Repo.get(Role, hits.role_id)), RoleView, "role.json"),
+      org:
+        render_one(
+          Map.from_struct(Repo.get(Organisation, hits.org_id)),
+          OrganisationView,
+          "org.json"
+        )
     }
   end
 end

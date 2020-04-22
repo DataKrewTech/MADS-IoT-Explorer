@@ -6,8 +6,8 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
 
-  plug :load_org when action in [:search_users, :index_users]
-  plug :load_user when action in [:show]
+  plug :load_org when action in [:search_users, :index]
+  plug :load_user when action in [:show, :update]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -41,21 +41,32 @@ defmodule AcqdatApiWeb.UserController do
     end
   end
 
-  def index_users(conn, %{"page_size" => page_size}) do
+  def index(conn, %{"page_size" => page_size}) do
     with {:ok, hits} <- ElasticSearch.user_indexing(page_size),
          do: conn |> put_status(200) |> render("index_hits.json", %{hits: hits})
   end
 
-  defp load_org(%{params: %{"organisation_id" => org_id}} = conn, params) do
-    {org_id, _} = Integer.parse(org_id)
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        case UserModel.update(conn.assigns.user, params) do
+          {:ok, user} ->
+            ElasticSearch.update_users("users", user)
 
-    case OrgModel.get(org_id) do
-      {:ok, org} ->
-        assign(conn, :organisation, org)
+            conn
+            |> put_status(200)
+            |> render("user_details.json", %{user_details: user})
 
-      {:error, _message} ->
+          {:error, digital_twin} ->
+            error = extract_changeset_error(digital_twin)
+
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
         conn
-        |> put_status(404)
+        |> send_error(404, "Resource Not Found")
     end
   end
 
@@ -65,6 +76,19 @@ defmodule AcqdatApiWeb.UserController do
     case UserModel.get(id) do
       {:ok, user} ->
         assign(conn, :user, user)
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
+    end
+  end
+
+  defp load_org(%{params: %{"organisation_id" => org_id}} = conn, params) do
+    {org_id, _} = Integer.parse(org_id)
+
+    case OrgModel.get(org_id) do
+      {:ok, org} ->
+        assign(conn, :organisation, org)
 
       {:error, _message} ->
         conn

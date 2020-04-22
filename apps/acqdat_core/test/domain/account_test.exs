@@ -8,12 +8,14 @@ defmodule AcqdatCore.Domain.AccountTest do
   describe "authenticate/2" do
     setup do
       org = insert(:organisation)
+      role = insert(:role)
 
       params =
         build(:user)
         |> Map.put(:password, "stark1234")
         |> Map.put(:password_confirmation, "stark1234")
         |> Map.put(:org_id, org.id)
+        |> Map.put(:role_id, role.id)
         |> Map.from_struct()
 
       {:ok, user} = User.create(params)

@@ -25,7 +25,7 @@ defmodule AcqdatCore.Support.Factory do
     DigitalTwin,
     Organisation,
     Asset,
-    Gateway
+    Gateway,
     Role
   }
 
@@ -44,8 +44,8 @@ defmodule AcqdatCore.Support.Factory do
       last_name: sequence(:last_name, &"Stark-#{&1}"),
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
       password_hash: "NOTASECRET",
-      org: build(:organisation),
-      role: build(:role)
+      role: build(:role),
+      org: build(:organisation)
     }
   end
 
@@ -212,7 +212,7 @@ defmodule AcqdatCore.Support.Factory do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", "Bearer #{access_token}")
 
-    [conn: conn]
+    [conn: conn, user: user]
   end
 
   defp guardian_create_token(resource, time, token_type) do

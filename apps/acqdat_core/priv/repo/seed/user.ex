@@ -30,6 +30,8 @@ defmodule AcqdatCore.Seed.User do
       email: params.email,
       first_name: params.first_name,
       last_name: params.last_name,
-      org_id: params.org_id)
+      org_id: params.org_id,
+      is_invited: params.is_invited,
+      role_id: params.role_id)
   end
 end
