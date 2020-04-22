@@ -20,6 +20,10 @@ defmodule AcqdatCore.Model.Invitation do
     Repo.get_by(Invitation, email: email)
   end
 
+  def get_by_token(token) do
+    Repo.get_by(Invitation, token: token)
+  end
+
   def delete(%Invitation{} = invitation) do
     Repo.delete(invitation)
   end

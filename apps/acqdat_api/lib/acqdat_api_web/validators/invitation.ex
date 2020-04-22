@@ -5,7 +5,8 @@ defmodule AcqdatApiWeb.Validators.Invitation do
     verify_create_params(%{
       email!: :string,
       assets: {:array, :map},
-      apps: {:array, :map}
+      apps: {:array, :map},
+      org_id!: :integer
     })
   )
 end

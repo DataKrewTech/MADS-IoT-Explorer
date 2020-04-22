@@ -44,7 +44,7 @@ defmodule AcqdatApi.User do
   
   def create(attrs) do
     %{
-      email: email,
+      token: token,
       password: password,
       password_confirmation: password_confirmation,
       first_name: first_name,
@@ -59,15 +59,16 @@ defmodule AcqdatApi.User do
       |> Map.put(:last_name, last_name)
 
     # TODO: Need to check, whether in request params, email is coming or token
-    fetch_existing_invitation(email, user_details)
+    fetch_existing_invitation(token, user_details)
   end
 
-  defp fetch_existing_invitation(email, user_details) do
-    validate_invitation(InvitationModel.get_by_email(email), user_details)
+  defp fetch_existing_invitation(token, user_details) do
+    validate_invitation(InvitationModel.get_by_token(token), user_details)
   end
 
   defp validate_invitation(
-         %Invitation{asset_ids: asset_ids, app_ids: app_ids, email: email} = invitation,
+         %Invitation{asset_ids: asset_ids, app_ids: app_ids, email: email, org_id: org_id} =
+           invitation,
          user_details
        ) do
     user_details =
@@ -75,6 +76,7 @@ defmodule AcqdatApi.User do
       |> Map.put(:asset_ids, asset_ids)
       |> Map.put(:app_ids, app_ids)
       |> Map.put(:email, email)
+      |> Map.put(:org_id, org_id)
 
     verify_user(
       UserModel.create(user_details),

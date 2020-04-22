@@ -8,11 +8,16 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableInvitations do
       add(:asset_ids, {:array, :integer})
       add(:app_ids, {:array, :integer})
       add(:inviter_id, references(:users))
+      add(:org_id, references(:acqdat_organisation, on_delete: :delete_all, null: false))
       timestamps()
     end
+    create(unique_index(:acqdat_invitations, [:token]))
+    create(unique_index(:acqdat_invitations, [:email]))
   end
 
   def down do
+    drop(unique_index(:acqdat_invitations, [:email]))
+    drop(unique_index(:acqdat_invitations, [:token]))
     drop(table(:acqdat_invitations))
   end
 end

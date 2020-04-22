@@ -7,6 +7,11 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
   describe "create/2" do
     setup :setup_conn
 
+    setup do
+      org = insert(:organisation)
+      [org: org]
+    end
+
     test "fails if authorization header not found", %{conn: conn} do
       bad_access_token = "avcbd123489u"
 
@@ -20,10 +25,11 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "invitation create", %{conn: conn} do
+    test "invitation create", context do
+      %{org: org, conn: conn} = context
       user = insert(:user)
 
-      data = %{invitation: %{email: user.email}}
+      data = %{invitation: %{email: user.email, org_id: org.id}}
 
       conn = post(conn, Routes.invitation_path(conn, :create), data)
 

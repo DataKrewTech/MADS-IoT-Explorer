@@ -15,7 +15,7 @@ defmodule AcqdatApiWeb.Validators.User do
 
   defparams(
     verify_create_params(%{
-      email!: :string,
+      token!: :string,
       first_name: :string,
       last_name: :string,
       password!: :string,
