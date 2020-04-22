@@ -2,21 +2,43 @@ version: "3.1"
 
 services:
   database:
-    image: postgres
+    image: timescale/timescaledb:latest-pg11
     restart: always
+    ports: 
+      - 5431:5432
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: acqdat_prod
-    
+    volumes: 
+      - pgdata:/var/lib/postgresql/data
+  
+  elastic_search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+    restart: always
+    container_name: es01
+    environment: 
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes: 
+      - esdata:/usr/share/elasticsearch/data
+    ports: 
+      - 9200:9200
+
   web:
     build: 
       context: ../../
       dockerfile: ./devops/local/Dockerfile
     restart: always
+    container_name: web_app
     ports:
-      - ${APP_IOT_PORT}:${APP_IOT_PORT}
-      - ${APP_API_PORT}:${APP_API_PORT}
+      - 4001:4001
+      - 4000:4000
     environment:
       APP_IOT_PORT: ${APP_IOT_PORT}
       APP_API_PORT: ${APP_API_PORT}
@@ -30,3 +52,8 @@ services:
       GUARDIAN_IOT_KEY: ${GUARDIAN_IOT_KEY}
     depends_on:
       - database
+      - elastic_search
+
+volumes: 
+  esdata:
+  pgdata:
