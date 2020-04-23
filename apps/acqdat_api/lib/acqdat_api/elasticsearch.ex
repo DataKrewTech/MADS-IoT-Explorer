@@ -13,7 +13,7 @@ defmodule AcqdatApi.ElasticSearch do
       )
     end
 
-    GenRetry.retry(create_function, retries: 3, delay: 10_000)
+    retry(create_function)
   end
 
   def update(type, params) do
@@ -28,7 +28,7 @@ defmodule AcqdatApi.ElasticSearch do
       )
     end
 
-    GenRetry.retry(update_function, retries: 3, delay: 10_000)
+    retry(update_function)
   end
 
   def update_users(type, params) do
@@ -46,7 +46,7 @@ defmodule AcqdatApi.ElasticSearch do
       )
     end
 
-    GenRetry.retry(update, retries: 3, delay: 10_000)
+    retry(update)
   end
 
   def delete(type, params) do
@@ -54,7 +54,7 @@ defmodule AcqdatApi.ElasticSearch do
       delete("#{type}/_doc/#{params}")
     end
 
-    GenRetry.retry(delete_function, retries: 3, delay: 10_000)
+    retry(delete_function)
   end
 
   def search_widget(type, params, retry \\ 3) do
@@ -105,6 +105,10 @@ defmodule AcqdatApi.ElasticSearch do
     {:ok, hits.hits}
   end
 
-  def search_widget(_, _, _retry = 0), do: :ignore
-  def search_user(_, _, _retry = 0), do: :ignore
+  def search_widget(type, params, retry = 0), do: :ignore
+  def search_user(type, params, retry = 0), do: :ignore
+
+  defp retry(function) do
+    GenRetry.retry(function, retries: 3, delay: 10_000)
+  end
 end

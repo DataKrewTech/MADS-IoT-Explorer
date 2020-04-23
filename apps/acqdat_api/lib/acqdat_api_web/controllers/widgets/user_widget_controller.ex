@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Widgets.UserController do
+defmodule AcqdatApiWeb.Widgets.UserWidgetController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.Widgets.User
   alias AcqdatCore.Model.User, as: UserModel

@@ -9,12 +9,18 @@ defmodule AcqdatApiWeb.RoleController do
 
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, role} = {:list, RoleModel.get_all(data)}
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:list, role} <- {:list, RoleModel.get_all(data)} do
+          conn
+          |> put_status(200)
+          |> render("index.json", role)
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
 
-        conn
-        |> put_status(200)
-        |> render("index.json", role)
+          {:list, {:error, message}} ->
+            send_error(conn, 400, message.error)
+        end
 
       404 ->
         conn

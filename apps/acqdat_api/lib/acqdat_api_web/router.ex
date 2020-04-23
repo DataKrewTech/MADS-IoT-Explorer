@@ -28,40 +28,33 @@ defmodule AcqdatApiWeb.Router do
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
 
-    resources "/org", OrganisationController, only: [:show] do
-      get "/users/search", UserController, :search_users
-
-      resources "/users", UserController, only: [:show, :update, :index] do
-        resources "/settings", UserSettingController, only: [:create, :update]
-      end
-    end
-
     resources "/roles", RoleController, only: [:index]
 
     resources "/orgs", OrganisationController, only: [:show]
     # NOTE: Kept widgets resources out of organisation_scope currently
     resources "/widgets", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]
+
+    resources "/widget-type", Widgets.WidgetTypeController,
+      only: [:create, :update, :delete, :index, :show]
+
+    get "/search_widgets", Widgets.WidgetController, :search_widget
+
+    resources "/digital-twin", DigitalTwinController,
+      only: [:create, :update, :delete, :index, :show]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+    get "/users/search", UserController, :search_users
 
-    resources "/widget-type", Widgets.WidgetTypeController,
-      only: [:create, :update, :delete, :index, :show]
+    resources "/users", UserController, only: [:show, :update, :index] do
+      resources "/settings", UserSettingController, only: [:create, :update], as: :settings
+      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
+    end
 
-    resources "/user_widgets", Widgets.UserController, only: [:index, :create]
-  end
-
-  # TODO: Need to remove this scope, after everything is moved to new routes
-  scope "/", AcqdatApiWeb do
-    get "/search_widgets", Widgets.WidgetController, :search_widget
-
-    resources "/sensor", SensorController, only: [:create, :update, :delete, :index, :show]
-
-    resources "/digital-twin", DigitalTwinController,
-      only: [:create, :update, :delete, :index, :show]
+    resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
   end
 
   # TODO: Need to remove this scope later, and clean test-cases also

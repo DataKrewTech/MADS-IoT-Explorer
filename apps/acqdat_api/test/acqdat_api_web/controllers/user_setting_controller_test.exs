@@ -23,8 +23,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
 
       data = %{}
 
-      conn =
-        post(conn, Routes.organisation_user_user_setting_path(conn, :create, org.id, 1), data)
+      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
 
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
@@ -36,7 +35,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
       conn =
         post(
           conn,
-          Routes.organisation_user_user_setting_path(conn, :create, org.id, user.id),
+          Routes.user_settings_path(conn, :create, org.id, user.id),
           %{}
         )
 
@@ -64,7 +63,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
       conn =
         post(
           conn,
-          Routes.organisation_user_user_setting_path(conn, :create, org.id, user.id),
+          Routes.user_settings_path(conn, :create, org.id, user.id),
           data
         )
 
@@ -92,8 +91,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
 
       data = %{}
 
-      conn =
-        post(conn, Routes.organisation_user_user_setting_path(conn, :create, org.id, 1), data)
+      conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
 
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
@@ -111,7 +109,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
       conn =
         put(
           conn,
-          Routes.organisation_user_user_setting_path(
+          Routes.user_settings_path(
             conn,
             :update,
             org.id,
@@ -158,7 +156,7 @@ defmodule AcqdatApiWeb.UserSettingControllerTest do
       conn =
         put(
           conn,
-          Routes.organisation_user_user_setting_path(
+          Routes.user_settings_path(
             conn,
             :update,
             org.id,

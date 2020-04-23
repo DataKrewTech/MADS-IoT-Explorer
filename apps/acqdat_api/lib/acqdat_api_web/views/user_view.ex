@@ -15,12 +15,11 @@ defmodule AcqdatApiWeb.UserView do
       last_name: user_details.last_name,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
-      role:
-        render_one(Map.from_struct(Repo.get(Role, user_details.role_id)), RoleView, "role.json"),
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
+      role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
-          Map.from_struct(Repo.get(Organisation, user_details.org_id)),
+          preload_org(user_details.org_id),
           OrganisationView,
           "org.json"
         )
@@ -55,13 +54,21 @@ defmodule AcqdatApiWeb.UserView do
       email: hits.email,
       org_id: hits.org_id,
       role_id: hits.role_id,
-      role: render_one(Map.from_struct(Repo.get(Role, hits.role_id)), RoleView, "role.json"),
+      role: render_one(preload_role(hits.role_id), RoleView, "role.json"),
       org:
         render_one(
-          Map.from_struct(Repo.get(Organisation, hits.org_id)),
+          preload_org(hits.org_id),
           OrganisationView,
           "org.json"
         )
     }
+  end
+
+  defp preload_role(id) do
+    Map.from_struct(Repo.get(Role, id))
+  end
+
+  defp preload_org(id) do
+    Map.from_struct(Repo.get(Organisation, id))
   end
 end

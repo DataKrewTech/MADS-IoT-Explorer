@@ -23,9 +23,7 @@ defmodule AcqdatApiWeb.OrganisationControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "organisation with invalid organisation id", %{conn: conn} do
-      insert(:organisation)
-
+    test "organisation with invalid organisation id", %{conn: conn, org: org} do
       params = %{
         id: -1
       }
@@ -35,9 +33,7 @@ defmodule AcqdatApiWeb.OrganisationControllerTest do
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
     end
 
-    test "organisation with valid id", %{conn: conn} do
-      org = insert(:organisation)
-
+    test "organisation with valid id", %{conn: conn, org: org} do
       params = %{
         id: org.id
       }

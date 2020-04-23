@@ -197,6 +197,7 @@ defmodule AcqdatCore.Support.Factory do
 
   def setup_conn(%{conn: conn}) do
     user = insert(:user)
+    org = insert(:organisation)
 
     {:ok, access_token, _claims} =
       guardian_create_token(
@@ -211,7 +212,7 @@ defmodule AcqdatCore.Support.Factory do
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", "Bearer #{access_token}")
 
-    [conn: conn, user: user]
+    [conn: conn, user: user, org: org]
   end
 
   defp guardian_create_token(resource, time, token_type) do

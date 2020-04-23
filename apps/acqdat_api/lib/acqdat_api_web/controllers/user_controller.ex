@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
+  import AcqdatApi.Loader
 
   plug :load_org when action in [:search_users, :index]
   plug :load_user when action in [:show, :update]
@@ -57,8 +58,8 @@ defmodule AcqdatApiWeb.UserController do
             |> put_status(200)
             |> render("user_details.json", %{user_details: user})
 
-          {:error, digital_twin} ->
-            error = extract_changeset_error(digital_twin)
+          {:error, user} ->
+            error = extract_changeset_error(user)
 
             conn
             |> send_error(400, error)
@@ -67,32 +68,6 @@ defmodule AcqdatApiWeb.UserController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
-    end
-  end
-
-  defp load_user(%{params: %{"id" => id}} = conn, _params) do
-    {id, _} = Integer.parse(id)
-
-    case UserModel.get(id) do
-      {:ok, user} ->
-        assign(conn, :user, user)
-
-      {:error, _message} ->
-        conn
-        |> put_status(404)
-    end
-  end
-
-  defp load_org(%{params: %{"organisation_id" => org_id}} = conn, params) do
-    {org_id, _} = Integer.parse(org_id)
-
-    case OrgModel.get(org_id) do
-      {:ok, org} ->
-        assign(conn, :organisation, org)
-
-      {:error, _message} ->
-        conn
-        |> put_status(404)
     end
   end
 end

@@ -59,7 +59,10 @@ defmodule AcqdatCore.Model.User do
   """
   def update(%User{} = user, params) do
     changeset = User.update_changeset(user, params)
-    {:ok, user} = Repo.update(changeset)
-    {:ok, user |> Repo.preload(:role)}
+
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, user |> Repo.preload(:role)}
+      {:error, message} -> {:error, message}
+    end
   end
 end

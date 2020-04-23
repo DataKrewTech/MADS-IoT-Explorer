@@ -7,29 +7,26 @@ defmodule AcqdatApiWeb.UserControllerTest do
   describe "show/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    test "fails if authorization header not found", %{conn: conn, org: org} do
       bad_access_token = "avcbd123489u"
-      org = insert(:organisation)
 
       conn =
         conn
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-      conn = get(conn, Routes.organisation_user_path(conn, :show, org.id, 1))
+      conn = get(conn, Routes.user_path(conn, :show, org.id, 1))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "user with invalid organisation id", %{conn: conn, user: user} do
-      org = insert(:organisation)
-
-      conn = get(conn, Routes.organisation_user_path(conn, :show, org.id, -1))
+    test "user with invalid organisation id", %{conn: conn, user: user, org: org} do
+      conn = get(conn, Routes.user_path(conn, :show, org.id, -1))
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
     end
 
     test "user with valid id", %{conn: conn, user: user} do
-      conn = get(conn, Routes.organisation_user_path(conn, :show, user.org_id, user.id))
+      conn = get(conn, Routes.user_path(conn, :show, user.org_id, user.id))
       result = conn |> json_response(200)
 
       assert result["id"] == user.id
