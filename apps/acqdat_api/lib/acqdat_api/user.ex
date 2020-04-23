@@ -51,12 +51,11 @@ defmodule AcqdatApi.User do
       last_name: last_name
     } = attrs
 
-    # TODO: Need to think of when first_name will be populated, currently first name is not present in the request params
     user_details =
       %{}
       |> Map.put(:password, password)
       |> Map.put(:password_confirmation, password_confirmation)
-      |> Map.put(:first_name, "Demo User")
+      |> Map.put(:first_name, first_name)
       |> Map.put(:last_name, last_name)
 
     fetch_existing_invitation(token, user_details)
