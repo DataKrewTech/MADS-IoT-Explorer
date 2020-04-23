@@ -97,8 +97,6 @@ defmodule AcqdatApiWeb.Widgets.UserController do
          %{params: %{"user_id" => user_id}} = conn,
          _params
        ) do
-    require IEx
-    IEx.pry()
     {user_id, _} = Integer.parse(user_id)
 
     case UserModel.get(user_id) do

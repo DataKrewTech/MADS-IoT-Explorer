@@ -81,7 +81,7 @@ defmodule AcqdatApi.ElasticSearch do
     query =
       search index: "#{type}" do
         query do
-          match("label", "#{params}")
+          wildcard("label", "#{params}*")
         end
       end
 
@@ -92,7 +92,7 @@ defmodule AcqdatApi.ElasticSearch do
     query =
       search index: "#{type}" do
         query do
-          match("first_name", "#{params}")
+          wildcard("first_name", "#{params}*")
         end
       end
 

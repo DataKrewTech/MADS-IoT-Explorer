@@ -10,9 +10,9 @@ defmodule AcqdatApiWeb.RoleView do
     }
   end
 
-  def render("index.json", sensor) do
+  def render("index.json", role) do
     %{
-      sensors: render_many(sensor.entries, RoleView, "role.json")
+      roles: render_many(role.entries, RoleView, "role.json")
     }
   end
 end

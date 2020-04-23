@@ -7,7 +7,6 @@ defmodule AcqdatCore.Seed.User do
   def seed_user!() do
     [org] = Repo.all(Organisation)
     role = Repo.get(Role, 1)
-    [org] = Repo.all(Organisation)
     params = %{
       first_name: "Chandu",
       last_name: "Developer",
