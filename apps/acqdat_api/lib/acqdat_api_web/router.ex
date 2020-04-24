@@ -58,6 +58,11 @@ defmodule AcqdatApiWeb.Router do
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end
 
+    resources("/teams", TeamController, only: [:create, :index, :update])
+    put("/teams/:id/assets", TeamController, :assets, as: :update_team_assets)
+    put("/teams/:id/apps", TeamController, :apps, as: :update_team_apps)
+    put("/teams/:id/members", TeamController, :members, as: :update_team_members)
+
     put("/users/:id/assets", UserController, :assets, as: :user_assets)
     put("/users/:id/apps", UserController, :apps, as: :user_apps)
     resources "/invitations", InvitationController, only: [:create]

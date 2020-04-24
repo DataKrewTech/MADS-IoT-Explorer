@@ -14,6 +14,7 @@ defmodule AcqdatCore.Schema.Team do
 
   schema("acqdat_teams") do
     field(:name, :string, null: false)
+    field(:description, :string)
     field(:enable_tracking, :boolean, default: false)
 
     # associations
@@ -28,7 +29,7 @@ defmodule AcqdatCore.Schema.Team do
   end
 
   @required ~w(name org_id creator_id)a
-  @optional ~w(team_lead_id enable_tracking)a
+  @optional ~w(team_lead_id enable_tracking description)a
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = team, params) do
@@ -38,26 +39,67 @@ defmodule AcqdatCore.Schema.Team do
     |> unique_constraint(:name)
     |> assoc_constraint(:org)
     |> assoc_constraint(:creator)
+    |> assoc_constraint(:team_lead)
     |> associate_users_changeset(params[:users] || [])
     |> associate_assets_changeset(params[:assets] || [])
     |> associate_apps_changeset(params[:apps] || [])
   end
 
+  def update_changeset(%__MODULE__{} = team, params) do
+    team
+    |> cast(params, @permitted)
+    |> validate_required(@required)
+    |> unique_constraint(:name)
+    |> assoc_constraint(:org)
+    |> assoc_constraint(:creator)
+    |> assoc_constraint(:team_lead)
+  end
+
+  def update_assets(%__MODULE__{} = team, %{assets: asset_ids}) do
+    assets = Repo.all(from(asset in Asset, where: asset.id in ^asset_ids))
+
+    team
+    |> Repo.preload(:assets)
+    |> change()
+    |> put_assoc(:assets, Enum.map(assets, &change/1))
+  end
+
+  def update_apps(%__MODULE__{} = team, %{apps: app_ids}) do
+    apps = Repo.all(from(app in App, where: app.id in ^app_ids))
+
+    team
+    |> Repo.preload(:apps)
+    |> change()
+    |> put_assoc(:apps, Enum.map(apps, &change/1))
+  end
+
+  def update_members(%__MODULE__{} = team, %{members: member_ids}) do
+    users = Repo.all(from(user in User, where: user.id in ^member_ids))
+
+    team
+    |> Repo.preload(:users)
+    |> change()
+    |> put_assoc(:users, Enum.map(users, &change/1))
+  end
+
   defp associate_users_changeset(team, user_ids) do
     users = Repo.all(from(user in User, where: user.id in ^user_ids))
 
-    put_assoc(team, :users, Enum.map(users, &change/1))
+    team
+    |> put_assoc(:users, Enum.map(users, &change/1))
   end
 
   defp associate_assets_changeset(team, asset_ids) do
     assets = Repo.all(from(asset in Asset, where: asset.id in ^asset_ids))
 
-    put_assoc(team, :assets, Enum.map(assets, &change/1))
+    team
+    |> put_assoc(:assets, Enum.map(assets, &change/1))
   end
 
   defp associate_apps_changeset(team, app_ids) do
     apps = Repo.all(from(app in App, where: app.id in ^app_ids))
 
-    put_assoc(team, :apps, Enum.map(apps, &change/1))
+    team
+    |> put_assoc(:apps, Enum.map(apps, &change/1))
   end
 end

@@ -21,6 +21,26 @@ defmodule AcqdatCore.Model.Team do
     Repo.insert(changeset)
   end
 
+  def update(team, params) do
+    changeset = Team.update_changeset(team, params)
+    Repo.update(changeset)
+  end
+
+  def update_assets(team, params) do
+    changeset = Team.update_assets(team, params)
+    Repo.update(changeset)
+  end
+
+  def update_apps(team, params) do
+    changeset = Team.update_apps(team, params)
+    Repo.update(changeset)
+  end
+
+  def update_members(team, params) do
+    changeset = Team.update_members(team, params)
+    Repo.update(changeset)
+  end
+
   def get(id) when is_integer(id) do
     case Repo.get(Team, id) do
       nil ->

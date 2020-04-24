@@ -4,12 +4,39 @@ defmodule AcqdatApiWeb.Validators.Team do
   defparams(
     verify_create_params(%{
       name!: :string,
+      description: :string,
       team_lead_id: :integer,
       enable_tracking: :boolean,
       org_id: :integer,
       assets: {:array, :map},
       apps: {:array, :map},
-      users: {:array, :map}
+      members: {:array, :map}
+    })
+  )
+
+  defparams(
+    verify_assets_params(%{
+      assets!: {:array, :map}
+    })
+  )
+
+  defparams(
+    verify_apps_params(%{
+      apps!: {:array, :map}
+    })
+  )
+
+  defparams(
+    verify_members_params(%{
+      members!: {:array, :map}
+    })
+  )
+
+  defparams(
+    verify_update_params(%{
+      team_lead_id: :integer,
+      enable_tracking: :boolean,
+      description: :string
     })
   )
 

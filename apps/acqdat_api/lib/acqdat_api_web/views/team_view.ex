@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.TeamView do
     %{
       id: team.id,
       name: team.name,
+      description: team.description,
       enable_tracking: team.enable_tracking
     }
   end
@@ -24,7 +25,10 @@ defmodule AcqdatApiWeb.TeamView do
     %{
       id: team.id,
       name: team.name,
+      description: team.description,
       enable_tracking: team.enable_tracking,
+      creator_id: team.creator_id,
+      team_lead_id: team.team_lead_id,
       members: render_many(team.users, TeamView, "member_details.json"),
       assets: render_many(team.assets, TeamView, "asset_details.json"),
       apps: render_many(team.apps, TeamView, "app_details.json")

@@ -5,7 +5,7 @@ defmodule AcqdatCore.Schema.User do
 
   use AcqdatCore.Schema
   alias Comeonin.Argon2
-  alias AcqdatCore.Schema.{Role, UserSetting, Organisation, Asset, App}
+  alias AcqdatCore.Schema.{Role, UserSetting, Organisation, Team, Asset, App}
   alias AcqdatCore.Repo
 
   @password_min_length 8
@@ -26,6 +26,7 @@ defmodule AcqdatCore.Schema.User do
     has_one(:user_setting, UserSetting)
     many_to_many(:assets, Asset, join_through: "asset_user", on_replace: :delete)
     many_to_many(:apps, App, join_through: "app_user", on_replace: :delete)
+    many_to_many(:teams, Team, join_through: "users_teams", on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
