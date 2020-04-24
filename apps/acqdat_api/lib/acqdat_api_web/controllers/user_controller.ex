@@ -33,7 +33,7 @@ defmodule AcqdatApiWeb.UserController do
   def search_users(conn, %{"label" => label}) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_user("users", label, 3) do
+        with {:ok, hits} <- ElasticSearch.search_user("users", label) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
           {:error, message} ->
@@ -42,7 +42,7 @@ defmodule AcqdatApiWeb.UserController do
             |> json(%{
               "success" => false,
               "error" => true,
-              "message:" => "elasticsearch is not running"
+              "message:" => message
             })
         end
 

@@ -57,26 +57,26 @@ defmodule AcqdatApi.ElasticSearch do
     retry(delete_function)
   end
 
-  def search_widget(type, params, retry \\ 3) do
+  def search_widget(type, params) do
     case do_widget_search(type, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
-      {:error, _return_code, _hits} ->
-        search_widget(type, params, retry - 1)
+      {:error, _return_code, hits} ->
+        {:error, hits}
 
       :error ->
         {:error, "elasticsearch is not running"}
     end
   end
 
-  def search_user(type, params, retry \\ 3) do
+  def search_user(type, params) do
     case do_user_search(type, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
-      {:error, _return_code, _hits} ->
-        search_user(type, params, retry - 1)
+      {:error, _return_code, hits} ->
+        {:error, hits}
 
       :error ->
         {:error, "elasticsearch is not running"}
@@ -113,9 +113,6 @@ defmodule AcqdatApi.ElasticSearch do
       :error -> {:error, "elasticsearch is not running"}
     end
   end
-
-  def search_widget(type, params, retry = 0), do: :ignore
-  def search_user(type, params, retry = 0), do: :ignore
 
   defp retry(function) do
     GenRetry.retry(function, retries: 3, delay: 10_000)
