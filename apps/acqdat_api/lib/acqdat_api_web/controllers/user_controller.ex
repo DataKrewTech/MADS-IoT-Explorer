@@ -33,8 +33,18 @@ defmodule AcqdatApiWeb.UserController do
   def search_users(conn, %{"label" => label}) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_user("users", label, 3),
-             do: conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        with {:ok, hits} <- ElasticSearch.search_user("users", label, 3) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "success" => false,
+              "error" => true,
+              "message:" => "elasticsearch is not running"
+            })
+        end
 
       404 ->
         conn
@@ -43,8 +53,25 @@ defmodule AcqdatApiWeb.UserController do
   end
 
   def index(conn, %{"page_size" => page_size}) do
-    with {:ok, hits} <- ElasticSearch.user_indexing(page_size),
-         do: conn |> put_status(200) |> render("index_hits.json", %{hits: hits})
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.user_indexing(page_size) do
+          conn |> put_status(200) |> render("index_hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "success" => false,
+              "error" => true,
+              "message:" => "elasticsearch is not running"
+            })
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
   end
 
   def update(conn, params) do

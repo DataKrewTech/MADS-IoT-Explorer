@@ -4,10 +4,6 @@ defmodule AcqdatApi.Loader do
   import AcqdatApiWeb.Helpers
   import Plug.Conn
 
-  def load_org(%{params: %{"id" => org_id}} = conn, _params) do
-    check_org(conn, org_id)
-  end
-
   def load_org(%{params: %{"org_id" => org_id}} = conn, params) do
     check_org(conn, org_id)
   end

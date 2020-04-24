@@ -64,6 +64,9 @@ defmodule AcqdatApi.ElasticSearch do
 
       {:error, _return_code, _hits} ->
         search_widget(type, params, retry - 1)
+
+      :error ->
+        {:error, "elasticsearch is not running"}
     end
   end
 
@@ -74,6 +77,9 @@ defmodule AcqdatApi.ElasticSearch do
 
       {:error, _return_code, _hits} ->
         search_user(type, params, retry - 1)
+
+      :error ->
+        {:error, "elasticsearch is not running"}
     end
   end
 
@@ -101,8 +107,11 @@ defmodule AcqdatApi.ElasticSearch do
 
   def user_indexing(page) do
     page_size = String.to_integer(page)
-    {:ok, _return_code, hits} = get("/users/_search", size: page_size)
-    {:ok, hits.hits}
+
+    case get("/users/_search", size: page_size) do
+      {:ok, _return_code, hits} -> {:ok, hits.hits}
+      :error -> {:error, "elasticsearch is not running"}
+    end
   end
 
   def search_widget(type, params, retry = 0), do: :ignore
