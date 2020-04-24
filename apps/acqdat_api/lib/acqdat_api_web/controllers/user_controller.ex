@@ -1,14 +1,12 @@
 defmodule AcqdatApiWeb.UserController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.User
-  alias AcqdatCore.Model.Organisation, as: OrgModel
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
-  import AcqdatApi.Loader
 
-  plug :load_org when action in [:search_users, :index]
-  plug :load_user when action in [:show, :update]
+  plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
+  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -58,7 +56,7 @@ defmodule AcqdatApiWeb.UserController do
         with {:ok, hits} <- ElasticSearch.user_indexing(page_size) do
           conn |> put_status(200) |> render("index_hits.json", %{hits: hits})
         else
-          {:error, message} ->
+          {:error, _message} ->
             conn
             |> put_status(404)
             |> json(%{

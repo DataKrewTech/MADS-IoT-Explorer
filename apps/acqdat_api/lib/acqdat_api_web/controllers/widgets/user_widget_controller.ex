@@ -93,19 +93,20 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
     end
   end
 
-  defp verify_user(
-         %{params: %{"user_id" => user_id}} = conn,
-         _params
-       ) do
-    {user_id, _} = Integer.parse(user_id)
+  # TODO it will be used for future user endpoints
+  # defp verify_user(
+  #        %{params: %{"user_id" => user_id}} = conn,
+  #        _params
+  #      ) do
+  #   {user_id, _} = Integer.parse(user_id)
 
-    case UserModel.get(user_id) do
-      {:ok, user} ->
-        assign(conn, :user, user)
+  #   case UserModel.get(user_id) do
+  #     {:ok, user} ->
+  #       assign(conn, :user, user)
 
-      {:error, _message} ->
-        conn
-        |> put_status(404)
-    end
-  end
+  #     {:error, _message} ->
+  #       conn
+  #       |> put_status(404)
+  #   end
+  # end
 end

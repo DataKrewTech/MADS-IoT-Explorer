@@ -20,7 +20,6 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.{
     User,
     UserSetting,
-    Device,
     Sensor,
     DigitalTwin,
     Organisation,
