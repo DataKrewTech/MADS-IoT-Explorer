@@ -24,6 +24,26 @@ defmodule AcqdatCore.Schema.TeamTest do
              } == errors_on(changeset)
     end
 
+    test "returns error when duplicate name is used", context do
+      %{org: org, user: user} = context
+      team = insert(:team)
+
+      params = %{
+        org_id: org.id,
+        name: team.name,
+        assets: [1, 2],
+        apps: [1, 2],
+        users: [1, 2],
+        creator_id: user.id
+      }
+
+      changeset = Team.changeset(%Team{}, params)
+
+      {:error, changeset} = Repo.insert(changeset)
+
+      assert %{name: ["has already been taken"]} == errors_on(changeset)
+    end
+
     test "returns a valid changeset", context do
       %{org: org, user: user} = context
 
@@ -37,6 +57,66 @@ defmodule AcqdatCore.Schema.TeamTest do
       }
 
       %{valid?: validity} = Team.changeset(%Team{}, params)
+      assert validity
+    end
+  end
+
+  describe "update_assets/2" do
+    setup do
+      team = insert(:team)
+
+      [team: team]
+    end
+
+    test "updates assets of the team", context do
+      asset = insert(:asset)
+      %{team: team} = context
+
+      params = %{
+        assets: [asset.id]
+      }
+
+      %{valid?: validity} = Team.update_assets(team, params)
+      assert validity
+    end
+  end
+
+  describe "update_apps/2" do
+    setup do
+      team = insert(:team)
+
+      [team: team]
+    end
+
+    test "updates apps of the team", context do
+      app = insert(:app)
+      %{team: team} = context
+
+      params = %{
+        apps: [app.id]
+      }
+
+      %{valid?: validity} = Team.update_apps(team, params)
+      assert validity
+    end
+  end
+
+  describe "update_members/2" do
+    setup do
+      team = insert(:team)
+
+      [team: team]
+    end
+
+    test "updates members of the team", context do
+      member = insert(:user)
+      %{team: team} = context
+
+      params = %{
+        members: [member.id]
+      }
+
+      %{valid?: validity} = Team.update_members(team, params)
       assert validity
     end
   end

@@ -64,6 +64,123 @@ defmodule AcqdatCore.Model.TeamTest do
     end
   end
 
+  describe "update/2" do
+    setup do
+      user = insert(:user)
+      team = insert(:team)
+
+      [team: team, user: user]
+    end
+
+    test "updates the team's team lead", context do
+      %{team: team, user: user} = context
+
+      params = %{
+        team_lead_id: user.id
+      }
+
+      refute team.team_lead_id == user.id
+
+      assert {:ok, team} = TeamModel.update(team, params)
+      assert team.team_lead_id == user.id
+    end
+
+    test "updates the team's description", context do
+      %{team: team} = context
+
+      params = %{
+        description: "Updated Test Team description"
+      }
+
+      refute team.description == params[:description]
+
+      assert {:ok, team} = TeamModel.update(team, params)
+      assert team.description == params[:description]
+    end
+
+    test "updates the team's enable_tracking flag", context do
+      %{team: team} = context
+
+      params = %{
+        enable_tracking: true
+      }
+
+      refute team.enable_tracking
+
+      assert {:ok, team} = TeamModel.update(team, params)
+      assert team.enable_tracking
+    end
+  end
+
+  describe "update_assets/2" do
+    setup do
+      asset = insert(:asset)
+      team = insert(:team)
+
+      [team: team, asset: asset]
+    end
+
+    test "updates the team's assets", context do
+      %{team: team, asset: asset} = context
+
+      params = %{
+        assets: [asset.id]
+      }
+
+      team = Repo.preload(team, :assets)
+      assert length(team.assets) == 0
+
+      assert {:ok, team} = TeamModel.update_assets(team, params)
+      assert length(team.assets) == 1
+    end
+  end
+
+  describe "update_apps/2" do
+    setup do
+      app = insert(:app)
+      team = insert(:team)
+
+      [team: team, app: app]
+    end
+
+    test "updates the team's apps", context do
+      %{team: team, app: app} = context
+
+      params = %{
+        apps: [app.id]
+      }
+
+      team = Repo.preload(team, :apps)
+      assert length(team.apps) == 0
+
+      assert {:ok, team} = TeamModel.update_apps(team, params)
+      assert length(team.apps) == 1
+    end
+  end
+
+  describe "update_members/2" do
+    setup do
+      member = insert(:user)
+      team = insert(:team)
+
+      [team: team, member: member]
+    end
+
+    test "updates the team's members", context do
+      %{team: team, member: member} = context
+
+      params = %{
+        members: [member.id]
+      }
+
+      team = Repo.preload(team, :users)
+      assert length(team.users) == 0
+
+      assert {:ok, team} = TeamModel.update_members(team, params)
+      assert length(team.users) == 1
+    end
+  end
+
   describe "get_all/1" do
     test "returns a particular sensor" do
       insert(:team)

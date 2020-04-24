@@ -78,7 +78,8 @@ defmodule AcqdatCore.Support.Factory do
   def team_factory() do
     %Team{
       name: sequence(:name, &"Team_Name-#{&1}"),
-      org: build(:organisation)
+      org: build(:organisation),
+      creator: build(:user)
     }
   end
 
