@@ -31,7 +31,16 @@ defmodule AcqdatApiWeb.UserView do
       id: user_details.id,
       email: user_details.email,
       first_name: user_details.first_name,
-      last_name: user_details.last_name
+      last_name: user_details.last_name,
+      is_invited: user_details.is_invited,
+      role_id: user_details.role_id,
+      role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
+      org:
+        render_one(
+          preload_org(user_details.org_id),
+          OrganisationView,
+          "org.json"
+        )
     }
   end
 

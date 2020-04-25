@@ -9,7 +9,8 @@ defmodule AcqdatApi.Invitation do
       email: email,
       apps: apps,
       assets: assets,
-      org_id: org_id
+      org_id: org_id,
+      role_id: role_id
     } = attrs
 
     app_ids = Enum.map(apps || [], & &1["id"])
@@ -21,7 +22,8 @@ defmodule AcqdatApi.Invitation do
       "asset_ids" => asset_ids,
       "inviter_email" => current_user.email,
       "inviter_id" => current_user.id,
-      "org_id" => org_id
+      "org_id" => org_id,
+      "role_id" => role_id
     }
 
     create_invitation(

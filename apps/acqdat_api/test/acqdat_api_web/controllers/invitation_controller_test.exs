@@ -31,8 +31,9 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
       %{org: org, conn: conn} = context
 
       user = insert(:user)
+      role = insert(:role)
 
-      data = %{invitation: %{email: user.email}}
+      data = %{invitation: %{email: user.email, role_id: role.id}}
 
       conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
 

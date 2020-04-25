@@ -66,8 +66,13 @@ defmodule AcqdatApi.User do
   end
 
   defp validate_invitation(
-         %Invitation{asset_ids: asset_ids, app_ids: app_ids, email: email, org_id: org_id} =
-           invitation,
+         %Invitation{
+           asset_ids: asset_ids,
+           app_ids: app_ids,
+           email: email,
+           org_id: org_id,
+           role_id: role_id
+         } = invitation,
          user_details
        ) do
     user_details =
@@ -76,6 +81,8 @@ defmodule AcqdatApi.User do
       |> Map.put(:app_ids, app_ids)
       |> Map.put(:email, email)
       |> Map.put(:org_id, org_id)
+      |> Map.put(:role_id, role_id)
+      |> Map.put(:is_invited, true)
 
     verify_user(
       UserModel.create(user_details),

@@ -4,7 +4,7 @@ defmodule AcqdatCore.Schema.Invitation do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.{User, Organisation}
+  alias AcqdatCore.Schema.{Role, User, Organisation}
 
   @type t :: %__MODULE__{}
 
@@ -16,13 +16,14 @@ defmodule AcqdatCore.Schema.Invitation do
     field(:app_ids, {:array, :integer})
 
     # associations
-    belongs_to(:inviter, User)
+    belongs_to(:inviter, User, on_replace: :delete)
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:role, Role)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(email token inviter_id org_id)a
+  @required ~w(email token inviter_id org_id role_id)a
   @optional ~w(asset_ids app_ids)a
   @permitted @optional ++ @required
 

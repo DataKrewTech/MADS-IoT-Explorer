@@ -7,21 +7,27 @@ defmodule AcqdatCore.Model.InvitationTest do
   describe "create_invitation/1" do
     setup do
       org = insert(:organisation)
-      [org: org]
+      role = insert(:role)
+      [org: org, role: role]
     end
 
     test "creates a invitation with supplied params", context do
-      %{org: org} = context
+      %{org: org, role: role} = context
       inviter = insert(:user)
 
-      params = %{"email" => "test90@gmail.com", "inviter_id" => inviter.id, "org_id" => org.id}
+      params = %{
+        "email" => "test90@gmail.com",
+        "inviter_id" => inviter.id,
+        "org_id" => org.id,
+        "role_id" => role.id
+      }
 
       assert {:ok, _usersetting} = InvitationModel.create_invitation(params)
     end
 
     test "fails if inviter_id is not present", context do
-      %{org: org} = context
-      params = %{"email" => "test90@gmail.com", "org_id" => org.id}
+      %{org: org, role: role} = context
+      params = %{"email" => "test90@gmail.com", "org_id" => org.id, "role_id" => role.id}
 
       assert {:error, changeset} = InvitationModel.create_invitation(params)
       assert %{inviter_id: ["can't be blank"]} == errors_on(changeset)

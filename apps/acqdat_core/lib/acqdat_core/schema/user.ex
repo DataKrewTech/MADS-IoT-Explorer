@@ -57,6 +57,9 @@ defmodule AcqdatCore.Schema.User do
     |> put_pass_hash()
     |> assoc_constraint(:org)
     |> assoc_constraint(:role)
+
+    # |> associate_assets_changeset(params[:asset_ids] || [])
+    # |> associate_apps_changeset(params[:apps_ids] || [])
   end
 
   def associate_asset_changeset(user, assets) do

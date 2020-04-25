@@ -8,6 +8,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableInvitations do
       add(:asset_ids, {:array, :integer})
       add(:app_ids, {:array, :integer})
       add(:inviter_id, references(:users))
+      add(:role_id, references(:acqdat_roles), null: false)
       add(:org_id, references(:acqdat_organisation, on_delete: :delete_all, null: false))
       timestamps()
     end
