@@ -25,7 +25,7 @@ defmodule AcqdatCore.Support.Factory do
     Organisation,
     Asset,
     Gateway,
-    Role
+    Role,
     App
   }
 

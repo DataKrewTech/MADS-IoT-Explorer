@@ -8,6 +8,7 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
   import AcqdatApiWeb.Validators.Widgets.User
 
   plug :verify_widget_and_user when action in [:create]
+
   # plug :verify_user when action in [:index]
 
   def create(conn, params) do

@@ -33,5 +33,6 @@ defmodule AcqdatCore.Schema.UserApp do
     |> validate_required(@required_params)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:app_id)
+    |> unique_constraint(:user_id, name: :user_id_app_id_unique_index)
   end
 end

@@ -3,11 +3,10 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatApi.User
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
-  import AcqdatApiWeb.Validators.User
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
-  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :set_assets, :set_apps]
+  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps]
 
   def show(conn, %{"id" => id}) do
     case conn.status do

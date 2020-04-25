@@ -52,9 +52,10 @@ defmodule AcqdatApiWeb.Router do
     resources "/users", UserController, only: [:show, :update, :index] do
       resources "/settings", UserSettingController, only: [:create, :update], as: :settings
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
-      put("/assets", UserController, :assets, as: :assets)
-      put("/apps", UserController, :apps, as: :apps)
     end
+
+    put("/users/:id/assets", UserController, :assets, as: :user_assets)
+    put("/users/:id/apps", UserController, :apps, as: :user_apps)
 
     resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
   end

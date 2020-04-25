@@ -33,5 +33,6 @@ defmodule AcqdatCore.Schema.UserAsset do
     |> validate_required(@required_params)
     |> foreign_key_constraint(:user_id)
     |> foreign_key_constraint(:asset_id)
+    |> unique_constraint(:user_id, name: :user_id_asset_id_unique_index)
   end
 end

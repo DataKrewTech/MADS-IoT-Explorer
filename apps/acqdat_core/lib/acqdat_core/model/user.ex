@@ -68,12 +68,6 @@ defmodule AcqdatCore.Model.User do
   end
 
   def set_asset(user, assets) do
-    # TODO:: Need to think of union logic, when team will come in picture
-    # query =
-    #   from(u_asset in UserAsset, where: u_asset.user_id == ^user.id, select: u_asset.asset_id)
-
-    # new_asset_ids = Repo.all(query)
-    # new_asset_ids = Enum.uniq(new_asset_ids ++ asset_ids)
     asset_ids = Enum.map(assets || [], & &1["id"])
 
     user_assets =
@@ -88,10 +82,6 @@ defmodule AcqdatCore.Model.User do
   end
 
   def set_apps(user, apps) do
-    # TODO:: Need to think of union logic, when team will come in picture
-    # query = from(u_app in UserApp, where: u_app.user_id == ^user.id, select: u_app.app_id)
-    # new_app_ids = Repo.all(query)
-    # new_app_ids = Enum.uniq(new_app_ids ++ app_ids)
     app_ids = Enum.map(apps || [], & &1["id"])
 
     user_apps =
