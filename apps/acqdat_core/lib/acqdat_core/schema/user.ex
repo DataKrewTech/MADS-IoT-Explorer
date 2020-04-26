@@ -103,6 +103,13 @@ defmodule AcqdatCore.Schema.User do
     |> put_assoc(:apps, apps)
   end
 
+  def associate_team_changeset(user, teams) do
+    user
+    |> Repo.preload(:teams)
+    |> change()
+    |> put_assoc(:teams, Enum.map(teams, &change/1))
+  end
+
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do
     case fetch_change(changeset, :password) do
       {:ok, password} ->

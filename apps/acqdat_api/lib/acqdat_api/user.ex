@@ -18,6 +18,10 @@ defmodule AcqdatApi.User do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 
+  def update_teams(user, teams) do
+    verify_user_teams(UserModel.update_teams(user, teams))
+  end
+
   defp verify_user_assets({:ok, user}) do
     {:ok,
      %{
@@ -86,7 +90,7 @@ defmodule AcqdatApi.User do
       |> Map.put(:role_id, role_id)
       |> Map.put(:is_invited, true)
 
-    # NOTE: Following three things are happeing inside this transaction:
+    # NOTE: Following two things are happeing inside this transaction:
     # 1) UserCreation from token
     # 3) Invitation Record Deletions
     verify_user(
@@ -100,6 +104,19 @@ defmodule AcqdatApi.User do
 
   defp validate_invitation(nil, _user_details) do
     {:error, %{error: "Invitation doesn't exist"}}
+  end
+
+  defp verify_user_teams({:ok, user}) do
+    {:ok,
+     %{
+       teams: user.teams,
+       email: user.email,
+       id: user.id
+     }}
+  end
+
+  defp verify_user_teams({:error, user}) do
+    {:error, %{error: extract_changeset_error(user)}}
   end
 
   def user_create_es({:ok, params}) do

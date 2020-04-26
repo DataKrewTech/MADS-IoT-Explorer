@@ -5,6 +5,7 @@ defmodule AcqdatCore.Schema.Organisation do
   A organisation is the topmost node of the heirarchy and will not have any parent.
   """
   use AcqdatCore.Schema
+  alias AcqdatCore.Schema.App
 
   # use AsNestedSet, scope: [:id]
   @typedoc """
@@ -18,6 +19,13 @@ defmodule AcqdatCore.Schema.Organisation do
     field(:name, :string)
     field(:metadata, :map)
     field(:description, :string)
+
+    # associations
+    many_to_many(:apps, App,
+      join_through: "org_apps",
+      join_keys: [org_id: :id, app_id: :id],
+      on_replace: :delete
+    )
 
     timestamps(type: :utc_datetime)
   end

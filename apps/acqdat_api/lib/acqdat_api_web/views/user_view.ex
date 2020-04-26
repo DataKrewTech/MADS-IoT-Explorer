@@ -115,6 +115,22 @@ defmodule AcqdatApiWeb.UserView do
     }
   end
 
+  def render("user_teams.json", %{user: user}) do
+    %{
+      id: user.id,
+      email: user.email,
+      apps: render_many(user.teams, UserView, "team.json")
+    }
+  end
+
+  def render("team.json", team) do
+    %{
+      id: team.user.id,
+      name: team.user.name,
+      description: team.user.description
+    }
+  end
+
   defp preload_role(id) do
     Map.from_struct(Repo.get(Role, id))
   end
