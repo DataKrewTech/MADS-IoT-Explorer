@@ -33,6 +33,114 @@ defmodule AcqdatApiWeb.UserControllerTest do
     end
   end
 
+  describe "assets/2" do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      asset = insert(:asset)
+      user = insert(:user)
+
+      [user: user, asset: asset, org: org]
+    end
+
+    test "fails if authorization header not found", context do
+      %{user: user, conn: conn, org: org} = context
+
+      bad_access_token = "avcbd123489u"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      data = %{}
+      conn = put(conn, Routes.user_assets_path(conn, :assets, org.id, user.id), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "fails if assets params are not present", context do
+      %{user: user, conn: conn, org: org} = context
+
+      params = %{}
+
+      conn = put(conn, Routes.user_assets_path(conn, :assets, org.id, user.id), params)
+      response = conn |> json_response(400)
+      assert response == %{"errors" => %{"message" => %{"assets" => ["can't be blank"]}}}
+    end
+
+    test "update user's assets", context do
+      %{user: user, asset: asset, conn: conn, org: org} = context
+
+      params = %{
+        assets: [
+          %{
+            id: asset.id,
+            name: asset.name
+          }
+        ]
+      }
+
+      conn = put(conn, Routes.user_assets_path(conn, :assets, org.id, user.id), params)
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "assets")
+    end
+  end
+
+  describe "apps/2" do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      app = insert(:app)
+      user = insert(:user)
+
+      [user: user, app: app, org: org]
+    end
+
+    test "fails if authorization header not found", context do
+      %{user: user, conn: conn, org: org} = context
+
+      bad_access_token = "avcbd123489u"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      data = %{}
+      conn = put(conn, Routes.user_apps_path(conn, :apps, org.id, user.id), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "fails if assets params are not present", context do
+      %{user: user, conn: conn, org: org} = context
+
+      params = %{}
+
+      conn = put(conn, Routes.user_apps_path(conn, :apps, org.id, user.id), params)
+      response = conn |> json_response(400)
+      assert response == %{"errors" => %{"message" => %{"apps" => ["can't be blank"]}}}
+    end
+
+    test "update user's apps", context do
+      %{user: user, app: app, conn: conn, org: org} = context
+
+      params = %{
+        apps: [
+          %{
+            id: app.id,
+            name: app.name
+          }
+        ]
+      }
+
+      conn = put(conn, Routes.user_apps_path(conn, :apps, org.id, user.id), params)
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "apps")
+    end
+  end
+
   # describe "search_users/2" do
   #   setup :setup_conn
 

@@ -6,11 +6,11 @@ defmodule AcqdatApi.User do
     UserModel.get(user_id)
   end
 
-  def set_asset(user, assets) do
+  def set_asset(user, %{assets: assets}) do
     verify_user_assets(UserModel.set_asset(user, assets))
   end
 
-  def set_apps(user, apps) do
+  def set_apps(user, %{apps: apps}) do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 

@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.User
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
   plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps]
@@ -50,12 +51,15 @@ defmodule AcqdatApiWeb.UserController do
     end
   end
 
-  def assets(conn, %{"assets" => assets}) do
+  def assets(conn, params) do
     case conn.status do
       nil ->
         %{assigns: %{user: user}} = conn
 
-        with {:done, {:ok, user}} <- {:done, User.set_asset(user, assets)} do
+        changeset = verify_assets_params(params)
+
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:done, {:ok, user}} <- {:done, User.set_asset(user, data)} do
           conn
           |> put_status(200)
           |> render("user_assets.json", %{user: user})
@@ -73,12 +77,15 @@ defmodule AcqdatApiWeb.UserController do
     end
   end
 
-  def apps(conn, %{"apps" => apps}) do
+  def apps(conn, params) do
     case conn.status do
       nil ->
         %{assigns: %{user: user}} = conn
 
-        with {:done, {:ok, user}} <- {:done, User.set_apps(user, apps)} do
+        changeset = verify_apps_params(params)
+
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:done, {:ok, user}} <- {:done, User.set_apps(user, data)} do
           conn
           |> put_status(200)
           |> render("user_apps.json", %{user: user})

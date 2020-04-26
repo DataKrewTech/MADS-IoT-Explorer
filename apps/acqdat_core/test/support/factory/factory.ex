@@ -78,7 +78,7 @@ defmodule AcqdatCore.Support.Factory do
 
   def role_factory() do
     %Role{
-      name: "member",
+      name: sequence(:name, &"Role-#{&1}"),
       description: "Member of the organisation"
     }
   end
