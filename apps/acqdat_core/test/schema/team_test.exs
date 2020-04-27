@@ -72,11 +72,7 @@ defmodule AcqdatCore.Schema.TeamTest do
       asset = insert(:asset)
       %{team: team} = context
 
-      params = %{
-        assets: [asset.id]
-      }
-
-      %{valid?: validity} = Team.update_assets(team, params)
+      %{valid?: validity} = Team.update_assets(team, [asset])
       assert validity
     end
   end
@@ -92,11 +88,7 @@ defmodule AcqdatCore.Schema.TeamTest do
       app = insert(:app)
       %{team: team} = context
 
-      params = %{
-        apps: [app.id]
-      }
-
-      %{valid?: validity} = Team.update_apps(team, params)
+      %{valid?: validity} = Team.update_apps(team, [app])
       assert validity
     end
   end
@@ -112,11 +104,7 @@ defmodule AcqdatCore.Schema.TeamTest do
       member = insert(:user)
       %{team: team} = context
 
-      params = %{
-        members: [member.id]
-      }
-
-      %{valid?: validity} = Team.update_members(team, params)
+      %{valid?: validity} = Team.update_members(team, [member])
       assert validity
     end
   end

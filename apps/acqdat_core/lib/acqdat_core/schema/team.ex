@@ -55,31 +55,25 @@ defmodule AcqdatCore.Schema.Team do
     |> assoc_constraint(:team_lead)
   end
 
-  def update_assets(%__MODULE__{} = team, %{assets: asset_ids}) do
-    assets = Repo.all(from(asset in Asset, where: asset.id in ^asset_ids))
-
+  def update_assets(%__MODULE__{} = team, assets) do
     team
     |> Repo.preload(:assets)
     |> change()
     |> put_assoc(:assets, Enum.map(assets, &change/1))
   end
 
-  def update_apps(%__MODULE__{} = team, %{apps: app_ids}) do
-    apps = Repo.all(from(app in App, where: app.id in ^app_ids))
-
+  def update_apps(%__MODULE__{} = team, apps) do
     team
     |> Repo.preload(:apps)
     |> change()
     |> put_assoc(:apps, Enum.map(apps, &change/1))
   end
 
-  def update_members(%__MODULE__{} = team, %{members: member_ids}) do
-    users = Repo.all(from(user in User, where: user.id in ^member_ids))
-
+  def update_members(%__MODULE__{} = team, members) do
     team
     |> Repo.preload(:users)
     |> change()
-    |> put_assoc(:users, Enum.map(users, &change/1))
+    |> put_assoc(:users, Enum.map(members, &change/1))
   end
 
   defp associate_users_changeset(team, user_ids) do

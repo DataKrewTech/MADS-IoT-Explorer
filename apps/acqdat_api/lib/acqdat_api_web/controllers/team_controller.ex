@@ -42,7 +42,7 @@ defmodule AcqdatApiWeb.TeamController do
              {:create, {:ok, team_res}} <- {:create, Team.update_assets(team, data)} do
           conn
           |> put_status(200)
-          |> render("team_details.json", %{team: team_res})
+          |> render("team_assets.json", %{team: team_res})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
@@ -67,7 +67,7 @@ defmodule AcqdatApiWeb.TeamController do
              {:create, {:ok, team_res}} <- {:create, Team.update_apps(team, data)} do
           conn
           |> put_status(200)
-          |> render("team_details.json", %{team: team_res})
+          |> render("team_apps.json", %{team: team_res})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
@@ -92,7 +92,7 @@ defmodule AcqdatApiWeb.TeamController do
              {:create, {:ok, team_res}} <- {:create, Team.update_members(team, data)} do
           conn
           |> put_status(200)
-          |> render("team_details.json", %{team: team_res})
+          |> render("team_members.json", %{team: team_res})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)

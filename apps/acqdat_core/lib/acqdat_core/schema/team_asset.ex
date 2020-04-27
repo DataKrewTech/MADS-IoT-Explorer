@@ -6,13 +6,12 @@ defmodule AcqdatCore.Schema.TeamAsset do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.{Team, Asset}
 
-  @primary_key false
   @type t :: %__MODULE__{}
 
   schema "teams_assets" do
     # associations
-    belongs_to(:team, Team, primary_key: true)
-    belongs_to(:asset, Asset, primary_key: true)
+    belongs_to(:team, Team)
+    belongs_to(:asset, Asset)
   end
 
   @required_params ~w(team_id asset_id)a
@@ -33,5 +32,9 @@ defmodule AcqdatCore.Schema.TeamAsset do
     |> validate_required(@required_params)
     |> foreign_key_constraint(:team_id)
     |> foreign_key_constraint(:asset_id)
+    |> unique_constraint(:team_id,
+      name: :asset_id_team_id_unique_index,
+      message: "team_id_asset_id is not unique"
+    )
   end
 end

@@ -2,9 +2,9 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableTeamsAssets do
   use Ecto.Migration
 
   def up do
-    create table(:teams_assets, primary_key: false) do
-      add(:team_id, references(:acqdat_teams, on_delete: :delete_all), primary_key: true)
-      add(:asset_id, references(:acqdat_asset, on_delete: :delete_all), primary_key: true)
+    create table(:teams_assets) do
+      add(:team_id, references(:acqdat_teams, on_delete: :delete_all))
+      add(:asset_id, references(:acqdat_asset, on_delete: :delete_all))
     end
 
     create(index(:teams_assets, [:team_id]))

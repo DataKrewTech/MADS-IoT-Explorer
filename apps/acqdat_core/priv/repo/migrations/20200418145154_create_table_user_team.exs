@@ -2,9 +2,9 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableUserTeam do
   use Ecto.Migration
 
   def up do
-    create table(:users_teams, primary_key: false) do
-      add(:team_id, references(:acqdat_teams, on_delete: :delete_all), primary_key: true)
-      add(:user_id, references(:users, on_delete: :delete_all), primary_key: true)
+    create table(:users_teams) do
+      add(:team_id, references(:acqdat_teams, on_delete: :delete_all))
+      add(:user_id, references(:users, on_delete: :delete_all))
     end
 
     create(index(:users_teams, [:team_id]))

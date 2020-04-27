@@ -123,14 +123,10 @@ defmodule AcqdatCore.Model.TeamTest do
     test "updates the team's assets", context do
       %{team: team, asset: asset} = context
 
-      params = %{
-        assets: [asset.id]
-      }
-
       team = Repo.preload(team, :assets)
       assert length(team.assets) == 0
 
-      assert {:ok, team} = TeamModel.update_assets(team, params)
+      assert {:ok, team} = TeamModel.update_assets(team, [asset.id])
       assert length(team.assets) == 1
     end
   end
@@ -146,14 +142,10 @@ defmodule AcqdatCore.Model.TeamTest do
     test "updates the team's apps", context do
       %{team: team, app: app} = context
 
-      params = %{
-        apps: [app.id]
-      }
-
       team = Repo.preload(team, :apps)
       assert length(team.apps) == 0
 
-      assert {:ok, team} = TeamModel.update_apps(team, params)
+      assert {:ok, team} = TeamModel.update_apps(team, [app.id])
       assert length(team.apps) == 1
     end
   end
@@ -169,14 +161,10 @@ defmodule AcqdatCore.Model.TeamTest do
     test "updates the team's members", context do
       %{team: team, member: member} = context
 
-      params = %{
-        members: [member.id]
-      }
-
       team = Repo.preload(team, :users)
       assert length(team.users) == 0
 
-      assert {:ok, team} = TeamModel.update_members(team, params)
+      assert {:ok, team} = TeamModel.update_members(team, [member.id])
       assert length(team.users) == 1
     end
   end

@@ -40,19 +40,19 @@ defmodule AcqdatApi.Team do
   def update_assets(team, %{assets: assets}) do
     asset_ids = Enum.map(assets, & &1["id"])
 
-    verify_team(TeamModel.update_assets(team, %{assets: asset_ids}))
+    verify_team(TeamModel.update_assets(team, asset_ids))
   end
 
   def update_apps(team, %{apps: apps}) do
     app_ids = Enum.map(apps, & &1["id"])
 
-    verify_team(TeamModel.update_apps(team, %{apps: app_ids}))
+    verify_team(TeamModel.update_apps(team, app_ids))
   end
 
   def update_members(team, %{members: members}) do
     member_ids = Enum.map(members, & &1["id"])
 
-    verify_team(TeamModel.update_members(team, %{members: member_ids}))
+    verify_team(TeamModel.update_members(team, member_ids))
   end
 
   def update(team, attrs) do
@@ -72,13 +72,7 @@ defmodule AcqdatApi.Team do
   end
 
   defp verify_team({:ok, team}) do
-    {:ok,
-     %{
-       id: team.id,
-       name: team.name,
-       enable_tracking: team.enable_tracking,
-       description: team.description
-     }}
+    {:ok, team}
   end
 
   defp verify_team({:error, team}) do

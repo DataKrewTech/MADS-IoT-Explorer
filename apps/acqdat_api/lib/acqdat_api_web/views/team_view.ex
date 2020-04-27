@@ -11,6 +11,36 @@ defmodule AcqdatApiWeb.TeamView do
     }
   end
 
+  def render("team_assets.json", %{team: team}) do
+    %{
+      id: team.id,
+      name: team.name,
+      description: team.description,
+      enable_tracking: team.enable_tracking,
+      assets: render_many(team.assets, TeamView, "asset_details.json")
+    }
+  end
+
+  def render("team_apps.json", %{team: team}) do
+    %{
+      id: team.id,
+      name: team.name,
+      description: team.description,
+      enable_tracking: team.enable_tracking,
+      assets: render_many(team.apps, TeamView, "app_details.json")
+    }
+  end
+
+  def render("team_members.json", %{team: team}) do
+    %{
+      id: team.id,
+      name: team.name,
+      description: team.description,
+      enable_tracking: team.enable_tracking,
+      members: render_many(team.users, TeamView, "member_details.json")
+    }
+  end
+
   def render("index.json", team) do
     %{
       teams: render_many(team.entries, TeamView, "team_with_preloads.json"),

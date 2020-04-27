@@ -26,18 +26,33 @@ defmodule AcqdatCore.Model.Team do
     Repo.update(changeset)
   end
 
-  def update_assets(team, params) do
-    changeset = Team.update_assets(team, params)
+  def update_assets(team, asset_ids) do
+    assets =
+      Asset
+      |> where([asset], asset.id in ^asset_ids)
+      |> Repo.all()
+
+    changeset = Team.update_assets(team, assets)
     Repo.update(changeset)
   end
 
-  def update_apps(team, params) do
-    changeset = Team.update_apps(team, params)
+  def update_apps(team, app_ids) do
+    assets =
+      App
+      |> where([app], app.id in ^app_ids)
+      |> Repo.all()
+
+    changeset = Team.update_apps(team, assets)
     Repo.update(changeset)
   end
 
-  def update_members(team, params) do
-    changeset = Team.update_members(team, params)
+  def update_members(team, member_ids) do
+    members =
+      User
+      |> where([member], member.id in ^member_ids)
+      |> Repo.all()
+
+    changeset = Team.update_members(team, members)
     Repo.update(changeset)
   end
 

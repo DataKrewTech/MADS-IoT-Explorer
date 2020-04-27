@@ -6,13 +6,12 @@ defmodule AcqdatCore.Schema.UserTeam do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.{Team, User}
 
-  @primary_key false
   @type t :: %__MODULE__{}
 
   schema "users_teams" do
     # associations
-    belongs_to(:team, Team, primary_key: true)
-    belongs_to(:user, User, primary_key: true)
+    belongs_to(:team, Team)
+    belongs_to(:user, User)
   end
 
   @required_params ~w(team_id user_id)a
@@ -33,5 +32,9 @@ defmodule AcqdatCore.Schema.UserTeam do
     |> validate_required(@required_params)
     |> foreign_key_constraint(:team_id)
     |> foreign_key_constraint(:user_id)
+    |> unique_constraint(:team_id,
+      name: :user_id_team_id_unique_index,
+      message: "team_id_user_id is not unique"
+    )
   end
 end
