@@ -6,13 +6,12 @@ defmodule AcqdatCore.Schema.UserApp do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.{User, App}
 
-  @primary_key false
   @type t :: %__MODULE__{}
 
   schema "app_user" do
     # associations
-    belongs_to(:user, User, primary_key: true)
-    belongs_to(:app, App, primary_key: true)
+    belongs_to(:user, User)
+    belongs_to(:app, App)
   end
 
   @required_params ~w(user_id app_id)a

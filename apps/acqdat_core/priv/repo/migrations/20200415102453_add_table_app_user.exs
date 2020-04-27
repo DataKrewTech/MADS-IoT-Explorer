@@ -2,9 +2,9 @@ defmodule AcqdatCore.Repo.Migrations.AddTableAppUser do
   use Ecto.Migration
 
   def up do
-    create table(:app_user, primary_key: false) do
-      add(:app_id, references(:acqdat_apps, on_delete: :delete_all), primary_key: true)
-      add(:user_id, references(:users, on_delete: :delete_all), primary_key: true)
+    create table(:app_user) do
+      add(:app_id, references(:acqdat_apps, on_delete: :delete_all))
+      add(:user_id, references(:users, on_delete: :delete_all))
     end
 
     create(index(:app_user, [:app_id]))

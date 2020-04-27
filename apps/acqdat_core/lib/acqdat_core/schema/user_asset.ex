@@ -6,20 +6,19 @@ defmodule AcqdatCore.Schema.UserAsset do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.{User, Asset}
 
-  @primary_key false
   @type t :: %__MODULE__{}
 
   schema "asset_user" do
     # associations
-    belongs_to(:user, User, primary_key: true)
-    belongs_to(:asset, Asset, primary_key: true)
+    belongs_to(:user, User)
+    belongs_to(:asset, Asset)
   end
 
   @required_params ~w(user_id asset_id)a
 
   @spec changeset(t, map) :: Ecto.Changeset.t()
-  def changeset(%__MODULE__{} = user_asset, params) do
-    common_changeset(user_asset, params)
+  def changeset(%__MODULE__{} = asset_user, params) do
+    common_changeset(asset_user, params)
   end
 
   @spec update_changeset(t, map) :: Ecto.Changeset.t()
