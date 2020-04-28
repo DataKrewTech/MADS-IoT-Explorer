@@ -39,9 +39,9 @@ defmodule AcqdatApi.User do
   end
 
   defp verify_user_apps({:error, user}) do
-   {:error, %{error: extract_changeset_error(user)}}
+    {:error, %{error: extract_changeset_error(user)}}
   end
-  
+
   def create(attrs) do
     %{
       token: token,

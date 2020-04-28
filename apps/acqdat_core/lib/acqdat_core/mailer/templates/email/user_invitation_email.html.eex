@@ -5,7 +5,7 @@
       <br>
       <span><%= @invitation_details["inviter_name"] %></span>
       You have been invited to DataKrew. Click
-      <a style= "color: hotpink" href= "<%= System.get_env("FRONTEND_URL") %>/set_password/<%= @invitation_details["token"] %>/"> here</a> 
+      <a style= "color: hotpink" href= "<%= System.get_env("FRONTEND_URL") %>/set-password/<%= @invitation_details["token"] %>/"> here</a>
       to set your password.
       <br>
       <br>

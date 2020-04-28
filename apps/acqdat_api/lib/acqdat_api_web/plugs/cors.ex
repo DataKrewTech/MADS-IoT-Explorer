@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.Plug.CORS do
     origins: "*",
     log: [rejected: :error],
     allow_credentials: true,
-    allow_headers: ["content-type", "token-type", "authorization"],
+    allow_headers: ["content-type", "token-type", "authorization", "invitation-token"],
     allow_methods: ["GET", "PUT", "OPTIONS", "DELETE", "PATCH", "POST"],
     max_age: 600
 

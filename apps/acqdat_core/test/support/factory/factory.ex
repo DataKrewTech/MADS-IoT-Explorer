@@ -26,7 +26,7 @@ defmodule AcqdatCore.Support.Factory do
     Asset,
     Gateway,
     Role,
-    App
+    App,
     Invitation
   }
 
@@ -62,7 +62,7 @@ defmodule AcqdatCore.Support.Factory do
       description: "Demo App Testing"
     }
   end
-  
+
   def invitation_factory() do
     %Invitation{
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
