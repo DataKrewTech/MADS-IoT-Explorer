@@ -2,7 +2,9 @@ defmodule AcqdatApi.User do
   alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatCore.Model.Invitation, as: InvitationModel
   alias AcqdatCore.Schema.Invitation
+  alias AcqdatCore.Repo
   import AcqdatApiWeb.Helpers
+  import Tirexs.HTTP
 
   def get(user_id) do
     UserModel.get(user_id)
@@ -84,9 +86,15 @@ defmodule AcqdatApi.User do
       |> Map.put(:role_id, role_id)
       |> Map.put(:is_invited, true)
 
+    # NOTE: Following three things are happeing inside this transaction:
+    # 1) UserCreation from token
+    # 3) Invitation Record Deletions
     verify_user(
-      UserModel.create(user_details),
-      invitation
+      Repo.transaction(fn ->
+        user = UserModel.create(user_details)
+        InvitationModel.delete(invitation)
+        user
+      end)
     )
   end
 
@@ -94,12 +102,32 @@ defmodule AcqdatApi.User do
     {:error, %{error: "Invitation doesn't exist"}}
   end
 
-  defp verify_user({:ok, user}, invitation) do
-    InvitationModel.delete(invitation)
-    {:ok, user}
+  def user_create_es({:ok, params}) do
+    create_function = fn ->
+      post("users/_doc/#{params.id}",
+        id: params.id,
+        email: params.email,
+        first_name: params.first_name,
+        last_name: params.last_name,
+        org_id: params.org_id,
+        is_invited: params.is_invited,
+        role_id: params.role_id
+      )
+    end
+
+    retry(create_function)
   end
 
-  defp verify_user({:error, user}, _invitation) do
+  defp verify_user({:ok, user_data}) do
+    user_create_es(user_data)
+    user_data
+  end
+
+  defp verify_user({:error, user}) do
     {:error, %{error: extract_changeset_error(user)}}
+  end
+
+  defp retry(function) do
+    GenRetry.retry(function, retries: 3, delay: 10_000)
   end
 end

@@ -1,5 +1,6 @@
 defmodule AcqdatApi.Invitation do
   import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.ResMessages
   alias AcqdatCore.Model.Invitation, as: InvitationModel
   alias AcqdatCore.Mailer.UserInvitationEmail
   alias AcqdatCore.Mailer
@@ -51,6 +52,6 @@ defmodule AcqdatApi.Invitation do
   end
 
   defp show_message_to_user(_invitation_details) do
-    {:ok, "Send invitation to the user successfully, They will receive email after sometime!"}
+    {:ok, resp_msg(:invited_success)}
   end
 end

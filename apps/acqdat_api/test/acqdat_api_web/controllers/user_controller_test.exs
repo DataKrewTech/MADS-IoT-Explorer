@@ -141,6 +141,62 @@ defmodule AcqdatApiWeb.UserControllerTest do
     end
   end
 
+  describe "create/2" do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      invitation = insert(:invitation)
+      [org: org, invitation: invitation]
+    end
+
+    test "fails if invitation-token header not found", context do
+      %{org: org, conn: conn} = context
+
+      bad_invitation_token = "avcbd123489u"
+
+      conn =
+        conn
+        |> put_req_header("invitation-token", bad_invitation_token)
+
+      data = %{
+        user: %{
+          password: "test123@!%$",
+          password_confirmation: "test123@!%$",
+          first_name: "Demo Name"
+        }
+      }
+
+      conn = post(conn, Routes.user_path(conn, :create, org.id), data)
+      result = conn |> json_response(400)
+
+      result[:errors] == %{message: %{error: "Invitation doesn't exist"}}
+    end
+
+    test "user create when valid token", context do
+      %{org: org, invitation: invitation, conn: conn} = context
+
+      data = %{
+        user: %{
+          password: "test123@!%$",
+          password_confirmation: "test123@!%$",
+          first_name: "Demo Name"
+        }
+      }
+
+      conn =
+        conn
+        |> put_req_header("invitation-token", invitation.token)
+
+      conn = post(conn, Routes.user_path(conn, :create, org.id), data)
+
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "is_invited")
+      assert response["is_invited"]
+      assert response["first_name"] == "Demo Name"
+    end
+  end
+
   # describe "search_users/2" do
   #   setup :setup_conn
 

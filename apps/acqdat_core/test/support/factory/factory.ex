@@ -68,7 +68,8 @@ defmodule AcqdatCore.Support.Factory do
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
       token: UUID.uuid1(:hex),
       inviter: build(:user),
-      role: build(:role)
+      role: build(:role),
+      org: build(:organisation)
     }
   end
 
