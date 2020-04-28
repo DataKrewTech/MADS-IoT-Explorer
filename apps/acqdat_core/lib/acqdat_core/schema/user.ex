@@ -39,16 +39,16 @@ defmodule AcqdatCore.Schema.User do
     user
     |> cast(params, @permitted)
     |> validate_required(@required)
-    |> common_changeset
+    |> common_changeset(params)
   end
 
   def update_changeset(%__MODULE__{} = user, params) do
     user
     |> cast(params, @permitted)
-    |> common_changeset
+    |> common_changeset(params)
   end
 
-  def common_changeset(changeset) do
+  def common_changeset(changeset, params) do
     changeset
     |> unique_constraint(:email, name: :unique_email)
     |> validate_confirmation(:password)
@@ -57,9 +57,22 @@ defmodule AcqdatCore.Schema.User do
     |> put_pass_hash()
     |> assoc_constraint(:org)
     |> assoc_constraint(:role)
+    |> add_apps_changeset(params[:app_ids] || [])
+    |> add_assets_changeset(params[:asset_ids] || [])
+  end
 
-    # |> associate_assets_changeset(params[:asset_ids] || [])
-    # |> associate_apps_changeset(params[:apps_ids] || [])
+  defp add_apps_changeset(user, app_ids) do
+    apps = Repo.all(from(app in App, where: app.id in ^app_ids))
+
+    user
+    |> put_assoc(:apps, Enum.map(apps, &change/1))
+  end
+
+  defp add_assets_changeset(user, asset_ids) do
+    assets = Repo.all(from(asset in Asset, where: asset.id in ^asset_ids))
+
+    user
+    |> put_assoc(:assets, Enum.map(assets, &change/1))
   end
 
   def associate_asset_changeset(user, assets) do
