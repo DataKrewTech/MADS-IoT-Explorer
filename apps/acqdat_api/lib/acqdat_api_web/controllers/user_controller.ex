@@ -5,7 +5,6 @@ defmodule AcqdatApiWeb.UserController do
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Validators.User
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.User
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
   plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :teams]
