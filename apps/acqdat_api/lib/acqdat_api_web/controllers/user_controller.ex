@@ -7,7 +7,7 @@ defmodule AcqdatApiWeb.UserController do
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
-  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :teams]
+  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :update_teams]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -156,7 +156,7 @@ defmodule AcqdatApiWeb.UserController do
     end
   end
 
-  def teams(conn, %{"teams" => teams}) do
+  def update_teams(conn, %{"teams" => teams}) do
     case conn.status do
       nil ->
         %{assigns: %{user: user}} = conn

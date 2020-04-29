@@ -19,7 +19,7 @@ defmodule AcqdatApiWeb.UserControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "user with invalid organisation id", %{conn: conn, user: user, org: org} do
+    test "user with invalid organisation id", %{conn: conn, user: _user, org: org} do
       conn = get(conn, Routes.user_path(conn, :show, org.id, -1))
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}

@@ -6,7 +6,9 @@ defmodule AcqdatApiWeb.TeamController do
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
-  plug AcqdatApiWeb.Plug.LoadTeam when action in [:update, :assets, :apps, :members]
+
+  plug AcqdatApiWeb.Plug.LoadTeam
+       when action in [:update, :update_assets, :update_apps, :update_members]
 
   def create(conn, %{"team" => params, "org_id" => org_id}) do
     case conn.status do
@@ -36,7 +38,7 @@ defmodule AcqdatApiWeb.TeamController do
     end
   end
 
-  def assets(conn, %{"team" => params}) do
+  def update_assets(conn, %{"team" => params}) do
     case conn.status do
       nil ->
         %{assigns: %{team: team}} = conn
@@ -61,7 +63,7 @@ defmodule AcqdatApiWeb.TeamController do
     end
   end
 
-  def apps(conn, %{"team" => params}) do
+  def update_apps(conn, %{"team" => params}) do
     case conn.status do
       nil ->
         %{assigns: %{team: team}} = conn
@@ -86,7 +88,7 @@ defmodule AcqdatApiWeb.TeamController do
     end
   end
 
-  def members(conn, %{"team" => params}) do
+  def update_members(conn, %{"team" => params}) do
     case conn.status do
       nil ->
         %{assigns: %{team: team}} = conn

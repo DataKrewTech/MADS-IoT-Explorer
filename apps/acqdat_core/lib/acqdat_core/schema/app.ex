@@ -62,6 +62,8 @@ defmodule AcqdatCore.Schema.App do
     |> cast(params, @permitted)
     |> add_uuid()
     |> validate_required(@required_params)
+    |> unique_constraint(:name, name: :acqdat_apps_name_index)
+    |> unique_constraint(:uuid, name: :acqdat_apps_uuid_index)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do

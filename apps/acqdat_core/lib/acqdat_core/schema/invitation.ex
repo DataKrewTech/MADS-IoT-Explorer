@@ -9,7 +9,6 @@ defmodule AcqdatCore.Schema.Invitation do
   @type t :: %__MODULE__{}
 
   schema("acqdat_invitations") do
-    # TODO: Need to add role as well as team associations
     field(:email, :string, null: false)
     field(:token, :string, null: false)
     field(:asset_ids, {:array, :integer})

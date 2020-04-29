@@ -145,7 +145,10 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = put(conn, Routes.update_team_assets_path(conn, :assets, org.id, team.id), data)
+
+      conn =
+        put(conn, Routes.update_team_assets_path(conn, :update_assets, org.id, team.id), data)
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -157,7 +160,9 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         team: %{}
       }
 
-      conn = put(conn, Routes.update_team_assets_path(conn, :assets, org.id, team.id), params)
+      conn =
+        put(conn, Routes.update_team_assets_path(conn, :update_assets, org.id, team.id), params)
+
       response = conn |> json_response(400)
       assert response == %{"errors" => %{"message" => %{"assets" => ["can't be blank"]}}}
     end
@@ -176,7 +181,9 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         }
       }
 
-      conn = put(conn, Routes.update_team_assets_path(conn, :assets, org.id, team.id), params)
+      conn =
+        put(conn, Routes.update_team_assets_path(conn, :update_assets, org.id, team.id), params)
+
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
@@ -204,7 +211,7 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = put(conn, Routes.update_team_apps_path(conn, :apps, org.id, team.id), data)
+      conn = put(conn, Routes.update_team_apps_path(conn, :update_apps, org.id, team.id), data)
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -216,7 +223,7 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         team: %{}
       }
 
-      conn = put(conn, Routes.update_team_apps_path(conn, :apps, org.id, team.id), params)
+      conn = put(conn, Routes.update_team_apps_path(conn, :update_apps, org.id, team.id), params)
       response = conn |> json_response(400)
       assert response == %{"errors" => %{"message" => %{"apps" => ["can't be blank"]}}}
     end
@@ -235,7 +242,7 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         }
       }
 
-      conn = put(conn, Routes.update_team_apps_path(conn, :apps, org.id, team.id), params)
+      conn = put(conn, Routes.update_team_apps_path(conn, :update_apps, org.id, team.id), params)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
@@ -263,7 +270,10 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = put(conn, Routes.update_team_members_path(conn, :members, org.id, team.id), data)
+
+      conn =
+        put(conn, Routes.update_team_members_path(conn, :update_members, org.id, team.id), data)
+
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -275,7 +285,9 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         team: %{}
       }
 
-      conn = put(conn, Routes.update_team_members_path(conn, :members, org.id, team.id), params)
+      conn =
+        put(conn, Routes.update_team_members_path(conn, :update_members, org.id, team.id), params)
+
       response = conn |> json_response(400)
       assert response == %{"errors" => %{"message" => %{"members" => ["can't be blank"]}}}
     end
@@ -293,7 +305,9 @@ defmodule AcqdatApiWeb.TeamControllerTest do
         }
       }
 
-      conn = put(conn, Routes.update_team_members_path(conn, :members, org.id, team.id), params)
+      conn =
+        put(conn, Routes.update_team_members_path(conn, :update_members, org.id, team.id), params)
+
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
