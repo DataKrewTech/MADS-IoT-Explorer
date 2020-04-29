@@ -169,19 +169,19 @@ defmodule AcqdatCore.Model.TeamTest do
     end
   end
 
-  describe "get_all/1" do
-    test "returns a particular sensor" do
-      insert(:team)
+  describe "get_all" do
+    test "returns teams data" do
+      team = insert(:team)
 
-      params = %{page_size: 10, page_number: 1}
+      params = %{page_size: 10, page_number: 1, org_id: team.org_id}
       result = TeamModel.get_all(params)
 
       assert not is_nil(result)
       assert result.total_entries == 1
     end
 
-    test "returns error not found, if sensor is not present" do
-      params = %{page_size: 10, page_number: 1}
+    test "returns error not found, if teams are not present" do
+      params = %{page_size: 10, page_number: 1, org_id: 1}
       result = TeamModel.get_all(params)
 
       assert result.entries == []

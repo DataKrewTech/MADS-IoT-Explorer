@@ -70,9 +70,12 @@ defmodule AcqdatCore.Model.Team do
     Repo.all(Team)
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}) do
+  def get_all(%{page_size: page_size, page_number: page_number, org_id: org_id}) do
     paginated_team_data =
-      Team |> order_by(:name) |> Repo.paginate(page: page_number, page_size: page_size)
+      Team
+      |> where([team], team.org_id == ^org_id)
+      |> order_by(:name)
+      |> Repo.paginate(page: page_number, page_size: page_size)
 
     team_data_with_preloads =
       paginated_team_data.entries |> Repo.preload([:users, :assets, :apps])

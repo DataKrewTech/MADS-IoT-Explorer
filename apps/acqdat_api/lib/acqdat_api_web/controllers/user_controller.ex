@@ -10,8 +10,6 @@ defmodule AcqdatApiWeb.UserController do
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
   plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :teams]
 
-  plug :load_user when action in [:assets, :apps, :teams]
-
   def show(conn, %{"id" => id}) do
     case conn.status do
       nil ->
@@ -151,13 +149,13 @@ defmodule AcqdatApiWeb.UserController do
               "error" => true,
               "message:" => "elasticsearch is not running"
             })
-          end
+        end
 
-          404 ->
-            conn
-            |> send_error(404, "Resource Not Found")
-      end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
     end
+  end
 
   def teams(conn, %{"teams" => teams}) do
     case conn.status do

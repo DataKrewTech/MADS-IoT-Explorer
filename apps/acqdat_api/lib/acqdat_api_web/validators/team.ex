@@ -7,7 +7,7 @@ defmodule AcqdatApiWeb.Validators.Team do
       description: :string,
       team_lead_id: :integer,
       enable_tracking: :boolean,
-      org_id: :integer,
+      org_id: :string,
       assets: {:array, :map},
       apps: {:array, :map},
       members: {:array, :map}
@@ -42,6 +42,7 @@ defmodule AcqdatApiWeb.Validators.Team do
 
   defparams(
     verify_index_params(%{
+      org_id: :string,
       page_size: :integer,
       page_number: :integer
     })

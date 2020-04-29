@@ -5,13 +5,17 @@ defmodule AcqdatApiWeb.TeamController do
   import AcqdatApiWeb.Validators.Team
   import AcqdatApiWeb.Helpers
 
-  plug(AcqdatApiWeb.Plug.LoadUser)
-  plug :load_team when action in [:update, :assets, :apps, :members]
+  plug AcqdatApiWeb.Plug.LoadCurrentUser
+  plug AcqdatApiWeb.Plug.LoadTeam when action in [:update, :assets, :apps, :members]
 
-  def create(conn, %{"team" => params}) do
+  def create(conn, %{"team" => params, "org_id" => org_id}) do
     case conn.status do
       nil ->
-        changeset = verify_create_params(params)
+        team_params =
+          params
+          |> Map.put("org_id", org_id)
+
+        changeset = verify_create_params(team_params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, team}} <- {:create, Team.create(data, conn.assigns.current_user)} do
@@ -147,19 +151,6 @@ defmodule AcqdatApiWeb.TeamController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
-    end
-  end
-
-  defp load_team(%{params: %{"id" => id}} = conn, _params) do
-    {id, _} = Integer.parse(id)
-
-    case Team.get(id) do
-      {:ok, team} ->
-        assign(conn, :team, team)
-
-      {:error, _message} ->
-        conn
-        |> put_status(404)
     end
   end
 end
