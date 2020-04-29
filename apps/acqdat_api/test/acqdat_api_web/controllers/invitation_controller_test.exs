@@ -45,4 +45,76 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
              }
     end
   end
+
+  describe "index/2" do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+
+      [org: org]
+    end
+
+    test "fails if authorization header not found", context do
+      %{org: org, conn: conn} = context
+      bad_access_token = "avcbd123489u"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      data = %{}
+      conn = post(conn, Routes.invitation_path(conn, :index, org.id), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "invitation index", %{conn: conn} do
+      invitation = insert(:invitation)
+
+      params = %{
+        page_size: 10,
+        page_number: 1
+      }
+
+      conn = get(conn, Routes.invitation_path(conn, :index, invitation.org_id), params)
+      response = conn |> json_response(200)
+      assert response["total_entries"] == 1
+    end
+  end
+
+  describe "delete/2" do
+    setup :setup_conn
+
+    setup do
+      invitation = insert(:invitation)
+
+      [invitation: invitation]
+    end
+
+    test "invitation delete", context do
+      %{invitation: invitation, conn: conn} = context
+
+      conn =
+        delete(conn, Routes.invitation_path(conn, :delete, invitation.org_id, invitation.id), %{})
+
+      response = conn |> json_response(200)
+      assert response["status"] == "Invitation deleted successfully!"
+    end
+
+    test "fails if invalid token in authorization header", context do
+      %{invitation: invitation, conn: conn} = context
+      bad_access_token = "qwerty1234567qwerty"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      conn =
+        delete(conn, Routes.invitation_path(conn, :delete, invitation.org_id, invitation.id), %{})
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 end

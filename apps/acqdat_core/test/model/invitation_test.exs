@@ -60,4 +60,24 @@ defmodule AcqdatCore.Model.InvitationTest do
       assert is_nil(result)
     end
   end
+
+  describe "get_all" do
+    test "returns invitations data" do
+      invitation = insert(:invitation)
+
+      params = %{page_size: 10, page_number: 1, org_id: invitation.org_id}
+      result = InvitationModel.get_all(params)
+
+      assert not is_nil(result)
+      assert result.total_entries == 1
+    end
+
+    test "returns error not found, if teams are not present" do
+      params = %{page_size: 10, page_number: 1, org_id: 1}
+      result = InvitationModel.get_all(params)
+
+      assert result.entries == []
+      assert result.total_entries == 0
+    end
+  end
 end
