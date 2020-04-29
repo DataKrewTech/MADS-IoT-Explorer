@@ -11,6 +11,8 @@ defmodule AcqdatCore.Schema.Invitation do
   schema("acqdat_invitations") do
     field(:email, :string, null: false)
     field(:token, :string, null: false)
+    field(:token_valid, :boolean, default: true)
+    field(:salt, :string, null: false)
     field(:asset_ids, {:array, :integer})
     field(:app_ids, {:array, :integer})
 
@@ -22,8 +24,8 @@ defmodule AcqdatCore.Schema.Invitation do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(email token inviter_id org_id role_id)a
-  @optional ~w(asset_ids app_ids)a
+  @required ~w(email token salt inviter_id org_id role_id)a
+  @optional ~w(asset_ids app_ids token_valid)a
   @permitted @optional ++ @required
 
   @spec changeset(
@@ -59,6 +61,9 @@ defmodule AcqdatCore.Schema.Invitation do
 
     token = Phoenix.Token.sign(AcqdatApiWeb.Endpoint, user_salt, %{email: email, org_id: org_id})
 
-    put_change(changeset, :token, token)
+    changeset
+    |> put_change(:salt, user_salt)
+    |> put_change(:token, token)
+    |> put_change(:token_valid, true)
   end
 end

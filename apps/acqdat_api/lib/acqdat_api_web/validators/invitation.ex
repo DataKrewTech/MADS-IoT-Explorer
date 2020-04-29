@@ -10,4 +10,12 @@ defmodule AcqdatApiWeb.Validators.Invitation do
       role_id!: :integer
     })
   )
+
+  defparams(
+    verify_index_params(%{
+      org_id: :string,
+      page_size: :integer,
+      page_number: :integer
+    })
+  )
 end

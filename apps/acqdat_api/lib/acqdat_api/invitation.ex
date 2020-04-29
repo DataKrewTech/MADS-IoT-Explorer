@@ -2,8 +2,10 @@ defmodule AcqdatApi.Invitation do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.ResMessages
   alias AcqdatCore.Model.Invitation, as: InvitationModel
+  alias AcqdatCore.Model.User, as: UserModel
   alias AcqdatCore.Mailer.UserInvitationEmail
   alias AcqdatCore.Mailer
+  alias AcqdatCore.Repo
 
   def create(attrs, current_user) do
     %{
@@ -32,6 +34,34 @@ defmodule AcqdatApi.Invitation do
       invitation_details,
       current_user
     )
+  end
+
+  def delete(invitation) do
+    delete_invitation(
+      Repo.transaction(fn ->
+        invitation = InvitationModel.delete(invitation)
+        user_set_invited_to_false(invitation)
+        invitation
+      end)
+    )
+  end
+
+  defp user_set_invited_to_false({:ok, invitation}) do
+    case UserModel.get(invitation.email) do
+      {:ok, user} ->
+        UserModel.set_invited_to_false(user)
+
+      {:error, _message} ->
+        {:error, "User not Found"}
+    end
+  end
+
+  defp delete_invitation({:ok, _invitation}) do
+    {:ok, resp_msg(:invitation_deleted_successfully)}
+  end
+
+  defp delete_invitation({:error, _invitation}) do
+    {:error, resp_msg(:invitation_deletion_error)}
   end
 
   defp create_invitation({:ok, invitation}, invitation_details, current_user) do

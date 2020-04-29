@@ -5,6 +5,8 @@ defmodule AcqdatCore.Model.Invitation do
 
   alias AcqdatCore.Schema.Invitation
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.Helper, as: ModelHelper
+  import Ecto.Query
 
   def list_invitations() do
     Repo.all(Invitation)
@@ -14,6 +16,32 @@ defmodule AcqdatCore.Model.Invitation do
     %Invitation{}
     |> Invitation.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Returns a invitation by the supplied id.
+  """
+  def get(id) when is_integer(id) do
+    case Repo.get(Invitation, id) do
+      nil ->
+        {:error, "not found"}
+
+      invitation ->
+        {:ok, invitation}
+    end
+  end
+
+  def get_all(%{page_size: page_size, page_number: page_number, org_id: org_id}) do
+    paginated_invitation_data =
+      Invitation
+      |> where([invitation], invitation.org_id == ^org_id)
+      |> order_by(:email)
+      |> Repo.paginate(page: page_number, page_size: page_size)
+
+    invitation_data_with_preloads =
+      paginated_invitation_data.entries |> Repo.preload([:role, :inviter])
+
+    ModelHelper.paginated_response(invitation_data_with_preloads, paginated_invitation_data)
   end
 
   def get_by_email(email) do

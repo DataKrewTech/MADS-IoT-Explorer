@@ -13,11 +13,11 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableInvitations do
       timestamps()
     end
     create(unique_index(:acqdat_invitations, [:token]))
-    create(unique_index(:acqdat_invitations, [:email]))
+    create(index(:acqdat_invitations, [:email]))
   end
 
   def down do
-    drop(unique_index(:acqdat_invitations, [:email]))
+    drop(index(:acqdat_invitations, [:email]))
     drop(unique_index(:acqdat_invitations, [:token]))
     drop(table(:acqdat_invitations))
   end

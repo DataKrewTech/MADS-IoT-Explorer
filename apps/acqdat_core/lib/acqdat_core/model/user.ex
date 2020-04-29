@@ -41,7 +41,13 @@ defmodule AcqdatCore.Model.User do
   Returns a user by the supplied email.
   """
   def get(email) when is_binary(email) do
-    Repo.get_by(User, email: email)
+    case Repo.get_by(User, email: email) do
+      nil ->
+        {:error, "not found"}
+
+      user ->
+        {:ok, user}
+    end
   end
 
   @doc """
@@ -66,6 +72,12 @@ defmodule AcqdatCore.Model.User do
       {:ok, user} -> {:ok, user |> Repo.preload(:role)}
       {:error, message} -> {:error, message}
     end
+  end
+
+  def set_invited_to_false(%User{} = user) do
+    user
+    |> Ecto.Changeset.change(%{is_invited: false})
+    |> Repo.update()
   end
 
   def set_asset(user, assets) do

@@ -7,6 +7,12 @@ defmodule AcqdatApiWeb.ResMessages do
     case message do
       :invited_success ->
         "Send invitation to the user successfully, They will receive email after sometime!"
+
+      :invitation_deleted_successfully ->
+        "Invitation deleted successfully!"
+
+      :invitation_deletion_error ->
+        "unable to delete invitation"
     end
   end
 end
