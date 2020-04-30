@@ -39,6 +39,18 @@ defmodule AcqdatCore.Schema.Invitation do
     |> validate_required(@required)
     |> unique_constraint(:email)
     |> unique_constraint(:token)
+    |> unique_constraint(:salt)
+    |> assoc_constraint(:inviter)
+    |> assoc_constraint(:org)
+  end
+
+  def update_changeset(%__MODULE__{} = invitation, params) do
+    invitation
+    |> cast(params, @permitted)
+    |> validate_required(@required)
+    |> unique_constraint(:email)
+    |> unique_constraint(:token)
+    |> unique_constraint(:salt)
     |> assoc_constraint(:inviter)
     |> assoc_constraint(:org)
   end

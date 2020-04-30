@@ -48,11 +48,11 @@ defmodule AcqdatApi.Invitation do
 
   defp user_set_invited_to_false({:ok, invitation}) do
     case UserModel.get(invitation.email) do
-      {:ok, user} ->
-        UserModel.set_invited_to_false(user)
-
-      {:error, _message} ->
+      nil ->
         {:error, "User not Found"}
+
+      user ->
+        UserModel.set_invited_to_false(user)
     end
   end
 

@@ -41,13 +41,7 @@ defmodule AcqdatCore.Model.User do
   Returns a user by the supplied email.
   """
   def get(email) when is_binary(email) do
-    case Repo.get_by(User, email: email) do
-      nil ->
-        {:error, "not found"}
-
-      user ->
-        {:ok, user}
-    end
+    Repo.get_by(User, email: email)
   end
 
   @doc """

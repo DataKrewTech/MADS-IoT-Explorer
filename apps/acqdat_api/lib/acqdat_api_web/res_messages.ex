@@ -13,6 +13,18 @@ defmodule AcqdatApiWeb.ResMessages do
 
       :invitation_deletion_error ->
         "unable to delete invitation"
+
+      :invitation_token_expired ->
+        "Invitation Token has expired"
+
+      :invalid_invitation_token ->
+        "Invalid Invitation Token"
+
+      :invitation_is_not_valid ->
+        "Invitation is Invalid"
+
+      :unable_to_mark_invitation_invalid ->
+        "Unable to mark Token as Invalid"
     end
   end
 end

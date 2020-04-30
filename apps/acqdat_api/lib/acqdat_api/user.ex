@@ -5,6 +5,10 @@ defmodule AcqdatApi.User do
   alias AcqdatCore.Repo
   import AcqdatApiWeb.Helpers
   import Tirexs.HTTP
+  import AcqdatApiWeb.ResMessages
+
+  # NOTE: Currently, setting the token expiration time to be of 2 days(172800 secs)
+  @token_expiration_max_age 172_800
 
   def get(user_id) do
     UserModel.get(user_id)
@@ -68,10 +72,40 @@ defmodule AcqdatApi.User do
   end
 
   defp fetch_existing_invitation(token, user_details) do
-    validate_invitation(InvitationModel.get_by_token(token), user_details)
+    fetch_invitation(InvitationModel.get_by_token(token), user_details)
+  end
+
+  defp fetch_invitation(nil, _user_details) do
+    {:error, %{error: resp_msg(:invitation_is_not_valid)}}
+  end
+
+  defp fetch_invitation(
+         %Invitation{
+           token: token,
+           salt: salt
+         } = invitation,
+         user_details
+       ) do
+    # NOTE: For token expiration and verification, referred this: https://hexdocs.pm/phoenix/Phoenix.Token.html#verify/4-examples
+    validate_invitation(
+      Phoenix.Token.verify(AcqdatApiWeb.Endpoint, salt, token, max_age: @token_expiration_max_age),
+      invitation,
+      user_details
+    )
+  end
+
+  defp validate_invitation({:error, :expired}, invitation, _user_details) do
+    mark_invitation_token_as_invalid(
+      InvitationModel.update_invitation(invitation, %{token_valid: false})
+    )
+  end
+
+  defp validate_invitation({:error, :invalid}, _invitation, _user_details) do
+    {:error, %{error: resp_msg(:invalid_invitation_token)}}
   end
 
   defp validate_invitation(
+         {:ok, _data},
          %Invitation{
            asset_ids: asset_ids,
            app_ids: app_ids,
@@ -102,8 +136,12 @@ defmodule AcqdatApi.User do
     )
   end
 
-  defp validate_invitation(nil, _user_details) do
-    {:error, %{error: "Invitation doesn't exist"}}
+  defp mark_invitation_token_as_invalid({:ok, _data}) do
+    {:error, %{error: resp_msg(:invitation_token_expired)}}
+  end
+
+  defp mark_invitation_token_as_invalid({:error, _data}) do
+    {:error, %{error: resp_msg(:unable_to_mark_invitation_invalid)}}
   end
 
   defp verify_user_teams({:ok, user}) do

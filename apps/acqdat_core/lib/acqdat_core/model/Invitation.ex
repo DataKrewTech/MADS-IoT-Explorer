@@ -18,6 +18,12 @@ defmodule AcqdatCore.Model.Invitation do
     |> Repo.insert()
   end
 
+  def update_invitation(%Invitation{} = invitation, attrs \\ %{}) do
+    invitation
+    |> Invitation.update_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Returns a invitation by the supplied id.
   """
@@ -49,7 +55,7 @@ defmodule AcqdatCore.Model.Invitation do
   end
 
   def get_by_token(token) do
-    Repo.get_by(Invitation, token: token)
+    Repo.get_by(Invitation, token: token, token_valid: true)
   end
 
   def delete(%Invitation{} = invitation) do
