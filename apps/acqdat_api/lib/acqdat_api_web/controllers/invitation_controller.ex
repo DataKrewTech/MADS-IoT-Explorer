@@ -7,8 +7,8 @@ defmodule AcqdatApiWeb.InvitationController do
   alias AcqdatCore.Model.Invitation, as: InvitationModel
   alias AcqdatCore.Repo
 
-  plug AcqdatApiWeb.Plug.LoadOrg when action in [:create, :index, :delete]
-  plug AcqdatApiWeb.Plug.LoadInvitation when action in [:delete]
+  plug AcqdatApiWeb.Plug.LoadOrg when action in [:create, :update, :index, :delete]
+  plug AcqdatApiWeb.Plug.LoadInvitation when action in [:update, :delete]
   plug :validate_inviter when action in [:create]
 
   def index(conn, params) do
@@ -38,10 +38,10 @@ defmodule AcqdatApiWeb.InvitationController do
 
         changeset = verify_create_params(invite_attrs)
 
-        user = conn.assigns[:current_user]
+        current_user = conn.assigns[:current_user]
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:invite, {:ok, message}} <- {:invite, Invitation.create(data, user)} do
+             {:invite, {:ok, message}} <- {:invite, Invitation.create(data, current_user)} do
           conn
           |> put_status(200)
           |> render("invite.json", message: message)
@@ -56,6 +56,29 @@ defmodule AcqdatApiWeb.InvitationController do
       404 ->
         conn
         |> send_error(404, "User already exists with this email address")
+    end
+  end
+
+  def update(conn, %{"id" => id}) do
+    invitation = conn.assigns[:invitation]
+    current_user = Repo.get(User, Guardian.Plug.current_resource(conn))
+
+    case conn.status do
+      nil ->
+        case Invitation.update(invitation, current_user) do
+          {:ok, message} ->
+            conn
+            |> put_status(200)
+            |> render("invite.json", %{message: message})
+
+          {:error, error} ->
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
     end
   end
 

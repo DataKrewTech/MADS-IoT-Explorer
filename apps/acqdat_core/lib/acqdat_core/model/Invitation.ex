@@ -24,6 +24,12 @@ defmodule AcqdatCore.Model.Invitation do
     |> Repo.update()
   end
 
+  def update_invitation_token(%Invitation{} = invitation, attrs \\ %{}) do
+    invitation
+    |> Invitation.changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Returns a invitation by the supplied id.
   """

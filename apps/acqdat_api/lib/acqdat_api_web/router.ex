@@ -66,7 +66,7 @@ defmodule AcqdatApiWeb.Router do
     put("/users/:id/apps", UserController, :apps, as: :user_apps)
     put("/users/:id/teams", UserController, :update_teams, as: :user_teams)
 
-    resources "/invitations", InvitationController, only: [:create, :index, :delete]
+    resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
   end
 
