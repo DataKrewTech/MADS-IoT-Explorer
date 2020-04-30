@@ -14,6 +14,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       email: user_details.email,
       first_name: user_details.first_name,
       last_name: user_details.last_name,
+      image: user_details.avatar,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),

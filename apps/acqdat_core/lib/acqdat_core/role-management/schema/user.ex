@@ -19,6 +19,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     field(:email, :string)
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)
+    field(:avatar, :string)
     field(:is_invited, :boolean, default: false)
     field(:password_hash, :string)
 
@@ -34,7 +35,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   end
 
   @required ~w(first_name email password is_invited password_confirmation role_id org_id)a
-  @optional ~w(password_hash last_name)a
+  @optional ~w(password_hash last_name avatar)a
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = user, params) do
@@ -42,6 +43,8 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     |> cast(params, @permitted)
     |> validate_required(@required)
     |> common_changeset(params)
+    |> add_apps_changeset(params[:app_ids] || [])
+    |> add_assets_changeset(params[:asset_ids] || [])
   end
 
   def update_changeset(%__MODULE__{} = user, params) do
@@ -59,8 +62,6 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     |> put_pass_hash()
     |> assoc_constraint(:org)
     |> assoc_constraint(:role)
-    |> add_apps_changeset(params[:app_ids] || [])
-    |> add_assets_changeset(params[:asset_ids] || [])
   end
 
   defp add_apps_changeset(user, app_ids) do
