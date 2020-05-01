@@ -170,11 +170,17 @@ defmodule AcqdatApiWeb.UserControllerTest do
       conn = post(conn, Routes.user_path(conn, :create, org.id), data)
       result = conn |> json_response(400)
 
-      result[:errors] == %{message: %{error: "Invitation doesn't exist"}}
+      assert result["errors"] == %{"message" => %{"error" => "Invitation is Invalid"}}
     end
 
-    test "user create when valid token", context do
-      %{org: org, invitation: invitation, conn: conn} = context
+    test "user created when valid token is provided", context do
+      %{org: org, conn: conn} = context
+      salt = "test user_salt"
+      token = Phoenix.Token.sign(AcqdatApiWeb.Endpoint, salt, %{email: "test@test.com"})
+      invitation = insert(:invitation, token: token, salt: salt, email: "test@test.com")
+
+      assert token == invitation.token
+      assert salt == invitation.salt
 
       data = %{
         user: %{
@@ -194,6 +200,27 @@ defmodule AcqdatApiWeb.UserControllerTest do
       assert Map.has_key?(response, "is_invited")
       assert response["is_invited"]
       assert response["first_name"] == "Demo Name"
+    end
+
+    test "user creation fails in case of invalid token", context do
+      %{org: org, invitation: invitation, conn: conn} = context
+
+      data = %{
+        user: %{
+          password: "test123@!%$",
+          password_confirmation: "test123@!%$",
+          first_name: "Demo Name"
+        }
+      }
+
+      conn =
+        conn
+        |> put_req_header("invitation-token", invitation.token)
+
+      conn = post(conn, Routes.user_path(conn, :create, org.id), data)
+
+      response = conn |> json_response(400)
+      assert response["errors"] == %{"message" => %{"error" => "Invalid Invitation Token"}}
     end
   end
 

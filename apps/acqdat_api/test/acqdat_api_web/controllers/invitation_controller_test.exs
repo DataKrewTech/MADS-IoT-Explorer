@@ -117,4 +117,41 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
   end
+
+  describe "update/2" do
+    setup :setup_conn
+
+    setup do
+      invitation = insert(:invitation)
+
+      [invitation: invitation]
+    end
+
+    test "invitation token updated", context do
+      %{invitation: invitation, conn: conn} = context
+
+      conn =
+        put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{})
+
+      response = conn |> json_response(200)
+
+      assert response["status"] ==
+               "Send Reinvitation to the user successfully, They will receive email after sometime!"
+    end
+
+    test "fails if invalid token in authorization header", context do
+      %{invitation: invitation, conn: conn} = context
+      bad_access_token = "qwerty1234567qwerty"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      conn =
+        put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{})
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 end
