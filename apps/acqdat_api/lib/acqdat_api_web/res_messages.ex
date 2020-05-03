@@ -6,16 +6,16 @@ defmodule AcqdatApiWeb.ResMessages do
   def resp_msg(message) do
     case message do
       :invited_success ->
-        "Send invitation to the user successfully, They will receive email after sometime!"
+        "Sent invitation to the user successfully, they will receive email after sometime!"
 
       :reinvitation_success ->
-        "Send Reinvitation to the user successfully, They will receive email after sometime!"
+        "Sent Reinvitation to the user successfully, they will receive email after sometime!"
 
       :invitation_deleted_successfully ->
         "Invitation deleted successfully!"
 
       :invitation_deletion_error ->
-        "unable to delete invitation"
+        "Unable to delete invitation"
 
       :invitation_token_expired ->
         "Invitation Token has expired"

@@ -41,7 +41,7 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
 
       assert response == %{
                "status" =>
-                 "Send invitation to the user successfully, They will receive email after sometime!"
+                 "Sent invitation to the user successfully, they will receive email after sometime!"
              }
     end
   end
@@ -136,7 +136,7 @@ defmodule AcqdatApiWeb.InvitationControllerTest do
       response = conn |> json_response(200)
 
       assert response["status"] ==
-               "Send Reinvitation to the user successfully, They will receive email after sometime!"
+               "Sent Reinvitation to the user successfully, they will receive email after sometime!"
     end
 
     test "fails if invalid token in authorization header", context do
