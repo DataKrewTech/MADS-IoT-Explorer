@@ -74,7 +74,7 @@ defmodule AcqdatApiWeb.Router do
     get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
 
     scope "/projects/:project_id", EntityManagement do
-      resources "/assets", AssetController, only: [:show, :update]
+      resources "/assets", AssetController, only: [:show, :update, :delete]
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/asset_types", AssetTypeController, only: [:update]
     end
