@@ -18,6 +18,7 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
     field(:name, :string, null: false)
     field(:description, :string)
     field(:avatar, :string)
+    field(:icon_id, :string)
     field(:category, :string)
     field(:vendor, :string)
     field(:vendor_url, :string)
@@ -50,7 +51,7 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
   end
 
   @required_params ~w(uuid name)a
-  @optional_params ~w(description avatar category vendor vendor_url app_store_price app_store_rating in_app_purchases in_app_purchases_data compatibility activity_rating copyright license tnc documentation privacy_policy current_version first_date_of_release most_recent_date_of_release release_history)a
+  @optional_params ~w(description avatar icon_id category vendor vendor_url app_store_price app_store_rating in_app_purchases in_app_purchases_data compatibility activity_rating copyright license tnc documentation privacy_policy current_version first_date_of_release most_recent_date_of_release release_history)a
 
   @permitted @required_params ++ @optional_params
 

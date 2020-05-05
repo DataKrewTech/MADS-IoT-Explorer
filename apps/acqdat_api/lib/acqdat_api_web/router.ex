@@ -33,6 +33,8 @@ defmodule AcqdatApiWeb.Router do
     resources "/roles", RoleManagement.RoleController, only: [:index]
 
     resources "/orgs", OrganisationController, only: [:show]
+    resources "/apps", AppController, only: [:index]
+    get("/orgs/:id/apps", OrganisationController, :get_apps, as: :org_apps)
     # NOTE: Kept widgets resources out of organisation_scope currently
     resources "/widgets", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]

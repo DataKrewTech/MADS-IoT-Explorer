@@ -7,7 +7,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   import AcqdatApiWeb.Validators.RoleManagement.User
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
-  plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :update_teams]
+
+  plug AcqdatApiWeb.Plug.LoadUser
+       when action in [:show, :update, :assets, :apps, :update_teams]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -124,7 +126,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
 
-          {:create, {:error, message}} ->
+          {:done, {:error, message}} ->
             send_error(conn, 400, message)
         end
 
