@@ -17,10 +17,10 @@ defmodule AcqdatCore.Model.Organisation do
     end
   end
 
-  def get_apps(org) do
-    #TODO: Need to filter by organisation, in future
+  def get_apps(_org) do
+    # TODO: Need to filter by organisation, in future
     # org = org |> Repo.preload(:apps)
     # org.apps
-    App |> order_by(:name) |> Repo.all
+    App |> order_by(:name) |> Repo.all()
   end
 end
