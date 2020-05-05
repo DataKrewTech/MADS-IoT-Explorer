@@ -96,7 +96,10 @@ defmodule AcqdatCore.MixProject do
       {:ex_phone_number, "~> 0.2"},
 
       # elasticsearch
-      {:tirexs, "~> 0.8"}
+      {:tirexs, "~> 0.8"},
+
+      # csv parsing
+      {:nimble_csv, "~> 0.7"}
     ]
   end
 
