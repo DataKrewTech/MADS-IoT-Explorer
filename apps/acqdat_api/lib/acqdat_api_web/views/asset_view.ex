@@ -16,6 +16,7 @@ defmodule AcqdatApiWeb.AssetView do
       type: "Asset",
       id: asset.id,
       name: asset.name,
+      parent_id: asset.parent_id,
       properties: asset.properties,
       entities: params
       # TODO: Need to uncomment below fields depending on the future usecases in the view
