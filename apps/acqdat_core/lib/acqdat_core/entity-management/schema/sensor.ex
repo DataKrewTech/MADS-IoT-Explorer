@@ -11,6 +11,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project, SensorsData}
   alias AcqdatCore.Schema.EntityManagement.{SensorType}
 
+
   @typedoc """
   `uuid`: A universallly unique id for the sensor.
   `name`: A unique name for sensor per device. Note the same
@@ -39,6 +40,11 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
       field(:value, :string)
     end
 
+    embeds_many :parameters, Parameters do
+      field(:name, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:data_type, :string, null: false)
+    end
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
@@ -56,6 +62,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   @embedded_metadata_required ~w(name uuid data_type value)a
   @embedded_metadata_optional ~w(unit)a
   @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
+
 
   @permitted @required_params ++ @optional_params
 
