@@ -58,6 +58,9 @@ defmodule AcqdatApiWeb.Router do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
+    get "/users/search", UserController, :search_users
+    resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
+
 
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end

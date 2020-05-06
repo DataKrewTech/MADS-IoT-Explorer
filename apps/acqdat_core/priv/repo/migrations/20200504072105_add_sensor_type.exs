@@ -6,6 +6,7 @@ defmodule AcqdatCore.Repo.Migrations.AddSensorType do
       add(:name, :string, null: false)
       add(:description, :string)
       add(:metadata, {:array, :map})
+
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
       add(:parameters, {:array, :map})
