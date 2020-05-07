@@ -84,19 +84,19 @@ defmodule AcqdatApi.Invitation do
     delete_invitation(
       Repo.transaction(fn ->
         invitation = InvitationModel.delete(invitation)
-        user_set_invited_to_false(invitation)
+        delete_user(invitation)
         invitation
       end)
     )
   end
 
-  defp user_set_invited_to_false({:ok, invitation}) do
+  defp delete_user({:ok, invitation}) do
     case UserModel.get(invitation.email) do
       nil ->
         {:error, "User not Found"}
 
       user ->
-        UserModel.set_invited_to_false(user)
+        UserModel.delete(user)
     end
   end
 
