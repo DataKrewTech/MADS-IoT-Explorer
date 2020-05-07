@@ -20,7 +20,7 @@ defmodule AcqdatCore.Model.Asset do
   end
 
   def get(id) when is_integer(id) do
-    case Repo.get(Asset, id) do
+    case Repo.get(Asset, id) |> Repo.preload([:org]) do
       nil ->
         {:error, "not found"}
 
@@ -29,41 +29,37 @@ defmodule AcqdatCore.Model.Asset do
     end
   end
 
+  def update(asset, params) do
+    changeset = Asset.update_changeset(asset, params)
+    Repo.update(changeset)
+  end
+
   def delete(asset) do
     AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
   end
 
-  def add_as_root(%{name: name, org_id: org_id}) do
-    asset = %Asset{
-      name: name,
-      org_id: org_id,
-      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-      uuid: UUID.uuid1(:hex),
-      slug: Slugger.slugify(random_string(12)),
-      properties: []
-    }
+  def add_as_root(%{name: name, org_id: org_id, org_name: org_name}) do
+    # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
+    try do
+      taxon =
+        asset_struct(%{name: name, org_id: org_id, slug: org_name <> name})
+        |> create(:root)
+        |> AsNestedSet.execute(Repo)
 
-    asset
-    |> create(:root)
-    |> AsNestedSet.execute(Repo)
+      {:ok, taxon}
+    rescue
+      error in Ecto.InvalidChangesetError ->
+        {:error, error.changeset}
+    end
   end
 
   def add_as_child(parent, name, org_id, position) do
-    child = %Asset{
-      name: name,
-      org_id: org_id,
-      parent_id: parent.id,
-      uuid: UUID.uuid1(:hex),
-      slug: Slugger.slugify(random_string(12)),
-      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-      properties: []
-    }
-
     try do
+      child =
+        asset_struct(%{name: name, org_id: org_id, slug: parent.org.name <> parent.name <> name})
+
       taxon =
-        %Asset{child | org_id: org_id}
+        child
         |> create(parent, position)
         |> AsNestedSet.execute(Repo)
 
@@ -74,8 +70,21 @@ defmodule AcqdatCore.Model.Asset do
     end
   end
 
-  defp random_string(length) do
-    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  defp asset_struct(%{name: name, org_id: org_id, slug: slug}) do
+    %Asset{
+      name: name,
+      org_id: org_id,
+      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+      uuid: UUID.uuid1(:hex),
+      slug: Slugger.slugify(slug),
+      properties: []
+    }
+  end
+
+  def asset_descendents(asset) do
+    entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
+    fetch_child_sensors(List.first(entities), entities, asset)
   end
 
   defp fetch_child_sensors(nil, _entities, asset) do

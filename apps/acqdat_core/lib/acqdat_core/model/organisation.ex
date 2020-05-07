@@ -19,6 +19,16 @@ defmodule AcqdatCore.Model.Organisation do
     end
   end
 
+  def get_by_id(id) when is_integer(id) do
+    case Repo.get(Organisation, id) do
+      nil ->
+        {:error, "not found"}
+
+      org ->
+        {:ok, org}
+    end
+  end
+
   def get_apps(_org) do
     # TODO: Need to filter by organisation, in future
     # org = org |> Repo.preload(:apps)
