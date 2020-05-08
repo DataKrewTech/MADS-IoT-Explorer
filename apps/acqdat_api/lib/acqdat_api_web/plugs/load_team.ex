@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.Plug.LoadTeam do
   import Plug.Conn
-  alias AcqdatApi.Team
+  alias AcqdatApi.RoleManagement.Team
 
   @spec init(any) :: any
   def init(default), do: default

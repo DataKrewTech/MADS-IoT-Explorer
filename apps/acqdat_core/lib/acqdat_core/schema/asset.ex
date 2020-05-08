@@ -18,7 +18,8 @@ defmodule AcqdatCore.Schema.Asset do
   """
   use AcqdatCore.Schema
 
-  alias AcqdatCore.Schema.{Organisation, AssetCategory, User}
+  alias AcqdatCore.Schema.{Organisation, AssetCategory}
+  alias AcqdatCore.Schema.RoleManagement.User
 
   use AsNestedSet, scope: [:org_id]
 

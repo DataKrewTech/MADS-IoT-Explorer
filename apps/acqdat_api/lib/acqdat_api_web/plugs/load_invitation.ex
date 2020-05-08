@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.Plug.LoadInvitation do
   import Plug.Conn
-  alias AcqdatCore.Model.Invitation, as: InvitationModel
+  alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
 
   @spec init(any) :: any
   def init(default), do: default

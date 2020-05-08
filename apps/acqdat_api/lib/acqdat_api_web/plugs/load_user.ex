@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.Plug.LoadUser do
   import Plug.Conn
-  alias AcqdatCore.Model.User, as: UserModel
+  alias AcqdatCore.Model.RoleManagement.User, as: UserModel
 
   @spec init(any) :: any
   def init(default), do: default

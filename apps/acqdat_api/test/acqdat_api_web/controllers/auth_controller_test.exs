@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
-  alias AcqdatCore.Model.User
+  alias AcqdatCore.Model.RoleManagement.User
   import AcqdatCore.Support.Factory
 
   describe "sign_in/2" do

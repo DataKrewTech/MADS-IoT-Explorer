@@ -5,7 +5,7 @@ defmodule AcqdatCore.Schema.Organisation do
   A organisation is the topmost node of the heirarchy and will not have any parent.
   """
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.App
+  alias AcqdatCore.Schema.RoleManagement.App
 
   # use AsNestedSet, scope: [:id]
   @typedoc """

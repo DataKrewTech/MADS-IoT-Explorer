@@ -2,8 +2,8 @@ defmodule AcqdatCore.Domain.Account do
   @moduledoc """
   Exposes domain functions for authentication.
   """
-  alias AcqdatCore.Model.User
-  alias Acqdat.Schema.User, as: UserSchema
+  alias AcqdatCore.Model.RoleManagement.User
+  alias Acqdat.Schema.RoleManagement.User, as: UserSchema
   alias Comeonin.Argon2
 
   @doc """

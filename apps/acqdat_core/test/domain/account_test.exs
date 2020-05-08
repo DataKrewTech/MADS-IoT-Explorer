@@ -2,7 +2,7 @@ defmodule AcqdatCore.Domain.AccountTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
-  alias AcqdatCore.Model.User
+  alias AcqdatCore.Model.RoleManagement.User
   alias AcqdatCore.Domain.Account
 
   describe "authenticate/2" do

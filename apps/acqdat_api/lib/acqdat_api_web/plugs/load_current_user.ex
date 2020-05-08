@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.Plug.LoadCurrentUser do
   import Plug.Conn
   alias AcqdatApiWeb.Guardian
   alias AcqdatCore.Repo
-  alias AcqdatCore.Schema.User
+  alias AcqdatCore.Schema.RoleManagement.User
 
   def init(opts), do: opts
 
