@@ -9,18 +9,29 @@ defmodule AcqdatApi.Invitation do
   alias AcqdatCore.Repo
 
   def create(attrs, current_user) do
-    %{
-      email: email,
-      apps: apps,
-      assets: assets,
-      org_id: org_id,
-      role_id: role_id
-    } = attrs
+    invitation_details = invitation_details_attrs(attrs, current_user)
 
+    create_invitation(
+      InvitationModel.create_invitation(invitation_details),
+      invitation_details,
+      current_user
+    )
+  end
+
+  defp invitation_details_attrs(
+         %{
+           email: email,
+           apps: apps,
+           assets: assets,
+           org_id: org_id,
+           role_id: role_id
+         } = attrs,
+         current_user
+       ) do
     app_ids = Enum.map(apps || [], & &1["id"])
     asset_ids = Enum.map(assets || [], & &1["id"])
 
-    invitation_details = %{
+    %{
       "email" => email,
       "app_ids" => app_ids,
       "asset_ids" => asset_ids,
@@ -29,12 +40,6 @@ defmodule AcqdatApi.Invitation do
       "org_id" => org_id,
       "role_id" => role_id
     }
-
-    create_invitation(
-      InvitationModel.create_invitation(invitation_details),
-      invitation_details,
-      current_user
-    )
   end
 
   def update(invitation, current_user) do
@@ -48,8 +53,13 @@ defmodule AcqdatApi.Invitation do
     )
   end
 
-  def reinvite_user(
-        {:ok,
+  def reinvite_user({:ok, invitation}, current_user) do
+    reinvitation_details_parsing(invitation, current_user)
+    |> send_invite_email(current_user)
+    |> show_reinvitation_success_message_to_user()
+  end
+
+  defp reinvitation_details_parsing(
          %Invitation{
            asset_ids: asset_ids,
            app_ids: app_ids,
@@ -57,10 +67,10 @@ defmodule AcqdatApi.Invitation do
            org_id: org_id,
            role_id: role_id,
            token: token
-         } = invitation},
-        current_user
-      ) do
-    invitation_details = %{
+         } = invitation,
+         current_user
+       ) do
+    %{
       "email" => email,
       "app_ids" => app_ids,
       "asset_ids" => asset_ids,
@@ -70,10 +80,6 @@ defmodule AcqdatApi.Invitation do
       "role_id" => role_id,
       "token" => token
     }
-
-    invitation_details
-    |> send_invite_email(current_user)
-    |> show_reinvitation_success_message_to_user()
   end
 
   def reinvite_user({:error, invitation}, _current_user) do
