@@ -32,8 +32,16 @@ defmodule AcqdatCore.Seed.App do
       compatibility: compatibility,
       copyright: copyright,
       uuid: UUID.uuid1(:hex),
+      key: generate_app_key(name),
       inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
       updated_at: DateTime.truncate(DateTime.utc_now(), :second)
     ]
+  end
+
+  defp generate_app_key(app_name) do
+    app_name
+    |> String.split(" ")
+    |> Enum.join("_")
+    |> Macro.camelize
   end
 end

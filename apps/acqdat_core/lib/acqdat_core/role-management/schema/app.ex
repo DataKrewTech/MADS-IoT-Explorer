@@ -16,6 +16,7 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
   schema("acqdat_apps") do
     field(:uuid, :string, null: false)
     field(:name, :string, null: false)
+    field(:key, :string, null: false)
     field(:description, :string)
     field(:avatar, :string)
     field(:icon_id, :string)
@@ -50,7 +51,7 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid name)a
+  @required_params ~w(uuid name key)a
   @optional_params ~w(description avatar icon_id category vendor vendor_url app_store_price app_store_rating in_app_purchases in_app_purchases_data compatibility activity_rating copyright license tnc documentation privacy_policy current_version first_date_of_release most_recent_date_of_release release_history)a
 
   @permitted @required_params ++ @optional_params
@@ -63,13 +64,27 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
     app
     |> cast(params, @permitted)
     |> add_uuid()
+    |> add_key()
     |> validate_required(@required_params)
     |> unique_constraint(:name, name: :acqdat_apps_name_index)
     |> unique_constraint(:uuid, name: :acqdat_apps_uuid_index)
+    |> unique_constraint(:key, name: :acqdat_apps_key_index)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
+  end
+
+  defp add_key(%Ecto.Changeset{valid?: true} = changeset) do
+    changeset
+    |> put_change(:key, generate_app_key(changeset))
+  end
+
+  defp generate_app_key(%Ecto.Changeset{changes: %{name: app_name}}) do
+    app_name
+    |> String.split(" ")
+    |> Enum.join("_")
+    |> Macro.camelize()
   end
 end

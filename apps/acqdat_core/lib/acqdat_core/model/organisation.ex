@@ -21,6 +21,6 @@ defmodule AcqdatCore.Model.Organisation do
     # TODO: Need to filter by organisation, in future
     # org = org |> Repo.preload(:apps)
     # org.apps
-    App |> order_by(:name) |> Repo.all()
+    App |> order_by(:id) |> Repo.all()
   end
 end
