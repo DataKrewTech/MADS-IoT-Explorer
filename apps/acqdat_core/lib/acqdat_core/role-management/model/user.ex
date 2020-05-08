@@ -59,7 +59,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
 
   Expects `user` and update parameters as the arguments
   """
-  def update(%User{} = user, params) do
+  def update_user(%User{} = user, params) do
     changeset = User.update_changeset(user, params)
 
     case Repo.update(changeset) do
