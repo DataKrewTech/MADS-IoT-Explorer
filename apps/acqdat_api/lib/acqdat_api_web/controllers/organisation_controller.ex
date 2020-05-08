@@ -3,6 +3,8 @@ defmodule AcqdatApiWeb.OrganisationController do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Model.Organisation, as: OrgModel
 
+  defdelegate get_apps(data), to: OrgModel
+
   plug :load_org when action in [:show, :get_apps]
 
   def show(conn, _params) do
@@ -25,7 +27,7 @@ defmodule AcqdatApiWeb.OrganisationController do
       nil ->
         org = conn.assigns.org
 
-        with {:list, apps} <- {:list, OrgModel.get_apps(org)} do
+        with {:list, apps} <- {:list, get_apps(org)} do
           conn
           |> put_status(200)
           |> render("apps.json", %{apps: apps})
