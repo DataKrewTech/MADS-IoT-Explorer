@@ -29,7 +29,7 @@ defmodule AcqdatCore.Model.Asset do
     end
   end
 
-  def update(asset, params) do
+  def update_asset(asset, params) do
     changeset = Asset.update_changeset(asset, params)
     Repo.update(changeset)
   end

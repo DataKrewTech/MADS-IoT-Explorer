@@ -76,7 +76,7 @@ defmodule AcqdatApiWeb.Router do
     end
 
     post("/entities", EntityController, :update_hierarchy)
-    resources "/assets", AssetController, only: [:show]
+    resources "/assets", AssetController, only: [:show, :update]
     resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
   end
 
