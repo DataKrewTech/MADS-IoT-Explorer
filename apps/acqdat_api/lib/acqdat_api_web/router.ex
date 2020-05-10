@@ -75,6 +75,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
+    post("/entities", EntityController, :update_hierarchy)
     resources "/assets", AssetController, only: [:show]
     resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
   end
