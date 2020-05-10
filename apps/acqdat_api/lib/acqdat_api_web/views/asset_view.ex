@@ -30,4 +30,24 @@ defmodule AcqdatApiWeb.AssetView do
       # uuid: asset.uuid,
     }
   end
+
+  def render("asset.json", %{asset: asset}) do
+    %{
+      type: "Asset",
+      id: asset.id,
+      name: asset.name,
+      description: asset.description,
+      properties: asset.properties,
+      mapped_parameters: render_many(asset.mapped_parameters, AssetView, "parameters.json")
+    }
+  end
+
+  def render("parameters.json", %{asset: asset}) do
+    %{
+      name: asset.name,
+      uuid: asset.uuid,
+      sensor_uuid: asset.sensor_uuid,
+      parameter_uuid: asset.parameter_uuid
+    }
+  end
 end

@@ -123,7 +123,7 @@ defmodule AcqdatApi.EntityParser do
     IO.puts("inside asset asset_updation")
     {:ok, asset} = AssetModel.get(id)
 
-    AssetModel.update(asset, %{
+    AssetModel.update_asset(asset, %{
       name: name
     })
 
