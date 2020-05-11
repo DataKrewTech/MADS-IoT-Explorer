@@ -10,7 +10,8 @@ defmodule AcqdatApiWeb.AppView do
       icon_id: app.icon_id,
       category: app.category,
       backward_compatibility: app.compatibility,
-      copyright: app.copyright
+      copyright: app.copyright,
+      key: app.key
     }
   end
 
