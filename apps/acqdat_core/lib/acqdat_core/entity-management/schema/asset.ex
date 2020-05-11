@@ -58,6 +58,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     field(:image_url, :string)
     field(:image, :any, virtual: true)
 
+
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
