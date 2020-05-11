@@ -1,8 +1,8 @@
-defmodule AcqdatCore.Model.AppTest do
+defmodule AcqdatCore.Model.RoleManagement.AppTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
-  alias AcqdatCore.Model.App, as: AppModel
+  alias AcqdatCore.Model.RoleManagement.App, as: AppModel
 
   describe "get_all" do
     test "returns apps data" do

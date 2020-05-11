@@ -1,5 +1,5 @@
-defmodule AcqdatCore.Model.App do
-  alias AcqdatCore.Schema.App
+defmodule AcqdatCore.Model.RoleManagement.App do
+  alias AcqdatCore.Schema.RoleManagement.App
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query

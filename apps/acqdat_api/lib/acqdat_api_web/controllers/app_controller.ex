@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.AppController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.App
-  alias AcqdatCore.Model.App, as: AppModel
+  alias AcqdatCore.Model.RoleManagement.App, as: AppModel
 
   defdelegate get_all(data), to: AppModel
   defdelegate fetch_all_apps(data), to: AppModel, as: :get_all

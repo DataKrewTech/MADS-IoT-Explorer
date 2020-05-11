@@ -2,6 +2,7 @@ defmodule AcqdatCore.Model.Organisation do
   alias AcqdatCore.Schema.Organisation
   alias AcqdatCore.Model.Project, as: ProjectModel
   alias AcqdatCore.Schema.App
+  alias AcqdatCore.Schema.RoleManagement.App
   alias AcqdatCore.Repo
 
   def get(id) when is_integer(id) do

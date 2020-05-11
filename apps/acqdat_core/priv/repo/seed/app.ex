@@ -1,6 +1,6 @@
 defmodule AcqdatCore.Seed.App do
 	alias NimbleCSV.RFC4180, as: CSV
-  alias AcqdatCore.Schema.App
+  alias AcqdatCore.Schema.RoleManagement.App
   alias AcqdatCore.Repo
   
   @base_path Application.app_dir(:acqdat_core, "priv/repo")
