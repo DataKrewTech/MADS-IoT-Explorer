@@ -1,5 +1,4 @@
 defmodule AcqdatCore.Seed.EntityManagement.Asset do
-
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project}
   import AsNestedSet.Modifiable
   alias AcqdatCore.Repo

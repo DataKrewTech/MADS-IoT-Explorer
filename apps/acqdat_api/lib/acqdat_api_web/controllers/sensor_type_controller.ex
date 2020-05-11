@@ -5,8 +5,9 @@ defmodule AcqdatApiWeb.SensorTypeController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.SensorType
 
-  # plug :load_sensor when action in [:update, :delete, :show]
+  plug :load_sensor_type when action in [:update, :delete, :show]
 
+  # Will be used in future.
   # def show(conn, %{"id" => id}) do
   #   case conn.status do
   #     nil ->
@@ -66,63 +67,73 @@ defmodule AcqdatApiWeb.SensorTypeController do
     end
   end
 
-  # @spec update(Plug.Conn.t(), any) :: Plug.Conn.t()
-  # def update(conn, params) do
-  #   case conn.status do
-  #     nil ->
-  #       %{assigns: %{sensor: sensor}} = conn
+  @spec update(Plug.Conn.t(), any) :: Plug.Conn.t()
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        %{assigns: %{sensor_type: sensor_type}} = conn
 
-  #       case SensorModel.update(sensor, params) do
-  #         {:ok, sensor} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("sensor.json", %{sensor: sensor})
+        case SensorTypeModel.update(sensor_type, params) do
+          {:ok, sensor_type} ->
+            conn
+            |> put_status(200)
+            |> render("sensor_type.json", %{sensor_type: sensor_type})
 
-  #         {:error, sensor} ->
-  #           error = extract_changeset_error(sensor)
+          {:error, sensor_type} ->
+            error =
+              case String.valid?(sensor_type) do
+                false -> extract_changeset_error(sensor_type)
+                true -> sensor_type
+              end
 
-  #           conn
-  #           |> send_error(400, error)
-  #       end
+            conn
+            |> send_error(400, error)
+        end
 
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
-  # def delete(conn, %{"id" => id}) do
-  #   case conn.status do
-  #     nil ->
-  #       case SensorModel.delete(id) do
-  #         {:ok, sensor} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("sensor.json", %{sensor: sensor})
+  def delete(conn, _params) do
+    case conn.status do
+      nil ->
+        %{assigns: %{sensor_type: sensor_type}} = conn
 
-  #         {:error, sensor} ->
-  #           error = extract_changeset_error(sensor)
+        case SensorTypeModel.delete(sensor_type) do
+          {:ok, sensor_type} ->
+            conn
+            |> put_status(200)
+            |> render("sensor_type.json", %{sensor_type: sensor_type})
 
-  #           conn
-  #           |> send_error(400, error)
-  #       end
+          {:error, sensor_type} ->
+            error =
+              case String.valid?(sensor_type) do
+                false -> extract_changeset_error(sensor_type)
+                true -> sensor_type
+              end
 
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
+            conn
+            |> send_error(400, error)
+        end
 
-  # defp load_sensor(%{params: %{"id" => id}} = conn, _params) do
-  #   {id, _} = Integer.parse(id)
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
-  #   case SensorModel.get(id) do
-  #     {:ok, sensor} ->
-  #       assign(conn, :sensor, sensor)
+  defp load_sensor_type(%{params: %{"id" => id}} = conn, _params) do
+    {id, _} = Integer.parse(id)
 
-  #     {:error, _message} ->
-  #       conn
-  #       |> put_status(404)
-  #   end
-  # end
+    case SensorTypeModel.get(id) do
+      {:ok, sensor_type} ->
+        assign(conn, :sensor_type, sensor_type)
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
+    end
+  end
 end

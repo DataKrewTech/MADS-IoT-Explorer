@@ -58,14 +58,14 @@ defmodule AcqdatApiWeb.Router do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
-    get "/users/search", UserController, :search_users
-    resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
-
-
-      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
-    end
 
     get "/users/search", RoleManagement.UserController, :search_users
+    scope "/", RoleManagement do
+      resources("/teams", TeamController, only: [:create, :index, :update])
+      put("/teams/:id/assets", TeamController, :update_assets, as: :update_team_assets)
+      put("/teams/:id/apps", TeamController, :update_apps, as: :update_team_apps)
+      put("/teams/:id/members", TeamController, :update_members, as: :update_team_members)
+    end
 
     scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
@@ -73,7 +73,6 @@ defmodule AcqdatApiWeb.Router do
 
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
-
     post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
     get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
 
