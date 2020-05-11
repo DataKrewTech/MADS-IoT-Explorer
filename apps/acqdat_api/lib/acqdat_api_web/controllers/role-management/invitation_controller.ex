@@ -3,9 +3,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
   alias AcqdatApi.RoleManagement.Invitation
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.RoleManagement.Invitation
-  alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
-  alias AcqdatCore.Repo
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:create, :update, :index, :delete]
   plug AcqdatApiWeb.Plug.LoadInvitation when action in [:update, :delete]
