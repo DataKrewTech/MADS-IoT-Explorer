@@ -8,8 +8,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.RoleManagement.User
 
-  defdelegate update_user(user, params), to: UserModel
-
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
   plug AcqdatApiWeb.Plug.LoadUser when action in [:show, :update, :assets, :apps, :update_teams]
 
@@ -18,7 +16,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         {id, _} = Integer.parse(id)
 
-        with {:show, {:ok, user}} <- {:show, User.get(id)} do
+        with {:show, {:ok, user}} <- {:show, User.fetch_user(id)} do
           conn
           |> put_status(200)
           |> render("user_details.json", %{user_details: user})
@@ -188,7 +186,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         %{assigns: %{user: user}} = conn
 
-        case update_user(conn.assigns.user, add_avatar_to_params(conn, params)) do
+        case User.update(user, add_avatar_to_params(conn, params)) do
           {:ok, user} ->
             ElasticSearch.update_users("users", user)
 

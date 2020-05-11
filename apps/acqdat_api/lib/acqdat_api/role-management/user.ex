@@ -10,8 +10,15 @@ defmodule AcqdatApi.RoleManagement.User do
   # NOTE: Currently, setting the token expiration time to be of 2 days(172800 secs)
   @token_expiration_max_age 172_800
 
-  def get(user_id) do
-    UserModel.get(user_id)
+  defdelegate update_user(user, params), to: UserModel
+  defdelegate get(id), to: UserModel
+
+  def fetch_user(user_id) do
+    get(user_id)
+  end
+
+  def update(user, user_params) do
+    update_user(user, user_params)
   end
 
   def set_asset(user, %{assets: assets}) do
