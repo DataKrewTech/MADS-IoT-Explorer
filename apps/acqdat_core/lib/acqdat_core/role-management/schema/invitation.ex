@@ -36,7 +36,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
   def changeset(%__MODULE__{} = invitation, params) do
     invitation
     |> cast(params, @permitted)
-    |> genToken(params)
+    |> gen_token(params)
     |> validate_required(@required)
     |> unique_constraint(:email)
     |> unique_constraint(:token)
@@ -57,7 +57,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
   end
 
   # NOTE: Currently following this for token generation: https://hexdocs.pm/phoenix/1.4.8/Phoenix.Token.html#module-example
-  defp genToken(changeset, params) do
+  defp gen_token(changeset, params) do
     %{
       "email" => email,
       "org_id" => org_id
