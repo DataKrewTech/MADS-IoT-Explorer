@@ -11,14 +11,7 @@ defmodule AcqdatApi.RoleManagement.User do
   @token_expiration_max_age 172_800
 
   defdelegate update_user(user, params), to: UserModel
-
-  def get(user_id) do
-    UserModel.get(user_id)
-  end
-
-  def update(user, user_params) do
-    update_user(user, user_params)
-  end
+  defdelegate get(user_id), to: UserModel
 
   def set_asset(user, %{assets: assets}) do
     verify_user_assets(UserModel.set_asset(user, assets))

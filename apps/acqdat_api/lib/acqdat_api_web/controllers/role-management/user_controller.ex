@@ -186,7 +186,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         %{assigns: %{user: user}} = conn
 
-        case User.update(user, add_avatar_to_params(conn, params)) do
+        case User.update_user(user, add_avatar_to_params(conn, params)) do
           {:ok, user} ->
             ElasticSearch.update_users("users", user)
 
