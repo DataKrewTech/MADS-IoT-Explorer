@@ -50,6 +50,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     embeds_many :mapped_parameters, MappedParameters do
       field(:name, :string, null: false)
       field(:uuid, :string, null: false)
+      field(:sensor_type_uuid, :string, null: false)
       field(:sensor_uuid, :string, null: false)
       field(:parameter_uuid, :string, null: false)
     end
@@ -57,9 +58,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     field(:image_url, :string)
     field(:image, :any, virtual: true)
 
+    #associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:asset_category, AssetCategory, on_replace: :raise)
+    belongs_to(:creator_id, User)
+    belongs_to(:owner_id, User)
     many_to_many(:users, User, join_through: "asset_user")
 
     timestamps(type: :utc_datetime)

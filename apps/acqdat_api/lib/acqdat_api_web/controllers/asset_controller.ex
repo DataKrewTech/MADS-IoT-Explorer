@@ -3,11 +3,12 @@ defmodule AcqdatApiWeb.AssetController do
   alias AcqdatCore.Model.Asset, as: AssetModel
   alias AcqdatCore.Model.Organisation, as: OrgModel
   alias AcqdatApi.ElasticSearch
+  alias AcqdatApi.Asset
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Asset
 
   plug :load_asset when action in [:show, :update, :delete]
-  plug :load_org when action in [:search_assets]
+  plug :load_org when action in [:search_assets, :create]
 
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
@@ -16,6 +17,30 @@ defmodule AcqdatApiWeb.AssetController do
         conn
         |> put_status(200)
         |> render("asset.json", %{asset: conn.assigns.asset})
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def create(conn, params) do
+    case conn.status do
+      nil ->
+        changeset = verify_asset(params)
+
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:create, {:ok, asset}} <- {:create, Asset.create(data)} do
+          conn
+          |> put_status(200)
+          |> render("asset.json", %{asset: asset})
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message)
+        end
 
       404 ->
         conn
