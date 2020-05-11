@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.SensorTypeView do
       id: sensor_type.id,
       name: sensor_type.name,
       description: sensor_type.description,
-      metadata: sensor_type.metadata,
+      metadata: render_many(sensor_type.metadata, SensorTypeView, "metadata.json"),
       org_id: sensor_type.org_id,
       slug: sensor_type.slug,
       uuid: sensor_type.uuid,
@@ -21,8 +21,19 @@ defmodule AcqdatApiWeb.SensorTypeView do
     %{
       id: parameter.id,
       name: parameter.name,
-      type: "Parameter",
+      data_type: parameter.data_type,
+      unit: parameter.unit,
       uuid: parameter.uuid
+    }
+  end
+
+  def render("metadata.json", %{sensor_type: parameter}) do
+    %{
+      id: parameter.id,
+      name: parameter.name,
+      type: parameter.type,
+      unit: parameter.unit
+
     }
   end
 
