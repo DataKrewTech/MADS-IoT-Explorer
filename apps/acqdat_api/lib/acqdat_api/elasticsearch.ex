@@ -83,6 +83,19 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
+  def search_assets(type, params) do
+    case do_asset_search(type, params) do
+      {:ok, _return_code, hits} ->
+        {:ok, hits.hits}
+
+      {:error, _return_code, hits} ->
+        {:error, hits}
+
+      :error ->
+        {:error, "elasticsearch is not running"}
+    end
+  end
+
   defp do_widget_search(type, params) do
     query =
       search index: "#{type}" do
@@ -99,6 +112,17 @@ defmodule AcqdatApi.ElasticSearch do
       search index: "#{type}" do
         query do
           wildcard("first_name", "#{params}*")
+        end
+      end
+
+    Tirexs.Query.create_resource(query)
+  end
+
+  defp do_asset_search(type, params) do
+    query =
+      search index: "#{type}" do
+        query do
+          wildcard("name", "#{params}*")
         end
       end
 

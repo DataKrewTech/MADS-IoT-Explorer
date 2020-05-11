@@ -43,7 +43,7 @@ defmodule AcqdatApiWeb.Router do
     resources "/widget-type", Widgets.WidgetTypeController,
       only: [:create, :update, :delete, :index, :show]
 
-    get "/search_widgets", Widgets.WidgetController, :search_widget
+    get "/widgets/search", Widgets.WidgetController, :search_widget
 
     resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
@@ -60,25 +60,25 @@ defmodule AcqdatApiWeb.Router do
         as: :settings
     get "/users/search", UserController, :search_users
     resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
-
-
-      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
-    end
-
     scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
       put("/users/:id/apps", UserController, :apps, as: :user_apps)
 
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
+    get "/assets/search", AssetController, :search_assets
 
     post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
     get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
 
     scope "/projects/:project_id", EntityManagement do
-      resources "/assets", AssetController, only: [:show, :update, :delete]
+      resources "/assets", AssetController, only: [:show, :update, :delete, :index]
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/asset_types", AssetTypeController, only: [:update]
+    end
+    resources "/users", UserController, only: [:show, :update, :index] do
+      resources "/settings", UserSettingController, only: [:create, :update], as: :settings
+      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end
   end
 

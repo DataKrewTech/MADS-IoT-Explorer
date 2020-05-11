@@ -1,6 +1,6 @@
 defmodule AcqdatCore.Model.SensorType do
   alias AcqdatCore.Repo
-  alias AcqdatCore.Schema.SensorType
+  alias AcqdatCore.Schema.{SensorType, Sensor}
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
@@ -47,12 +47,40 @@ defmodule AcqdatCore.Model.SensorType do
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: any
   def update(sensor_type, params) do
-    changeset = SensorType.update_changeset(sensor_type, params)
-    Repo.update(changeset)
+    case is_nil(check_sensor_relation(sensor_type)) do
+      true ->
+        changeset = SensorType.update_changeset(sensor_type, params)
+
+        case Repo.update(changeset) do
+          {:ok, sensor_type} -> {:ok, sensor_type |> Repo.preload(:org)}
+          {:error, error} -> {:error, error}
+        end
+
+      false ->
+        {:error, "Sensor is Associated to this Sensor Type"}
+    end
+  end
+
+  def check_sensor_relation(sensor_type) do
+    query =
+      from(sensor in Sensor,
+        where: sensor.sensor_type_id == ^sensor_type.id
+      )
+
+    List.first(Repo.all(query))
   end
 
   @spec delete(%{__struct__: atom | %{__changeset__: any}}) :: any
   def delete(sensor_type) do
-    Repo.delete!(sensor_type)
+    case is_nil(check_sensor_relation(sensor_type)) do
+      true ->
+        case Repo.delete(sensor_type) do
+          {:ok, sensor_type} -> {:ok, sensor_type |> Repo.preload(:org)}
+          {:error, error} -> {:error, error}
+        end
+
+      false ->
+        {:error, "Sensor is Associated to this Sensor Type"}
+    end
   end
 end

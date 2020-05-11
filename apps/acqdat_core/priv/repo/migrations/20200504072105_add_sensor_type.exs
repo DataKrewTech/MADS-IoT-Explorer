@@ -5,7 +5,7 @@ defmodule AcqdatCore.Repo.Migrations.AddSensorType do
     create table("acqdat_sensor_types") do
       add(:name, :string, null: false)
       add(:description, :string)
-      add(:metadata, :map)
+      add(:metadata, {:array, :map})
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
       add(:parameters, {:array, :map})

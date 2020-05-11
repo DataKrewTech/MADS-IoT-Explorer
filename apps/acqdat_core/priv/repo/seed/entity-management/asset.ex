@@ -1,9 +1,11 @@
+<<<<<<< HEAD:apps/acqdat_core/priv/repo/seed/entity-management/asset.ex
 defmodule AcqdatCore.Seed.EntityManagement.Asset do
-  
+
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project}
   import AsNestedSet.Modifiable
   alias AcqdatCore.Repo
-  
+  import Tirexs.HTTP
+
   @asset_manifest [
     {
     "Bintan Factory",
@@ -36,10 +38,10 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
     asset =
       Repo.preload(
         %Asset{
-          name: parent, 
+          name: parent,
           org_id: org.id,
           project_id: project.id,
-          inserted_at: DateTime.truncate(DateTime.utc_now(), :second), 
+          inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           uuid: UUID.uuid1(:hex),
           slug: Slugger.slugify(org.name <> parent),
@@ -49,7 +51,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
       )
 
      root = add_root(asset)
-
+     insert_asset("assets", root)
      for taxon <- children do
        create_taxon(taxon, root)
      end
@@ -66,16 +68,16 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
     child =
       Repo.preload(
         %Asset{
-          name: parent, 
-          org_id: root.org.id, 
+          name: parent,
+          org_id: root.org.id,
           project_id: root.project_id,
           parent_id: root.id,
-          uuid: UUID.uuid1(:hex), 
-          slug: Slugger.slugify(root.org.name <> root.name <> parent), 
-          inserted_at: DateTime.truncate(DateTime.utc_now(), :second), 
+          uuid: UUID.uuid1(:hex),
+          slug: Slugger.slugify(root.org.name <> root.name <> parent),
+          inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           properties: properties
-          }, 
+          },
           [:org])
 
     {:ok, root} = add_taxon(root, child, :child)
@@ -93,11 +95,22 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
         |> Repo.preload(:project)
         |> create(parent, position)
         |> AsNestedSet.execute(Repo)
-
+      insert_asset("assets", taxon)
       {:ok, taxon}
     rescue
       error in Ecto.InvalidChangesetError ->
         {:error, error.changeset}
     end
   end
+
+  def insert_asset(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      properties: params.properties,
+      slug: params.slug,
+      uuid: params.uuid
+      )
+  end
 end
+
