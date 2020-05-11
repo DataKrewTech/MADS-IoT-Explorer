@@ -111,6 +111,17 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
+  defp do_asset_search(type, params) do
+    query =
+      search index: "#{type}" do
+        query do
+          wildcard("name", "#{params}*")
+        end
+      end
+
+    Tirexs.Query.create_resource(query)
+  end
+
   def user_indexing(page) do
     page_size = String.to_integer(page)
 
