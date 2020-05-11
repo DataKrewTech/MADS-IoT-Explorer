@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.Validators.SensorType do
     verify_sensor_params(%{
       name!: :string,
       description: :string,
-      metadata: :map,
+      metadata: {:array, :map},
       parameters!: {:array, :map},
       org_id!: :integer
     })

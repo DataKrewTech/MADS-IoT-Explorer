@@ -25,12 +25,13 @@ defmodule AcqdatCore.Schema.SensorType do
     field(:slug, :string, null: false)
     field(:name, :string, null: false)
     field(:description, :string)
-    field(:metadata, :map)
+    field(:metadata, {:array, :map})
 
     embeds_many :parameters, Parameters, on_replace: :delete do
       field(:name, :string, null: false)
       field(:uuid, :string, null: false)
       field(:data_type, :string, null: false)
+      field(:unit, :string)
     end
 
     # associations
@@ -42,6 +43,8 @@ defmodule AcqdatCore.Schema.SensorType do
   @required_params ~w(uuid slug org_id name)a
   @optional_params ~w(description metadata)a
   @embedded_required_params ~w(name uuid data_type)a
+  @embedded_optional_params ~w(unit)a
+  @permitted_embedded @embedded_optional_params ++ @embedded_required_params
 
   @permitted @required_params ++ @optional_params
 
@@ -99,7 +102,7 @@ defmodule AcqdatCore.Schema.SensorType do
 
   defp parameters_changeset(schema, params) do
     schema
-    |> cast(params, @embedded_required_params)
+    |> cast(params, @permitted_embedded)
     |> add_uuid()
     |> validate_required(@embedded_required_params)
   end
