@@ -5,28 +5,6 @@ defmodule AcqdatApiWeb.AssetController do
 
   plug :load_asset when action in [:show, :update]
 
-  # def create(conn, %{"asset" => params}) do
-  #   case conn.status do
-  #     nil ->
-  #       case create_asset(params) do
-  #         {:ok, asset} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("asset.json", %{asset: asset})
-
-  #         {:error, asset} ->
-  #           error = extract_changeset_error(asset)
-
-  #           conn
-  #           |> send_error(400, error)
-  #       end
-
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
-
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
     case conn.status do
