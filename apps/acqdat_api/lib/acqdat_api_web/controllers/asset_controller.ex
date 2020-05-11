@@ -1,13 +1,31 @@
 defmodule AcqdatApiWeb.AssetController do
   use AcqdatApiWeb, :controller
-  alias AcqdatCore.Model.Asset, as: AssetModel
+  alias AcqdatApi.Asset
   import AcqdatApiWeb.Helpers
 
-  defdelegate asset_descendents(id), to: AssetModel
-  defdelegate get(id), to: AssetModel
-  defdelegate update_asset(asset, data), to: AssetModel
-
   plug :load_asset when action in [:show, :update]
+
+  # def create(conn, %{"asset" => params}) do
+  #   case conn.status do
+  #     nil ->
+  #       case create_asset(params) do
+  #         {:ok, asset} ->
+  #           conn
+  #           |> put_status(200)
+  #           |> render("asset.json", %{asset: asset})
+
+  #         {:error, asset} ->
+  #           error = extract_changeset_error(asset)
+
+  #           conn
+  #           |> send_error(400, error)
+  #       end
+
+  #     404 ->
+  #       conn
+  #       |> send_error(404, "Resource Not Found")
+  #   end
+  # end
 
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
@@ -15,7 +33,7 @@ defmodule AcqdatApiWeb.AssetController do
       nil ->
         conn
         |> put_status(200)
-        |> render("asset_tree.json", %{asset: asset_descendents(conn.assigns.asset)})
+        |> render("asset_tree.json", %{asset: Asset.asset_descendents(conn.assigns.asset)})
 
       404 ->
         conn
@@ -26,7 +44,7 @@ defmodule AcqdatApiWeb.AssetController do
   def update(conn, %{"asset" => params}) do
     case conn.status do
       nil ->
-        case update_asset(conn.assigns.asset, params) do
+        case Asset.update_asset(conn.assigns.asset, params) do
           {:ok, asset} ->
             conn
             |> put_status(200)
@@ -48,7 +66,7 @@ defmodule AcqdatApiWeb.AssetController do
   defp load_asset(%{params: %{"id" => id}} = conn, _params) do
     {id, _} = Integer.parse(id)
 
-    case get(id) do
+    case Asset.get(id) do
       {:ok, asset} ->
         assign(conn, :asset, asset)
 
