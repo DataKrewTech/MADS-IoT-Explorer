@@ -11,10 +11,9 @@ defmodule AcqdatApi.RoleManagement.User do
   @token_expiration_max_age 172_800
 
   defdelegate update_user(user, params), to: UserModel
-  defdelegate get(id), to: UserModel
 
-  def fetch_user(user_id) do
-    get(user_id)
+  def get(user_id) do
+    UserModel.get(user_id)
   end
 
   def update(user, user_params) do

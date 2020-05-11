@@ -16,7 +16,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         {id, _} = Integer.parse(id)
 
-        with {:show, {:ok, user}} <- {:show, User.fetch_user(id)} do
+        with {:show, {:ok, user}} <- {:show, User.get(id)} do
           conn
           |> put_status(200)
           |> render("user_details.json", %{user_details: user})
