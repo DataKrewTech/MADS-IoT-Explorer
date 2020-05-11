@@ -9,6 +9,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:create, :update, :index, :delete]
   plug AcqdatApiWeb.Plug.LoadInvitation when action in [:update, :delete]
+  plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:create, :update]
   plug :validate_inviter when action in [:create]
 
   def index(conn, params) do
@@ -61,11 +62,10 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
   def update(conn, _params) do
     invitation = conn.assigns[:invitation]
-    current_user = Repo.get(User, Guardian.Plug.current_resource(conn))
 
     case conn.status do
       nil ->
-        case Invitation.update(invitation, current_user) do
+        case Invitation.update(invitation, conn.assigns.current_user) do
           {:ok, message} ->
             conn
             |> put_status(200)
@@ -108,7 +108,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
          %{params: %{"invitation" => %{"email" => invitee_email}}} = conn,
          _params
        ) do
-    user = Repo.get(User, Guardian.Plug.current_resource(conn))
+    user = conn.assigns.current_user
 
     case invitee_email == user.email do
       true ->
