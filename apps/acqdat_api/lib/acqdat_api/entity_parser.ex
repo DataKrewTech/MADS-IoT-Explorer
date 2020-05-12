@@ -23,104 +23,120 @@ defmodule AcqdatApi.EntityParser do
     {:ok, "success"}
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        org_id,
-        parent_id,
-        parent_type,
-        parent_entity
-      )
-      when type == "Asset" and action == "create" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         org_id,
+         parent_id,
+         parent_type,
+         parent_entity
+       )
+       when type == "Asset" and action == "create" do
     asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        org_id,
-        _parent_id,
-        _parent_type,
-        _parent_entity
-      )
-      when type == "Asset" and action == "update" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Asset" and action == "update" do
     asset_updation(entity, org_id)
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        _org_id,
-        _parent_id,
-        _parent_type,
-        _parent_entity
-      )
-      when type == "Asset" and action == "delete" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         _org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Asset" and action == "delete" do
     asset_deletion(entity)
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        org_id,
-        parent_id,
-        parent_type,
-        parent_entity
-      )
-      when type == "Sensor" and action == "create" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         org_id,
+         parent_id,
+         parent_type,
+         parent_entity
+       )
+       when type == "Sensor" and action == "create" do
     sensor_creation(entity, org_id, parent_id, parent_type, parent_entity)
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        org_id,
-        _parent_id,
-        _parent_type,
-        _parent_entity
-      )
-      when type == "Sensor" and action == "update" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Sensor" and action == "update" do
     sensor_updation(entity, org_id)
   end
 
-  def entity_seggr(
-        %{"type" => type, "action" => action} = entity,
-        _org_id,
-        _parent_id,
-        _parent_type,
-        _parent_entity
-      )
-      when type == "Sensor" and action == "delete" do
+  defp entity_seggr(
+         %{"type" => type, "action" => action} = entity,
+         _org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Sensor" and action == "delete" do
     sensor_deletion(entity)
   end
 
-  def entity_seggr(%{"type" => type} = entity, _org_id, _parent_id, _parent_type, _parent_entity) do
+  defp entity_seggr(%{"type" => type} = entity, _org_id, _parent_id, _parent_type, _parent_entity) do
     nil
   end
 
-  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity) do
-    parent_asset =
-      case {parent_type, parent_id, parent_entity} do
-        {"Organisation", nil, _} ->
-          add_asset_as_root(entity, org_id)
+  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+       when parent_type == "Organisation" and is_nil(parent_id) do
+    add_asset_as_root(entity, org_id)
+  end
 
-        {"Asset", _, nil} ->
-          add_asset_as_child(entity, org_id, parent_id)
+  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+       when parent_type == "Asset" and is_nil(parent_entity) do
+    add_asset_as_child(entity, org_id, parent_id)
+  end
 
-        {"Asset", _, _} ->
-          add_asset_as_child(entity, org_id, parent_entity.id)
-      end
-
-    parent_asset
+  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+       when parent_type == "Asset" do
+    add_asset_as_child(entity, org_id, parent_entity.id)
   end
 
   defp add_asset_as_root(%{"name" => name}, org_id) do
-    {:ok, org} = OrgModel.get_by_id(org_id)
-    AssetModel.add_as_root(%{name: name, org_id: org_id, org_name: org.name})
+    # {:ok, org} = OrgModel.get_by_id(org_id)
+    # AssetModel.add_as_root(%{name: name, org_id: org_id, org_name: org.name})
+    validate_organisation(OrgModel.get_by_id(org_id), name)
+  end
+
+  defp validate_organisation({:ok, org}, asset_name) do
+    AssetModel.add_as_root(%{name: asset_name, org_id: org.id, org_name: org.name})
+  end
+
+  defp validate_organisation({:error, _}, _asset_name) do
+    {:error, "Organisation not found"}
   end
 
   defp add_asset_as_child(%{"name" => name}, org_id, parent_id) do
-    {:ok, parent_entity} = AssetModel.get(parent_id)
-    AssetModel.add_as_child(parent_entity, name, org_id, :child)
+    # {:ok, parent_entity} = AssetModel.get(parent_id)
+    # AssetModel.add_as_child(parent_entity, name, org_id, :child)
+    validate_parent_asset(AssetModel.get(parent_id), name, org_id)
+  end
+
+  defp validate_parent_asset({:ok, parent_entity}, asset_name, org_id) do
+    AssetModel.add_as_child(parent_entity, asset_name, org_id, :child)
+  end
+
+  defp validate_parent_asset({:error, _}, _asset_name, _org_id) do
+    {:error, "Asset not found"}
   end
 
   defp asset_updation(%{"id" => id, "name" => name}, org_id) do
-    IO.puts("inside asset asset_updation")
     {:ok, asset} = AssetModel.get(id)
 
     AssetModel.update_asset(asset, %{
@@ -136,26 +152,22 @@ defmodule AcqdatApi.EntityParser do
     nil
   end
 
+  defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, nil) do
+    SensorModel.create(%{
+      name: name,
+      parent_id: parent_id,
+      parent_type: parent_type,
+      org_id: org_id
+    })
+  end
+
   defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, parent_entity) do
-    case parent_entity do
-      nil ->
-        SensorModel.create(%{
-          name: name,
-          parent_id: parent_id,
-          parent_type: parent_type,
-          org_id: org_id
-        })
-
-      _ ->
-        SensorModel.create(%{
-          name: name,
-          parent_id: parent_entity.id,
-          parent_type: "Asset",
-          org_id: org_id
-        })
-    end
-
-    nil
+    SensorModel.create(%{
+      name: name,
+      parent_id: parent_entity.id,
+      parent_type: "Asset",
+      org_id: org_id
+    })
   end
 
   defp sensor_updation(
@@ -169,12 +181,9 @@ defmodule AcqdatApi.EntityParser do
       parent_id: parent_id,
       parent_type: parent_type
     })
-
-    nil
   end
 
   defp sensor_deletion(%{"id" => id}) do
     SensorModel.delete(id)
-    nil
   end
 end
