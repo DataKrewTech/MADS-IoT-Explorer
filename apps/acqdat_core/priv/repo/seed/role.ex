@@ -1,5 +1,5 @@
 defmodule AcqdatCore.Seed.Role do
-  alias AcqdatCore.Schema.Role
+  alias AcqdatCore.Schema.RoleManagement.Role
   alias AcqdatCore.Repo
   
   @roles ~w(admin manager member)s
