@@ -2,8 +2,8 @@ defmodule AcqdatCore.Repo.Migrations.CreateProjectsTable do
   use Ecto.Migration
 
   def change do
-  	create table("acqdat_projects") do
-  		add(:name, :string, null: false)
+    create table("acqdat_projects") do
+      add(:name, :string, null: false)
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
       add(:metadata, :map)
@@ -17,7 +17,6 @@ defmodule AcqdatCore.Repo.Migrations.CreateProjectsTable do
       #associations
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
       add(:creator_id, references(:users))
-
 
       timestamps(type: :timestamptz)
     end
