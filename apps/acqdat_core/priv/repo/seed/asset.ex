@@ -1,6 +1,6 @@
 defmodule AcqdatCore.Seed.Asset do
   
-  alias AcqdatCore.Schema.{Asset, Organisation}
+  alias AcqdatCore.Schema.{Asset, Organisation, Project}
   import AsNestedSet.Modifiable
   alias AcqdatCore.Repo
   
@@ -32,11 +32,13 @@ defmodule AcqdatCore.Seed.Asset do
 
   def create_taxonomy({parent, children, properties}) do
     [org] = Repo.all(Organisation)
+    [project | _] = Repo.all(Project)
     asset =
       Repo.preload(
         %Asset{
           name: parent, 
-          org_id: org.id, 
+          org_id: org.id,
+          project_id: project.id,
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second), 
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           uuid: UUID.uuid1(:hex),
@@ -66,6 +68,7 @@ defmodule AcqdatCore.Seed.Asset do
         %Asset{
           name: parent, 
           org_id: root.org.id, 
+          project_id: root.project_id,
           parent_id: root.id,
           uuid: UUID.uuid1(:hex), 
           slug: Slugger.slugify(root.org.name <> root.name <> parent), 
@@ -87,6 +90,7 @@ defmodule AcqdatCore.Seed.Asset do
       taxon =
         %Asset{child | org_id: parent.org.id}
         |> Repo.preload(:org)
+        |> Repo.preload(:project)
         |> create(parent, position)
         |> AsNestedSet.execute(Repo)
 

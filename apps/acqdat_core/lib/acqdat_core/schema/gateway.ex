@@ -7,7 +7,7 @@ defmodule AcqdatCore.Schema.Gateway do
   """
   use AcqdatCore.Schema
 
-  alias AcqdatCore.Schema.Organisation
+  alias AcqdatCore.Schema.{Organisation, Project}
 
   @typedoc """
   `uuid`: A universally unique id to identify the gateway.
@@ -30,7 +30,9 @@ defmodule AcqdatCore.Schema.Gateway do
     # field(:image_url, :string)
     # field(:image, :any, virtual: true)
 
+    # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:project, Project, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end

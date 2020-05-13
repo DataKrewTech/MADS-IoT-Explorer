@@ -8,7 +8,7 @@ defmodule AcqdatCore.Schema.Sensor do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.{Gateway, Organisation}
+  alias AcqdatCore.Schema.{Gateway, Organisation, Project}
 
   @typedoc """
   `uuid`: A universallly unique id for the sensor.
@@ -37,6 +37,7 @@ defmodule AcqdatCore.Schema.Sensor do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:gateway, Gateway, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
