@@ -3,7 +3,7 @@ defmodule AcqdatCore.Seed.Sensor do
   # alias AcqdatCore.Schema.{Sensor}
   # alias AcqdatCore.Repo
 
-  alias AcqdatCore.Schema.{Organisation, Asset, Sensor}
+  alias AcqdatCore.Schema.{Organisation, Asset, Sensor, Project}
   alias AcqdatCore.Repo
 
   @energy_parameters_list [
@@ -47,21 +47,22 @@ defmodule AcqdatCore.Seed.Sensor do
   
   def seed_sensors() do
     [org] = Repo.all(Organisation)
+    [project | _] = Repo.all(Project)
     assets = Repo.all(Asset)
     sensors = assets
     |> Enum.map(fn
       %Asset{name: "Wet Process"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
       %Asset{name: "Dry Process"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Temperature Sensor", parameters: @temperature_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Temperature Sensor")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Temperature Sensor", parameters: @temperature_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Temperature Sensor")}
       %Asset{name: "Ipoh Factory"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Air Quality Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Air Quality Sensor")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Air Quality Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Air Quality Sensor")}
       %Asset{name: "Common Space"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
       %Asset{name: "Executive Space"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
       %Asset{name: "Singapore Office"} = asset ->  
-        %{org_id: org.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
+        %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
       %Asset{name: "Bintan Factory"} = asset ->  %{}
 
       end)
@@ -70,15 +71,14 @@ defmodule AcqdatCore.Seed.Sensor do
       |> Map.put(:inserted_at, DateTime.truncate(DateTime.utc_now(), :second))
       |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
     end)
-
     sensors1 = 
     assets
     |> Enum.map(fn
       %Asset{name: "Wet Process"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Vibration Sensor", parameters: @vibration_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Vibration Sensot")}
+        %{org_id: org.id, parent_id: asset.id, project_id: project.id, name: "Vibration Sensor", parameters: @vibration_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Vibration Sensot")}
       %Asset{name: "Dry Process"} = asset -> %{}
       %Asset{name: "Ipoh Factory"} = asset ->
-        %{org_id: org.id, parent_id: asset.id, name: "Soil Moisture Sensor", parameters: @soil_moisture_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Soil Moisture Sensor")}
+        %{org_id: org.id, parent_id: asset.id, project_id: project.id, name: "Soil Moisture Sensor", parameters: @soil_moisture_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Soil Moisture Sensor")}
       %Asset{name: "Common Space"} = asset -> %{}
       %Asset{name: "Executive Space"} = asset -> %{}
       %Asset{name: "Singapore Office"} = asset -> %{}

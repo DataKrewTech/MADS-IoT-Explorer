@@ -43,7 +43,7 @@ defmodule AcqdatCore.Schema.Sensor do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(org_id uuid slug name)a
+  @required_params ~w(org_id project_id uuid slug name)a
   @optional_params ~w(gateway_id parent_id parent_type)a
   @embedded_required_params ~w(name uuid data_type)a
 
@@ -74,6 +74,7 @@ defmodule AcqdatCore.Schema.Sensor do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> assoc_constraint(:gateway)
   end
 

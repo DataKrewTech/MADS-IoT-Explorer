@@ -65,7 +65,7 @@ defmodule AcqdatCore.Schema.Asset do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug parent_id org_id )a
+  @required_params ~w(uuid slug parent_id org_id project_id)a
   @optional_params ~w(name lft rgt metadata description properties image image_url asset_category_id)a
 
   @required_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
@@ -96,6 +96,7 @@ defmodule AcqdatCore.Schema.Asset do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
     |> unique_constraint(:name,

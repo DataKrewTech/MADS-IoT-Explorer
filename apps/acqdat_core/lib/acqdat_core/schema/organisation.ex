@@ -6,6 +6,7 @@ defmodule AcqdatCore.Schema.Organisation do
   """
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.RoleManagement.App
+  alias AcqdatCore.Schema.Project
 
   # use AsNestedSet, scope: [:id]
   @typedoc """
@@ -21,6 +22,8 @@ defmodule AcqdatCore.Schema.Organisation do
     field(:description, :string)
 
     # associations
+    has_many(:projects, Project, foreign_key: :org_id)
+
     many_to_many(:apps, App,
       join_through: "org_apps",
       join_keys: [org_id: :id, app_id: :id],

@@ -1,12 +1,11 @@
 defmodule AcqdatCore.Model.Asset do
   import Ecto.Query
-  import AsNestedSet.Queriable, only: [dump_one: 2]
   alias AcqdatCore.Model.Sensor, as: SensorModel
   alias AcqdatCore.Schema.Asset
   alias AcqdatCore.Repo
 
-  def child_assets(org_id) do
-    org_assets = fetch_root_assets(org_id)
+  def child_assets(project_id) do
+    org_assets = fetch_root_assets(project_id)
 
     org_assets =
       Enum.reduce(org_assets, [], fn asset, acc ->
@@ -35,10 +34,10 @@ defmodule AcqdatCore.Model.Asset do
     Map.put_new(asset, :assets, entities_with_sensors)
   end
 
-  defp fetch_root_assets(org_id) do
+  defp fetch_root_assets(project_id) do
     query =
       from(asset in Asset,
-        where: asset.org_id == ^org_id and is_nil(asset.parent_id) == true
+        where: asset.project_id == ^project_id and is_nil(asset.parent_id) == true
       )
 
     Repo.all(query)

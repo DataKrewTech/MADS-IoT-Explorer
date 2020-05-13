@@ -1,9 +1,6 @@
 defmodule AcqdatCore.Model.Organisation do
-  import Ecto.Query
-  import AsNestedSet.Queriable, only: [dump_one: 2]
   alias AcqdatCore.Schema.Organisation
-  alias AcqdatCore.Model.Asset, as: AssetModel
-  alias AcqdatCore.Schema.Sensor
+  alias AcqdatCore.Model.Project, as: ProjectModel
   alias AcqdatCore.Repo
 
   def get(id) when is_integer(id) do
@@ -12,9 +9,9 @@ defmodule AcqdatCore.Model.Organisation do
         {:error, "not found"}
 
       org ->
-        entities = AssetModel.child_assets(org.id)
+        entities = ProjectModel.hirerachy_data(org.id)
 
-        org = Map.put_new(org, :assets, entities)
+        org = Map.put_new(org, :project_data, entities)
         {:ok, org}
     end
   end

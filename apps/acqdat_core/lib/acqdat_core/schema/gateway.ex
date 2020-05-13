@@ -37,7 +37,7 @@ defmodule AcqdatCore.Schema.Gateway do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(access_token slug uuid org_id)a
+  @required_params ~w(access_token slug uuid org_id project_id)a
   @optional_params ~w(name parent_type description parent_id serializer)a
   @embedded_required_params ~w(name uuid data_type value)a
 
@@ -66,6 +66,7 @@ defmodule AcqdatCore.Schema.Gateway do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
     |> unique_constraint(:access_token, name: :acqdat_gateway_access_token_index)
