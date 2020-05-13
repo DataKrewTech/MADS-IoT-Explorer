@@ -9,16 +9,18 @@ defmodule AcqdatCore.Schema.AssetTest do
   describe "changeset/2" do
     setup do
       organisation = insert(:organisation)
-      [organisation: organisation]
+      project = insert(:project)
+      [organisation: organisation, project: project]
     end
 
     test "returns a valid changeset", context do
-      %{organisation: organisation} = context
+      %{organisation: organisation, project: project} = context
 
       params = %{
         name: "Bintan Factory",
         org_id: organisation.id,
-        parent_id: organisation.id
+        parent_id: organisation.id,
+        project_id: project.id
       }
 
       %{valid?: validity} = Asset.changeset(%Asset{}, params)
@@ -35,11 +37,12 @@ defmodule AcqdatCore.Schema.AssetTest do
              } = errors_on(changeset)
     end
 
-    test "returns error if assoc constraint not satisfied", _context do
+    test "returns error if org assoc constraint not satisfied", %{project: project} do
       params = %{
         name: "Bintan Factory",
         org_id: -1,
-        parent_id: -1
+        parent_id: -1,
+        project_id: project.id
       }
 
       changeset = Asset.changeset(%Asset{}, params)
@@ -48,15 +51,36 @@ defmodule AcqdatCore.Schema.AssetTest do
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
 
-    test "returns error if asset with same name exists under a parent" do
-      organisation = insert(:organisation)
-      parent_asset = insert(:asset, org: organisation)
+    test "returns error if project assoc constraint not satisfied", %{organisation: organisation} do
+      params = %{
+        name: "Bintan Factory",
+        org_id: organisation.id,
+        parent_id: -1
+      }
 
-      child_asset_1 = insert(:asset, org: organisation, parent_id: parent_asset.id)
+      changeset = Asset.changeset(%Asset{}, params)
+
+      {:error, result_changeset} = Repo.insert(changeset)
+      assert %{project_id: ["can't be blank"]} == errors_on(result_changeset)
+    end
+
+    test "returns error if asset with same name exists under a parent", %{
+      organisation: organisation,
+      project: project
+    } do
+      parent_asset = insert(:asset, org: organisation, project_id: project.id)
+
+      child_asset_1 =
+        insert(:asset, org: organisation, parent_id: parent_asset.id, project_id: project.id)
 
       params =
         :asset
-        |> build(name: child_asset_1.name, org: organisation, parent_id: parent_asset.id)
+        |> build(
+          name: child_asset_1.name,
+          org: organisation,
+          parent_id: parent_asset.id,
+          project_id: project.id
+        )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)
 
@@ -67,9 +91,11 @@ defmodule AcqdatCore.Schema.AssetTest do
     end
 
     # TODO: complete the test
-    test "returns error if no parent but asset with same name under same org" do
-      organisation = insert(:organisation)
-      child_asset_1 = insert(:asset, org: organisation)
+    test "returns error if no parent but asset with same name under same org", %{
+      organisation: organisation,
+      project: project
+    } do
+      child_asset_1 = insert(:asset, org: organisation, project: project)
     end
 
     # TODO: complete the test

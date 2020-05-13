@@ -22,7 +22,8 @@ defmodule AcqdatCore.Support.Factory do
     DigitalTwin,
     Organisation,
     Asset,
-    Gateway
+    Gateway,
+    Project
   }
 
   alias AcqdatCore.Schema.RoleManagement.{
@@ -46,6 +47,16 @@ defmodule AcqdatCore.Support.Factory do
   def organisation_factory() do
     %Organisation{
       name: sequence(:name, &"Org-#{&1}")
+    }
+  end
+
+  def project_factory() do
+    %Project{
+      name: sequence(:name, &"Project-#{&1}"),
+      uuid: UUID.uuid1(:hex),
+      slug: sequence(:sensor_name, &"Project#{&1}"),
+      creator: build(:user),
+      org: build(:organisation)
     }
   end
 
@@ -146,7 +157,8 @@ defmodule AcqdatCore.Support.Factory do
       uuid: UUID.uuid1(:hex),
       name: sequence(:sensor_name, &"Sensor#{&1}"),
       slug: sequence(:sensor_name, &"Sensor#{&1}"),
-      org: build(:organisation)
+      org: build(:organisation),
+      project: build(:project)
     }
   end
 
@@ -156,7 +168,8 @@ defmodule AcqdatCore.Support.Factory do
       name: sequence(:gateway_name, &"Gateway#{&1}"),
       access_token: sequence(:gateway_name, &"Gateway#{&1}"),
       slug: sequence(:gateway_name, &"Gateway#{&1}"),
-      org: build(:organisation)
+      org: build(:organisation),
+      project: build(:project)
     }
   end
 

@@ -38,7 +38,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
     setup do
       org = insert(:organisation)
-      asset = insert(:asset)
+      project = insert(:project)
+      asset = insert(:asset, project_id: project.id)
       user = insert(:user)
 
       [user: user, asset: asset, org: org]

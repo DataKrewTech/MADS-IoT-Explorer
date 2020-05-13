@@ -9,7 +9,8 @@ defmodule AcqdatCore.Schema.RoleManagement.TeamAssetTest do
   describe "changeset/2" do
     setup do
       team = insert(:team)
-      asset = insert(:asset)
+      project = insert(:project)
+      asset = insert(:asset, project_id: project.id)
 
       [team: team, asset: asset]
     end

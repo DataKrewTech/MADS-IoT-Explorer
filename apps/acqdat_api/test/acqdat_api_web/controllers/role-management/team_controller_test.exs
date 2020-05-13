@@ -129,7 +129,8 @@ defmodule AcqdatApiWeb.RoleManagement.TeamControllerTest do
 
     setup do
       org = insert(:organisation)
-      asset = insert(:asset)
+      project = insert(:project)
+      asset = insert(:asset, project_id: project.id)
       team = insert(:team)
 
       [team: team, asset: asset, org: org]

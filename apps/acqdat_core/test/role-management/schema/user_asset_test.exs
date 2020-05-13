@@ -9,7 +9,8 @@ defmodule AcqdatCore.Schema.RoleManagement.UserAssetTest do
   describe "changeset/2" do
     setup do
       user = insert(:user)
-      asset = insert(:asset)
+      project = insert(:project)
+      asset = insert(:asset, project_id: project.id)
 
       [user: user, asset: asset]
     end
