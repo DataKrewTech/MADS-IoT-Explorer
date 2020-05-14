@@ -1,4 +1,4 @@
-defmodule AcqdatApi.EntityParser do
+defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel

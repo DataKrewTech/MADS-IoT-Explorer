@@ -1,6 +1,6 @@
-defmodule AcqdatApiWeb.AssetTypeController do
+defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.AssetType
+  alias AcqdatApi.EntityManagement.AssetType
   import AcqdatApiWeb.Helpers
 
   plug :load_asset_type when action in [:update]

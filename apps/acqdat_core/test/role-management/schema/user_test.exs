@@ -69,8 +69,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserTest do
     end
 
     test "updates assets of the user", context do
-      project = insert(:project)
-      asset = insert(:asset, project_id: project.id)
+      asset = insert(:asset)
       %{user: user} = context
 
       %{valid?: validity} = User.associate_asset_changeset(user, [asset])

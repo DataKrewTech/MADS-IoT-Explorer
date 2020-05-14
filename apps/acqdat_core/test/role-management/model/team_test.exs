@@ -114,8 +114,7 @@ defmodule AcqdatCore.Model.RoleManagement.TeamTest do
 
   describe "update_assets/2" do
     setup do
-      project = insert(:project)
-      asset = insert(:asset, project_id: project.id)
+      asset = insert(:asset)
       team = insert(:team)
 
       [team: team, asset: asset]

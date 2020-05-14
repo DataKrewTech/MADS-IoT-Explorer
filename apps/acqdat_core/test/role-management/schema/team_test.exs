@@ -69,8 +69,7 @@ defmodule AcqdatCore.Schema.RoleManagement.TeamTest do
     end
 
     test "updates assets of the team", context do
-      project = insert(:project)
-      asset = insert(:asset, project_id: project.id)
+      asset = insert(:asset)
       %{team: team} = context
 
       %{valid?: validity} = Team.update_assets(team, [asset])

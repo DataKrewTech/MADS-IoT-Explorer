@@ -1,4 +1,4 @@
-defmodule AcqdatApi.Asset do
+defmodule AcqdatApi.EntityManagement.Asset do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
 
   defdelegate asset_descendents(id), to: AssetModel

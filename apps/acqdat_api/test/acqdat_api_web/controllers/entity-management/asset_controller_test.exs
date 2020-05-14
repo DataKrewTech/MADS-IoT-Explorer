@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.AssetControllerTest do
+defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
@@ -48,7 +48,6 @@ defmodule AcqdatApiWeb.AssetControllerTest do
                "id" => asset.id,
                "name" => asset.name,
                "type" => "Asset",
-               "parent_id" => -1,
                "properties" => []
              }
     end

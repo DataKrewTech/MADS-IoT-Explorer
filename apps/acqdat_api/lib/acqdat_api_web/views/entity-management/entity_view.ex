@@ -1,6 +1,6 @@
-defmodule AcqdatApiWeb.EntityView do
+defmodule AcqdatApiWeb.EntityManagement.EntityView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.AssetView
+  alias AcqdatApiWeb.EntityManagement.AssetView
 
   def render("organisation_tree.json", %{org: org}) do
     %{

@@ -1,6 +1,6 @@
-defmodule AcqdatApiWeb.AssetController do
+defmodule AcqdatApiWeb.EntityManagement.AssetController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.Asset
+  alias AcqdatApi.EntityManagement.Asset
   import AcqdatApiWeb.Helpers
 
   plug :load_asset when action in [:show, :update]

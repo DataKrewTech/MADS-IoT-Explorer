@@ -76,13 +76,13 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
-    post("/entities", EntityController, :update_hierarchy)
-    resources "/assets", AssetController, only: [:show, :update]
+    scope "/", EntityManagement do
+      post("/entities", EntityController, :update_hierarchy)
 
-    resources "/sensors", EntityManagement.SensorController,
-      only: [:create, :update, :delete, :index, :show]
-
-    resources "/asset_types", AssetTypeController, only: [:update]
+      resources "/assets", AssetController, only: [:show, :update]
+      resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
+      resources "/asset_types", AssetTypeController, only: [:update]
+    end
   end
 
   # TODO: Need to remove this scope later, and clean test-cases also

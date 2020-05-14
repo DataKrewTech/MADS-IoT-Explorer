@@ -39,6 +39,7 @@ defmodule AcqdatCore.Factory.Hierarchy do
           name: sequence(:asset_name, &"Area-#{&1}"),
           asset_category: build(:asset_category),
           org: build(:organisation),
+          project: build(:project),
           mapped_parameters: [],
           image_url: "",
           properties: [],

@@ -1,6 +1,6 @@
-defmodule AcqdatApiWeb.EntityController do
+defmodule AcqdatApiWeb.EntityManagement.EntityController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.EntityParser
+  alias AcqdatApi.EntityManagement.EntityParser
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   import AcqdatApiWeb.Helpers
 

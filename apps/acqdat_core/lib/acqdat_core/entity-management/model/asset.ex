@@ -8,15 +8,14 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   def child_assets(project_id) do
     project_assets = fetch_root_assets(project_id)
 
-    project_assets =
-      Enum.reduce(project_assets, [], fn asset, acc ->
-        entities =
-          AsNestedSet.descendants(asset)
-          |> AsNestedSet.execute(Repo)
+    Enum.reduce(project_assets, [], fn asset, acc ->
+      entities =
+        AsNestedSet.descendants(asset)
+        |> AsNestedSet.execute(Repo)
 
-        res_asset = fetch_child_sensors(List.first(entities), entities, asset)
-        acc = acc ++ [res_asset]
-      end)
+      res_asset = fetch_child_sensors(List.first(entities), entities, asset)
+      acc ++ [res_asset]
+    end)
   end
 
   def get(id) when is_integer(id) do
@@ -97,7 +96,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       Enum.reduce(entities, [], fn asset, acc_sensor ->
         entities = SensorModel.child_sensors(asset)
         asset = Map.put_new(asset, :sensors, entities)
-        acc_sensor = acc_sensor ++ [asset]
+        acc_sensor ++ [asset]
       end)
 
     Map.put_new(asset, :assets, entities_with_sensors)

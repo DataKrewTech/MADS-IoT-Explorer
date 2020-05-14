@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.AssetTypeView do
+defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
   use AcqdatApiWeb, :view
 
   def render("asset_type.json", %{asset_type: asset_type}) do

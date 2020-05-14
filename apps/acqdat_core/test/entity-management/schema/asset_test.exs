@@ -68,10 +68,10 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       organisation: organisation,
       project: project
     } do
-      parent_asset = insert(:asset, org: organisation, project_id: project.id)
+      parent_asset = insert(:asset, org: organisation, project: project)
 
       child_asset_1 =
-        insert(:asset, org: organisation, parent_id: parent_asset.id, project_id: project.id)
+        insert(:asset, org: organisation, parent_id: parent_asset.id, project: project)
 
       params =
         :asset
@@ -79,10 +79,11 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
           name: child_asset_1.name,
           org: organisation,
           parent_id: parent_asset.id,
-          project_id: project.id
+          project: project
         )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)
+        |> Map.put(:project_id, project.id)
 
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)
@@ -92,10 +93,9 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
     # TODO: complete the test
     test "returns error if no parent but asset with same name under same org", %{
-      organisation: organisation,
-      project: project
+      organisation: organisation
     } do
-      child_asset_1 = insert(:asset, org: organisation, project: project)
+      child_asset_1 = insert(:asset, org: organisation)
     end
 
     # TODO: complete the test
