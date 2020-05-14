@@ -1,4 +1,5 @@
 defmodule AcqdatCore.Model.Organisation do
+  import Ecto.Query
   alias AcqdatCore.Schema.Organisation
   alias AcqdatCore.Model.Project, as: ProjectModel
   alias AcqdatCore.Schema.App
