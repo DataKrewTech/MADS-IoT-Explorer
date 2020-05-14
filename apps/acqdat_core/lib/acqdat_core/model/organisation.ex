@@ -9,10 +9,11 @@ defmodule AcqdatCore.Model.Organisation do
         {:error, "not found"}
 
       org ->
-        entities = ProjectModel.hirerachy_data(org.id)
+        entities = ProjectModel.hierarchy_data(org.id)
 
         org = Map.put_new(org, :project_data, entities)
         {:ok, org}
     end
   end
 end
+

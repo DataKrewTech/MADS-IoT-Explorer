@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.Project do
   alias AcqdatCore.Model.Asset, as: AssetModel
   alias AcqdatCore.Repo
 
-  def hirerachy_data(org_id) do
+  def hierarchy_data(org_id) do
     org_projects = fetch_projects(org_id)
 
     org_projects =
