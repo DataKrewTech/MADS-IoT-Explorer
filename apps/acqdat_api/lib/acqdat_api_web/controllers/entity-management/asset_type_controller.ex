@@ -91,7 +91,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
                 false -> extract_changeset_error(asset_type)
                 true -> asset_type
               end
-
             conn
             |> send_error(400, error)
         end
