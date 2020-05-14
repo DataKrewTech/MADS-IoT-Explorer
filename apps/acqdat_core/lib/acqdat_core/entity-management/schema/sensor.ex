@@ -33,11 +33,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     field(:metadata, :map)
     field(:parent_type, :string)
 
-    embeds_many :parameters, Parameters do
-      field(:name, :string, null: false)
-      field(:uuid, :string, null: false)
-      field(:data_type, :string, null: false)
-    end
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
@@ -46,6 +41,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
 
     timestamps(type: :utc_datetime)
   end
+
 
   @required_params ~w(org_id project_id uuid slug name sensor_type_id)a
   @optional_params ~w(gateway_id metadata parent_id parent_type)a

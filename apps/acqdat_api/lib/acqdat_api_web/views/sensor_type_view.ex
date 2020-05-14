@@ -33,7 +33,6 @@ defmodule AcqdatApiWeb.SensorTypeView do
       name: parameter.name,
       type: parameter.type,
       unit: parameter.unit
-
     }
   end
 

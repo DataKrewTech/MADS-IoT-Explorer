@@ -60,6 +60,7 @@ defmodule AcqdatApiWeb.Router do
         as: :settings
 
     get "/users/search", RoleManagement.UserController, :search_users
+
     scope "/", RoleManagement do
       resources("/teams", TeamController, only: [:create, :index, :update])
       put("/teams/:id/assets", TeamController, :update_assets, as: :update_team_assets)
