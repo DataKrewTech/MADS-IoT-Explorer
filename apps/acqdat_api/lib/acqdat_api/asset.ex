@@ -1,6 +1,5 @@
 defmodule AcqdatApi.Asset do
-  alias AcqdatCore.Model.Asset, as: AssetModel
-  import AcqdatApiWeb.Helpers
+  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
 
   defdelegate asset_descendents(id), to: AssetModel
   defdelegate get(id), to: AssetModel

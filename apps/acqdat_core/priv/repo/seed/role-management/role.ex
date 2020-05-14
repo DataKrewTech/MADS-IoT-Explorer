@@ -11,3 +11,4 @@ defmodule AcqdatCore.Seed.RoleManagement.Role do
     end)
   end
 end
+

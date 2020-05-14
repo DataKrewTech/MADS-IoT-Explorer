@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.EntityController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityParser
-  alias AcqdatCore.Model.Organisation, as: OrgModel
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:update_hierarchy]
@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.EntityController do
       nil ->
         org = conn.assigns.org
 
-        with {:ok, data} <- EntityParser.parse(entities, org_id, nil, type, params) do
+        with {:ok, _data} <- EntityParser.parse(entities, org_id, nil, type, params) do
           conn |> put_status(200) |> render("organisation_tree.json", org)
         else
           {:error, message} ->
