@@ -73,7 +73,12 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
          %{params: %{"widget_id" => widget_id, "user_id" => user_id}} = conn,
          _params
        ) do
-    {widget_id, _} = Integer.parse(widget_id)
+    widget_id =
+      case String.valid?(widget_id) do
+        false -> widget_id
+        true -> String.to_integer(widget_id)
+      end
+
     {user_id, _} = Integer.parse(user_id)
 
     case WidgetModel.get(widget_id) do
