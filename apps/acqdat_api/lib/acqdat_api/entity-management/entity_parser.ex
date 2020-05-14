@@ -133,6 +133,17 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp entity_seggr(
+         %{"id" => id, "type" => type} = entity,
+         _org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Project" do
+    ProjectModel.get_by_id(id)
+  end
+
+  defp entity_seggr(
          %{"type" => type, "action" => action} = entity,
          org_id,
          parent_id,
