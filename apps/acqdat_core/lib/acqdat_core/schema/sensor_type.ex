@@ -64,7 +64,7 @@ defmodule AcqdatCore.Schema.SensorType do
     sensor_type
     |> cast(params, @permitted)
     |> cast_embed(:parameters, with: &parameters_changeset/2)
-    |> cast_embed(:metadata, with: &metadatas_changeset/2)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
@@ -116,7 +116,7 @@ defmodule AcqdatCore.Schema.SensorType do
     |> validate_required(@embedded_required_params)
   end
 
-  defp metadatas_changeset(schema, params) do
+  defp metadata_changeset(schema, params) do
     schema
     |> cast(params, @permitted_metadata)
     |> validate_required(@embedded_metadata_required)
