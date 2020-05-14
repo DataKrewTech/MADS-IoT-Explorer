@@ -2,9 +2,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
+  alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
 
   # NOTE: EntityParser.parse(k["entities"], k["id"], nil, k["type"], nil)
   # TODO: Error handling to do
+  # TODO: Needs to refactor this parser
   def parse(entities, org_id, parent_id, parent_type, parent_entity) do
     if entities !== nil do
       for entity <- entities do
@@ -21,6 +23,17 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     end
 
     {:ok, "success"}
+  end
+
+  defp entity_seggr(
+         %{"id" => id, "type" => type} = entity,
+         _org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity
+       )
+       when type == "Project" do
+    ProjectModel.get_by_id(id)
   end
 
   defp entity_seggr(
@@ -94,8 +107,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
-       when parent_type == "Organisation" and is_nil(parent_id) do
-    add_asset_as_root(entity, org_id)
+       when parent_type == "Project" do
+    add_asset_as_root(entity, org_id, parent_entity.id)
   end
 
   defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
@@ -108,17 +121,22 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     add_asset_as_child(entity, org_id, parent_entity.id)
   end
 
-  defp add_asset_as_root(%{"name" => name}, org_id) do
+  defp add_asset_as_root(%{"name" => name}, org_id, project_id) do
     # {:ok, org} = OrgModel.get_by_id(org_id)
     # AssetModel.add_as_root(%{name: name, org_id: org_id, org_name: org.name})
-    validate_organisation(OrgModel.get_by_id(org_id), name)
+    validate_organisation(OrgModel.get_by_id(org_id), name, project_id)
   end
 
-  defp validate_organisation({:ok, org}, asset_name) do
-    AssetModel.add_as_root(%{name: asset_name, org_id: org.id, org_name: org.name})
+  defp validate_organisation({:ok, org}, asset_name, project_id) do
+    AssetModel.add_as_root(%{
+      name: asset_name,
+      org_id: org.id,
+      org_name: org.name,
+      project_id: project_id
+    })
   end
 
-  defp validate_organisation({:error, _}, _asset_name) do
+  defp validate_organisation({:error, _}, _asset_name, _project_id) do
     {:error, "Organisation not found"}
   end
 
@@ -153,11 +171,14 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, nil) do
+    {:ok, asset} = AssetModel.get(parent_id)
+
     SensorModel.create(%{
       name: name,
       parent_id: parent_id,
       parent_type: parent_type,
-      org_id: org_id
+      org_id: org_id,
+      project_id: asset.project_id
     })
   end
 
@@ -166,7 +187,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       name: name,
       parent_id: parent_entity.id,
       parent_type: "Asset",
-      org_id: org_id
+      org_id: org_id,
+      project_id: parent_entity.project_id
     })
   end
 

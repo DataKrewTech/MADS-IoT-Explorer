@@ -19,7 +19,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   def get(id) when is_integer(id) do
-    case Repo.get(Asset, id) |> Repo.preload([:org]) do
+    case Repo.get(Asset, id) |> Repo.preload([:org, :project]) do
       nil ->
         {:error, "not found"}
 
@@ -37,11 +37,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
   end
 
-  def add_as_root(%{name: name, org_id: org_id, org_name: org_name}) do
+  def add_as_root(%{name: name, org_id: org_id, org_name: org_name, project_id: project_id}) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
       taxon =
-        asset_struct(%{name: name, org_id: org_id, slug: org_name <> name})
+        asset_struct(%{name: name, org_id: org_id, slug: org_name <> name, project_id: project_id})
         |> create(:root)
         |> AsNestedSet.execute(Repo)
 
@@ -55,7 +55,12 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   def add_as_child(parent, name, org_id, position) do
     try do
       child =
-        asset_struct(%{name: name, org_id: org_id, slug: parent.org.name <> parent.name <> name})
+        asset_struct(%{
+          name: name,
+          org_id: org_id,
+          slug: parent.org.name <> parent.name <> name,
+          project_id: parent.project.id
+        })
 
       taxon =
         child
@@ -69,10 +74,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  defp asset_struct(%{name: name, org_id: org_id, slug: slug}) do
+  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
     %Asset{
       name: name,
       org_id: org_id,
+      project_id: project_id,
       inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
       updated_at: DateTime.truncate(DateTime.utc_now(), :second),
       uuid: UUID.uuid1(:hex),
