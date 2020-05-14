@@ -16,7 +16,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorTest do
 
     test "returns a valid changeset", context do
       %{organisation: organisation, project: project, sensor_type: sensor_type} = context
-
       params = %{
         uuid: UUID.uuid1(:hex),
         name: "Temperature",

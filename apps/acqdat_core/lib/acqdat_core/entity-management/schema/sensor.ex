@@ -40,11 +40,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
       field(:value, :string)
     end
 
-    embeds_many :parameters, Parameters do
-      field(:name, :string, null: false)
-      field(:uuid, :string, null: false)
-      field(:data_type, :string, null: false)
-    end
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
