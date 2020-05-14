@@ -14,6 +14,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
     %{
       type: "Sensor",
       id: sensor.id,
+      parent_id: sensor.parent_id,
       # inserted_at: sensor.inserted_at,
       name: sensor.name,
       entities: render_many(sensor.parameters, SensorView, "data_tree.json")

@@ -15,6 +15,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
     %{
       type: "Asset",
       id: asset.id,
+      parent_id: asset.parent_id,
       name: asset.name,
       properties: asset.properties,
       entities: params

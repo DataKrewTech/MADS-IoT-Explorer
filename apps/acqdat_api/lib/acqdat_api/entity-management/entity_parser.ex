@@ -193,15 +193,15 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp sensor_updation(
-         %{"id" => id, "name" => name, "parent_id" => parent_id, "parent_type" => parent_type},
+         %{"id" => id, "name" => name},
          org_id
        ) do
     {:ok, sensor} = SensorModel.get(id)
 
     SensorModel.update(sensor, %{
-      name: name,
-      parent_id: parent_id,
-      parent_type: parent_type
+      name: name
+      # parent_id: parent_id,
+      # parent_type: parent_type
     })
   end
 
