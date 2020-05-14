@@ -8,7 +8,7 @@ defmodule AcqdatCore.Model.Asset do
     project_assets = fetch_root_assets(project_id)
 
     project_assets =
-      Enum.reduce(org_assets, [], fn asset, acc ->
+      Enum.reduce(project_assets, [], fn asset, acc ->
         entities =
           AsNestedSet.descendants(asset)
           |> AsNestedSet.execute(Repo)
