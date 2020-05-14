@@ -58,12 +58,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     field(:image_url, :string)
     field(:image, :any, virtual: true)
 
-    #associations
+    # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:asset_category, AssetCategory, on_replace: :raise)
-    belongs_to(:creator_id, User)
-    belongs_to(:owner_id, User)
+    belongs_to(:creator, User)
+    belongs_to(:owner, User)
     many_to_many(:users, User, join_through: "asset_user")
 
     timestamps(type: :utc_datetime)

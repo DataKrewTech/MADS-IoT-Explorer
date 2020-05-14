@@ -54,12 +54,21 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
+    resources "/assets", AssetController, only: [:show, :update, :delete, :index]
+    get "/assets/search", AssetController, :search_assets
+    resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
+    resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
+
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
+
+      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
+    end
+
     get "/users/search", UserController, :search_users
-    resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
+
     scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
       put("/users/:id/apps", UserController, :apps, as: :user_apps)

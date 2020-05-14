@@ -24,6 +24,7 @@ defmodule AcqdatCore.Support.Factory do
     Asset,
     Gateway,
     Project
+    SensorType
   }
 
   alias AcqdatCore.Schema.RoleManagement.{
@@ -135,6 +136,16 @@ defmodule AcqdatCore.Support.Factory do
       slug: sequence(:sensor_name, &"Sensor#{&1}"),
       org: build(:organisation),
       project: build(:project)
+      sensor_type: build(:sensor_type)
+    }
+  end
+
+  def sensor_type_factory() do
+    %SensorType{
+      uuid: UUID.uuid1(:hex),
+      name: sequence(:sensor_name, &"SensorType#{&1}"),
+      slug: sequence(:sensor_name, &"SensorType#{&1}"),
+      org: build(:organisation)
     }
   end
 
