@@ -14,7 +14,7 @@ defmodule AcqdatUmbrella.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
-        "coveralls.json": :test,
+        "coveralls.json": :test
       ],
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
@@ -70,8 +70,8 @@ defmodule AcqdatUmbrella.MixProject do
       # logger
       {:gen_retry, "~> 1.2.0"},
 
-      #testing
-      {:excoveralls, "~> 0.10", only: :test},
+      # testing
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 
