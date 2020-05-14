@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         id: 3
       }
 
-      conn = get(conn, Routes.asset_path(conn, :show, 1, params.id))
+      conn = get(conn, Routes.asset_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -34,13 +34,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         id: -1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :show, 1, params.id))
+      conn = get(conn, Routes.asset_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
     end
 
     test "asset with valid id", %{conn: conn, asset: asset} do
-      conn = get(conn, Routes.asset_path(conn, :show, asset.org.id, asset.id))
+      conn = get(conn, Routes.asset_path(conn, :show, asset.org.id, asset.project.id, asset.id))
       result = conn |> json_response(200)
 
       assert result == %{
@@ -73,7 +73,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         asset: %{}
       }
 
-      conn = put(conn, Routes.asset_path(conn, :update, 1, 1, params))
+      conn = put(conn, Routes.asset_path(conn, :update, 1, 1, 1, params))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -85,7 +85,12 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         }
       }
 
-      conn = put(conn, Routes.asset_path(conn, :update, asset.org.id, asset.id, params))
+      conn =
+        put(
+          conn,
+          Routes.asset_path(conn, :update, asset.org.id, asset.project.id, asset.id, params)
+        )
+
       result = conn |> json_response(200)
 
       assert result == %{

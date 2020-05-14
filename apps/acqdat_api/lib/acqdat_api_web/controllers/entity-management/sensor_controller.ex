@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Sensor
 
+  plug AcqdatApiWeb.Plug.LoadProject
   plug :load_sensor when action in [:update, :delete, :show]
 
   def show(conn, %{"id" => id}) do

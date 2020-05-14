@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   alias AcqdatApi.EntityManagement.Asset
   import AcqdatApiWeb.Helpers
 
+  plug AcqdatApiWeb.Plug.LoadProject
   plug :load_asset when action in [:show, :update]
 
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()

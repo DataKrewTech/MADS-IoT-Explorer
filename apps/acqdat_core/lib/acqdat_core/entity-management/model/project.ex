@@ -13,6 +13,16 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end)
   end
 
+  def get_by_id(id) when is_integer(id) do
+    case Repo.get(Project, id) do
+      nil ->
+        {:error, "not found"}
+
+      project ->
+        {:ok, project}
+    end
+  end
+
   defp fetch_projects(org_id) do
     query =
       from(project in Project,

@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   alias AcqdatApi.EntityManagement.AssetType
   import AcqdatApiWeb.Helpers
 
+  plug AcqdatApiWeb.Plug.LoadProject
   plug :load_asset_type when action in [:update]
 
   def update(conn, %{"asset_type" => params}) do
