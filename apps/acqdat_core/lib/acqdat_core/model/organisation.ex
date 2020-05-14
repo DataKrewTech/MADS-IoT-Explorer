@@ -16,4 +16,3 @@ defmodule AcqdatCore.Model.Organisation do
     end
   end
 end
-
