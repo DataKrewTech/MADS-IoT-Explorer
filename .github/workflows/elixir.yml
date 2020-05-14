@@ -37,7 +37,7 @@ jobs:
     - name: Check code formatting
       run: mix format --check-formatted
     - name: Run tests (with coverage)
-      run:  MIX_ENV=test mix do compile --warnings-as-errors, coveralls.json
+      run:  mix coveralls.json --umbrella
       env:
         DB_HOST: db
     - name: Report coverage to Codecov
