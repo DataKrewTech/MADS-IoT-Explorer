@@ -28,7 +28,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Add Build essential
-      run: apt-get update && apt-get install -y git && apt-get install -y make && apt-get -y install build-essential
+      run: apt-get update && apt-get install -y git && apt-get install -y make && apt-get -y install build-essential && apt-get install -y curl
     - name: Install Dependencies
       run: |
         mix local.rebar --force
@@ -37,6 +37,10 @@ jobs:
     - name: Check code formatting
       run: mix format --check-formatted
     - name: Run tests (with coverage)
-      run: mix test --cover
+      run:  mix coveralls.json --umbrella
       env:
         DB_HOST: db
+    - name: Report coverage to Codecov
+      uses: codecov/codecov-action@v1 
+      with: 
+        file: ./cover/excoveralls.json
