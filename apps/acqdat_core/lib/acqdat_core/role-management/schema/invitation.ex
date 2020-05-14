@@ -5,7 +5,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.RoleManagement.{Role, User}
-  alias AcqdatCore.Schema.Organisation
+  alias AcqdatCore.Schema.EntityManagement.Organisation
 
   @type t :: %__MODULE__{}
 

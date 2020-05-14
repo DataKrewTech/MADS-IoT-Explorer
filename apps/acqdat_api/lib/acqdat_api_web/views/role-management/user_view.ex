@@ -2,9 +2,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.RoleManagement.UserView
   alias AcqdatApiWeb.RoleManagement.RoleView
-  alias AcqdatApiWeb.OrganisationView
+  alias AcqdatApiWeb.EntityManagement.OrganisationView
   alias AcqdatCore.Schema.RoleManagement.Role
-  alias AcqdatCore.Schema.Organisation
+  alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
   alias AcqdatApiWeb.RoleManagement.RoleView
 

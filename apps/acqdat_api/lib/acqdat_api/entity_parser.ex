@@ -1,7 +1,7 @@
 defmodule AcqdatApi.EntityParser do
-  alias AcqdatCore.Model.Sensor, as: SensorModel
-  alias AcqdatCore.Model.Asset, as: AssetModel
-  alias AcqdatCore.Model.Organisation, as: OrgModel
+  alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
+  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
 
   # NOTE: EntityParser.parse(k["entities"], k["id"], nil, k["type"], nil)
   # TODO: Error handling to do

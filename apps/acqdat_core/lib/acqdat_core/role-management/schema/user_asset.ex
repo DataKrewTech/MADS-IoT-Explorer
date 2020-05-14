@@ -5,7 +5,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserAsset do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.RoleManagement.User
-  alias AcqdatCore.Schema.Asset
+  alias AcqdatCore.Schema.EntityManagement.Asset
 
   @type t :: %__MODULE__{}
 

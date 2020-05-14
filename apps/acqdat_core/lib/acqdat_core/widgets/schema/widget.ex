@@ -20,8 +20,8 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Widgets.Schema.WidgetType
-  alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
   alias AcqdatCore.Widgets.Schema.Widget.DataSettings
+  alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
 
   @typedoc """
   `label`: widget name

@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.Plug.LoadOrg do
   import Plug.Conn
-  alias AcqdatCore.Model.Organisation, as: OrgModel
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
 
   @spec init(any) :: any
   def init(default), do: default

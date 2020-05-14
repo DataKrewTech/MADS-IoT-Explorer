@@ -7,7 +7,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Team do
   use AcqdatCore.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias AcqdatCore.Schema.{Asset, Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
   alias AcqdatCore.Schema.RoleManagement.{App, User}
   alias AcqdatCore.Repo
 

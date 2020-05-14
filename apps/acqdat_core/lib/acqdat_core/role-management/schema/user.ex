@@ -4,11 +4,11 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   """
 
   use AcqdatCore.Schema
-  alias Comeonin.Argon2
-  alias AcqdatCore.Schema.RoleManagement.{Role, UserSetting, Team, App}
-  alias AcqdatCore.Schema.{Organisation, Asset}
-  alias AcqdatCore.Repo
   import Ecto.Query
+  alias Comeonin.Argon2
+  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
+  alias AcqdatCore.Schema.RoleManagement.{App, Role, Team, UserSetting}
+  alias AcqdatCore.Repo
 
   @password_min_length 8
   @type t :: %__MODULE__{}
@@ -53,7 +53,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     |> common_changeset(params)
   end
 
-  def common_changeset(changeset, params) do
+  def common_changeset(changeset, _params) do
     changeset
     |> unique_constraint(:email, name: :unique_email)
     |> validate_confirmation(:password)
@@ -76,20 +76,6 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
 
     user
     |> put_assoc(:assets, Enum.map(assets, &change/1))
-  end
-
-  def associate_asset_changeset(user, assets) do
-    user
-    |> Repo.preload(:assets)
-    |> change()
-    |> put_assoc(:assets, assets)
-  end
-
-  def associate_app_changeset(user, apps) do
-    user
-    |> Repo.preload(:apps)
-    |> change()
-    |> put_assoc(:apps, apps)
   end
 
   def associate_asset_changeset(user, assets) do

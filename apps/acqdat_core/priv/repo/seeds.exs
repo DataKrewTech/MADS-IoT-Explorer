@@ -10,7 +10,9 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias AcqdatCore.Seed.{Widget, User, Sensor, Organisation, Asset, Role, Project, App}
+alias AcqdatCore.Seed.RoleManagement.{User, Role, App}
+alias AcqdatCore.Seed.EntityManagement.{Sensor, Organisation, Asset, Project}
+alias AcqdatCore.Seed.Widget
 
 # The order here is important, don't modify it.
 

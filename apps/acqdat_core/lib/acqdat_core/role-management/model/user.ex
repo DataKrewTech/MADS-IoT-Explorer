@@ -3,7 +3,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   Exposes APIs for handling user related fields.
   """
 
-  alias AcqdatCore.Schema.Asset
+  alias AcqdatCore.Schema.EntityManagement.Asset
   alias AcqdatCore.Schema.RoleManagement.{User, App, Team}
   alias AcqdatCore.Repo
   import Ecto.Query

@@ -16,10 +16,10 @@ defmodule AcqdatCore.Support.Factory do
 
   alias AcqdatCore.Test.Support.WidgetData
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
+  alias AcqdatCore.Schema.DigitalTwin
 
-  alias AcqdatCore.Schema.{
+  alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
-    DigitalTwin,
     Organisation,
     Asset,
     Gateway,
@@ -43,22 +43,6 @@ defmodule AcqdatCore.Support.Factory do
     ToolIssue,
     ToolReturn
   }
-
-  def organisation_factory() do
-    %Organisation{
-      name: sequence(:name, &"Org-#{&1}")
-    }
-  end
-
-  def project_factory() do
-    %Project{
-      name: sequence(:name, &"Project-#{&1}"),
-      uuid: UUID.uuid1(:hex),
-      slug: sequence(:sensor_name, &"Project#{&1}"),
-      creator: build(:user),
-      org: build(:organisation)
-    }
-  end
 
   def user_factory() do
     %User{
@@ -238,13 +222,6 @@ defmodule AcqdatCore.Support.Factory do
 
     changeset = ToolReturn.changeset(%ToolReturn{}, return_params)
     Repo.insert(changeset)
-  end
-
-  def organisation() do
-    %Organisation{
-      uuid: UUID.uuid1(:hex),
-      name: sequence(:organisation_name, &"Organisation#{&1}")
-    }
   end
 
   def setup_conn(%{conn: conn}) do

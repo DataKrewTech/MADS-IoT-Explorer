@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Factory.Hierarchy do
   defmacro __using__(_opts) do
     quote do
-      alias AcqdatCore.Schema.{Organisation, AssetCategory, Asset}
+      alias AcqdatCore.Schema.EntityManagement.{Organisation, AssetCategory, Asset, Project}
 
       def organisation_factory() do
         %Organisation{
@@ -9,6 +9,16 @@ defmodule AcqdatCore.Factory.Hierarchy do
           name: sequence(:organisation_name, &"Asgard#{&1}"),
           metadata: %{},
           description: "port of asgardians"
+        }
+      end
+
+      def project_factory() do
+        %Project{
+          name: sequence(:name, &"Project-#{&1}"),
+          uuid: UUID.uuid1(:hex),
+          slug: sequence(:sensor_name, &"Project#{&1}"),
+          creator: build(:user),
+          org: build(:organisation)
         }
       end
 

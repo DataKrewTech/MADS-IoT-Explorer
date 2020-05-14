@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.RoleManagement.Team do
   """
 
   alias AcqdatCore.Schema.RoleManagement.{User, App, Team}
-  alias AcqdatCore.Schema.Asset
+  alias AcqdatCore.Schema.EntityManagement.Asset
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query

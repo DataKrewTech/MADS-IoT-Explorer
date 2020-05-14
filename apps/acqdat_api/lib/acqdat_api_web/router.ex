@@ -32,9 +32,10 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/roles", RoleManagement.RoleController, only: [:index]
 
-    resources "/orgs", OrganisationController, only: [:show]
+    resources "/orgs", EntityManagement.OrganisationController, only: [:show]
     resources "/apps", AppController, only: [:index]
-    get("/orgs/:id/apps", OrganisationController, :get_apps, as: :org_apps)
+    get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
+
     # NOTE: Kept widgets resources out of organisation_scope currently
     resources "/widgets", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]
@@ -77,7 +78,10 @@ defmodule AcqdatApiWeb.Router do
 
     post("/entities", EntityController, :update_hierarchy)
     resources "/assets", AssetController, only: [:show, :update]
-    resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
+
+    resources "/sensors", EntityManagement.SensorController,
+      only: [:create, :update, :delete, :index, :show]
+
     resources "/asset_types", AssetTypeController, only: [:update]
   end
 

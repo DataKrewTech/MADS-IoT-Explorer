@@ -4,7 +4,7 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
   """
   use AcqdatCore.Schema
 
-  alias AcqdatCore.Schema.Organisation
+  alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Schema.RoleManagement.User
 
   @typedoc """
