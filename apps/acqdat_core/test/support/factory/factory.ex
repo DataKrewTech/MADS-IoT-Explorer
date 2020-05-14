@@ -142,10 +142,34 @@ defmodule AcqdatCore.Support.Factory do
 
   def sensor_type_factory() do
     %SensorType{
+      name: sequence(:sensor_type_name, &"SensorType#{&1}"),
+      slug: sequence(:sensor_type_name, &"SensorType#{&1}"),
       uuid: UUID.uuid1(:hex),
-      name: sequence(:sensor_name, &"SensorType#{&1}"),
-      slug: sequence(:sensor_name, &"SensorType#{&1}"),
-      org: build(:organisation)
+      org: build(:organisation),
+      parameters: [
+        %{
+          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
+          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
+          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        }
+      ],
+      metadata: [
+        %{
+          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
+          type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
+          type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        }
+      ]
     }
   end
 
