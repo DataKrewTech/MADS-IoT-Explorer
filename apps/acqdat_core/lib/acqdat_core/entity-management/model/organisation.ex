@@ -5,13 +5,13 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
   alias AcqdatCore.Schema.RoleManagement.App
   alias AcqdatCore.Repo
 
-  def get(id) when is_integer(id) do
+  def get(id, project_id) when is_integer(id) do
     case Repo.get(Organisation, id) do
       nil ->
         {:error, "not found"}
 
       org ->
-        entities = ProjectModel.hierarchy_data(org.id)
+        entities = ProjectModel.hierarchy_data(org.id, project_id)
 
         org = Map.put_new(org, :project_data, entities)
         {:ok, org}

@@ -4,8 +4,8 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Repo
 
-  def hierarchy_data(org_id) do
-    org_projects = fetch_projects(org_id)
+  def hierarchy_data(org_id, project_id) do
+    org_projects = fetch_projects(org_id, project_id)
 
     Enum.reduce(org_projects, [], fn project, acc ->
       entities = AssetModel.child_assets(project.id)
@@ -23,10 +23,15 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end
   end
 
-  defp fetch_projects(org_id) do
+  def update_version(%Project{} = project) do
+    changeset = Project.update_changeset(project, %{version: (project.version + 1)})
+    Repo.update(changeset)
+  end
+
+  defp fetch_projects(org_id, project_id) do
     query =
       from(project in Project,
-        where: project.org_id == ^org_id
+        where: project.org_id == ^org_id and project.id == ^project_id
       )
 
     Repo.all(query)

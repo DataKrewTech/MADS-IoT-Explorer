@@ -51,6 +51,13 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> common_changeset()
   end
 
+  def update_changeset(%__MODULE__{} = project, params) do
+    project
+    |> cast(params, @permitted)
+    |> validate_required(@required_params)
+    |> common_changeset()
+  end
+
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)

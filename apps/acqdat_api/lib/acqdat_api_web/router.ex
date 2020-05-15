@@ -76,7 +76,8 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
-    post("/entities", EntityManagement.EntityController, :update_hierarchy)
+    post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
+    get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
 
     scope "/projects/:project_id", EntityManagement do
       resources "/assets", AssetController, only: [:show, :update]
