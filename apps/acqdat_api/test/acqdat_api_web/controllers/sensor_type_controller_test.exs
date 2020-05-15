@@ -81,7 +81,7 @@ defmodule AcqdatApiWeb.SensorTypeControllerTest do
   describe "update/2" do
     setup :setup_conn
 
-    test "sensor update", %{conn: conn, org: org} do
+    test "sensor type update", %{conn: conn, org: org} do
       sensor_type = insert(:sensor_type)
       data = Map.put(%{}, :name, "Water Plant")
 
@@ -116,7 +116,7 @@ defmodule AcqdatApiWeb.SensorTypeControllerTest do
   describe "delete/2" do
     setup :setup_conn
 
-    test "sensor delete", %{conn: conn, org: org} do
+    test "sensor type delete", %{conn: conn, org: org} do
       sensor_type = insert(:sensor_type)
 
       conn = delete(conn, Routes.sensor_type_path(conn, :delete, org.id, sensor_type.id), %{})
