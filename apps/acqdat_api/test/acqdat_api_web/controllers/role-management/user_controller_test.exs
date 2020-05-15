@@ -38,6 +38,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
     setup do
       org = insert(:organisation)
+      project = insert(:project)
       asset = insert(:asset)
       user = insert(:user)
 
@@ -250,7 +251,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
   #       "label" => "Chandu"
   #     })
 
-  #   result = conn |> json_response(200)   
+  #   result = conn |> json_response(200)
   #   assert result = %{
   #            "users" => [
   #              %{

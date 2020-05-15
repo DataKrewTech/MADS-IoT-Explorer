@@ -41,10 +41,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     timestamps(type: :utc_datetime)
   end
 
-
   @required_params ~w(org_id project_id uuid slug name sensor_type_id)a
   @optional_params ~w(gateway_id metadata parent_id parent_type)a
-
 
   @permitted @required_params ++ @optional_params
 

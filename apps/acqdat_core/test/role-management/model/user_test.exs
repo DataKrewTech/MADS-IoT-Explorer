@@ -8,6 +8,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserTest do
   describe "set_asset/2" do
     test "associates assets with user" do
       user = insert(:user)
+      project = insert(:project)
       asset = insert(:asset)
 
       asset_params = [%{"id" => asset.id, "name" => asset.name}]

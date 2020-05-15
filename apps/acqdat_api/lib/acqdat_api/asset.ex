@@ -16,6 +16,7 @@ defmodule AcqdatApi.Asset do
       org_id: org_id,
       owner_id: owner_id,
       parent_id: parent_id,
+      project_id: project_id,
       properties: properties
     } = params
 
@@ -30,6 +31,7 @@ defmodule AcqdatApi.Asset do
       org_id: org_id,
       owner_id: owner_id,
       parent_id: parent_id,
+      project_id: project_id,
       properties: properties
     }
 
@@ -66,6 +68,7 @@ defmodule AcqdatApi.Asset do
        slug: asset.slug,
        metadata: asset.metadata,
        name: asset.name,
+       project_id: asset.project_id,
        org_id: asset.org_id,
        owner_id: asset.owner_id,
        parent_id: asset.parent_id,
@@ -110,6 +113,7 @@ defmodule AcqdatApi.Asset do
         org_id: params.org_id,
         owner_id: params.owner_id,
         parent_id: params.parent_id,
+        project_id: params.project_id,
         properties: params.properties
       },
       :org

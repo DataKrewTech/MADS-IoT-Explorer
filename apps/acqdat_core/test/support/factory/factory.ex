@@ -23,7 +23,7 @@ defmodule AcqdatCore.Support.Factory do
     Organisation,
     Asset,
     Gateway,
-    Project
+    Project,
     SensorType
   }
 
@@ -135,7 +135,7 @@ defmodule AcqdatCore.Support.Factory do
       name: sequence(:sensor_name, &"Sensor#{&1}"),
       slug: sequence(:sensor_name, &"Sensor#{&1}"),
       org: build(:organisation),
-      project: build(:project)
+      project: build(:project),
       sensor_type: build(:sensor_type)
     }
   end
