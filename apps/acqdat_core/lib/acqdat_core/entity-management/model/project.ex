@@ -24,7 +24,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   end
 
   def update_version(%Project{} = project) do
-    changeset = Project.update_changeset(project, %{version: (project.version + 1)})
+    changeset = Project.update_changeset(project, %{version: project.version + 1})
     Repo.update(changeset)
   end
 

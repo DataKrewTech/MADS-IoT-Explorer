@@ -9,27 +9,16 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
   plug AcqdatApiWeb.Plug.LoadProject when action in [:update_hierarchy]
   plug :load_hierarchy_tree when action in [:fetch_hierarchy, :update_hierarchy]
 
-  def update_hierarchy(
-        conn,
-        %{"org_id" => org_id, "type" => type, "entities" => entities} = params
-      ) do
+  def update_hierarchy(conn, params) do
     case conn.status do
       nil ->
-        {org_id, _} = Integer.parse(org_id)
-
-        with {:parse, {:ok, _data}} <-
-               {:parse, EntityParser.parse(entities, org_id, nil, type, params)},
-             {:update, {:ok, _project}} <-
-               {:update, ProjectModel.update_version(conn.assigns.project)} do
+        with {:parse, {:ok, _data}} <- {:parse, EntityParser.parse(conn.assigns.project, params)} do
           conn
           |> put_status(200)
           |> render("organisation_tree.json", conn.assigns.org)
         else
           {:parse, {:error, error}} ->
             send_error(conn, 400, error)
-
-          {:update, {:error, message}} ->
-            send_error(conn, 400, message)
         end
 
       404 ->

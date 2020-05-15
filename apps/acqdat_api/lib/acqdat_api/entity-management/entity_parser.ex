@@ -4,34 +4,56 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   alias AcqdatCore.Schema.EntityManagement.Project
+  alias AcqdatCore.Repo
 
-  # NOTE: EntityParser.parse(k["entities"], k["id"], nil, k["type"], nil)
   # TODO: Error handling to do
   # TODO: Needs to refactor this parser
-  def parse(entities, org_id, parent_id, parent_type, parent_entity) do
-    if entities !== nil do
-      try do
+  def parse(
+        project,
+        %{"org_id" => org_id, "type" => type, "entities" => entities} = params
+      ) do
+    {org_id, _} = Integer.parse(org_id)
+    validate_tree_hirerachy(tree_parser(entities, org_id, nil, type, params), project)
+  end
+
+  defp validate_tree_hirerachy({:ok, "success"}, project) do
+    ProjectModel.update_version(project)
+  end
+
+  defp validate_tree_hirerachy({:error, message}, _project) do
+    {:error, message}
+  end
+
+  defp tree_parser(entities, org_id, parent_id, parent_type, parent_entity)
+       when entities !== nil do
+    try do
+      Repo.transaction(fn ->
         for entity <- entities do
           result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity)
 
           case result do
             {:ok, parent_entity} ->
-              parse(entity["entities"], org_id, entity["id"], entity["type"], parent_entity)
+              tree_parser(entity["entities"], org_id, entity["id"], entity["type"], parent_entity)
 
             {:error, message} ->
               throw(message)
 
             _ ->
-              parse(entity["entities"], org_id, entity["id"], entity["type"], nil)
+              tree_parser(entity["entities"], org_id, entity["id"], entity["type"], nil)
           end
         end
+      end)
 
-        {:ok, "success"}
-      catch
-        message ->
-          {:error, message}
-      end
+      {:ok, "success"}
+    catch
+      message ->
+        {:error, message}
     end
+  end
+
+  defp tree_parser(entities, _org_id, _parent_id, _parent_type, _parent_entity)
+       when entities == nil do
+    nil
   end
 
   defp entity_seggr(
