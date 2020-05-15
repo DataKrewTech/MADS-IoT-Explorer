@@ -3,37 +3,46 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
+  alias AcqdatCore.Schema.EntityManagement.Project
 
   # NOTE: EntityParser.parse(k["entities"], k["id"], nil, k["type"], nil)
   # TODO: Error handling to do
   # TODO: Needs to refactor this parser
   def parse(entities, org_id, parent_id, parent_type, parent_entity) do
     if entities !== nil do
-      for entity <- entities do
-        result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity)
+      try do
+        for entity <- entities do
+          result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity)
 
-        case result do
-          {:ok, parent_entity} ->
-            parse(entity["entities"], org_id, entity["id"], entity["type"], parent_entity)
+          case result do
+            {:ok, parent_entity} ->
+              parse(entity["entities"], org_id, entity["id"], entity["type"], parent_entity)
 
-          nil ->
-            parse(entity["entities"], org_id, entity["id"], entity["type"], nil)
+            {:error, message} ->
+              throw(message)
+
+            _ ->
+              parse(entity["entities"], org_id, entity["id"], entity["type"], nil)
+          end
         end
+
+        {:ok, "success"}
+      catch
+        message ->
+          {:error, message}
       end
     end
-
-    {:ok, "success"}
   end
 
   defp entity_seggr(
-         %{"id" => id, "type" => type} = entity,
+         %{"id" => id, "type" => type, "version" => version},
          _org_id,
          _parent_id,
          _parent_type,
          _parent_entity
        )
        when type == "Project" do
-    ProjectModel.get_by_id(id)
+    validate_project(ProjectModel.get_by_id(id), version)
   end
 
   defp entity_seggr(
@@ -102,11 +111,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     sensor_deletion(entity)
   end
 
-  defp entity_seggr(%{"type" => type} = entity, _org_id, _parent_id, _parent_type, _parent_entity) do
+  defp entity_seggr(%{"type" => _type}, _org_id, _parent_id, _parent_type, _parent_entity) do
     nil
   end
 
-  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity)
        when parent_type == "Project" do
     add_asset_as_root(entity, org_id, parent_entity.id)
   end
@@ -116,14 +125,12 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     add_asset_as_child(entity, org_id, parent_id)
   end
 
-  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity)
        when parent_type == "Asset" do
     add_asset_as_child(entity, org_id, parent_entity.id)
   end
 
   defp add_asset_as_root(%{"name" => name}, org_id, project_id) do
-    # {:ok, org} = OrgModel.get_by_id(org_id)
-    # AssetModel.add_as_root(%{name: name, org_id: org_id, org_name: org.name})
     validate_organisation(OrgModel.get_by_id(org_id), name, project_id)
   end
 
@@ -154,20 +161,15 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     {:error, "Asset not found"}
   end
 
-  defp asset_updation(%{"id" => id, "name" => name}, org_id) do
-    {:ok, asset} = AssetModel.get(id)
-
-    AssetModel.update_asset(asset, %{
-      name: name
+  defp asset_updation(%{"id" => id, "name" => name}, _org_id) do
+    validate_asset(AssetModel.get(id), %{
+      name: name,
+      action: "update"
     })
-
-    nil
   end
 
   defp asset_deletion(%{"id" => id}) do
-    {:ok, asset} = AssetModel.get(id)
-    AssetModel.delete(asset)
-    nil
+    validate_asset(AssetModel.get(id), %{action: "delete"})
   end
 
   defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, nil) do
@@ -182,7 +184,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     })
   end
 
-  defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, parent_entity) do
+  defp sensor_creation(%{"name" => name}, org_id, _parent_id, _parent_type, parent_entity) do
     SensorModel.create(%{
       name: name,
       parent_id: parent_entity.id,
@@ -194,7 +196,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   defp sensor_updation(
          %{"id" => id, "name" => name},
-         org_id
+         _org_id
        ) do
     {:ok, sensor} = SensorModel.get(id)
 
@@ -207,5 +209,32 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   defp sensor_deletion(%{"id" => id}) do
     SensorModel.delete(id)
+  end
+
+  defp validate_asset({:ok, asset}, %{action: action}) when action == "delete" do
+    AssetModel.delete(asset)
+  end
+
+  defp validate_asset({:ok, asset}, %{action: action, name: name}) when action == "update" do
+    AssetModel.update_asset(asset, %{
+      name: name
+    })
+  end
+
+  defp validate_asset({:error, _message}, _params) do
+    {:error, "Asset not found"}
+  end
+
+  defp validate_project({:ok, %Project{version: p_version} = project}, version)
+       when p_version == version do
+    {:ok, project}
+  end
+
+  defp validate_project({:ok, %Project{version: p_version}}, version) when p_version != version do
+    {:error, "Please update your current tree version"}
+  end
+
+  defp validate_project({:error, _}, _version) do
+    {:error, "Project not found"}
   end
 end

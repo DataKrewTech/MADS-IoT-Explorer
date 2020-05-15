@@ -2,27 +2,34 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityManagement.EntityParser
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
+  alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:update_hierarchy]
-  plug :load_hierarchy_tree when action in [:fetch_hierarchy]
+  plug AcqdatApiWeb.Plug.LoadProject when action in [:update_hierarchy]
+  plug :load_hierarchy_tree when action in [:fetch_hierarchy, :update_hierarchy]
 
-  def update_hierarchy(conn, %{"id" => org_id, "type" => type, "entities" => entities} = params) do
+  def update_hierarchy(
+        conn,
+        %{"org_id" => org_id, "type" => type, "entities" => entities} = params
+      ) do
     case conn.status do
       nil ->
-        org = conn.assigns.org
+        {org_id, _} = Integer.parse(org_id)
 
-        with {:ok, _data} <- EntityParser.parse(entities, org_id, nil, type, params) do
-          conn |> put_status(200) |> render("organisation_tree.json", org)
+        with {:parse, {:ok, _data}} <-
+               {:parse, EntityParser.parse(entities, org_id, nil, type, params)},
+             {:update, {:ok, _project}} <-
+               {:update, ProjectModel.update_version(conn.assigns.project)} do
+          conn
+          |> put_status(200)
+          |> render("organisation_tree.json", conn.assigns.org)
         else
-          {:error, message} ->
-            conn
-            |> put_status(404)
-            |> json(%{
-              "success" => false,
-              "error" => true,
-              "message:" => message
-            })
+          {:parse, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:update, {:error, message}} ->
+            send_error(conn, 400, message)
         end
 
       404 ->

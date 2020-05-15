@@ -10,11 +10,9 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
   def show(conn, _params) do
     case conn.status do
       nil ->
-        org = conn.assigns.org
-
         conn
         |> put_status(200)
-        |> render("organisation_tree.json", org)
+        |> render("org.json", %{organisation: conn.assigns.org})
 
       404 ->
         conn
@@ -49,7 +47,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
   defp check_org(conn, org_id) do
     {org_id, _} = Integer.parse(org_id)
 
-    case OrgModel.get(org_id) do
+    case OrgModel.get_by_id(org_id) do
       {:ok, org} ->
         assign(conn, :org, org)
 
