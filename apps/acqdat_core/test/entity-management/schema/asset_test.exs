@@ -44,7 +44,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
              } = errors_on(changeset)
       end
 
-
     test "returns error if org assoc constraint not satisfied", %{
       user: user,
       project: project,
@@ -85,9 +84,10 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
                creator_id: ["can't be blank"]
              } ==
                errors_on(result_changeset)
+
     end
 
-    test "returns error if asset with same name exists under a parent",%{
+    test "returns error if asset with same name exists under a parent", %{
       organisation: organisation,
       project: project,
       user: user,

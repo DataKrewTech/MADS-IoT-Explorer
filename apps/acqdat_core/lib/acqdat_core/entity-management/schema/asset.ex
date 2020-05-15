@@ -78,8 +78,10 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   end
 
 
+
   @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
   @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url)a
+
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
 
