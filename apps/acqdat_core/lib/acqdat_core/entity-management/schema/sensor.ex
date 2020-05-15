@@ -9,9 +9,9 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
 
   use AcqdatCore.Schema
 
+
   alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project}
   alias AcqdatCore.Schema.EntityManagement.{SensorType}
-
 
   @typedoc """
   `uuid`: A universallly unique id for the sensor.
@@ -42,10 +42,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     timestamps(type: :utc_datetime)
   end
 
-
   @required_params ~w(org_id project_id uuid slug name sensor_type_id)a
   @optional_params ~w(gateway_id metadata parent_id parent_type)a
-
 
   @permitted @required_params ++ @optional_params
 

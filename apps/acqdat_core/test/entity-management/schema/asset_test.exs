@@ -39,7 +39,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
              } = errors_on(changeset)
       end
 
-
     test "returns error if assoc constraint not satisfied", context do
       %{user: user, project: project} = context
 
@@ -68,11 +67,11 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       {:error, result_changeset} = Repo.insert(changeset)
 
-      assert %{project_id: ["can't be blank"]} ==
-               errors_on(result_changeset)
+
+      assert %{project_id: ["can't be blank"], creator_id: ["can't be blank"]} == errors_on(result_changeset)
     end
 
-    test "returns error if asset with same name exists under a parent",%{
+    test "returns error if asset with same name exists under a parent", %{
       organisation: organisation,
       project: project,
       user: user
@@ -80,7 +79,11 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       parent_asset = insert(:asset, org: organisation, project: project)
 
       child_asset_1 =
-        insert(:asset, org: organisation, parent_id: parent_asset.id, creator_id: user.id, project_id: project.id)
+        insert(:asset,
+          org: organisation,
+          parent_id: parent_asset.id,
+          creator_id: user.id
+        )
 
       params =
         :asset

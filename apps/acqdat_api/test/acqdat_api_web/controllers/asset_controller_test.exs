@@ -9,12 +9,14 @@ defmodule AcqdatApiWeb.AssetControllerTest do
 
     test "asset type create", %{conn: conn, org: org, user: user} do
       asset_manifest = build(:asset)
+      project = insert(:project)
 
       data = %{
         name: asset_manifest.name,
         mapped_parameters: asset_manifest.mapped_parameters,
         metadata: asset_manifest.metadata,
-        creator_id: user.id
+        creator_id: user.id,
+        project_id: project.id
       }
 
       conn = post(conn, Routes.asset_path(conn, :create, org.id), data)
@@ -67,7 +69,8 @@ defmodule AcqdatApiWeb.AssetControllerTest do
       assert response == %{
                "errors" => %{
                  "message" => %{
-                   "creator_id" => ["can't be blank"]
+                   "creator_id" => ["can't be blank"],
+                   "project_id" => ["can't be blank"]
                  }
                }
              }

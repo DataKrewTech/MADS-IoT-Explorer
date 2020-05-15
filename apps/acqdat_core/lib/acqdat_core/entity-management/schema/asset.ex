@@ -73,6 +73,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @update_required_params ~w(uuid slug org_id )a
   @optional_params ~w(name lft rgt parent_id metadata description properties image owner_id image_url asset_category_id)a
 
+
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
 
