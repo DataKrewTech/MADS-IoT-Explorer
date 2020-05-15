@@ -69,10 +69,15 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug parent_id org_id project_id)a
-  @optional_params ~w(name lft rgt metadata description properties image image_url asset_category_id)a
+  @required_params ~w(uuid slug creator_id org_id project_id)a
+  @update_required_params ~w(uuid slug org_id )a
+  @optional_params ~w(name lft rgt parent_id metadata description properties image image_url asset_category_id)a
 
-  @required_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
+
+  @required_embedded_params ~w(name)a
+  @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
+
+  @permitted_embedded @required_embedded_params ++ @optional_embedded_params
   @permitted @required_params ++ @optional_params
 
   @spec changeset(
@@ -80,20 +85,21 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
           map
         ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = asset, params) do
-    asset
-    |> cast(params, @permitted)
-    |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
-    |> add_uuid()
-    |> add_slug()
-    |> validate_required(@required_params)
-    |> common_changeset()
+    asd =
+      asset
+      |> cast(params, @permitted)
+      |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
+      |> add_uuid()
+      |> add_slug()
+      |> validate_required(@required_params)
+      |> common_changeset()
   end
 
   def update_changeset(%__MODULE__{} = asset, params) do
     asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
-    |> validate_required(@required_params)
+    |> validate_required(@update_required_params)
     |> common_changeset()
   end
 
@@ -126,7 +132,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
 
   defp mapped_parameters_changeset(schema, params) do
     schema
-    |> cast(params, @required_embedded_params)
+    |> cast(params, @permitted_embedded)
     |> add_uuid()
     |> validate_required(@required_embedded_params)
   end

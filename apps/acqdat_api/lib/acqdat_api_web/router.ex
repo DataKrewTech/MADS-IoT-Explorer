@@ -54,7 +54,7 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    resources "/assets", AssetController, only: [:show, :update, :delete, :index]
+    resources "/assets", AssetController, only: [:create, :show, :update, :delete, :index]
     get "/assets/search", AssetController, :search_assets
     resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
     resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]

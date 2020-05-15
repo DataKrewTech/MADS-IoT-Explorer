@@ -64,7 +64,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
   end
 
   defp create_taxon({parent, children, properties}, root) do
-
     child =
       Repo.preload(
         %Asset{

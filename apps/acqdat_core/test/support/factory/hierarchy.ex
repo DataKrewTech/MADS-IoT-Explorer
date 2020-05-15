@@ -40,7 +40,14 @@ defmodule AcqdatCore.Factory.Hierarchy do
           asset_category: build(:asset_category),
           org: build(:organisation),
           project: build(:project),
-          mapped_parameters: [],
+          mapped_parameters: [
+            %{
+              name: sequence(:asset_params, &"AssetParams#{&1}")
+            },
+            %{
+              name: sequence(:asset_params, &"AssetParams#{&1}")
+            }
+          ],
           image_url: "",
           properties: [],
           parent_id: -1,
