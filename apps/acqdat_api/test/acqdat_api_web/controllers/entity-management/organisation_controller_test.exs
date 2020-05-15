@@ -42,7 +42,6 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationControllerTest do
       result = conn |> json_response(200)
 
       assert result == %{
-               "entities" => [],
                "id" => org.id,
                "name" => org.name,
                "type" => "Organisation"

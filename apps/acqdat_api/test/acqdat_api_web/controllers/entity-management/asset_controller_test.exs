@@ -29,7 +29,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "asset with invalid asset id", %{conn: conn, org: org} do
+    test "asset with invalid asset id", %{conn: conn} do
       params = %{
         id: -1
       }
@@ -48,7 +48,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
                "id" => asset.id,
                "name" => asset.name,
                "type" => "Asset",
-               "properties" => []
+               "properties" => [],
+               "parent_id" => -1
              }
     end
   end

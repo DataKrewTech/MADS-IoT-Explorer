@@ -10,13 +10,13 @@ defmodule AcqdatCore.Model.EntityManagement.OrganisationTest do
     test "returns a particular organisation" do
       org = insert(:organisation)
 
-      {:ok, result} = Organisation.get(org.id)
+      {:ok, result} = Organisation.get_by_id(org.id)
       assert not is_nil(result)
       assert result.id == org.id
     end
 
     test "returns error not found, if organisation is not present" do
-      {:error, result} = Organisation.get(-1)
+      {:error, result} = Organisation.get_by_id(-1)
       assert result == "not found"
     end
   end
