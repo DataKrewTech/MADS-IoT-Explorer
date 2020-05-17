@@ -2,7 +2,6 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityManagement.EntityParser
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
-  alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:update_hierarchy]

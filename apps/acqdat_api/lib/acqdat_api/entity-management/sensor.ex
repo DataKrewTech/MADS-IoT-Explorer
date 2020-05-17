@@ -35,7 +35,9 @@ defmodule AcqdatApi.EntityManagement.Sensor do
      %{
        id: sensor.id,
        name: sensor.name,
-       uuid: sensor.uuid
+       uuid: sensor.uuid,
+       parent_id: sensor.parent_id,
+       parent_type: sensor.parent_type
      }}
   end
 
