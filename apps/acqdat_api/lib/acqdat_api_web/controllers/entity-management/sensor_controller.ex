@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Sensor
 
+  plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
   plug :load_sensor when action in [:update, :delete, :show]
 
@@ -30,7 +31,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor} = {:list, SensorModel.get_all(data, [])}
+        {:list, sensor} = {:list, SensorModel.get_all_by_assets(data)}
 
         conn
         |> put_status(200)
@@ -45,7 +46,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        changeset = verify_sensor_params(params)
+        changeset = verify_sensor_create_params(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, sensor}} <- {:create, Sensor.create(data)} do
