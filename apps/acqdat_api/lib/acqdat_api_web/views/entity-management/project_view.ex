@@ -1,8 +1,13 @@
 defmodule AcqdatApiWeb.EntityManagement.ProjectView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.EntityManagement.AssetView
+  alias AcqdatApiWeb.EntityManagement.SensorView
 
   def render("project.json", %{project: project}) do
+    params =
+      render_many(project.sensors, SensorView, "sensor_tree.json") ++
+        render_many(project.assets, AssetView, "asset_tree.json")
+
     %{
       type: "Project",
       id: project.id,
@@ -11,7 +16,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       slug: project.slug,
       description: project.description,
       version: project.version,
-      entities: render_many(project.assets, AssetView, "asset_tree.json")
+      entities: params
     }
   end
 end

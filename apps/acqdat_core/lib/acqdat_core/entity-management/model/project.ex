@@ -2,6 +2,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   import Ecto.Query
   alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
+  alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Repo
 
   def hierarchy_data(org_id, project_id) do
@@ -9,7 +10,9 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
     Enum.reduce(org_projects, [], fn project, acc ->
       entities = AssetModel.child_assets(project.id)
-      acc ++ [Map.put_new(project, :assets, entities)]
+      sensors = SensorModel.get_by_project(project.id)
+      map_data = Map.put_new(project, :assets, entities)
+      acc ++ [Map.put_new(map_data, :sensors, sensors)]
     end)
   end
 

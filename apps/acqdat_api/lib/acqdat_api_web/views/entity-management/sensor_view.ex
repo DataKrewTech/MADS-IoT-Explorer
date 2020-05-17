@@ -6,7 +6,9 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
     %{
       id: sensor.id,
       name: sensor.name,
-      uuid: sensor.uuid
+      uuid: sensor.uuid,
+      parent_id: sensor.parent_id,
+      parent_type: sensor.parent_type
     }
   end
 

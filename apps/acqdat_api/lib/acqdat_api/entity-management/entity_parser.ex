@@ -195,15 +195,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, nil) do
-    {:ok, asset} = AssetModel.get(parent_id)
-
-    SensorModel.create(%{
-      name: name,
-      parent_id: parent_id,
-      parent_type: parent_type,
-      org_id: org_id,
-      project_id: asset.project_id
-    })
+    validate_sensor_asset(AssetModel.get(parent_id), name, org_id, parent_id, parent_type)
   end
 
   defp sensor_creation(%{"name" => name}, org_id, _parent_id, _parent_type, parent_entity) do
@@ -214,6 +206,20 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       org_id: org_id,
       project_id: parent_entity.project_id
     })
+  end
+
+  defp validate_sensor_asset({:ok, asset}, name, org_id, parent_id, parent_type) do
+    SensorModel.create(%{
+      name: name,
+      parent_id: parent_id,
+      parent_type: parent_type,
+      org_id: org_id,
+      project_id: asset.project_id
+    })
+  end
+
+  defp validate_sensor_asset({:error, _message}, _name, _org_id, _parent_id, _parent_type) do
+    {:error, "Asset not found"}
   end
 
   defp sensor_updation(

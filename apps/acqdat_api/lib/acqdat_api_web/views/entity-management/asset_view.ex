@@ -4,12 +4,14 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
   alias AcqdatApiWeb.EntityManagement.SensorView
 
   def render("asset_tree.json", %{asset: asset}) do
-    params =
-      with true <- Map.has_key?(asset, :assets) do
+    assets =
+      if Map.has_key?(asset, :assets) do
         render_many(asset.assets, AssetView, "asset_tree.json")
-      else
-        false ->
-          render_many(asset.sensors, SensorView, "sensor_tree.json")
+      end
+
+    sensors =
+      if Map.has_key?(asset, :sensors) do
+        render_many(asset.sensors, SensorView, "sensor_tree.json")
       end
 
     %{
@@ -18,7 +20,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       parent_id: asset.parent_id,
       name: asset.name,
       properties: asset.properties,
-      entities: params
+      entities: (assets || []) ++ (sensors || [])
       # TODO: Need to uncomment below fields depending on the future usecases in the view
       # description: asset.description,
       # image_url: asset.image_url,

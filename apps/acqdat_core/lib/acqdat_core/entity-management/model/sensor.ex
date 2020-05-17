@@ -9,6 +9,11 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Repo.insert(changeset)
   end
 
+  def update(sensor, params) do
+    changeset = Sensor.update_changeset(sensor, params)
+    Repo.update(changeset)
+  end
+
   def get(id) when is_integer(id) do
     case Repo.get(Sensor, id) do
       nil ->
@@ -29,6 +34,13 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
+  def get_by_project(project_id) do
+    Sensor
+    |> where([sensor], sensor.project_id == ^project_id)
+    |> where([sensor], sensor.parent_type == "Project")
+    |> Repo.all()
+  end
+
   def get_all(%{page_size: page_size, page_number: page_number}) do
     Sensor |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
   end
@@ -40,6 +52,19 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     sensor_data_with_preloads = paginated_sensor_data.entries |> Repo.preload(preloads)
 
     ModelHelper.paginated_response(sensor_data_with_preloads, paginated_sensor_data)
+  end
+
+  def get_all_by_assets(%{
+        page_size: page_size,
+        page_number: page_number,
+        project_id: project_id,
+        org_id: org_id
+      }) do
+    Sensor
+    |> where([sensor], sensor.project_id == ^project_id)
+    |> where([sensor], sensor.org_id == ^org_id)
+    |> order_by(:id)
+    |> Repo.paginate(page: page_number, page_size: page_size)
   end
 
   def get_all_by_device(device_id) do
@@ -60,11 +85,6 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
       )
 
     Repo.all(query) |> Repo.preload(preloads)
-  end
-
-  def update(sensor, params) do
-    changeset = Sensor.update_changeset(sensor, params)
-    Repo.update(changeset)
   end
 
   def child_sensors(root) do
