@@ -2,8 +2,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
-
-  alias AcqdatCore.Model.EntityManagement.SensorModel
+  alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
 
   describe "get_by_id/1" do
     test "returns a particular sensor" do
@@ -15,7 +14,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
     end
 
     test "returns error not found, if sensor is not present" do
-      {:error, result} = Sensor.get(-1)
+      {:error, result} = SensorModel.get(-1)
       assert result == "not found"
     end
   end
@@ -65,7 +64,6 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
       }
 
       assert {:error, changeset} = SensorModel.create(params)
-
       assert %{name: ["can't be blank"]} == errors_on(changeset)
     end
 
@@ -84,6 +82,36 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
   end
 
   describe "update/2" do
+    setup do
+      project = insert(:project)
+      sensor = insert(:sensor)
+
+      [sensor: sensor, project: project]
+    end
+
+    test "updates the sensor's name", context do
+      %{sensor: sensor} = context
+
+      params = %{
+        name: "updated sensor name"
+      }
+
+      assert {:ok, sensor} = SensorModel.update(sensor, params)
+      assert sensor.name == "updated sensor name"
+    end
+
+    test "updates the sensor's parent as project", context do
+      %{sensor: sensor, project: project} = context
+
+      params = %{
+        parent_id: project.id,
+        parent_type: "Project"
+      }
+
+      assert {:ok, sensor} = SensorModel.update(sensor, params)
+      assert sensor.parent_id == project.id
+      assert sensor.parent_type == "Project"
+    end
   end
 
   describe "delete/2" do
