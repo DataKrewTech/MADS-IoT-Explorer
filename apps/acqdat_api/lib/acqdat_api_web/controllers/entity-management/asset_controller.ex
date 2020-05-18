@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
       nil ->
         conn
         |> put_status(200)
-        |> render("asset_tree.json", %{asset: Asset.asset_descendents(conn.assigns.asset)})
+        |> render("asset_tree.json", %{asset: Asset.asset_descendants(conn.assigns.asset)})
 
       404 ->
         conn

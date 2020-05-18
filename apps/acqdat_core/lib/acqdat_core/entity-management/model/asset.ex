@@ -87,7 +87,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     }
   end
 
-  def asset_descendents(asset) do
+  def asset_descendants(asset) do
     entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
     fetch_child_sensors(List.first(entities), entities, asset)
   end
