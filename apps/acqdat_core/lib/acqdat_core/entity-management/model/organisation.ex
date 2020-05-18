@@ -8,7 +8,7 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
   def get(id, project_id) when is_integer(id) do
     case Repo.get(Organisation, id) do
       nil ->
-        {:error, "not found"}
+        {:error, "organisation not found"}
 
       org ->
         entities = ProjectModel.hierarchy_data(org.id, project_id)
@@ -21,7 +21,7 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Organisation, id) do
       nil ->
-        {:error, "not found"}
+        {:error, "organisation not found"}
 
       org ->
         {:ok, org}

@@ -91,16 +91,41 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           project_id: project.id
         })
 
-      [parent_entity: root_asset, org: org, project: project]
+      [parent_entity: root_asset, project: project]
     end
 
     test "add respective asset as root element in the tree", context do
-      %{org: org, project: project, parent_entity: parent_entity} = context
+      %{project: project, parent_entity: parent_entity} = context
 
       assert {:ok, child_asset} =
                Asset.add_as_child(parent_entity, "child asset", project.org_id, :child)
 
       refute is_nil(child_asset)
+    end
+  end
+
+  describe "child_assets/1" do
+    setup do
+      org = insert(:organisation)
+      project = insert(:project)
+
+      {:ok, root_asset} =
+        Asset.add_as_root(%{
+          name: "root asset",
+          org_id: project.org_id,
+          org_name: org.name,
+          project_id: project.id
+        })
+
+      [parent_entity: root_asset]
+    end
+
+    test "show child assets", context do
+      %{parent_entity: parent_entity} = context
+
+      res = Asset.child_assets(parent_entity.project_id)
+
+      assert length(res) != 0
     end
   end
 end
