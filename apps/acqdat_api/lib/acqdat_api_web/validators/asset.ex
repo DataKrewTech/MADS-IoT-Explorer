@@ -16,7 +16,8 @@ defmodule AcqdatApiWeb.Validators.Asset do
       lft: :integer,
       parent_id: :integer,
       name: :string,
-      project_id!: :integer
+      project_id!: :integer,
+      asset_type_id!: :integer
     })
   )
 

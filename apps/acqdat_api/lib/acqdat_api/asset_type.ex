@@ -34,6 +34,10 @@ defmodule AcqdatApi.AssetType do
     })
   end
 
+  defp verify_sensor_type_creation({:error, sensor_type}, _params) do
+    {:error, %{error: extract_changeset_error(sensor_type)}}
+  end
+
   def create_asset(params) do
     %{
       name: name,
@@ -56,10 +60,6 @@ defmodule AcqdatApi.AssetType do
         org_id: org_id
       })
     )
-  end
-
-  defp verify_sensor_type_creation({:error, sensor_type}, params) do
-    {:error, %{error: extract_changeset_error(sensor_type)}}
   end
 
   defp verify_asset_type({:ok, asset_type}) do

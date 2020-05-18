@@ -17,8 +17,15 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
       timestamps(type: :timestamptz)
     end
 
+    alter table("acqdat_asset") do
+      add(:asset_type_id, references("acqdat_asset_types", on_delete: :delete_all))
+      remove(:metadata)
+      add(:metadata, {:array, :map})
+    end
+
     create unique_index("acqdat_asset_types", [:name, :org_id])
     create unique_index("acqdat_asset_types", [:slug])
     create unique_index("acqdat_asset_types", [:uuid])
+    create index("acqdat_asset", [:asset_type_id])
   end
 end

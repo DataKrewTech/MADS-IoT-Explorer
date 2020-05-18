@@ -53,12 +53,18 @@ defmodule AcqdatApiWeb.Router do
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-    resources "/asset-types", AssetTypeController, only: [:create]
+
+    resources "/asset-types", AssetTypeController, only: [:create] do
+      resources "/assets", AssetController,
+        only: [:create, :show, :update, :delete, :index],
+        as: :assets
+    end
+
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
-
+    end
     get "/users/search", RoleManagement.UserController, :search_users
 
     scope "/", RoleManagement do

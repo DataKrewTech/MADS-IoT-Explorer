@@ -19,6 +19,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   use AcqdatCore.Schema
 
   alias AcqdatCore.Schema.EntityManagement.{Organisation, AssetCategory, Project}
+  alias AcqdatCore.Schema.AssetType
   alias AcqdatCore.Schema.RoleManagement.User
 
   use AsNestedSet, scope: [:project_id]
@@ -44,8 +45,14 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     field(:lft, :integer)
     field(:properties, {:array, :string})
     field(:rgt, :integer)
-    field(:metadata, :map)
     field(:description, :string)
+
+    embeds_many :metadata, Metadata, on_replace: :delete do
+      field(:name, :string, null: false)
+      field(:data_type, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:unit, :string)
+    end
 
     embeds_many :mapped_parameters, MappedParameters do
       field(:name, :string, null: false)
@@ -64,18 +71,22 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     belongs_to(:asset_category, AssetCategory, on_replace: :raise)
     belongs_to(:creator, User)
     belongs_to(:owner, User)
+    belongs_to(:asset_type, AssetType, on_replace: :delete)
     many_to_many(:users, User, join_through: "asset_user")
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug creator_id org_id project_id)a
+  @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
   @update_required_params ~w(uuid slug org_id )a
   @optional_params ~w(name lft rgt parent_id metadata description properties image owner_id image_url asset_category_id)a
 
-
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
+
+  @embedded_metadata_required ~w(name uuid data_type)a
+  @embedded_metadata_optional ~w(unit)a
+  @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
 
   @permitted_embedded @required_embedded_params ++ @optional_embedded_params
   @permitted @required_params ++ @optional_params
@@ -85,20 +96,21 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
           map
         ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = asset, params) do
-    asd =
-      asset
-      |> cast(params, @permitted)
-      |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
-      |> add_uuid()
-      |> add_slug()
-      |> validate_required(@required_params)
-      |> common_changeset()
+    asset
+    |> cast(params, @permitted)
+    |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
+    |> add_uuid()
+    |> add_slug()
+    |> validate_required(@required_params)
+    |> common_changeset()
   end
 
   def update_changeset(%__MODULE__{} = asset, params) do
     asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> validate_required(@update_required_params)
     |> common_changeset()
   end
@@ -107,6 +119,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     # TODO: there is `:acqdat_asset_slug_index` used here which seems wrong
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:asset_type)
     |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_asset_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_asset_slug_index)
@@ -116,12 +129,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     )
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_uuid(changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
@@ -135,5 +148,11 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     |> cast(params, @permitted_embedded)
     |> add_uuid()
     |> validate_required(@required_embedded_params)
+  end
+
+  defp metadata_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_metadata)
+    |> validate_required(@embedded_metadata_required)
   end
 end
