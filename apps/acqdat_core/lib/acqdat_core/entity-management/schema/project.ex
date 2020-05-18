@@ -64,7 +64,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> assoc_constraint(:creator)
     |> unique_constraint(:slug, name: :acqdat_projects_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_projects_uuid_index)
-    |> unique_constraint(:version, name: :acqdat_projects_version_index)
     |> unique_constraint(:name,
       name: :unique_project_per_org,
       message: "unique name under organisation"
