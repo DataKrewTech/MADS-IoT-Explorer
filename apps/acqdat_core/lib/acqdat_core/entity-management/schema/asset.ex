@@ -77,10 +77,10 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     timestamps(type: :utc_datetime)
   end
 
-
-
   @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
   @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url)a
+
+  @update_required_params ~w(uuid slug org_id )a
 
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
@@ -93,8 +93,9 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @permitted @required_params ++ @optional_params
 
 
+
   def changeset(asset, params) do
-    asset
+  asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
     |> cast_embed(:metadata, with: &metadata_changeset/2)
