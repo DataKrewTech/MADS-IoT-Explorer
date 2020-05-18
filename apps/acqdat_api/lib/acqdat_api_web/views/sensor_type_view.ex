@@ -12,6 +12,7 @@ defmodule AcqdatApiWeb.SensorTypeView do
       org_id: sensor_type.org_id,
       slug: sensor_type.slug,
       uuid: sensor_type.uuid,
+      generated_by: sensor_type.generated_by,
       parameters: render_many(sensor_type.parameters, SensorTypeView, "data_tree.json"),
       org: render_one(sensor_type.org, OrganisationView, "org.json")
     }

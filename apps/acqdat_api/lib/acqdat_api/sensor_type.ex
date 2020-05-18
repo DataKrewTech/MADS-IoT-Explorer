@@ -11,7 +11,8 @@ defmodule AcqdatApi.SensorType do
       description: description,
       metadata: metadata,
       parameters: parameters,
-      org_id: org_id
+      org_id: org_id,
+      generated_by: generated_by
     } = params
 
     verify_sensor_type(
@@ -20,7 +21,8 @@ defmodule AcqdatApi.SensorType do
         description: description,
         metadata: metadata,
         parameters: parameters,
-        org_id: org_id
+        org_id: org_id,
+        generated_by: generated_by
       })
     )
   end
@@ -38,7 +40,8 @@ defmodule AcqdatApi.SensorType do
        org_id: sensor_type.org_id,
        slug: sensor_type.slug,
        uuid: sensor_type.uuid,
-       org: sensor_type.org
+       org: sensor_type.org,
+       generated_by: sensor_type.generated_by
      }}
   end
 

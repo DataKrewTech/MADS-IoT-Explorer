@@ -1,33 +1,31 @@
-defmodule AcqdatCore.Schema.SensorType do
+defmodule AcqdatCore.Schema.AssetType do
   @moduledoc """
-  Models a sensor-type in the system.
+  Models a asset-type in the system.
 
-  A sensor-type is responsible for deciding the parameters of a IoT data sensor. Sensor will have the ID
-  sensor-type deciding the parameters of that sensor
+  A asset-type is responsible for deciding the parameters of a asset of an organisation.
   """
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.{Organisation}
 
-  @generated_by ~w(user asset)a
-
   @typedoc """
-  `name`: A unique name for sensor per device. Note the same
-          name can be used for sensor associated with another
+  `name`: A unique name for asset per device. Note the same
+          name can be used for asset associated with another
           device.
-   `description`: A description of the sensor-type
-   `metadata`: A metadata field which will store all the data related to sensor-type
-   `org_id`: A organisation to which the sensor and corresponding sensor-type is belonged to.
-  `parameters`: The different parameters of the sensor.
+   `description`: A description of the asset-type
+   `metadata`: A metadata field which will store all the data related to asset-type
+   `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
+  `parameters`: The different parameters of the asset.
   """
   @type t :: %__MODULE__{}
 
-  schema("acqdat_sensor_types") do
+  schema("acqdat_asset_types") do
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
     field(:name, :string, null: false)
     field(:description, :string)
-    field(:generated_by, GeneratedBy, default: "user")
+    field(:sensor_type_present, :boolean, default: false)
+    field(:sensor_type_uuid, :string)
 
     embeds_many :metadata, Metadata, on_replace: :delete do
       field(:name, :string, null: false)
@@ -49,7 +47,7 @@ defmodule AcqdatCore.Schema.SensorType do
   end
 
   @required_params ~w(uuid slug org_id name)a
-  @optional_params ~w(description generated_by)a
+  @optional_params ~w(description sensor_type_present sensor_type_uuid)a
   @embedded_metadata_required ~w(name type)a
   @embedded_metadata_optional ~w(unit)a
   @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
@@ -63,28 +61,26 @@ defmodule AcqdatCore.Schema.SensorType do
           __MODULE__.t(),
           map
         ) :: Ecto.Changeset.t()
-  def changeset(%__MODULE__{} = sensor_type, params) do
-    sensor_type
+  def changeset(%__MODULE__{} = asset_type, params) do
+    asset_type
     |> cast(params, @permitted)
     |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
-    |> validate_inclusion(:generated_by, @generated_by)
     |> common_changeset()
   end
 
   @spec update_changeset(
-          AcqdatCore.Schema.SensorType.t(),
+          AcqdatCore.Schema.AssetType.t(),
           :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
         ) :: Ecto.Changeset.t()
-  def update_changeset(%__MODULE__{} = sensor_type, params) do
-    sensor_type
+  def update_changeset(%__MODULE__{} = asset_type, params) do
+    asset_type
     |> cast(params, @permitted)
     |> cast_embed(:parameters, with: &parameters_changeset/2)
     |> validate_required(@required_params)
-    |> validate_inclusion(:generated_by, @generated_by)
     |> common_changeset()
   end
 
@@ -92,24 +88,20 @@ defmodule AcqdatCore.Schema.SensorType do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
-    |> unique_constraint(:slug, name: :acqdat_sensor_types_slug_index)
-    |> unique_constraint(:uuid, name: :acqdat_sensor_types_uuid_index)
+    |> unique_constraint(:slug, name: :acqdat_asset_types_slug_index)
+    |> unique_constraint(:uuid, name: :acqdat_asset_types_uuid_index)
     |> unique_constraint(:name,
-      name: :acqdat_sensor_types_name_org_id_index,
-      message: "sensor type already exists"
+      name: :acqdat_asset_types_name_org_id_index,
+      message: "asset type already exists"
     )
   end
 
-  def generated_by() do
-    @generated_by
-  end
-
-  def add_uuid(changeset) do
+  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  def add_slug(changeset) do
+  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
