@@ -85,6 +85,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       slug: Slugger.slugify(slug),
       properties: []
     }
+    |> Repo.preload(:org)
+    |> Repo.preload(:project)
   end
 
   def asset_descendants(asset) do
