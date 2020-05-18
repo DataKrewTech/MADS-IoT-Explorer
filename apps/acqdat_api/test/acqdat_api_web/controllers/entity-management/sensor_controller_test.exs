@@ -1,306 +1,202 @@
 defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
-  # use ExUnit.Case, async: true
-  # use AcqdatApiWeb.ConnCase
-  # use AcqdatCore.DataCase
-  # import AcqdatCore.Support.Factory
+  use ExUnit.Case, async: true
+  use AcqdatApiWeb.ConnCase
+  use AcqdatCore.DataCase
+  import AcqdatCore.Support.Factory
 
-  #   describe "create/2" do
-  #     setup :setup_conn
+  describe "create/2" do
+    setup :setup_conn
 
-  #     test "sensor create", %{conn: conn} do
-  #       device = insert(:device)
-  #       sensor_type = insert(:sensor_type)
+    test "sensor create", %{conn: conn} do
+      asset = insert(:asset)
 
-  #       sensor_manifest = build(:sensor)
+      # sensor_type = insert(:sensor_type)
 
-  #       data = %{
-  #         name: sensor_manifest.name,
-  #         uuid: sensor_manifest.uuid
-  #       }
+      sensor_manifest = build(:sensor)
 
-  #       params = %{
-  #         device_id: device.id,
-  #         sensor_type_id: sensor_type.id
-  #       }
+      data = %{
+        name: sensor_manifest.name,
+        uuid: sensor_manifest.uuid,
+        parent_id: asset.id,
+        parent_type: "Asset"
+      }
 
-  #       conn = post(conn, Routes.sensor_path(conn, :create, params), data)
-  #       response = conn |> json_response(200)
-  #       assert Map.has_key?(response, "device_id")
-  #       assert Map.has_key?(response, "name")
-  #       assert Map.has_key?(response, "id")
-  #       assert Map.has_key?(response, "sensor_type_id")
-  #       assert Map.has_key?(response, "uuid")
-  #     end
+      conn = post(conn, Routes.sensor_path(conn, :create, asset.org_id, asset.project_id), data)
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "parent_id")
+      assert Map.has_key?(response, "parent_type")
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "uuid")
+    end
 
-  #     test "fails if authorization header not found", %{conn: conn} do
-  #       bad_access_token = "qwerty1234567uiop"
+    test "fails if authorization header not found", %{conn: conn} do
+      bad_access_token = "qwerty1234567uiop"
 
-  #       conn =
-  #         conn
-  #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #       data = %{}
-  #       conn = post(conn, Routes.sensor_path(conn, :create), data)
-  #       result = conn |> json_response(403)
-  #       assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #     end
+      data = %{}
+      conn = post(conn, Routes.sensor_path(conn, :create, 1, 1), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 
-  #     test "fails if sent params are not unique", %{conn: conn} do
-  #       sensor = insert(:sensor)
+  describe "update/2" do
+    setup :setup_conn
 
-  #       data = %{
-  #         name: sensor.name,
-  #         uuid: sensor.uuid
-  #       }
+    setup do
+      project = insert(:project)
+      asset = insert(:asset)
+      sensor = insert(:sensor)
+      [project: project, asset: asset, sensor: sensor]
+    end
 
-  #       params = %{
-  #         device_id: sensor.device_id,
-  #         sensor_type_id: sensor.sensor_type_id
-  #       }
+    test "update sensor name", %{conn: conn, sensor: sensor, asset: asset} do
+      data = Map.put(%{}, :name, "Water Plant")
 
-  #       conn = post(conn, Routes.sensor_path(conn, :create, params), data)
-  #       response = conn |> json_response(400)
+      conn =
+        put(
+          conn,
+          Routes.sensor_path(conn, :update, asset.org_id, asset.project_id, sensor.id),
+          data
+        )
 
-  #       assert response == %{
-  #                "errors" => %{
-  #                  "message" => %{"error" => %{"name" => ["has already been taken"]}}
-  #                }
-  #              }
-  #     end
+      response = conn |> json_response(200)
 
-  #     test "fails if required params are missing", %{conn: conn} do
-  #       sensor = insert(:sensor)
+      assert Map.has_key?(response, "parent_id")
+      assert Map.has_key?(response, "parent_type")
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "uuid")
+      assert response["name"] == "Water Plant"
+    end
 
-  #       params = %{
-  #         device_id: sensor.device_id,
-  #         sensor_type_id: sensor.sensor_type_id
-  #       }
+    test "update sensor parent to project", %{conn: conn, sensor: sensor, project: project} do
+      data = %{
+        parent_id: project.id,
+        parent_type: "Project"
+      }
 
-  #       conn = post(conn, Routes.sensor_path(conn, :create, params), %{})
+      conn =
+        put(conn, Routes.sensor_path(conn, :update, project.org_id, project.id, sensor.id), data)
 
-  #       response = conn |> json_response(400)
+      response = conn |> json_response(200)
 
-  #       assert response == %{
-  #                "errors" => %{
-  #                  "message" => %{
-  #                    "name" => ["can't be blank"]
-  #                  }
-  #                }
-  #              }
-  #     end
-  #   end
+      assert Map.has_key?(response, "parent_id")
+      assert Map.has_key?(response, "parent_type")
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "uuid")
+      assert response["parent_id"] == project.id
+      assert response["parent_type"] == "Project"
+    end
 
-  #   describe "sensor_by_criteria/2" do
-  #     setup :setup_conn
+    test "fails if invalid token in authorization header", %{
+      conn: conn,
+      sensor: sensor,
+      asset: asset
+    } do
+      bad_access_token = "qwerty12345678qwer"
 
-  #     test "fails if invalid token in authorization header", %{conn: conn} do
-  #       bad_access_token = "qwerty1234567qwerty12"
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #       conn =
-  #         conn
-  #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      data = Map.put(%{}, :name, "Water Plant")
 
-  #       params = %{
-  #         device_id: 3
-  #       }
+      conn =
+        put(
+          conn,
+          Routes.sensor_path(conn, :update, asset.org_id, asset.project_id, sensor.id),
+          data
+        )
 
-  #       conn = get(conn, Routes.sensor_path(conn, :sensor_by_criteria, params.device_id))
-  #       result = conn |> json_response(403)
-  #       assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #     end
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 
-  #     test "sensors of a device with invalid device id", %{conn: conn} do
-  #       insert(:sensor)
+  describe "delete/2" do
+    setup :setup_conn
 
-  #       params = %{
-  #         device_id: 3
-  #       }
+    setup do
+      asset = insert(:asset)
+      sensor = insert(:sensor)
+      [asset: asset, sensor: sensor]
+    end
 
-  #       conn = get(conn, Routes.sensor_path(conn, :sensor_by_criteria, params.device_id))
-  #       result = conn |> json_response(404)
-  #       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
-  #     end
+    test "sensor delete", %{conn: conn, sensor: sensor, asset: asset} do
+      conn =
+        delete(conn, Routes.sensor_path(conn, :delete, asset.org_id, asset.project_id, sensor.id))
 
-  #     test "sensors of a device with valid device id", %{conn: conn} do
-  #       sensor = insert(:sensor)
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "parent_id")
+      assert Map.has_key?(response, "parent_type")
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "uuid")
+    end
 
-  #       params = %{
-  #         device_id: sensor.device_id
-  #       }
+    test "fails if invalid token in authorization header", %{
+      conn: conn,
+      sensor: sensor,
+      asset: asset
+    } do
+      bad_access_token = "qwerty1234567qwerty"
 
-  #       conn = get(conn, Routes.sensor_path(conn, :sensor_by_criteria, params.device_id))
-  #       result = conn |> json_response(200)
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #       assert result == %{
-  #                "sensors" => [
-  #                  %{
-  #                    "device_id" => sensor.device_id,
-  #                    "id" => sensor.id,
-  #                    "name" => sensor.name,
-  #                    "sensor_type" => %{
-  #                      "id" => sensor.sensor_type.id,
-  #                      "identifier" => sensor.sensor_type.identifier,
-  #                      "make" => sensor.sensor_type.make,
-  #                      "name" => sensor.sensor_type.name,
-  #                      "value_keys" => sensor.sensor_type.value_keys
-  #                    },
-  #                    "sensor_type_id" => sensor.sensor_type_id,
-  #                    "uuid" => sensor.uuid
-  #                  }
-  #                ]
-  #              }
-  #     end
-  #   end
+      conn =
+        delete(conn, Routes.sensor_path(conn, :delete, asset.org_id, asset.project_id, sensor.id))
 
-  #   describe "update/2" do
-  #     setup :setup_conn
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 
-  #     test "sensor update", %{conn: conn} do
-  #       sensor = insert(:sensor)
-  #       data = Map.put(%{}, :name, "Water Plant")
+  describe "index/2" do
+    setup :setup_conn
 
-  #       conn = put(conn, Routes.sensor_path(conn, :update, sensor.id), data)
-  #       response = conn |> json_response(200)
+    setup do
+      sensor = insert(:asset)
+      [sensor: sensor]
+    end
 
-  #       assert Map.has_key?(response, "device_id")
-  #       assert Map.has_key?(response, "name")
-  #       assert Map.has_key?(response, "id")
-  #       assert Map.has_key?(response, "sensor_type_id")
-  #       assert Map.has_key?(response, "uuid")
-  #     end
+    test "list sensors data of a project", %{conn: conn, sensor: sensor} do
+      params = %{
+        "page_size" => 100,
+        "page_number" => 1
+      }
 
-  #     test "fails if invalid token in authorization header", %{conn: conn} do
-  #       bad_access_token = "qwerty12345678qwer"
-  #       sensor = insert(:sensor)
+      conn = get(conn, Routes.sensor_path(conn, :index, sensor.org_id, sensor.project_id, params))
+      response = conn |> json_response(200)
+      assert response["sensors"]
+    end
 
-  #       conn =
-  #         conn
-  #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
+    test "fails if invalid token in authorization header", %{conn: conn, sensor: sensor} do
+      bad_access_token = "qwerty1234567qwerty12"
 
-  #       data = Map.put(%{}, :name, "Water Plant")
-  #       conn = put(conn, Routes.sensor_path(conn, :update, sensor.id), data)
-  #       result = conn |> json_response(403)
-  #       assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #     end
-  #   end
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  # describe "delete/2" do
-  #   setup :setup_conn
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1
+      }
 
-  #   test "sensor delete", %{conn: conn} do
-  #     sensor = insert(:sensor)
-
-  #     conn = delete(conn, Routes.sensor_path(conn, :delete, sensor.id), %{})
-  #     response = conn |> json_response(200)
-  #     assert Map.has_key?(response, "device_id")
-  #     assert Map.has_key?(response, "name")
-  #     assert Map.has_key?(response, "id")
-  #     assert Map.has_key?(response, "sensor_type_id")
-  #     assert Map.has_key?(response, "uuid")
-  #   end
-
-  #   test "fails if invalid token in authorization header", %{conn: conn} do
-  #     sensor = insert(:sensor)
-  #     bad_access_token = "qwerty1234567qwerty"
-
-  #     conn =
-  #       conn
-  #       |> put_req_header("authorization", "Bearer #{bad_access_token}")
-
-  #     conn = delete(conn, Routes.sensor_path(conn, :delete, sensor.id), %{})
-  #     result = conn |> json_response(403)
-  #     assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #   end
-  # end
-
-  #   describe "index/2" do
-  #     setup :setup_conn
-
-  #     test "Sensor Data", %{conn: conn} do
-  #       test_sensor = insert(:sensor)
-
-  #       params = %{
-  #         "page_size" => 100,
-  #         "page_number" => 1
-  #       }
-
-  #       conn = get(conn, Routes.sensor_path(conn, :index, params))
-  #       response = conn |> json_response(200)
-  #       assert length(response["sensors"]) == 1
-  #       assertion_sensor = List.first(response["sensors"])
-  #       assert assertion_sensor["id"] == test_sensor.id
-  #       assert assertion_sensor["device_id"] == test_sensor.device_id
-  #       assert assertion_sensor["device"]["id"] == test_sensor.device.id
-  #       assert assertion_sensor["device"]["name"] == test_sensor.device.name
-  #       assert assertion_sensor["sensor_type_id"] == test_sensor.sensor_type_id
-  #       assert assertion_sensor["sensor_type"]["id"] == test_sensor.sensor_type.id
-  #       assert assertion_sensor["sensor_type"]["name"] == test_sensor.sensor_type.name
-  #     end
-
-  #     test "if params are missing", %{conn: conn} do
-  #       insert_list(3, :sensor)
-  #       conn = get(conn, Routes.sensor_path(conn, :index, %{}))
-  #       response = conn |> json_response(200)
-  #       assert response["total_pages"] == 1
-  #       assert length(response["sensors"]) == response["total_entries"]
-  #     end
-
-  #     test "Big page size", %{conn: conn} do
-  #       insert_list(3, :sensor)
-
-  #       params = %{
-  #         "page_size" => 100,
-  #         "page_number" => 1
-  #       }
-
-  #       conn = get(conn, Routes.sensor_path(conn, :index, params))
-  #       response = conn |> json_response(200)
-  #       assert response["page_number"] == params["page_number"]
-  #       assert response["page_size"] == params["page_size"]
-  #       assert response["total_pages"] == 1
-  #       assert length(response["sensors"]) == response["total_entries"]
-  #     end
-
-  #     test "Pagination", %{conn: conn} do
-  #       insert_list(3, :sensor)
-
-  #       params = %{
-  #         "page_size" => 2,
-  #         "page_number" => 1
-  #       }
-
-  #       conn = get(conn, Routes.sensor_path(conn, :index, params))
-  #       page1_response = conn |> json_response(200)
-  #       assert page1_response["page_number"] == params["page_number"]
-  #       assert page1_response["page_size"] == params["page_size"]
-  #       assert page1_response["total_pages"] == 2
-  #       assert length(page1_response["sensors"]) == page1_response["page_size"]
-
-  #       params = Map.put(params, "page_number", 2)
-  #       conn = get(conn, Routes.sensor_path(conn, :index, params))
-  #       page2_response = conn |> json_response(200)
-
-  #       assert page2_response["page_number"] == params["page_number"]
-  #       assert page2_response["page_size"] == params["page_size"]
-  #       assert page2_response["total_pages"] == 2
-  #       assert length(page2_response["sensors"]) == 1
-  #     end
-
-  #     test "fails if invalid token in authorization header", %{conn: conn} do
-  #       bad_access_token = "qwerty1234567qwerty12"
-
-  #       conn =
-  #         conn
-  #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
-
-  #       params = %{
-  #         "page_size" => 2,
-  #         "page_number" => 1
-  #       }
-
-  #       conn = get(conn, Routes.sensor_path(conn, :index, params))
-  #       result = conn |> json_response(403)
-  #       assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #     end
-  #   end
+      conn = get(conn, Routes.sensor_path(conn, :index, sensor.org_id, sensor.project_id, params))
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 end
