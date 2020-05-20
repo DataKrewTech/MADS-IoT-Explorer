@@ -75,6 +75,7 @@ defmodule AcqdatApiWeb.Router do
 
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
+
     get "/assets/search", AssetController, :search_assets
 
     post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
@@ -85,6 +86,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/asset_types", AssetTypeController, only: [:update]
     end
+
     resources "/users", UserController, only: [:show, :update, :index] do
       resources "/settings", UserSettingController, only: [:create, :update], as: :settings
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets

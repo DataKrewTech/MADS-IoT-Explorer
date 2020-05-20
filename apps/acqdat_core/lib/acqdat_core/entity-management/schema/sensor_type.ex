@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Schema.SensorType do
+defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   @moduledoc """
   Models a sensor-type in the system.
 
@@ -7,7 +7,7 @@ defmodule AcqdatCore.Schema.SensorType do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.{Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation}
 
   @typedoc """
   `name`: A unique name for sensor per device. Note the same

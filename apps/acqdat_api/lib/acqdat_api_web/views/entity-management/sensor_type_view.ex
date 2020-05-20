@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.SensorTypeView do
+defmodule AcqdatApiWeb.EntityManagement.SensorTypeView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.SensorTypeView
   alias AcqdatApiWeb.OrganisationView

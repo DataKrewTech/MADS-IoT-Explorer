@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.SensorType do
+defmodule AcqdatApiWeb.Validators.EntityManagement.SensorType do
   use Params
 
   defparams(

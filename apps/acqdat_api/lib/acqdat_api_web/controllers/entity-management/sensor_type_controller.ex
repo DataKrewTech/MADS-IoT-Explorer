@@ -1,9 +1,9 @@
-defmodule AcqdatApiWeb.SensorTypeController do
+defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.SensorType
-  alias AcqdatCore.Model.SensorType, as: SensorTypeModel
+  alias AcqdatApi.EntityManagement.SensorType
+  alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.SensorType
+  import AcqdatApiWeb.Validators.EntityManagement.SensorType
 
   plug :load_sensor_type when action in [:update, :delete, :show]
 

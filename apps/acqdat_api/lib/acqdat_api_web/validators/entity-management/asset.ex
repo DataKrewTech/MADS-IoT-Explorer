@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.Asset do
+defmodule AcqdatApiWeb.Validators.EntityManagement.Asset do
   use Params
 
   defparams(

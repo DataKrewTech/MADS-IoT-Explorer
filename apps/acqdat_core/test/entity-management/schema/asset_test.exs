@@ -78,7 +78,13 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
     } do
       parent_asset = insert(:asset, org: organisation, project: project)
 
-      child_asset_1 = insert(:asset, org: organisation, parent_id: parent_asset.id, creator_id: user.id, project_id: project.id)
+      child_asset_1 =
+        insert(:asset,
+          org: organisation,
+          parent_id: parent_asset.id,
+          creator_id: user.id,
+          project_id: project.id
+        )
 
       params =
         :asset

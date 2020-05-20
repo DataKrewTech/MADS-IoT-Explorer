@@ -1,4 +1,3 @@
-<<<<<<< HEAD:apps/acqdat_core/priv/repo/seed/entity-management/asset.ex
 defmodule AcqdatCore.Seed.EntityManagement.Asset do
 
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project}

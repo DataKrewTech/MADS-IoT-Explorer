@@ -1,6 +1,6 @@
-defmodule AcqdatCore.Model.SensorType do
+defmodule AcqdatCore.Model.EntityManagement.SensorType do
   alias AcqdatCore.Repo
-  alias AcqdatCore.Schema.{SensorType, Sensor}
+  alias AcqdatCore.Schema.EntityManagement.{SensorType, Sensor}
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
@@ -70,7 +70,6 @@ defmodule AcqdatCore.Model.SensorType do
     List.first(Repo.all(query))
   end
 
-  @spec delete(%{__struct__: atom | %{__changeset__: any}}) :: any
   def delete(sensor_type) do
     case is_nil(check_sensor_relation(sensor_type)) do
       true ->
