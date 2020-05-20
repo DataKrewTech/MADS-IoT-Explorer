@@ -2,7 +2,7 @@ defmodule AcqdatCore.Repo.Migrations.RemoveTeamsTableAndItsAssociations do
   use Ecto.Migration
 
   def change do
-  	drop(index(:teams_apps, [:team_id, :app_id], name: :team_id_app_id_unique_index))
+    drop(index(:teams_apps, [:team_id, :app_id], name: :team_id_app_id_unique_index))
     drop(index(:teams_apps, [:team_id]))
     drop(index(:teams_apps, [:app_id]))
     drop(table(:teams_apps))
