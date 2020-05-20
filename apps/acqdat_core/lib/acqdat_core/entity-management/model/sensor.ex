@@ -34,7 +34,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
-  def get_by_project(project_id) do
+  def get_all_by_parent_project(project_id) do
     Sensor
     |> where([sensor], sensor.project_id == ^project_id)
     |> where([sensor], sensor.parent_type == "Project")
@@ -87,13 +87,15 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Repo.all(query) |> Repo.preload(preloads)
   end
 
-  def child_sensors(root) do
-    query =
-      from(sensor in Sensor,
-        where: sensor.parent_id == ^root.id
-      )
+  def child_sensors_query(root) do
+    from(sensor in Sensor,
+      where: sensor.parent_id == ^root.id and sensor.parent_type == "Asset"
+    )
+  end
 
-    Repo.all(query)
+  def child_sensors(root) do
+    child_sensors_query(root)
+    |> Repo.all()
   end
 
   def get_all() do
@@ -104,6 +106,11 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Sensor
     |> Repo.get(id)
     |> Repo.delete()
+  end
+
+  def delete_all(root) do
+    child_sensors_query(root)
+    |> Repo.delete_all()
   end
 
   def insert_data(sensor, sensor_data) do

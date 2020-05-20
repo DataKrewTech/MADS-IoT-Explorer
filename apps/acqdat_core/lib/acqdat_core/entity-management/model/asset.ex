@@ -103,7 +103,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   def delete(asset) do
-    AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
+    Repo.transaction(fn ->
+      SensorModel.delete_all(asset)
+      AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
+    end)
   end
 
   def add_as_root(%{
