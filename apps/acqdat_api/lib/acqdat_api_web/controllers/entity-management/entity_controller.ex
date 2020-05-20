@@ -37,6 +37,7 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
     case conn.status do
       nil ->
         org = conn.assigns.org
+
         conn
         |> put_status(200)
         |> render("organisation_tree.json", org)
