@@ -8,12 +8,12 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   # TODO: Error handling to do
   # TODO: Needs to refactor this parser
-  def parse(
+  def update_project_hierarchy(
         project,
         %{"org_id" => org_id, "type" => type, "entities" => entities} = params
       ) do
     {org_id, _} = Integer.parse(org_id)
-    validate_tree_hirerachy(tree_parser(entities, org_id, nil, type, params), project)
+    validate_tree_hirerachy(parse_n_update(entities, org_id, nil, type, params), project)
   end
 
   defp validate_tree_hirerachy({:ok, "success"}, project) do
@@ -24,7 +24,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     {:error, message}
   end
 
-  defp tree_parser(entities, org_id, parent_id, parent_type, parent_entity)
+  defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity)
        when entities !== nil do
     try do
       Repo.transaction(fn ->
@@ -33,13 +33,19 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
           case result do
             {:ok, parent_entity} ->
-              tree_parser(entity["entities"], org_id, entity["id"], entity["type"], parent_entity)
+              parse_n_update(
+                entity["entities"],
+                org_id,
+                entity["id"],
+                entity["type"],
+                parent_entity
+              )
 
             {:error, message} ->
               throw(message)
 
             _ ->
-              tree_parser(entity["entities"], org_id, entity["id"], entity["type"], nil)
+              parse_n_update(entity["entities"], org_id, entity["id"], entity["type"], nil)
           end
         end
       end)
@@ -51,7 +57,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     end
   end
 
-  defp tree_parser(entities, _org_id, _parent_id, _parent_type, _parent_entity)
+  defp parse_n_update(entities, _org_id, _parent_id, _parent_type, _parent_entity)
        when entities == nil do
     nil
   end

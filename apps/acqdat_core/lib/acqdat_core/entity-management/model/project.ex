@@ -10,7 +10,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
     Enum.reduce(org_projects, [], fn project, acc ->
       entities = AssetModel.child_assets(project.id)
-      sensors = SensorModel.get_by_project(project.id)
+      sensors = SensorModel.get_all_by_parent_project(project.id)
       map_data = Map.put_new(project, :assets, entities)
       acc ++ [Map.put_new(map_data, :sensors, sensors)]
     end)
@@ -27,7 +27,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   end
 
   def update_version(%Project{} = project) do
-    changeset = Project.update_changeset(project, %{version: project.version + 1})
+    changeset = Project.update_changeset(project, %{version: project.version + 0.1})
     Repo.update(changeset)
   end
 
