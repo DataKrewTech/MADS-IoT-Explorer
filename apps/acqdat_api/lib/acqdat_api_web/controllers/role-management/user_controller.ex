@@ -9,7 +9,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
 
   plug AcqdatApiWeb.Plug.LoadUser
-       when action in [:show, :update, :assets, :apps, :update_teams]
+       when action in [:show, :update, :assets, :apps]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -150,29 +150,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
               "error" => true,
               "message:" => "elasticsearch is not running"
             })
-        end
-
-      404 ->
-        conn
-        |> send_error(404, "Resource Not Found")
-    end
-  end
-
-  def update_teams(conn, %{"teams" => teams}) do
-    case conn.status do
-      nil ->
-        %{assigns: %{user: user}} = conn
-
-        with {:done, {:ok, user}} <- {:done, User.update_teams(user, teams)} do
-          conn
-          |> put_status(200)
-          |> render("user_teams.json", %{user: user})
-        else
-          {:extract, {:error, error}} ->
-            send_error(conn, 400, error)
-
-          {:create, {:error, message}} ->
-            send_error(conn, 400, message)
         end
 
       404 ->

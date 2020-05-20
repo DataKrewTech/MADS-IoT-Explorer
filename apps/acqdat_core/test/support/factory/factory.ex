@@ -27,7 +27,6 @@ defmodule AcqdatCore.Support.Factory do
   }
 
   alias AcqdatCore.Schema.RoleManagement.{
-    Team,
     User,
     UserSetting,
     Role,
@@ -72,14 +71,6 @@ defmodule AcqdatCore.Support.Factory do
       inviter: build(:user),
       role: build(:role),
       org: build(:organisation)
-    }
-  end
-
-  def team_factory() do
-    %Team{
-      name: sequence(:name, &"Team_Name-#{&1}"),
-      org: build(:organisation),
-      creator: build(:user)
     }
   end
 

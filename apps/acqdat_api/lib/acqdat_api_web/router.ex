@@ -64,14 +64,8 @@ defmodule AcqdatApiWeb.Router do
     end
 
     scope "/", RoleManagement do
-      resources("/teams", TeamController, only: [:create, :index, :update])
-      put("/teams/:id/assets", TeamController, :update_assets, as: :update_team_assets)
-      put("/teams/:id/apps", TeamController, :update_apps, as: :update_team_apps)
-      put("/teams/:id/members", TeamController, :update_members, as: :update_team_members)
-
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
       put("/users/:id/apps", UserController, :apps, as: :user_apps)
-      put("/users/:id/teams", UserController, :update_teams, as: :user_teams)
 
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end

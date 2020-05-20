@@ -21,10 +21,6 @@ defmodule AcqdatApi.RoleManagement.User do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 
-  def update_teams(user, teams) do
-    verify_user_teams(UserModel.update_teams(user, teams))
-  end
-
   defp verify_user_assets({:ok, user}) do
     {:ok,
      %{
@@ -141,19 +137,6 @@ defmodule AcqdatApi.RoleManagement.User do
 
   defp mark_invitation_token_as_invalid({:error, _data}) do
     {:error, %{error: resp_msg(:unable_to_mark_invitation_invalid)}}
-  end
-
-  defp verify_user_teams({:ok, user}) do
-    {:ok,
-     %{
-       teams: user.teams,
-       email: user.email,
-       id: user.id
-     }}
-  end
-
-  defp verify_user_teams({:error, user}) do
-    {:error, %{error: extract_changeset_error(user)}}
   end
 
   def user_create_es({:ok, params}) do
