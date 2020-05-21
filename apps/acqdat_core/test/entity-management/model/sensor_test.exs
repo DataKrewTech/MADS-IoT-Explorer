@@ -122,10 +122,19 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
       [sensor: sensor]
     end
 
-    test "deletes sensor", context do
+    test "deletes sensor leaf node", context do
       %{sensor: sensor} = context
 
       assert {:ok, sensor} = SensorModel.delete(sensor.id)
+    end
+
+    test "will raise an error if sensors data is present for respective sensor leaf" do
+      # NOTE: currently we are assuming, if sensor has field has_timesrs_data set as true, it contains sensors data
+      sensor = insert(:sensor, has_timesrs_data: true)
+      assert {:error, message} = SensorModel.delete(sensor.id)
+
+      assert message ==
+               "Sensor #{sensor.name} contains time-series data. Please delete sensors data before deleting sensor."
     end
   end
 end

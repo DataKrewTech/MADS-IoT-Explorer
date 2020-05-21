@@ -4,6 +4,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.EntityManagement.Asset
   alias AcqdatCore.Schema.EntityManagement.Asset, as: AssetSchema
+  alias AcqdatCore.Schema.EntityManagement.Sensor
   alias AcqdatCore.Repo
 
   describe "get_by_id/1" do
@@ -130,15 +131,73 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
   describe "delete/1" do
     setup do
-      asset = insert(:asset)
+      org = insert(:organisation)
+      project = insert(:project)
 
-      [asset: asset]
+      {:ok, root_asset} =
+        Asset.add_as_root(%{
+          name: "root asset",
+          org_id: project.org_id,
+          org_name: org.name,
+          project_id: project.id
+        })
+
+      [asset: root_asset]
     end
 
-    test "deletes respective asset", context do
+    test "deletes respective leaf asset", context do
       %{asset: asset} = context
 
-      assert {0, nil} = Asset.delete(asset)
+      assert {:ok, {0, nil}} = Asset.delete(asset)
+    end
+
+    test "deletion of asset fails if its child sensor has data", %{asset: asset} do
+      sensor_manifest1 =
+        build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: true)
+
+      Repo.insert(sensor_manifest1)
+
+      sensor_manifest2 =
+        build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: false)
+
+      Repo.insert(sensor_manifest2)
+
+      assert {:ok, {:error, message}} = Asset.delete(asset)
+
+      assert message ==
+               "This hirerachy contains sensors data. Please delete all sensors data first."
+    end
+
+    test "deletion of asset will not fail if its child sensor has no data", %{asset: asset} do
+      sensor_manifest1 =
+        build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: false)
+
+      Repo.insert(sensor_manifest1)
+
+      sensor_manifest2 =
+        build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: false)
+
+      Repo.insert(sensor_manifest2)
+
+      assert {:ok, {0, nil}} = Asset.delete(asset)
+    end
+
+    test "deletion of asset will not fails if any of its descendant's sensor has no data", %{
+      asset: asset
+    } do
+      assert {:ok, child_asset} = Asset.add_as_child(asset, "child asset", asset.org_id, :child)
+
+      sensor_manifest1 =
+        build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: false)
+
+      Repo.insert(sensor_manifest1)
+
+      sensor_manifest2 =
+        build(:sensor, parent_id: child_asset.id, parent_type: "Asset", has_timesrs_data: false)
+
+      Repo.insert(sensor_manifest2)
+
+      assert {:ok, {0, nil}} = Asset.delete(asset)
     end
   end
 

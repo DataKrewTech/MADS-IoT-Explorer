@@ -16,23 +16,6 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     validate_tree_hirerachy(parse_n_update(entities, org_id, nil, type, params), project)
   end
 
-  def result_parsing(result) do
-    data = []
-    case result do
-      {:error, message} ->
-        data ++ [message]
-      _ ->
-        if length(result) != 0 do
-          for res <- result do
-            if res != nil do
-              {:ok, list } = res
-              data ++ result_parsing(list)
-            end
-          end
-        end
-    end
-  end
-
   defp validate_tree_hirerachy({:ok, result}, project) do
     validate_parser_result(result, project)
   end
@@ -42,16 +25,35 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp validate_parser_result(result, project) do
-    validate_project(Enum.filter(List.flatten(result_parsing(result)), & !is_nil(&1)), project)
+    validate_res(Enum.filter(List.flatten(result_parsing(result)), &(!is_nil(&1))), project)
   end
 
-  defp validate_project(data, project) when length(data) == 0 do
+  defp validate_res(data, project) when length(data) == 0 do
     ProjectModel.update_version(project)
     {:ok, "success"}
   end
 
-  defp validate_project(data, project) when length(data) != 0 do
+  defp validate_res(data, _project) when length(data) != 0 do
     {:error, data}
+  end
+
+  defp result_parsing(result) do
+    data = []
+
+    case result do
+      {:error, message} ->
+        data ++ [message]
+
+      _ ->
+        if length(result) != 0 do
+          for res <- result do
+            if res != nil do
+              {:ok, list} = res
+              data ++ result_parsing(list)
+            end
+          end
+        end
+    end
   end
 
   defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity)
@@ -64,6 +66,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
           case result do
             {:ok, {:delete_asset, _data}} ->
               nil
+
             {:ok, parent_entity} ->
               parse_n_update(
                 entity["entities"],
@@ -100,7 +103,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          _parent_entity
        )
        when type == "Project" do
-    validate_project(ProjectModel.get_by_id(id), version)
+    project_version = version |> Decimal.new()
+    validate_project(ProjectModel.get_by_id(id), project_version)
   end
 
   defp entity_seggr(
@@ -279,6 +283,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     case AssetModel.delete(asset) do
       {:ok, {:ok, _data}} ->
         {:ok, {:delete_asset, "success"}}
+
       {:ok, {:error, message}} ->
         {:error, message}
     end
