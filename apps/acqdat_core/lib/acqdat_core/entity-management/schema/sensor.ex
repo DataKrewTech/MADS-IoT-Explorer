@@ -8,8 +8,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   """
 
   use AcqdatCore.Schema
-
-  alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project, SensorsData}
   alias AcqdatCore.Schema.EntityManagement.{SensorType}
 
   @typedoc """
@@ -31,12 +30,15 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     field(:parent_id, :integer)
     field(:metadata, :map)
     field(:parent_type, :string)
+    field(:has_timesrs_data, :boolean, default: false)
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:gateway, Gateway, on_replace: :delete)
     belongs_to(:sensor_type, SensorType, on_replace: :delete)
+
+    has_one(:sensors_data, SensorsData)
 
     timestamps(type: :utc_datetime)
   end
@@ -50,6 +52,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
           __MODULE__.t(),
           map
         ) :: Ecto.Changeset.t()
+
   def changeset(%__MODULE__{} = sensor, params) do
     sensor
     |> cast(params, @permitted)

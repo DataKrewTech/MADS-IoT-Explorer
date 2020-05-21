@@ -16,22 +16,54 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     validate_tree_hirerachy(parse_n_update(entities, org_id, nil, type, params), project)
   end
 
-  defp validate_tree_hirerachy({:ok, "success"}, project) do
-    ProjectModel.update_version(project)
+  def result_parsing(result) do
+    data = []
+    case result do
+      {:error, message} ->
+        data ++ [message]
+      _ ->
+        if length(result) != 0 do
+          for res <- result do
+            if res != nil do
+              {:ok, list } = res
+              data ++ result_parsing(list)
+            end
+          end
+        end
+    end
+  end
+
+  defp validate_tree_hirerachy({:ok, result}, project) do
+    validate_parser_result(result, project)
   end
 
   defp validate_tree_hirerachy({:error, message}, _project) do
     {:error, message}
   end
 
+  defp validate_parser_result(result, project) do
+    validate_project(Enum.filter(List.flatten(result_parsing(result)), & !is_nil(&1)), project)
+  end
+
+  defp validate_project(data, project) when length(data) == 0 do
+    ProjectModel.update_version(project)
+    {:ok, "success"}
+  end
+
+  defp validate_project(data, project) when length(data) != 0 do
+    {:error, data}
+  end
+
   defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity)
        when entities !== nil do
-    try do
-      Repo.transaction(fn ->
+    Repo.transaction(fn ->
+      try do
         for entity <- entities do
           result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity)
 
           case result do
+            {:ok, {:delete_asset, _data}} ->
+              nil
             {:ok, parent_entity} ->
               parse_n_update(
                 entity["entities"],
@@ -48,13 +80,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
               parse_n_update(entity["entities"], org_id, entity["id"], entity["type"], nil)
           end
         end
-      end)
-
-      {:ok, "success"}
-    catch
-      message ->
-        {:error, message}
-    end
+      catch
+        message ->
+          {:error, message}
+      end
+    end)
   end
 
   defp parse_n_update(entities, _org_id, _parent_id, _parent_type, _parent_entity)
@@ -246,7 +276,12 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp validate_asset({:ok, asset}, %{action: action}) when action == "delete" do
-    AssetModel.delete(asset)
+    case AssetModel.delete(asset) do
+      {:ok, {:ok, _data}} ->
+        {:ok, {:delete_asset, "success"}}
+      {:ok, {:error, message}} ->
+        {:error, message}
+    end
   end
 
   defp validate_asset({:ok, asset}, %{action: action, name: name}) when action == "update" do

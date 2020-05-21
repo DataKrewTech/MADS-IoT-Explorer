@@ -87,9 +87,15 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Repo.all(query) |> Repo.preload(preloads)
   end
 
-  def child_sensors_query(root) do
+  def child_sensors_query(root) when is_list(root) == false do
     from(sensor in Sensor,
       where: sensor.parent_id == ^root.id and sensor.parent_type == "Asset"
+    )
+  end
+
+  def child_sensors_query(asset_ids) when is_list(asset_ids) do
+    from(sensor in Sensor,
+      where: sensor.parent_id in ^asset_ids and sensor.parent_type == "Asset"
     )
   end
 
@@ -103,14 +109,34 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   end
 
   def delete(id) do
-    Sensor
-    |> Repo.get(id)
-    |> Repo.delete()
+    sensor = Sensor |> Repo.get(id)
+
+    case sensor.has_timesrs_data do
+      false ->
+        Repo.delete(sensor)
+
+      true ->
+        {:error,
+         "Sensor #{sensor.name} contains time-series data. Please delete sensors data before deleting sensor."}
+    end
   end
 
-  def delete_all(root) do
-    child_sensors_query(root)
-    |> Repo.delete_all()
+  def delete_all(parent_asset_ids) do
+    query =
+      from(sensor in Sensor,
+        where:
+          sensor.parent_id in ^parent_asset_ids and sensor.parent_type == "Asset" and
+            sensor.has_timesrs_data == true
+      )
+
+    case Repo.all(query) do
+      [] ->
+        child_sensors_query(parent_asset_ids)
+        |> Repo.delete_all()
+
+      _ ->
+        {:error, "This hirerachy contains sensors data. Please delete all sensors data first."}
+    end
   end
 
   def insert_data(sensor, sensor_data) do

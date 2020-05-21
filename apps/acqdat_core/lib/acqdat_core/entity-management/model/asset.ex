@@ -104,8 +104,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   def delete(asset) do
     Repo.transaction(fn ->
-      SensorModel.delete_all(asset)
-      AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
+      delete_child_and_its_descendants(asset)
     end)
   end
 
@@ -208,6 +207,26 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   ############################# private functions ###########################
+
+  defp delete_child_and_its_descendants(asset) do
+    case delete_sensors_descentants(asset) do
+      {:error, message} ->
+        {:error, message}
+
+      _ ->
+        AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
+    end
+  end
+
+  defp delete_sensors_descentants(asset) do
+    Enum.map(fetch_self_n_child_descendants(asset), fn asset -> asset.id end)
+    |> SensorModel.delete_all()
+  end
+
+  defp fetch_self_n_child_descendants(asset) do
+    AsNestedSet.self_and_descendants(asset)
+    |> AsNestedSet.execute(Repo)
+  end
 
   defp fetch_child_sensors(_data, entities, asset) do
     entities_with_sensors =
