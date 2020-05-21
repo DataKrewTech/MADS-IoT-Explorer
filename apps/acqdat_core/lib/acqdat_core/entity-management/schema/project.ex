@@ -24,7 +24,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     field(:metadata, :map)
     field(:location, :map)
     field(:archived, :boolean, default: false)
-    field(:version, :float, default: 1.0)
+    field(:version, :decimal, precision: 2, scale: 1, default: 1.0)
     field(:start_date, :utc_datetime)
 
     belongs_to(:org, Organisation, on_replace: :delete)

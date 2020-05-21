@@ -3,7 +3,7 @@ defmodule AcqdatCore.Repo.Migrations.ChangeProjectVersionToFloatFromInteger do
 
   def up do
     alter table("acqdat_projects") do
-      modify :version, :float, default: 1.0
+      modify :version, :decimal, default: 1.0, precision: 2, scale: 1
     end
   end
 

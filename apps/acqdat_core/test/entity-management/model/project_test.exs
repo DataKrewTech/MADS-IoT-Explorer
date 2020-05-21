@@ -32,7 +32,7 @@ defmodule AcqdatCore.Model.EntityManagement.ProjectTest do
       %{project: project} = context
 
       assert {:ok, result} = Project.update_version(project)
-      assert result.version == project.version + 0.1
+      assert result.version == Decimal.add(project.version, "0.1")
     end
   end
 
