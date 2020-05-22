@@ -1,10 +1,12 @@
 defmodule AcqdatCore.Model.EntityManagement.Asset do
   import AsNestedSet.Modifiable
+  import AsNestedSet.Queriable, only: [dump_one: 2]
   import Ecto.Query
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Schema.EntityManagement.Asset
   alias Ecto.Multi
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.Helper, as: ModelHelper
 
   def child_assets(project_id) do
     project_assets = fetch_root_assets(project_id)
@@ -131,6 +133,37 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
+
+  def add_taxon(%Asset{} = parent, %Asset{} = child, position) do
+    try do
+      taxon =
+        %Asset{child | org_id: parent.org.id}
+        |> Repo.preload(:org)
+        |> create(parent, position)
+        |> AsNestedSet.execute(Repo)
+
+      {:ok, taxon}
+    rescue
+      error in Ecto.InvalidChangesetError ->
+        {:error, error.changeset}
+    end
+  end
+
+  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
+    %Asset{
+      name: name,
+      org_id: org_id,
+      project_id: project_id,
+      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+      uuid: UUID.uuid1(:hex),
+      slug: Slugger.slugify(slug),
+      properties: []
+    }
+    |> Repo.preload(:org)
+    |> Repo.preload(:project)
+  end
+
   def asset_descendants(asset) do
     entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
     fetch_child_sensors(List.first(entities), entities, asset)
@@ -188,5 +221,18 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       {:error, _failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
+  end
+
+  def get_all(%{page_size: page_size, page_number: page_number}) do
+    Asset |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  end
+
+  def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
+    paginated_asset_data =
+      Asset |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+
+    asset_data_with_preloads = paginated_asset_data.entries |> Repo.preload(preloads)
+
+    ModelHelper.paginated_response(asset_data_with_preloads, paginated_asset_data)
   end
 end

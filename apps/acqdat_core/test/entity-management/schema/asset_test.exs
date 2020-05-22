@@ -35,7 +35,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       assert %{
                org_id: ["can't be blank"],
-               creator_id: ["can't be blank"]
+               project_id: ["can't be blank"]
              } = errors_on(changeset)
     end
 
@@ -67,7 +67,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       {:error, result_changeset} = Repo.insert(changeset)
 
-      assert %{project_id: ["can't be blank"], creator_id: ["can't be blank"]} ==
+      assert %{project_id: ["can't be blank"]} ==
                errors_on(result_changeset)
     end
 
@@ -82,8 +82,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
         insert(:asset,
           org: organisation,
           parent_id: parent_asset.id,
-          creator_id: user.id,
-          project_id: project.id
+          creator_id: user.id
         )
 
       params =
@@ -97,7 +96,8 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
         )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)
-        |> Map.put(:project_id, project.id)
+
+      # |> Map.put(:project_id, project.id)
 
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)

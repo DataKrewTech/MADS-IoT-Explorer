@@ -54,11 +54,6 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    resources "/assets", AssetController, only: [:create, :show, :update, :delete, :index]
-    get "/assets/search", AssetController, :search_assets
-    resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
-    resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
-
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
@@ -67,7 +62,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end
 
-    get "/users/search", UserController, :search_users
+    get "/users/search", RoleManagement.UserController, :search_users
 
     scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
@@ -76,15 +71,14 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
-    get "/assets/search", AssetController, :search_assets
-
     post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
     get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
 
     scope "/projects/:project_id", EntityManagement do
-      resources "/assets", AssetController, only: [:show, :update, :delete, :index]
+      resources "/assets", AssetController, only: [:create, :show, :update, :delete, :index]
+      get "/assets/search", AssetController, :search_assets
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
-      resources "/asset_types", AssetTypeController, only: [:update]
+      resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end
 
     resources "/users", UserController, only: [:show, :update, :index] do

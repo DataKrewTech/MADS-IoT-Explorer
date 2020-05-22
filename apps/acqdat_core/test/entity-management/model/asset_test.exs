@@ -179,11 +179,12 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           project_id: project.id
         })
 
-      [parent_entity: root_asset, project: project]
+      [parent_entity: root_asset, project: project, org: org]
     end
 
     test "add respective asset as root element in the tree", context do
-      %{project: project, parent_entity: parent_entity} = context
+      %{project: project, parent_entity: parent_entity, org: org} = context
+      user = insert(:user)
 
       assert {:ok, child_asset} =
                Asset.add_as_child(parent_entity, "child asset", project.org_id, :child)

@@ -4,7 +4,7 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
   import AcqdatCore.Support.Factory
 
-  alias AcqdatCore.Schema.SensorType
+  alias AcqdatCore.Schema.EntityManagement.SensorType
 
   describe "changeset/2" do
     setup do

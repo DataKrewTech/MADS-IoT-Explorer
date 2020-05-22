@@ -8,7 +8,6 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
   describe "get_by_id/1" do
     test "returns a particular sensor" do
       sensor = insert(:sensor)
-
       {:ok, result} = SensorModel.get(sensor.id)
       assert not is_nil(result)
       assert result.id == sensor.id
@@ -24,28 +23,30 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
     setup do
       org = insert(:organisation)
       project = insert(:project)
-
-      [org: org, project: project]
+      sensor_type = insert(:sensor_type)
+      [org: org, project: project, sensor_type: sensor_type]
     end
 
     test "creates a sensor with supplied params", context do
-      %{org: org, project: project} = context
+      %{org: org, project: project, sensor_type: sensor_type} = context
 
       params = %{
         org_id: org.id,
         name: "Demo Project",
-        project_id: project.id
+        project_id: project.id,
+        sensor_type_id: sensor_type.id
       }
 
       assert {:ok, _sensor} = SensorModel.create(params)
     end
 
     test "fails if org_id is not present", context do
-      %{project: project} = context
+      %{project: project, sensor_type: sensor_type} = context
 
       params = %{
         name: "Demo sensor",
-        project_id: project.id
+        project_id: project.id,
+        sensor_type_id: sensor_type.id
       }
 
       assert {:error, changeset} = SensorModel.create(params)
@@ -54,22 +55,26 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
 
     test "fails if name is not present", context do
       %{org: org, project: project} = context
+      sensor_type = insert(:sensor_type)
 
       params = %{
         org_id: org.id,
-        project_id: project.id
+        project_id: project.id,
+        sensor_type_id: sensor_type.id
       }
 
       assert {:error, changeset} = SensorModel.create(params)
+
       assert %{name: ["can't be blank"]} == errors_on(changeset)
     end
 
     test "fails if project is not present", context do
-      %{org: org} = context
+      %{org: org, sensor_type: sensor_type} = context
 
       params = %{
         org_id: org.id,
-        name: "Demo sensor Test"
+        name: "Demo sensor Test",
+        sensor_type_id: sensor_type.id
       }
 
       assert {:error, changeset} = SensorModel.create(params)

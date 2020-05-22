@@ -52,7 +52,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   def update(conn, params) do
     case conn.status do
       nil ->
-        case AssetModel.update(conn.assigns.asset, params) do
+        case AssetModel.update_asset(conn.assigns.asset, params) do
           {:ok, asset} ->
             conn
             |> put_status(200)
@@ -140,14 +140,15 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     end
   end
 
-  defp load_org(%{params: %{"org_id" => org_id}} = conn, _params) do
-    check_org(conn, org_id)
+  defp load_org(%{params: %{"org_id" => org_id, "project_id" => project_id}} = conn, _params) do
+    check_org(conn, org_id, project_id)
   end
 
-  defp check_org(conn, org_id) do
+  defp check_org(conn, org_id, project_id) do
     {org_id, _} = Integer.parse(org_id)
+    {project_id, _} = Integer.parse(project_id)
 
-    case OrgModel.get(org_id) do
+    case OrgModel.get(org_id, project_id) do
       {:ok, org} ->
         assign(conn, :org, org)
 

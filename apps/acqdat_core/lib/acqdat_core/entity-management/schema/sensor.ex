@@ -10,7 +10,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   use AcqdatCore.Schema
 
   alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project}
-  alias AcqdatCore.Schema.{SensorType}
+  alias AcqdatCore.Schema.EntityManagement.{SensorType}
 
   @typedoc """
   `uuid`: A universallly unique id for the sensor.

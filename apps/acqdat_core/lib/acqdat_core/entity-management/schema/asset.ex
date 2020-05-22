@@ -69,9 +69,9 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug creator_id org_id project_id)a
+  @required_params ~w(uuid slug org_id project_id)a
   @update_required_params ~w(uuid slug org_id )a
-  @optional_params ~w(name lft rgt parent_id metadata description properties image image_url asset_category_id)a
+  @optional_params ~w(name lft rgt parent_id metadata description properties image creator_id owner_id image_url asset_category_id)a
 
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
@@ -84,14 +84,13 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
           map
         ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = asset, params) do
-    asd =
-      asset
-      |> cast(params, @permitted)
-      |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
-      |> add_uuid()
-      |> add_slug()
-      |> validate_required(@required_params)
-      |> common_changeset()
+    asset
+    |> cast(params, @permitted)
+    |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
+    |> add_uuid()
+    |> add_slug()
+    |> validate_required(@required_params)
+    |> common_changeset()
   end
 
   def update_changeset(%__MODULE__{} = asset, params) do

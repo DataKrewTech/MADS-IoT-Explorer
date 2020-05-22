@@ -52,4 +52,30 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       parameter_uuid: asset.parameter_uuid
     }
   end
+
+  def render("hits.json", %{hits: hits}) do
+    %{
+      assets: render_many(hits.hits, AssetView, "source.json")
+    }
+  end
+
+  def render("source.json", %{asset: %{_source: hits}}) do
+    %{
+      id: hits.id,
+      name: hits.name,
+      properties: hits.properties,
+      slug: hits.slug,
+      uuid: hits.uuid
+    }
+  end
+
+  def render("index.json", asset) do
+    %{
+      assets: render_many(asset.entries, AssetView, "asset.json"),
+      page_number: asset.page_number,
+      page_size: asset.page_size,
+      total_entries: asset.total_entries,
+      total_pages: asset.total_pages
+    }
+  end
 end

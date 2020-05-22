@@ -51,7 +51,8 @@ defmodule AcqdatApi.EntityManagement.Asset do
 
   defp add_asset_as_root(params) do
     asset = create_taxon(params)
-    AssetModel.add_root(asset)
+    asset = Map.put(asset, :org_name, asset.org.name)
+    AssetModel.add_as_root(asset)
   end
 
   defp add_asset_as_child(root, params) do

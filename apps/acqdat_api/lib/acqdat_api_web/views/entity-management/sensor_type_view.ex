@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.EntityManagement.SensorTypeView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.SensorTypeView
-  alias AcqdatApiWeb.OrganisationView
+  alias AcqdatApiWeb.EntityManagement.SensorTypeView
+  alias AcqdatApiWeb.EntityManagement.OrganisationView
 
   def render("sensor_type.json", %{sensor_type: sensor_type}) do
     %{

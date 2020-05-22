@@ -56,10 +56,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
 
   @permitted @required_params ++ @optional_params
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = sensor_type, params) do
     sensor_type
     |> cast(params, @permitted)
@@ -71,10 +67,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     |> common_changeset()
   end
 
-  @spec update_changeset(
-          AcqdatCore.Schema.SensorType.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
   def update_changeset(%__MODULE__{} = sensor_type, params) do
     sensor_type
     |> cast(params, @permitted)

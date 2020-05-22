@@ -3,8 +3,6 @@ defmodule AcqdatApi.EntityManagement.SensorType do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 
-  @spec create(%{description: any, metadata: any, name: any, org_id: any, parameters: any}) ::
-          {:error, %{error: %{optional(atom) => [any]}}} | {:ok, %{id: any, name: any, uuid: any}}
   def create(params) do
     %{
       name: name,
