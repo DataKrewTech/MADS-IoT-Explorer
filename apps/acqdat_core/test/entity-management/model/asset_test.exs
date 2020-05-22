@@ -1,10 +1,10 @@
 defmodule AcqdatCore.Model.EntityManagement.AssetTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
-
   import AcqdatCore.Support.Factory
-
   alias AcqdatCore.Model.EntityManagement.Asset
+  alias AcqdatCore.Schema.EntityManagement.Asset, as: AssetSchema
+  alias AcqdatCore.Repo
 
   describe "get_by_id/1" do
     test "returns a asset" do
@@ -37,6 +37,92 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
       assert {:ok, asset} = Asset.update_asset(asset, params)
       assert asset.name == "updated asset name"
+    end
+  end
+
+  describe "update asset position, " do
+    setup [:create_asset_tree, :load_project_hierarchy]
+    # asset tree initialization
+    # asset_1
+    # |- asset_2
+    #    |- asset_4
+    #    |- asset_5
+    # |- asset_3
+
+    test "move asset with descendants to root", context do
+      %{project: project, hierarchy: hierarchy} = context
+
+      [{root, _}] = hierarchy
+      assert [root] == project_roots(project.id)
+
+      [{_root, [{asset_2, asset_2_children}, _]}] = hierarchy
+
+      result = Asset.update_asset(asset_2, %{parent_id: nil})
+      {:ok, %{hierarchy: new_hierarchy}} = load_project_hierarchy(%{project: project})
+
+      [{root_1, _}, {root_2, root_2_children}] = new_hierarchy
+
+      assert [root_1, root_2] == project_roots(project.id)
+      assert length(asset_2_children) == length(root_2_children)
+    end
+
+    test "move asset without descendanats to root", context do
+      %{project: project, hierarchy: hierarchy} = context
+
+      [{root, _}] = hierarchy
+      assert [root] == project_roots(project.id)
+
+      [{_root, [{_, [{asset_4, _}, _]}, _]}] = hierarchy
+      assert {:ok, _asset} = Asset.update_asset(asset_4, %{parent_id: nil})
+      {:ok, %{hierarchy: new_hierarchy}} = load_project_hierarchy(%{project: project})
+
+      [{root_1, [{_asset_2, asset_2_children}, _]}, {root_2, root_2_children}] = new_hierarchy
+
+      assert [root_1, root_2] == project_roots(project.id)
+      assert root_2.name == "asset_4"
+      assert root_2_children == []
+      assert length(asset_2_children) == 1
+    end
+
+    test "move asset with descendants below another asset", context do
+      %{project: project, hierarchy: hierarchy} = context
+
+      [{_root, [{asset_2, asset_2_children}, {asset_3, _}]}] = hierarchy
+
+      assert {:ok, _asset_2} = Asset.update_asset(asset_2, %{parent_id: asset_3.id})
+      {:ok, %{hierarchy: new_hierarchy}} = load_project_hierarchy(%{project: project})
+
+      [{_root, [{_asset_3, asset_3_children}]}] = new_hierarchy
+      [{child_asset, child_asset_children}] = asset_3_children
+
+      assert child_asset.name == asset_2.name
+      assert length(child_asset_children) == length(asset_2_children)
+    end
+
+    test "move and update asset details at the same time", context do
+      %{project: project, hierarchy: hierarchy} = context
+
+      [{_root, [{asset_2, asset_2_children}, {asset_3, _}]}] = hierarchy
+
+      {:ok, new_asset_2} = Asset.update_asset(asset_2, %{parent_id: asset_3.id, name: "asset_2_renamed"})
+      assert new_asset_2.id == asset_2.id
+      assert new_asset_2.name != asset_2.name
+
+      {:ok, %{hierarchy: new_hierarchy}} = load_project_hierarchy(%{project: project})
+      [{_root, [{_asset_3, asset_3_children}]}] = new_hierarchy
+      [{_child_asset, child_asset_children}] = asset_3_children
+
+      assert length(child_asset_children) == length(asset_2_children)
+    end
+
+    test "No updation if changeset errors", context do
+      %{project: project, hierarchy: hierarchy} = context
+      [{_root, [{asset_2, _asset_2_children}, {asset_3, _}]}] = hierarchy
+
+      assert {:error, changeset} = Asset.update_asset(asset_2, %{parent_id: asset_3.id, name: 1})
+      assert %{name: ["is invalid"]} == errors_on(changeset)
+      {:ok, %{hierarchy: new_hierarchy}} = load_project_hierarchy(%{project: project})
+      assert new_hierarchy == hierarchy
     end
   end
 
@@ -127,5 +213,57 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
       assert length(res) != 0
     end
+  end
+
+  ############## helper functions ##############################
+
+  defp create_asset_tree(_context) do
+    org = insert(:organisation)
+    project = insert(:project)
+
+    asset_1 = build_asset_map("asset_1", org.id, org.name, project.id)
+
+    # asset tree initialization
+    # asset_1
+    # |- asset_2
+    #    |- asset_4
+    #    |- asset_5
+    # |- asset_3
+
+    {:ok, asset_1} = Asset.add_as_root(asset_1)
+    {:ok, asset_2} = Asset.add_as_child(asset_1, "asset_2", org.id, :child)
+    Asset.add_as_child(asset_1, "asset_3", org.id, :child)
+    Asset.add_as_child(asset_2, "asset_4", org.id, :child)
+    Asset.add_as_child(asset_2, "asset_5", org.id, :child)
+
+    {:ok,
+      %{
+        project: project,
+        org: org
+      }
+    }
+  end
+
+  defp build_asset_map(name, org_id, org_name, project_id) do
+    %{
+      name: name,
+      org_id: org_id,
+      org_name: org_name,
+      project_id: project_id
+    }
+  end
+
+  defp load_project_hierarchy(%{project: project} = context) do
+    hierarchy = AssetSchema
+                |> AsNestedSet.dump(%{project_id: project.id})
+                |> AsNestedSet.execute(Repo)
+
+    {:ok, Map.merge(context, %{hierarchy: hierarchy})}
+  end
+
+  defp project_roots(project_id) do
+    AssetSchema
+    |> AsNestedSet.roots(%{project_id: project_id})
+    |> AsNestedSet.execute(Repo)
   end
 end
