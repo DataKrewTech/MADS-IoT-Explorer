@@ -286,6 +286,9 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
       {:ok, {:error, message}} ->
         {:error, message}
+
+      {:ok, _} ->
+        {:ok, {:delete_asset, "success"}}
     end
   end
 
