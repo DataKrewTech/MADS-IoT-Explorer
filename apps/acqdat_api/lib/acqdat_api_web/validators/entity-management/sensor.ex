@@ -27,8 +27,7 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Sensor do
     verify_sensor_create_params(%{
       sensor_type_id: :integer,
       org_id!: :integer,
-      description: :string,
-      metadata: :map,
+      metadata: {:array, :map},
       parent_id: :integer,
       parent_type: :string,
       name: :string,

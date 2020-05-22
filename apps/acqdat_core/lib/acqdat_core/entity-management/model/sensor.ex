@@ -55,7 +55,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     ModelHelper.paginated_response(sensor_data_with_preloads, paginated_sensor_data)
   end
 
-  def get_all_by_assets(%{
+  def get_all_by_project_n_org(%{
         page_size: page_size,
         page_number: page_number,
         project_id: project_id,

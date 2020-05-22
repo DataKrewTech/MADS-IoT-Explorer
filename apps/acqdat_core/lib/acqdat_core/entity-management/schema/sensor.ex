@@ -32,6 +32,14 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     field(:parent_type, :string)
     field(:has_timesrs_data, :boolean, default: false)
 
+    embeds_many :metadata, Metadata, on_replace: :delete do
+      field(:name, :string, null: false)
+      field(:data_type, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:unit, :string)
+      field(:value, :string)
+    end
+
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
@@ -43,8 +51,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(org_id project_id uuid slug name sensor_type_id)a
-  @optional_params ~w(gateway_id metadata parent_id parent_type)a
+  @required_params ~w(org_id project_id uuid slug name)a
+  @optional_params ~w(gateway_id parent_id parent_type)a
+
+  @embedded_metadata_required ~w(name uuid data_type value)a
+  @embedded_metadata_optional ~w(unit)a
+  @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
 
   @permitted @required_params ++ @optional_params
 
@@ -56,6 +68,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   def changeset(%__MODULE__{} = sensor, params) do
     sensor
     |> cast(params, @permitted)
+    |> cast_embed(:metadata, with: &create_metadata_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
@@ -65,6 +78,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   def update_changeset(%__MODULE__{} = sensor, params) do
     sensor
     |> cast(params, @permitted)
+    |> cast_embed(:metadata, with: &update_metadata_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
@@ -90,5 +104,18 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
 
   defp random_string(length) do
     :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  end
+
+  defp create_metadata_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_metadata)
+    |> add_uuid()
+    |> validate_required(@embedded_metadata_required)
+  end
+
+  defp update_metadata_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_metadata)
+    |> validate_required(@embedded_metadata_required)
   end
 end

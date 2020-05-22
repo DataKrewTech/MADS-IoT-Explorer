@@ -31,7 +31,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor} = {:list, SensorModel.get_all_by_assets(data)}
+        {:list, sensor} = {:list, SensorModel.get_all_by_project_n_org(data)}
 
         conn
         |> put_status(200)
