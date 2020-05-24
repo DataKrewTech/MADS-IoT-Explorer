@@ -13,15 +13,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
 
   As_nested_set has a drawback though that during writes the entire tree is
   readjusted. In order to limit the effects of readjustment we scope the
-  tree with `organisation_id`. This keeps the scope of adjustments limited
-  to a specific organisation.
+  tree with `project_id`. This keeps the scope of adjustments limited
+  to a specific project.
   """
   use AcqdatCore.Schema
-
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
-  alias AcqdatCore.Schema.EntityManagement.AssetType
+  alias AcqdatCore.Schema.EntityManagement.{Organisation,Project, AssetType}
   alias AcqdatCore.Schema.RoleManagement.User
-
   use AsNestedSet, scope: [:project_id]
 
   @typedoc """

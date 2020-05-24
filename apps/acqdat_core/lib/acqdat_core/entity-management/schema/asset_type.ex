@@ -1,7 +1,6 @@
 defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   @moduledoc """
   Models a asset-type in the system.
-
   A asset-type is responsible for deciding the parameters of a asset of an organisation.
   """
 
@@ -18,10 +17,9 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   `sensor_type_uuid`: If a sensor type is created then it's uuid will be mapped to this asset type.
   `org`: Contains org_id upon which asset and consequently asset type is attached
   `project`: Inside organisation a project will be there on which asset will be attached.
-   `description`: A description of the asset-type
-   `metadata`: A metadata field which will store all the data related to asset-type and this metadata will be mapped to the asset which will inherit this asset type.
-
-   `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
+  `description`: A description of the asset-type
+  `metadata`: A metadata field which will store all the data related to asset-type and this metadata will be mapped to the asset which will inherit this asset type.
+  `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
   `parameters`: The different parameters of the asset type which will be inherited by sensor type which will be created along with this asset type.
   """
 
@@ -67,6 +65,11 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
 
   @permitted @required_params ++ @optional_params
 
+
+  @spec changeset(
+          __MODULE__.t(),
+          map
+        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)
@@ -78,6 +81,11 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     |> common_changeset()
   end
 
+
+  @spec update_changeset(
+          AcqdatCore.Schema.AssetType.t(),
+          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
+        ) :: Ecto.Changeset.t()
   def update_changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)
@@ -100,12 +108,13 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     )
   end
 
-  defp add_uuid(changeset) do
+
+  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(changeset) do
+  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end

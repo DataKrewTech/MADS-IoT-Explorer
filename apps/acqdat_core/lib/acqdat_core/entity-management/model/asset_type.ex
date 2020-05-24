@@ -1,6 +1,5 @@
 defmodule AcqdatCore.Model.EntityManagement.AssetType do
   alias AcqdatCore.Repo
-  # , Asset}
   alias AcqdatCore.Schema.EntityManagement.{Asset, AssetType}
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
@@ -10,6 +9,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     Repo.insert(changeset)
   end
 
+  @spec get(integer) :: {:error, <<_::72>>} | {:ok, any}
   def get(id) when is_integer(id) do
     case Repo.get(AssetType, id) do
       nil ->
@@ -52,6 +52,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     ModelHelper.paginated_response(asset_data_with_preloads, paginated_asset_data)
   end
 
+  @spec update(
+          AcqdatCore.Schema.EntityManagement.AssetType.t(),
+          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
+        ) :: any
   def update(asset_type, params) do
     case is_nil(asset_present?(asset_type)) do
       true ->
@@ -67,6 +71,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
+
+  @spec delete(%{__struct__: atom | %{__changeset__: any}}) :: any
   def delete(asset_type) do
     case is_nil(asset_present?(asset_type)) do
       true ->
