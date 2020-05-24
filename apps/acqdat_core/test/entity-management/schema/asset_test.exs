@@ -38,13 +38,16 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       assert %{
                org_id: ["can't be blank"],
-               creator_id: ["can't be blank"]
+               parent_id: ["can't be blank"],
+               asset_type_id: ["can't be blank"]
              } = errors_on(changeset)
     end
 
-    test "returns error if assoc constraint not satisfied", context do
-      %{user: user, project: project, asset_type: asset_type} = context
-
+    test "returns error if org assoc constraint not satisfied", %{
+      user: user
+      project: project,
+      asset_type: asset_type
+    } do
       params = %{
         name: "Bintan Factory",
         org_id: -1,
@@ -60,11 +63,15 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
 
-    test "returns error if project assoc constraint not satisfied", %{organisation: organisation} do
+    test "returns error if project assoc constraint not satisfied", %{
+      organisation: organisation,
+      asset_type: asset_type
+    } do
       params = %{
         name: "Bintan Factory",
         org_id: organisation.id,
-        parent_id: -1
+        parent_id: -1,
+        asset_type_id: asset_type.id
       }
 
       changeset = Asset.changeset(%Asset{}, params)
@@ -85,12 +92,14 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       user: user,
       asset_type: asset_type
     } do
-      parent_asset = insert(:asset, org: organisation, project: project)
+      parent_asset = insert(:asset, org: organisation, project: project, asset_type: asset_type)
 
       child_asset_1 =
         insert(:asset,
           org: organisation,
-          parent_id: parent_asset.id
+          parent_id: parent_asset.id,
+          project: project,
+          asset_type: asset_type
         )
 
       params =
@@ -99,14 +108,15 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
           name: child_asset_1.name,
           org: organisation,
           parent_id: parent_asset.id,
-          project_id: project.id,
-          creator_id: user.id,
-          asset_type_id: asset_type.id
+          project: project,
+          asset_type: asset_type,
+          creator: user,
         )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)
-
-      # |> Map.put(:project_id, project.id)
+        |> Map.put(:project_id, project.id)
+        |> Map.put(:asset_type_id, asset_type.id)
+        |> Map.put(:creator_id, user.id)
 
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)

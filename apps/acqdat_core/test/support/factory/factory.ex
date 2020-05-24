@@ -21,6 +21,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
     Organisation,
+    AssetType,
     Asset,
     Gateway,
     Project,
@@ -128,6 +129,39 @@ defmodule AcqdatCore.Support.Factory do
   def digital_twin_factory() do
     %DigitalTwin{
       name: sequence(:digital_twin, &"digital_twin#{&1}")
+    }
+  end
+
+  def asset_type_factory() do
+    %AssetType{
+      name: sequence(:asset_type_name, &"AssetType#{&1}"),
+      slug: sequence(:asset_type_name, &"AssetType#{&1}"),
+      uuid: UUID.uuid1(:hex),
+      org: build(:organisation),
+      parameters: [
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        }
+      ],
+      metadata: [
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        }
+      ]
     }
   end
 
