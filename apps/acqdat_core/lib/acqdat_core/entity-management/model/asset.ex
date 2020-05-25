@@ -133,7 +133,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-
   def add_taxon(%Asset{} = parent, %Asset{} = child, position) do
     try do
       taxon =
