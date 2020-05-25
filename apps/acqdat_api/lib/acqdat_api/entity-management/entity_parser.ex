@@ -38,22 +38,24 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp result_parsing(result) do
-    data = []
+    validate_result(result, [])
+  end
 
-    case result do
-      {:error, message} ->
-        data ++ [message]
+  defp validate_result({:error, message}, data) do
+    data ++ [message]
+  end
 
-      _ ->
-        if length(result) != 0 do
-          for res <- result do
-            if res != nil do
-              {:ok, list} = res
-              data ++ result_parsing(list)
-            end
-          end
-        end
+  defp validate_result(result, data) when length(result) != 0 do
+    for res <- result do
+      if res != nil do
+        {:ok, list} = res
+        data ++ result_parsing(list)
+      end
     end
+  end
+
+  defp validate_result(result, data) when length(result) == 0 do
+    nil
   end
 
   defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity)
