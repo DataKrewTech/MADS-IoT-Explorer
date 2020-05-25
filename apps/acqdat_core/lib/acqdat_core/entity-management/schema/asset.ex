@@ -94,7 +94,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   end
 
   def common_changeset(changeset) do
-    #TODO: there is `:acqdat_gateway_slug_index` used here which seems wrong
+    # TODO: there is `:acqdat_gateway_slug_index` used here which seems wrong
     changeset
     |> assoc_constraint(:org)
     |> assoc_constraint(:project)

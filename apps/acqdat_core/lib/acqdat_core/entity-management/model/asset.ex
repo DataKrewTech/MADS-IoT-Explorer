@@ -43,16 +43,19 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   `Ecto.Multi`. In case if there is any error while updating all the changes
   are reverted.
   """
-  @spec update_asset(Asset.t(), map) :: {:ok, Asset.t()}
-    | {:error, Ecto.Changeset.t()}
+  @spec update_asset(Asset.t(), map) ::
+          {:ok, Asset.t()}
+          | {:error, Ecto.Changeset.t()}
   def update_asset(asset, %{parent_id: nil} = params) do
     params = Map.drop(params, [:parent_id])
 
     Multi.new()
     |> Multi.run(:update_position, fn _, _changes ->
-      result = asset
+      result =
+        asset
         |> AsNestedSet.move(:root)
         |> AsNestedSet.execute(Repo)
+
       {:ok, result}
     end)
     |> Multi.run(:update_details, fn _, %{update_position: asset} ->
@@ -67,9 +70,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
     Multi.new()
     |> Multi.run(:update_position, fn _, _changes ->
-      result = asset
+      result =
+        asset
         |> AsNestedSet.move(parent_asset, :child)
         |> AsNestedSet.execute(Repo)
+
       {:ok, result}
     end)
     |> Multi.run(:update_details, fn _, %{update_position: asset} ->
@@ -131,7 +136,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     fetch_child_sensors(List.first(entities), entities, asset)
   end
 
-
   ############################# private functions ###########################
 
   defp fetch_root_assets(project_id) do
@@ -142,7 +146,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
     Repo.all(query)
   end
-
 
   defp fetch_child_sensors(_data, entities, asset) do
     entities_with_sensors =
@@ -181,9 +184,9 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     |> case do
       {:ok, result} ->
         {:ok, result[result_key]}
+
       {:error, _failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
   end
-
 end

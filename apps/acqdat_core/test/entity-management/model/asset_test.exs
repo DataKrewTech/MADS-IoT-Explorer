@@ -104,7 +104,9 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
       [{_root, [{asset_2, asset_2_children}, {asset_3, _}]}] = hierarchy
 
-      {:ok, new_asset_2} = Asset.update_asset(asset_2, %{parent_id: asset_3.id, name: "asset_2_renamed"})
+      {:ok, new_asset_2} =
+        Asset.update_asset(asset_2, %{parent_id: asset_3.id, name: "asset_2_renamed"})
+
       assert new_asset_2.id == asset_2.id
       assert new_asset_2.name != asset_2.name
 
@@ -237,11 +239,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     Asset.add_as_child(asset_2, "asset_5", org.id, :child)
 
     {:ok,
-      %{
-        project: project,
-        org: org
-      }
-    }
+     %{
+       project: project,
+       org: org
+     }}
   end
 
   defp build_asset_map(name, org_id, org_name, project_id) do
@@ -254,9 +255,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
   end
 
   defp load_project_hierarchy(%{project: project} = context) do
-    hierarchy = AssetSchema
-                |> AsNestedSet.dump(%{project_id: project.id})
-                |> AsNestedSet.execute(Repo)
+    hierarchy =
+      AssetSchema
+      |> AsNestedSet.dump(%{project_id: project.id})
+      |> AsNestedSet.execute(Repo)
 
     {:ok, Map.merge(context, %{hierarchy: hierarchy})}
   end
