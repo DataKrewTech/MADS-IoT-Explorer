@@ -25,7 +25,8 @@ defmodule AcqdatCore.Support.Factory do
     Gateway,
     Project,
     SensorType,
-    AssetType
+    AssetType,
+    SensorsData
   }
 
   alias AcqdatCore.Schema.RoleManagement.{
@@ -204,6 +205,24 @@ defmodule AcqdatCore.Support.Factory do
           name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
           data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
           unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        }
+      ]
+    }
+  end
+
+  def sensors_data_factory() do
+    %SensorsData{
+      inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+      parameters: [
+        %{
+          name: sequence(:sensors_data, &"SensorsData#{&1}"),
+          data_type: sequence(:sensors_data, &"SensorsData#{&1}"),
+          value: sequence(:sensors_data, &"SensorsData#{&1}")
+        },
+        %{
+          name: sequence(:sensors_data, &"SensorsData#{&1}"),
+          data_type: sequence(:sensors_data, &"SensorsData#{&1}"),
+          value: sequence(:sensors_data, &"SensorsData#{&1}")
         }
       ]
     }

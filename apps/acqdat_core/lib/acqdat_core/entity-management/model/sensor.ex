@@ -109,33 +109,13 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   end
 
   def delete(id) do
-    sensor = Sensor |> Repo.get(id)
-
-    case sensor.has_timesrs_data do
-      false ->
-        Repo.delete(sensor)
-
-      true ->
+    try do
+      Repo.get_by(Sensor, id: id)
+      |> Repo.delete()
+    rescue
+      _e in Ecto.ConstraintError ->
         {:error,
-         "Sensor #{sensor.name} contains time-series data. Please delete sensors data before deleting sensor."}
-    end
-  end
-
-  def delete_all(parent_asset_ids) do
-    query =
-      from(sensor in Sensor,
-        where:
-          sensor.parent_id in ^parent_asset_ids and sensor.parent_type == "Asset" and
-            sensor.has_timesrs_data == true
-      )
-
-    case Repo.all(query) do
-      [] ->
-        child_sensors_query(parent_asset_ids)
-        |> Repo.delete_all()
-
-      _ ->
-        {:error, "This hirerachy contains sensors data. Please delete all sensors data first."}
+         "It contains time-series data. Please delete sensors data before deleting sensor."}
     end
   end
 

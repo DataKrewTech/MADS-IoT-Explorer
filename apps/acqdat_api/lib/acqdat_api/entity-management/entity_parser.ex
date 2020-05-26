@@ -6,8 +6,6 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Repo
 
-  # TODO: Error handling to do
-  # TODO: Needs to refactor this parser
   def update_project_hierarchy(
         project,
         %{"org_id" => org_id, "type" => type, "entities" => entities} = params
@@ -16,8 +14,14 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     validate_tree_hirerachy(parse_n_update(entities, org_id, nil, type, params), project)
   end
 
+  ############################# private functions ###########################
+
   defp validate_tree_hirerachy({:ok, result}, project) do
     validate_parser_result(result, project)
+  end
+
+  defp validate_tree_hirerachy({:error, :rollback}, _project) do
+    {:error, "Something went wrong. Please verify your hirerachy tree."}
   end
 
   defp validate_tree_hirerachy({:error, message}, _project) do
@@ -225,9 +229,9 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     {:error, "Asset not found"}
   end
 
-  defp asset_updation(%{"id" => id, "name" => name}, _org_id) do
+  defp asset_updation(%{"id" => id} = entity, _org_id) do
     validate_asset(AssetModel.get(id), %{
-      name: name,
+      entity: entity,
       action: "update"
     })
   end
@@ -294,10 +298,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     end
   end
 
-  defp validate_asset({:ok, asset}, %{action: action, name: name}) when action == "update" do
-    AssetModel.update_asset(asset, %{
-      name: name
-    })
+  defp validate_asset({:ok, asset}, %{action: action, entity: entity}) when action == "update" do
+    AssetModel.update_asset(asset, entity)
   end
 
   defp validate_asset({:error, _message}, _params) do

@@ -104,7 +104,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   def delete(asset) do
     Repo.transaction(fn ->
-      delete_child_and_its_descendants(asset)
+      validate_and_delete_asset(asset)
     end)
   end
 
@@ -242,6 +242,27 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   defp fetch_child_sensors(nil, _entities, asset) do
     sensors = SensorModel.child_sensors(asset)
     Map.put_new(asset, :sensors, sensors)
+  end
+
+  defp validate_and_delete_asset(asset) do
+    case fetch_all_descendant_sensors(asset) do
+      [] ->
+        AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
+
+      _ ->
+        {:error,
+          "Asset #{asset.name} tree contains sensors. Please delete associated sensors before deleting asset."}
+    end
+  end
+
+  defp fetch_all_descendant_sensors(asset) do
+    Enum.map(fetch_self_n_child_descendants(asset), fn asset -> asset.id end)
+    |> SensorModel.child_sensors()
+  end
+
+  defp fetch_self_n_child_descendants(asset) do
+    AsNestedSet.self_and_descendants(asset)
+    |> AsNestedSet.execute(Repo)
   end
 
   defp asset_struct(%{
