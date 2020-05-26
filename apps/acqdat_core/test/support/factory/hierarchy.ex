@@ -52,8 +52,7 @@ defmodule AcqdatCore.Factory.Hierarchy do
           properties: [],
           parent_id: -1,
           lft: -1,
-          rgt: -1,
-          project: insert(:project)
+          rgt: -1
         }
       end
 

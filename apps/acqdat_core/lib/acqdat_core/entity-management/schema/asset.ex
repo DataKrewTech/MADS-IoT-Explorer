@@ -102,12 +102,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   end
 
   def common_changeset(changeset) do
-    # TODO: there is `:acqdat_gateway_slug_index` used here which seems wrong
+    # TODO: there is `:acqdat_asset_slug_index` used here which seems wrong
     changeset
     |> assoc_constraint(:org)
     |> assoc_constraint(:project)
-    |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
-    |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
+    |> unique_constraint(:slug, name: :acqdat_asset_slug_index)
+    |> unique_constraint(:uuid, name: :acqdat_asset_slug_index)
     |> unique_constraint(:name,
       name: :acqdat_asset_name_parent_id_org_id_index,
       message: "unique name under hierarchy"

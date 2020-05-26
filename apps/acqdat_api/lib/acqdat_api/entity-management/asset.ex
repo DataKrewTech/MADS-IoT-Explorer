@@ -1,5 +1,6 @@
 defmodule AcqdatApi.EntityManagement.Asset do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset}
@@ -10,6 +11,9 @@ defmodule AcqdatApi.EntityManagement.Asset do
   @spec update_asset(AcqdatCore.Schema.EntityManagement.Asset.t(), map) ::
           {:error, Ecto.Changeset.t()} | {:ok, AcqdatCore.Schema.EntityManagement.Asset.t()}
   defdelegate update_asset(asset, data), to: AssetModel
+  defdelegate get_all(data, preloads), to: AssetModel
+  defdelegate delete(asset), to: AssetModel
+  defdelegate get(org_id, project_id), to: OrgModel
 
   def create(params) do
     params = params_extraction(params)
@@ -100,7 +104,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
     )
   end
 
-  def params_extraction(params) do
+  defp params_extraction(params) do
     %{
       asset_category_id: asset_category_id,
       creator_id: creator_id,

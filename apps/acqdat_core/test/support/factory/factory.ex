@@ -146,6 +146,7 @@ defmodule AcqdatCore.Support.Factory do
       slug: sequence(:sensor_type_name, &"SensorType#{&1}"),
       uuid: UUID.uuid1(:hex),
       org: build(:organisation),
+      project: build(:project),
       parameters: [
         %{
           name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),

@@ -1,7 +1,5 @@
 defmodule AcqdatApiWeb.EntityManagement.AssetController do
   use AcqdatApiWeb, :controller
-  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
-  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.EntityManagement.Asset
   alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
@@ -52,7 +50,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   def update(conn, params) do
     case conn.status do
       nil ->
-        case AssetModel.update_asset(conn.assigns.asset, params) do
+        case Asset.update_asset(conn.assigns.asset, params) do
           {:ok, asset} ->
             conn
             |> put_status(200)
@@ -77,7 +75,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, asset} = {:list, AssetModel.get_all(data, [])}
+        {:list, asset} = {:list, Asset.get_all(data, [])}
 
         conn
         |> put_status(200)
@@ -92,7 +90,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   def delete(conn, _params) do
     case conn.status do
       nil ->
-        case AssetModel.delete(conn.assigns.asset) do
+        case Asset.delete(conn.assigns.asset) do
           {_number, nil} ->
             conn
             |> put_status(200)
@@ -130,7 +128,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   defp load_asset(%{params: %{"id" => id}} = conn, _params) do
     {id, _} = Integer.parse(id)
 
-    case AssetModel.get(id) do
+    case Asset.get(id) do
       {:ok, asset} ->
         assign(conn, :asset, asset)
 
@@ -148,7 +146,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     {org_id, _} = Integer.parse(org_id)
     {project_id, _} = Integer.parse(project_id)
 
-    case OrgModel.get(org_id, project_id) do
+    case Asset.get(org_id, project_id) do
       {:ok, org} ->
         assign(conn, :org, org)
 

@@ -9,11 +9,12 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
   describe "changeset/2" do
     setup do
       organisation = insert(:organisation)
-      [organisation: organisation]
+      project = insert(:project)
+      [organisation: organisation, project: project]
     end
 
     test "returns a valid changeset", context do
-      %{organisation: organisation} = context
+      %{organisation: organisation, project: project} = context
 
       params = %{
         name: "Sensor Type 8",
@@ -47,7 +48,8 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
             unit: "def"
           }
         ],
-        org_id: organisation.id
+        org_id: organisation.id,
+        project_id: project.id
       }
 
       %{valid?: validity} = SensorType.changeset(%SensorType{}, params)
@@ -64,10 +66,13 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
              } = errors_on(changeset)
     end
 
-    test "returns error if assoc constraint not satisfied", _context do
+    test "returns error if assoc constraint not satisfied", context do
+      %{project: project} = context
+
       params = %{
         name: "Temperature",
-        org_id: -1
+        org_id: -1,
+        project_id: project.id
       }
 
       changeset = SensorType.changeset(%SensorType{}, params)
@@ -76,10 +81,13 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
 
-    test "returns error if unique constraint not satisified", _context do
+    test "returns error if unique constraint not satisified", context do
+      %{project: project} = context
+
       params = %{
         name: "Temperature",
-        org_id: 1
+        org_id: 1,
+        project_id: project.id
       }
 
       changeset = SensorType.changeset(%SensorType{}, params)
@@ -88,11 +96,13 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
       params = %{
         name: "Temperature",
-        org_id: 1
+        org_id: 1,
+        project_id: project.id
       }
 
       new_changeset = SensorType.changeset(%SensorType{}, params)
       {:error, result_changeset} = Repo.insert(new_changeset)
+
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
   end

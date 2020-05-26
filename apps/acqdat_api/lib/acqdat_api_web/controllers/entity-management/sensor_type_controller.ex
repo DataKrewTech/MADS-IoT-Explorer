@@ -1,7 +1,6 @@
 defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityManagement.SensorType
-  alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.SensorType
 
@@ -30,7 +29,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor} = {:list, SensorTypeModel.get_all(data, [:org])}
+        {:list, sensor} = {:list, SensorType.get_all(data, [:org])}
 
         conn
         |> put_status(200)
@@ -73,7 +72,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
       nil ->
         %{assigns: %{sensor_type: sensor_type}} = conn
 
-        case SensorTypeModel.update(sensor_type, params) do
+        case SensorType.update(sensor_type, params) do
           {:ok, sensor_type} ->
             conn
             |> put_status(200)
@@ -101,7 +100,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
       nil ->
         %{assigns: %{sensor_type: sensor_type}} = conn
 
-        case SensorTypeModel.delete(sensor_type) do
+        case SensorType.delete(sensor_type) do
           {:ok, sensor_type} ->
             conn
             |> put_status(200)

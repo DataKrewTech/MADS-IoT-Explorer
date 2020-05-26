@@ -7,7 +7,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
 
   @typedoc """
   `name`: A unique name for sensor per device. Note the same
@@ -80,6 +80,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_sensor_types_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_sensor_types_uuid_index)
     |> unique_constraint(:name,
