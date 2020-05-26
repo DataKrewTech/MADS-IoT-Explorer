@@ -9,7 +9,8 @@ defmodule AcqdatApi.EntityManagement.SensorType do
       description: description,
       metadata: metadata,
       parameters: parameters,
-      org_id: org_id
+      org_id: org_id,
+      project_id: project_id
     } = params
 
     verify_sensor_type(
@@ -18,7 +19,8 @@ defmodule AcqdatApi.EntityManagement.SensorType do
         description: description,
         metadata: metadata,
         parameters: parameters,
-        org_id: org_id
+        org_id: org_id,
+        project_id: project_id
       })
     )
   end
@@ -35,6 +37,7 @@ defmodule AcqdatApi.EntityManagement.SensorType do
        parameters: sensor_type.parameters,
        org_id: sensor_type.org_id,
        slug: sensor_type.slug,
+       project_id: sensor_type.project_id,
        uuid: sensor_type.uuid,
        org: sensor_type.org
      }}

@@ -6,45 +6,20 @@ defmodule AcqdatApi.EntityManagement.Asset do
 
   defdelegate asset_descendants(id), to: AssetModel
   defdelegate get(id), to: AssetModel
+
+  @spec update_asset(AcqdatCore.Schema.EntityManagement.Asset.t(), map) ::
+          {:error, Ecto.Changeset.t()} | {:ok, AcqdatCore.Schema.EntityManagement.Asset.t()}
   defdelegate update_asset(asset, data), to: AssetModel
 
   def create(params) do
-    %{
-      asset_category_id: asset_category_id,
-      creator_id: creator_id,
-      description: description,
-      image_url: image_url,
-      mapped_parameters: mapped_parameters,
-      metadata: metadata,
-      name: name,
-      org_id: org_id,
-      owner_id: owner_id,
-      parent_id: parent_id,
-      project_id: project_id,
-      properties: properties
-    } = params
+    params = params_extraction(params)
 
-    params = %{
-      asset_category_id: asset_category_id,
-      creator_id: creator_id,
-      description: description,
-      image_url: image_url,
-      mapped_parameters: mapped_parameters,
-      metadata: metadata,
-      name: name,
-      org_id: org_id,
-      owner_id: owner_id,
-      parent_id: parent_id,
-      project_id: project_id,
-      properties: properties
-    }
-
-    case is_nil(parent_id) do
+    case is_nil(params.parent_id) do
       true ->
         verify_asset(add_asset_as_root(params))
 
       false ->
-        root = AssetModel.fetch_root(org_id, parent_id)
+        root = AssetModel.fetch_root_assets(params.project_id)
         verify_asset(add_asset_as_child(root, params))
     end
   end
@@ -123,5 +98,37 @@ defmodule AcqdatApi.EntityManagement.Asset do
       },
       :org
     )
+  end
+
+  def params_extraction(params) do
+    %{
+      asset_category_id: asset_category_id,
+      creator_id: creator_id,
+      description: description,
+      image_url: image_url,
+      mapped_parameters: mapped_parameters,
+      metadata: metadata,
+      name: name,
+      org_id: org_id,
+      owner_id: owner_id,
+      parent_id: parent_id,
+      project_id: project_id,
+      properties: properties
+    } = params
+
+    %{
+      asset_category_id: asset_category_id,
+      creator_id: creator_id,
+      description: description,
+      image_url: image_url,
+      mapped_parameters: mapped_parameters,
+      metadata: metadata,
+      name: name,
+      org_id: org_id,
+      owner_id: owner_id,
+      parent_id: parent_id,
+      project_id: project_id,
+      properties: properties
+    }
   end
 end

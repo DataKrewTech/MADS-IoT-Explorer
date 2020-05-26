@@ -34,6 +34,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
   def create_taxonomy({parent, children, properties}) do
     [org] = Repo.all(Organisation)
     [project | _] = Repo.all(Project)
+
     asset =
       Repo.preload(
         %Asset{
@@ -43,7 +44,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           uuid: UUID.uuid1(:hex),
-          slug: Slugger.slugify(org.name <> parent),
+          slug: Slugger.slugify(org.name <>parent),
           properties: properties
           },
         :org

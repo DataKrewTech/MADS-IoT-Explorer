@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.SensorType
 
-  plug :load_sensor_type when action in [:update, :delete, :show]
+  plug AcqdatApiWeb.Plug.LoadSensorType when action in [:update, :delete, :show]
 
   # Will be used in future.
   # def show(conn, %{"id" => id}) do
@@ -121,19 +121,6 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
-    end
-  end
-
-  defp load_sensor_type(%{params: %{"id" => id}} = conn, _params) do
-    {id, _} = Integer.parse(id)
-
-    case SensorTypeModel.get(id) do
-      {:ok, sensor_type} ->
-        assign(conn, :sensor_type, sensor_type)
-
-      {:error, _message} ->
-        conn
-        |> put_status(404)
     end
   end
 end

@@ -168,9 +168,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     fetch_child_sensors(List.first(entities), entities, asset)
   end
 
-  ############################# private functions ###########################
-
-  defp fetch_root_assets(project_id) do
+  def fetch_root_assets(project_id) do
     query =
       from(asset in Asset,
         where: asset.project_id == ^project_id and is_nil(asset.parent_id) == true
@@ -178,6 +176,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
     Repo.all(query)
   end
+
+  ############################# private functions ###########################
 
   defp fetch_child_sensors(_data, entities, asset) do
     entities_with_sensors =

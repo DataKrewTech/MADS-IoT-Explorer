@@ -21,18 +21,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
     end
   end
 
-  @spec get_all(%{page_number: any, page_size: any}) :: Scrivener.Page.t()
   def get_all(%{page_size: page_size, page_number: page_number}) do
     SensorType |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
   end
 
-  @spec get_all(%{page_number: any, page_size: any}, atom | [any]) :: %{
-          entries: any,
-          page_number: any,
-          page_size: any,
-          total_entries: any,
-          total_pages: any
-        }
   def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
     paginated_sensor_data =
       SensorType |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
@@ -42,10 +34,6 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
     ModelHelper.paginated_response(sensor_data_with_preloads, paginated_sensor_data)
   end
 
-  @spec update(
-          AcqdatCore.Schema.SensorType.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: any
   def update(sensor_type, params) do
     case is_nil(check_sensor_relation(sensor_type)) do
       true ->

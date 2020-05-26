@@ -41,11 +41,12 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:project, Project, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug org_id name)a
+  @required_params ~w(uuid slug project_id org_id name)a
   @optional_params ~w(description)a
   @embedded_metadata_required ~w(name type)a
   @embedded_metadata_optional ~w(unit)a
@@ -82,7 +83,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     |> unique_constraint(:slug, name: :acqdat_sensor_types_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_sensor_types_uuid_index)
     |> unique_constraint(:name,
-      name: :acqdat_sensor_types_name_org_id_index,
+      name: :acqdat_sensor_types_name_org_id_project_id_index,
       message: "sensor type already exists"
     )
   end

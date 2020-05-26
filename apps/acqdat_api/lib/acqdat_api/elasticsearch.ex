@@ -97,35 +97,17 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   defp do_widget_search(type, params) do
-    query =
-      search index: "#{type}" do
-        query do
-          wildcard("label", "#{params}*")
-        end
-      end
-
+    query = create_query("label", params, type)
     Tirexs.Query.create_resource(query)
   end
 
   defp do_user_search(type, params) do
-    query =
-      search index: "#{type}" do
-        query do
-          wildcard("first_name", "#{params}*")
-        end
-      end
-
+    query = create_query("first_name", params, type)
     Tirexs.Query.create_resource(query)
   end
 
   defp do_asset_search(type, params) do
-    query =
-      search index: "#{type}" do
-        query do
-          wildcard("name", "#{params}*")
-        end
-      end
-
+    query = create_query("name", params, type)
     Tirexs.Query.create_resource(query)
   end
 
@@ -140,5 +122,9 @@ defmodule AcqdatApi.ElasticSearch do
 
   defp retry(function) do
     GenRetry.retry(function, retries: 3, delay: 10_000)
+  end
+
+  defp create_query(field, value, index) do
+    [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]]], index: "#{index}"]
   end
 end
