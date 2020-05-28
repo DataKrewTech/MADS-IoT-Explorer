@@ -54,12 +54,6 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    resources "/asset-types", AssetTypeController, only: [:create] do
-      resources "/assets", AssetController,
-        only: [:create, :show, :update, :delete, :index],
-        as: :assets
-    end
-
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
@@ -88,7 +82,12 @@ defmodule AcqdatApiWeb.Router do
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets
 
     scope "/projects/:project_id", EntityManagement do
-      resources "/assets", AssetController, only: [:create, :show, :update, :delete, :index]
+      resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index] do
+        resources "/assets", AssetController,
+          only: [:create, :show, :update, :delete, :index],
+          as: :assets
+      end
+
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end

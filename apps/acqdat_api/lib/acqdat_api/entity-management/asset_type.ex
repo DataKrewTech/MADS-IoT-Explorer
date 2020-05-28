@@ -3,6 +3,12 @@ defmodule AcqdatApi.EntityManagement.AssetType do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 
+  defdelegate get(id), to: AssetTypeModel
+  defdelegate update(asset_type, data), to: AssetTypeModel
+  defdelegate delete(asset_type), to: AssetTypeModel
+  defdelegate get_all(data, preloads), to: AssetTypeModel
+  defdelegate get_all(data), to: AssetTypeModel
+
   def create(params) do
     %{
       sensor_type_present: sensor_type_present
@@ -20,7 +26,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
       description: description,
       metadata: metadata,
       parameters: parameters,
-      org_id: org_id
+      org_id: org_id,
+      project_id: project_id
     } = params
 
     create_asset(%{
@@ -30,7 +37,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
       parameters: parameters,
       sensor_type_present: true,
       sensor_type_uuid: sensor_type.uuid,
-      org_id: org_id
+      org_id: org_id,
+      project_id: project_id
     })
   end
 
@@ -46,7 +54,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
       parameters: parameters,
       sensor_type_present: sensor_type_present,
       sensor_type_uuid: sensor_type_uuid,
-      org_id: org_id
+      org_id: org_id,
+      project_id: project_id
     } = params
 
     verify_asset_type(
@@ -57,13 +66,14 @@ defmodule AcqdatApi.EntityManagement.AssetType do
         parameters: parameters,
         sensor_type_present: sensor_type_present,
         sensor_type_uuid: sensor_type_uuid,
-        org_id: org_id
+        org_id: org_id,
+        project_id: project_id
       })
     )
   end
 
   defp verify_asset_type({:ok, asset_type}) do
-    asset_type = Repo.preload(asset_type, :org)
+    asset_type = Repo.preload(asset_type, [:org, :project])
 
     {:ok,
      %{
@@ -77,7 +87,9 @@ defmodule AcqdatApi.EntityManagement.AssetType do
        uuid: asset_type.uuid,
        sensor_type_present: asset_type.sensor_type_present,
        sensor_type_uuid: asset_type.sensor_type_uuid,
-       org: asset_type.org
+       org: asset_type.org,
+       project_id: asset_type.project_id,
+       project: asset_type.project
      }}
   end
 

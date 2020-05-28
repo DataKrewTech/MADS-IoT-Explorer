@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Repo.Migrations.AddAssetType do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table("acqdat_asset_types") do
       add(:name, :string, null: false)
       add(:description, :string)
@@ -11,6 +11,7 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
       add(:parameters, {:array, :map})
       add(:sensor_type_present, :boolean, default: false)
       add(:sensor_type_uuid, :string)
+      add(:project_id, references("acqdat_projects", on_delete: :restrict), null: false)
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
 
 
@@ -23,9 +24,26 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
       add(:metadata, {:array, :map})
     end
 
-    create unique_index("acqdat_asset_types", [:name, :org_id])
+    create unique_index("acqdat_asset_types", [:name, :org_id, :project_id])
     create unique_index("acqdat_asset_types", [:slug])
     create unique_index("acqdat_asset_types", [:uuid])
     create index("acqdat_asset", [:asset_type_id])
+  end
+
+  def down do
+
+    drop unique_index("acqdat_asset_types", [:name, :org_id, :project_id])
+    drop unique_index("acqdat_asset_types", [:slug])
+    drop unique_index("acqdat_asset_types", [:uuid])
+    drop index("acqdat_asset", [:asset_type_id])
+
+    alter table("acqdat_asset") do
+      remove(:asset_type_id)
+      add(:metadata, :map)
+      remove(:metadata)
+    end
+
+    drop table("acqdat_asset_types")
+
   end
 end

@@ -6,7 +6,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
 
   @typedoc """
   `name`: A unique name for asset per device. Note the same
@@ -43,11 +43,12 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:project, Project, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug org_id name)a
+  @required_params ~w(uuid slug project_id org_id name)a
   @optional_params ~w(description sensor_type_present sensor_type_uuid)a
   @embedded_metadata_required ~w(name uuid data_type)a
   @embedded_metadata_optional ~w(unit)a
@@ -72,7 +73,8 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   def update_changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)
-    |> cast_embed(:parameters, with: &parameters_changeset/2)
+    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
+    |> cast_embed(:metadata, with: &update_metadata_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
@@ -81,20 +83,21 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_asset_types_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_asset_types_uuid_index)
     |> unique_constraint(:name,
-      name: :acqdat_asset_types_name_org_id_index,
+      name: :acqdat_asset_types_name_org_id_project_id_index,
       message: "asset type already exists"
     )
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_uuid(changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
@@ -114,6 +117,18 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     schema
     |> cast(params, @permitted_metadata)
     |> add_uuid()
+    |> validate_required(@embedded_metadata_required)
+  end
+
+  defp update_parameters_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_embedded)
+    |> validate_required(@embedded_required_params)
+  end
+
+  defp update_metadata_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_metadata)
     |> validate_required(@embedded_metadata_required)
   end
 end
