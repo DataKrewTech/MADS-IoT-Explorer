@@ -73,7 +73,7 @@ defmodule AcqdatApi.EntityManagement.AssetType do
   end
 
   defp verify_asset_type({:ok, asset_type}) do
-    asset_type = Repo.preload(asset_type, [:org, :project])
+    asset_type = Repo.preload(asset_type, [:project])
 
     {:ok,
      %{
@@ -87,7 +87,6 @@ defmodule AcqdatApi.EntityManagement.AssetType do
        uuid: asset_type.uuid,
        sensor_type_present: asset_type.sensor_type_present,
        sensor_type_uuid: asset_type.sensor_type_uuid,
-       org: asset_type.org,
        project_id: asset_type.project_id,
        project: asset_type.project
      }}

@@ -66,6 +66,16 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     |> run_under_transaction(:update_details)
   end
 
+  def fetch_root(org_id, parent_id) do
+    query =
+      from(asset in Asset,
+        where:
+          asset.org_id == ^org_id and is_nil(asset.parent_id) == true and asset.id == ^parent_id
+      )
+
+    Repo.one!(query) |> Repo.preload([:org, :project, :creator, :asset_type])
+  end
+
   def update_asset(asset, %{parent_id: parent_id} = params) when not is_nil(parent_id) do
     {:ok, parent_asset} = get(parent_id)
     params = Map.drop(params, [:parent_id])
@@ -102,7 +112,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         org_name: org_name,
         project_id: project_id,
         creator_id: creator_id,
-        asset_type_id: asset_type_id
+        asset_type_id: asset_type_id,
+        metadata: metadata,
+        mapped_parameters: mapped_parameters,
+        owner_id: owner_id,
+        properties: properties
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
@@ -113,7 +127,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           slug: org_name <> name,
           project_id: project_id,
           creator_id: creator_id,
-          asset_type_id: asset_type_id
+          asset_type_id: asset_type_id,
+          metadata: metadata,
+          mapped_parameters: mapped_parameters,
+          owner_id: owner_id,
+          properties: properties
         })
         |> create(:root)
         |> AsNestedSet.execute(Repo)
@@ -127,6 +145,18 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   def add_as_child(parent, name, org_id, position) do
     try do
+      metadata =
+        Enum.reduce(parent.metadata, [], fn x, acc ->
+          {_, x} = Map.from_struct(x) |> Map.pop(:id)
+          acc ++ [x]
+        end)
+
+      mapped_parameters =
+        Enum.reduce(parent.mapped_parameters, [], fn x, acc ->
+          {_, x} = Map.from_struct(x) |> Map.pop(:id)
+          acc ++ [x]
+        end)
+
       child =
         asset_struct(%{
           name: name,
@@ -134,7 +164,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           slug: parent.org.name <> parent.name <> name,
           project_id: parent.project.id,
           asset_type_id: parent.asset_type_id,
-          creator_id: parent.creator_id
+          creator_id: parent.creator_id,
+          metadata: metadata,
+          mapped_parameters: mapped_parameters,
+          owner_id: parent.owner_id,
+          properties: parent.properties
         })
 
       taxon =
@@ -217,7 +251,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
          slug: slug,
          project_id: project_id,
          asset_type_id: asset_type_id,
-         creator_id: creator_id
+         creator_id: creator_id,
+         metadata: metadata,
+         mapped_parameters: mapped_parameters,
+         owner_id: owner_id,
+         properties: properties
        }) do
     %Asset{
       name: name,
@@ -229,7 +267,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       slug: Slugger.slugify(slug),
       asset_type_id: asset_type_id,
       creator_id: creator_id,
-      properties: []
+      metadata: metadata,
+      mapped_parameters: mapped_parameters,
+      owner_id: owner_id,
+      properties: properties
     }
     |> Repo.preload(:org)
     |> Repo.preload(:project)

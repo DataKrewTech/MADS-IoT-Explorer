@@ -18,7 +18,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   """
   use AcqdatCore.Schema
 
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, AssetCategory, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
   alias AcqdatCore.Schema.EntityManagement.AssetType
   alias AcqdatCore.Schema.RoleManagement.User
 
@@ -68,7 +68,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
-    belongs_to(:asset_category, AssetCategory, on_replace: :raise)
     belongs_to(:creator, User)
     belongs_to(:owner, User)
     belongs_to(:asset_type, AssetType, on_replace: :delete)
@@ -79,7 +78,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
 
   @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
   @update_required_params ~w(uuid slug org_id )a
-  @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url asset_category_id)a
+  @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url)a
 
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
@@ -91,11 +90,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @permitted_embedded @required_embedded_params ++ @optional_embedded_params
   @permitted @required_params ++ @optional_params
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
-  def changeset(%__MODULE__{} = asset, params) do
+  def changeset(asset, params) do
     asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
@@ -106,7 +101,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     |> common_changeset()
   end
 
-  def update_changeset(%__MODULE__{} = asset, params) do
+  def update_changeset(asset, params) do
     asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
@@ -122,7 +117,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     |> assoc_constraint(:asset_type)
     |> assoc_constraint(:project)
     |> unique_constraint(:slug, name: :acqdat_asset_slug_index)
-    |> unique_constraint(:uuid, name: :acqdat_asset_slug_index)
+    |> unique_constraint(:uuid, name: :acqdat_asset_uuid_index)
     |> unique_constraint(:name,
       name: :acqdat_asset_name_parent_id_org_id_index,
       message: "unique name under hierarchy"

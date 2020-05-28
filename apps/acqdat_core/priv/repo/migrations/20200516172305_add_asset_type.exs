@@ -21,6 +21,7 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
     alter table("acqdat_asset") do
       add(:asset_type_id, references("acqdat_asset_types", on_delete: :delete_all))
       remove(:metadata)
+      remove(:asset_category_id)
       add(:metadata, {:array, :map})
     end
 
@@ -40,6 +41,7 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
     alter table("acqdat_asset") do
       remove(:asset_type_id)
       add(:metadata, :map)
+      add(:asset_category_id, references("acqdat_asset_categories", on_delete: :restrict))
       remove(:metadata)
     end
 

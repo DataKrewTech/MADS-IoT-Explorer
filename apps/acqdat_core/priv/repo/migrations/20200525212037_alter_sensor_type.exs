@@ -5,7 +5,7 @@ defmodule AcqdatCore.Repo.Migrations.AlterSensorType do
     #sensor type alteration
     drop constraint("acqdat_sensor_types", "acqdat_sensor_types_org_id_fkey")
     alter table("acqdat_sensor_types") do
-      add(:project_id, references("acqdat_projects", on_delete: :restrict), null: false)
+      add(:project_id, references("acqdat_projects", on_delete: :restrict))
       add(:generated_by, GeneratedBy.type(), default: 0)
       modify(:org_id, references("acqdat_organisation", on_delete: :restrict), null: false)
     end

@@ -5,7 +5,6 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Asset do
     verify_asset(%{
       owner_id: :integer,
       creator_id!: :integer,
-      asset_category_id: :integer,
       org_id!: :integer,
       image_url: :string,
       mapped_parameters: {:array, :map},
