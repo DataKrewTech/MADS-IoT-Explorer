@@ -7,6 +7,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
 
+
   @typedoc """
   `name`: A unique name for asset per device. Note the same
           name can be used for asset associated with another
@@ -22,8 +23,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
   `parameters`: The different parameters of the asset type which will be inherited by sensor type which will be created along with this asset type.
   """
-
-  @type t :: %__MODULE__{}
 
   schema("acqdat_asset_types") do
     field(:uuid, :string, null: false)
@@ -49,12 +48,14 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+
     belongs_to(:project, Project, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
   @required_params ~w(uuid slug project_id org_id name)a
+
   @optional_params ~w(description sensor_type_present sensor_type_uuid)a
   @embedded_metadata_required ~w(name uuid data_type)a
   @embedded_metadata_optional ~w(unit)a
@@ -111,7 +112,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end

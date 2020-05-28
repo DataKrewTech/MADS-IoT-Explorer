@@ -1,6 +1,7 @@
 defmodule AcqdatCore.Model.EntityManagement.AssetType do
   alias AcqdatCore.Repo
   alias AcqdatCore.Schema.EntityManagement.{Asset, AssetType}
+  alias AcqdatCore.Model.EntityManagement.SensorType, as: STModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
@@ -46,7 +47,6 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       )
 
     paginated_asset_data = query |> Repo.paginate(page: page_number, page_size: page_size)
-
     asset_data_with_preloads = paginated_asset_data.entries |> Repo.preload(preloads)
 
     ModelHelper.paginated_response(asset_data_with_preloads, paginated_asset_data)
@@ -92,5 +92,29 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       )
 
     List.first(Repo.all(query))
+  end
+
+  def add_sensor_type(params) do
+    %{
+      name: name,
+      description: description,
+      metadata: metadata,
+      parameters: parameters,
+      org_id: org_id
+    } = params
+
+    params = %{
+      name: name <> "-sensor-type",
+      description: description,
+      metadata: metadata,
+      parameters: parameters,
+      org_id: org_id,
+      generated_by: "asset"
+    }
+
+    case STModel.create(params) do
+      {:ok, sensor_type} -> {:ok, sensor_type}
+      {:error, message} -> {:error, message}
+    end
   end
 end

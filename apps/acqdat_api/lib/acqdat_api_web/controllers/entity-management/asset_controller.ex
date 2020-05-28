@@ -28,9 +28,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     case conn.status do
       nil ->
         changeset = verify_asset(params)
+        asset_type = conn.assigns.asset_type
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:create, {:ok, asset}} <- {:create, Asset.create(data)} do
+             {:create, {:ok, asset}} <- {:create, Asset.create(data, asset_type)} do
           conn
           |> put_status(200)
           |> render("asset.json", %{asset: asset})
@@ -161,6 +162,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   end
 
   defp check_asset_type(%{params: %{"asset_type_id" => asset_type_id}} = conn, _org_id) do
+    {asset_type_id, _} = Integer.parse(asset_type_id)
     case ATModel.get(asset_type_id) do
       {:ok, asset_type} ->
         assign(conn, :asset_type, asset_type)

@@ -13,8 +13,8 @@ defmodule AcqdatApi.EntityManagement.Asset do
   defdelegate delete(asset), to: AssetModel
   defdelegate get(org_id, project_id), to: OrgModel
 
-  def create(params) do
-    params = params_extraction(params)
+  def create(params, asset_type) do
+    params = params_extraction(params, asset_type)
 
     case is_nil(params.parent_id) do
       true ->

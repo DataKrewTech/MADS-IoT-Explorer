@@ -225,9 +225,9 @@ defmodule AcqdatCore.Support.Factory do
           unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
         },
         %{
-          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
-          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
-          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&2}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&2}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&2}")
         }
       ],
       metadata: [
@@ -237,9 +237,9 @@ defmodule AcqdatCore.Support.Factory do
           unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
         },
         %{
-          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
-          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
-          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&2}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&2}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&2}")
         }
       ]
     }
