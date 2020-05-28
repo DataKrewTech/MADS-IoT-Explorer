@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.EntityManagement.AssetTypeView
-  alias AcqdatApiWeb.EntityManagement.OrganisationView
+  # alias AcqdatApiWeb.EntityManagement.OrganisationView
 
 
   def render("asset_type.json", %{asset_type: asset_type}) do
@@ -16,8 +16,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
       project_id: asset_type.project_id,
       sensor_type_present: asset_type.sensor_type_present,
       sensor_type_uuid: asset_type.sensor_type_uuid,
-      parameters: render_many(asset_type.parameters, AssetTypeView, "data_tree.json"),
-      org: render_one(asset_type.org, OrganisationView, "org.json")
+      parameters: render_many(asset_type.parameters, AssetTypeView, "data_tree.json")
+      # org: render_one(asset_type.org, OrganisationView, "org.json")
     }
   end
 

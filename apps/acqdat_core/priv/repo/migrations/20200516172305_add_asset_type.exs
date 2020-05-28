@@ -32,6 +32,7 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
   end
 
   def down do
+
     drop unique_index("acqdat_asset_types", [:name, :org_id, :project_id])
     drop unique_index("acqdat_asset_types", [:slug])
     drop unique_index("acqdat_asset_types", [:uuid])
@@ -45,5 +46,6 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
     end
 
     drop table("acqdat_asset_types")
+
   end
 end

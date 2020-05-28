@@ -1,16 +1,13 @@
 defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @moduledoc """
   Models an Asset in the system.
-
   A Asset can be any entity in an organisation which will interact with our sensor
   and send data to and forth in our given platform. An `asset` help creates a
   hierarchy for an organization.
-
   In order to deal with hierarchical structure of the assets,  we make use
   of [`as_nested_set`](http://mikehillyer.com/articles/managing-hierarchical-data-in-mysql/).
   The data structure used improves query response time for extracting hierarchical
   data.
-
   As_nested_set has a drawback though that during writes the entire tree is
   readjusted. In order to limit the effects of readjustment we scope the
   tree with `project_id`. This keeps the scope of adjustments limited
@@ -78,9 +75,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   end
 
   @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
-  @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url)a
-
   @update_required_params ~w(uuid slug org_id )a
+  @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url)a
 
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
@@ -92,10 +88,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @permitted_embedded @required_embedded_params ++ @optional_embedded_params
   @permitted @required_params ++ @optional_params
 
-
-
   def changeset(asset, params) do
-  asset
+    asset
     |> cast(params, @permitted)
     |> cast_embed(:mapped_parameters, with: &mapped_parameters_changeset/2)
     |> cast_embed(:metadata, with: &metadata_changeset/2)
