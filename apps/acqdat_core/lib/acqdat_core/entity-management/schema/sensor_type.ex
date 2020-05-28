@@ -9,6 +9,8 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
 
+  @generated_by ~w(user asset)a
+
   @typedoc """
   `name`: A unique name for sensor per device. Note the same
           name can be used for sensor associated with another
@@ -25,10 +27,12 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     field(:slug, :string, null: false)
     field(:name, :string, null: false)
     field(:description, :string)
+    field(:generated_by, GeneratedBy, default: "user")
 
     embeds_many :metadata, Metadata, on_replace: :delete do
       field(:name, :string, null: false)
-      field(:type, :string, null: false)
+      field(:data_type, :string, null: false)
+      field(:uuid, :string, null: false)
       field(:unit, :string)
     end
 
@@ -47,8 +51,8 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   end
 
   @required_params ~w(uuid slug project_id org_id name)a
-  @optional_params ~w(description)a
-  @embedded_metadata_required ~w(name type)a
+  @optional_params ~w(description generated_by)a
+  @embedded_metadata_required ~w(name uuid data_type)a
   @embedded_metadata_optional ~w(unit)a
   @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
   @embedded_required_params ~w(name uuid data_type)a
@@ -76,7 +80,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     |> common_changeset()
   end
 
-  @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
@@ -89,12 +92,16 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     )
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
+  def generated_by() do
+    @generated_by
+  end
+
+  defp add_uuid(changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
@@ -113,6 +120,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
   defp metadata_changeset(schema, params) do
     schema
     |> cast(params, @permitted_metadata)
+    |> add_uuid()
     |> validate_required(@embedded_metadata_required)
   end
 end

@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Factory.Hierarchy do
   defmacro __using__(_opts) do
     quote do
-      alias AcqdatCore.Schema.EntityManagement.{Organisation, AssetCategory, Asset, Project}
+      alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Project}
 
       def organisation_factory() do
         %Organisation{
@@ -22,24 +22,15 @@ defmodule AcqdatCore.Factory.Hierarchy do
         }
       end
 
-      def asset_category_factory() do
-        %AssetCategory{
-          name: sequence(:asset_category_name, &"Realm-#{&1}"),
-          metadata: %{},
-          description: "realm of king odin",
-          uuid: UUID.uuid1(:hex),
-          organisation: build(:organisation)
-        }
-      end
-
       def asset_factory() do
         %Asset{
           uuid: UUID.uuid1(:hex),
           slug: Slugger.slugify(random_string(12)),
           name: sequence(:asset_name, &"Area-#{&1}"),
-          asset_category: build(:asset_category),
           org: build(:organisation),
           project: build(:project),
+          asset_type: build(:asset_type),
+          creator: build(:user),
           mapped_parameters: [
             %{
               name: sequence(:asset_params, &"AssetParams#{&1}")
@@ -48,12 +39,25 @@ defmodule AcqdatCore.Factory.Hierarchy do
               name: sequence(:asset_params, &"AssetParams#{&1}")
             }
           ],
+          metadata: [
+            %{
+              name: sequence(:asset_metadata, &"Asset Metadata#{&1}"),
+              uuid: UUID.uuid1(:hex),
+              data_type: sequence(:asset_metadata, &"Data Type#{&1}"),
+              unit: sequence(:asset_metadata, &"Unit #{&1}")
+            },
+            %{
+              name: sequence(:asset_metadata, &"Asset Metadata#{&1}"),
+              data_type: sequence(:asset_metadata, &"Data Type#{&1}"),
+              uuid: UUID.uuid1(:hex),
+              unit: sequence(:asset_metadata, &"Unit #{&1}")
+            }
+          ],
           image_url: "",
           properties: [],
           parent_id: -1,
           lft: -1,
-          rgt: -1,
-          project: insert(:project)
+          rgt: -1
         }
       end
 

@@ -15,8 +15,8 @@ defmodule AcqdatApi.EntityManagement.Asset do
   defdelegate delete(asset), to: AssetModel
   defdelegate get(org_id, project_id), to: OrgModel
 
-  def create(params) do
-    params = params_extraction(params)
+  def create(params, asset_type) do
+    params = params_extraction(params, asset_type)
 
     case is_nil(params.parent_id) do
       true ->
@@ -56,6 +56,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
        org_id: asset.org_id,
        owner_id: asset.owner_id,
        parent_id: asset.parent_id,
+       asset_type_id: asset.asset_type_id,
        properties: asset.properties,
        org: asset.org
      }}
@@ -98,27 +99,34 @@ defmodule AcqdatApi.EntityManagement.Asset do
         owner_id: params.owner_id,
         parent_id: params.parent_id,
         project_id: params.project_id,
+        asset_type_id: params.asset_type_id,
         properties: params.properties
       },
       :org
     )
   end
 
-  defp params_extraction(params) do
+  defp params_extraction(params, asset_type) do
     %{
       asset_category_id: asset_category_id,
       creator_id: creator_id,
       description: description,
       image_url: image_url,
       mapped_parameters: mapped_parameters,
-      metadata: metadata,
       name: name,
       org_id: org_id,
       owner_id: owner_id,
       parent_id: parent_id,
       project_id: project_id,
-      properties: properties
+      properties: properties,
+      asset_type_id: asset_type_id
     } = params
+
+    metadata =
+      Enum.reduce(asset_type.metadata, [], fn x, acc ->
+        {_, x} = Map.from_struct(x) |> Map.pop(:id)
+        acc ++ [x]
+      end)
 
     %{
       asset_category_id: asset_category_id,
@@ -132,7 +140,8 @@ defmodule AcqdatApi.EntityManagement.Asset do
       owner_id: owner_id,
       parent_id: parent_id,
       project_id: project_id,
-      properties: properties
+      properties: properties,
+      asset_type_id: asset_type_id
     }
   end
 end

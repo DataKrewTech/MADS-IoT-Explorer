@@ -1,14 +1,15 @@
-defmodule AcqdatApiWeb.Validators.SensorType do
+defmodule AcqdatApiWeb.Validators.EntityManagement.AssetType do
   use Params
 
   defparams(
-    verify_sensor_params(%{
+    verify_asset_params(%{
       name!: :string,
       description: :string,
       metadata: {:array, :map},
       parameters!: {:array, :map},
       org_id!: :integer,
-      generated_by: [field: :string, default: "user"]
+      sensor_type_present: [field: :boolean, default: false],
+      sensor_type_uuid: :string
     })
   )
 

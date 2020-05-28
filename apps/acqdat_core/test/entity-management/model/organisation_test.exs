@@ -25,13 +25,16 @@ defmodule AcqdatCore.Model.EntityManagement.OrganisationTest do
     setup do
       org = insert(:organisation)
       project = insert(:project)
+      asset = insert(:asset)
 
       {:ok, _root_asset} =
         Asset.add_as_root(%{
           name: "root asset",
           org_id: project.org_id,
           org_name: org.name,
-          project_id: project.id
+          project_id: project.id,
+          asset_type_id: asset.asset_type_id,
+          creator_id: asset.creator_id
         })
 
       [project: project]

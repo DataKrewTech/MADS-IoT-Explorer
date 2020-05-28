@@ -24,7 +24,8 @@ defmodule AcqdatCore.Support.Factory do
     Asset,
     Gateway,
     Project,
-    SensorType
+    SensorType,
+    AssetType
   }
 
   alias AcqdatCore.Schema.RoleManagement.{
@@ -162,12 +163,45 @@ defmodule AcqdatCore.Support.Factory do
       metadata: [
         %{
           name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
-          type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
           unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
         },
         %{
           name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
-          type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
+          unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
+        }
+      ]
+    }
+  end
+
+  def asset_type_factory() do
+    %AssetType{
+      name: sequence(:asset_type_name, &"AssetType#{&1}"),
+      slug: sequence(:asset_type_name, &"AssetType#{&1}"),
+      uuid: UUID.uuid1(:hex),
+      org: build(:organisation),
+      parameters: [
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        }
+      ],
+      metadata: [
+        %{
+          name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+        },
+        %{
+          name: sequence(:sensor_type_name, &"SensorTypeParam#{&1}"),
+          data_type: sequence(:sensor_type_name, &"SensorTypeDataType#{&1}"),
           unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
         }
       ]

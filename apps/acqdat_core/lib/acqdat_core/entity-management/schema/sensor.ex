@@ -9,7 +9,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
 
   use AcqdatCore.Schema
 
-
   alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project}
   alias AcqdatCore.Schema.EntityManagement.{SensorType}
 
@@ -60,10 +59,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     |> common_changeset()
   end
 
-  @spec update_changeset(
-          AcqdatCore.Schema.Sensor.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
   def update_changeset(%__MODULE__{} = sensor, params) do
     sensor
     |> cast(params, @permitted)

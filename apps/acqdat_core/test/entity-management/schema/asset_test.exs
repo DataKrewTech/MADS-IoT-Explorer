@@ -11,17 +11,20 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       organisation = insert(:organisation)
       user = insert(:user)
       project = insert(:project)
-      [organisation: organisation, project: project, user: user]
+      asset_type = insert(:asset_type)
+      [organisation: organisation, project: project, user: user, asset_type: asset_type]
     end
 
     test "returns a valid changeset", context do
-      %{organisation: organisation, project: project, user: user} = context
+      %{organisation: organisation, project: project, user: user, asset_type: asset_type} =
+        context
 
       params = %{
         name: "Bintan Factory",
         org_id: organisation.id,
         parent_id: organisation.id,
         project_id: project.id,
+        asset_type_id: asset_type.id,
         creator_id: user.id
       }
 
@@ -37,17 +40,18 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
                org_id: ["can't be blank"],
                creator_id: ["can't be blank"]
              } = errors_on(changeset)
-      end
+    end
 
     test "returns error if assoc constraint not satisfied", context do
-      %{user: user, project: project} = context
+      %{user: user, project: project, asset_type: asset_type} = context
 
       params = %{
         name: "Bintan Factory",
         org_id: -1,
         parent_id: -1,
         project_id: project.id,
-        creator_id: user.id
+        creator_id: user.id,
+        asset_type_id: asset_type.id
       }
 
       changeset = Asset.changeset(%Asset{}, params)
@@ -67,22 +71,26 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       {:error, result_changeset} = Repo.insert(changeset)
 
-
-      assert %{project_id: ["can't be blank"], creator_id: ["can't be blank"]} == errors_on(result_changeset)
+      assert %{
+               project_id: ["can't be blank"],
+               creator_id: ["can't be blank"],
+               asset_type_id: ["can't be blank"]
+             } ==
+               errors_on(result_changeset)
     end
 
     test "returns error if asset with same name exists under a parent", %{
       organisation: organisation,
       project: project,
-      user: user
+      user: user,
+      asset_type: asset_type
     } do
       parent_asset = insert(:asset, org: organisation, project: project)
 
       child_asset_1 =
         insert(:asset,
           org: organisation,
-          parent_id: parent_asset.id,
-          creator_id: user.id
+          parent_id: parent_asset.id
         )
 
       params =
@@ -92,7 +100,8 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
           org: organisation,
           parent_id: parent_asset.id,
           project_id: project.id,
-          creator_id: user.id
+          creator_id: user.id,
+          asset_type_id: asset_type.id
         )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)

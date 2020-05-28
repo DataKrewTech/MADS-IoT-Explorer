@@ -1,8 +1,8 @@
-defmodule AcqdatCore.Model.AssetType do
+defmodule AcqdatCore.Model.EntityManagement.AssetType do
   alias AcqdatCore.Repo
   # , Asset}
-  alias AcqdatCore.Schema.{AssetType}
-  alias AcqdatCore.Model.SensorType, as: STModel
+  alias AcqdatCore.Schema.EntityManagement.{AssetType}
+  alias AcqdatCore.Model.EntityManagement.SensorType, as: STModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 

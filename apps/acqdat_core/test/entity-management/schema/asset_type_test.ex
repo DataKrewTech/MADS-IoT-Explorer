@@ -1,10 +1,10 @@
-defmodule AcqdatCore.Schema.SensorTypeTest do
+defmodule AcqdatCore.Schema.AssetTypeTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
 
   import AcqdatCore.Support.Factory
 
-  alias AcqdatCore.Schema.SensorType
+  alias AcqdatCore.Schema.EntityManagement.AssetType
 
   describe "changeset/2" do
     setup do
@@ -16,8 +16,8 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
       %{organisation: organisation} = context
 
       params = %{
-        name: "Sensor Type 8",
-        description: "This is sensor type description",
+        name: "Asset Type 8",
+        description: "This is asset type description",
         metadata: [
           %{
             name: "metadata 1",
@@ -50,12 +50,12 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
         org_id: organisation.id
       }
 
-      %{valid?: validity} = SensorType.changeset(%SensorType{}, params)
+      %{valid?: validity} = AssetType.changeset(%AssetType{}, params)
       assert validity
     end
 
     test "returns invalid if params empty" do
-      %{valid?: validity} = changeset = SensorType.changeset(%SensorType{}, %{})
+      %{valid?: validity} = changeset = AssetType.changeset(%AssetType{}, %{})
       refute validity
 
       assert %{
@@ -70,7 +70,7 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
         org_id: -1
       }
 
-      changeset = SensorType.changeset(%SensorType{}, params)
+      changeset = AssetType.changeset(%AssetType{}, params)
 
       {:error, result_changeset} = Repo.insert(changeset)
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
@@ -82,7 +82,7 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
         org_id: 1
       }
 
-      changeset = SensorType.changeset(%SensorType{}, params)
+      changeset = AssetType.changeset(%AssetType{}, params)
 
       Repo.insert(changeset)
 
@@ -91,7 +91,7 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
         org_id: 1
       }
 
-      new_changeset = SensorType.changeset(%SensorType{}, params)
+      new_changeset = AssetType.changeset(%AssetType{}, params)
       {:error, result_changeset} = Repo.insert(new_changeset)
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end

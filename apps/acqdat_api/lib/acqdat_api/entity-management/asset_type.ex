@@ -1,5 +1,5 @@
-defmodule AcqdatApi.AssetType do
-  alias AcqdatCore.Model.AssetType, as: AssetTypeModel
+defmodule AcqdatApi.EntityManagement.AssetType do
+  alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 

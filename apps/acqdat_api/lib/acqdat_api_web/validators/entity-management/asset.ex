@@ -10,13 +10,14 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Asset do
       image_url: :string,
       mapped_parameters: {:array, :map},
       description: :string,
-      metadata: :map,
+      metadata: {:array, :map},
       rgt: :integer,
       properties: {:array, :string},
       lft: :integer,
       parent_id: :integer,
       name: :string,
-      project_id!: :integer
+      project_id!: :integer,
+      asset_type_id!: :integer
     })
   )
 

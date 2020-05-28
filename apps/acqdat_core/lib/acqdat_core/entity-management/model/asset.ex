@@ -96,11 +96,25 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
   end
 
-  def add_as_root(%{name: name, org_id: org_id, org_name: org_name, project_id: project_id}) do
+  def add_as_root(%{
+        name: name,
+        org_id: org_id,
+        org_name: org_name,
+        project_id: project_id,
+        creator_id: creator_id,
+        asset_type_id: asset_type_id
+      }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
       taxon =
-        asset_struct(%{name: name, org_id: org_id, slug: org_name <> name, project_id: project_id})
+        asset_struct(%{
+          name: name,
+          org_id: org_id,
+          slug: org_name <> name,
+          project_id: project_id,
+          creator_id: creator_id,
+          asset_type_id: asset_type_id
+        })
         |> create(:root)
         |> AsNestedSet.execute(Repo)
 
@@ -118,7 +132,9 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           name: name,
           org_id: org_id,
           slug: parent.org.name <> parent.name <> name,
-          project_id: parent.project.id
+          project_id: parent.project.id,
+          asset_type_id: parent.asset_type_id,
+          creator_id: parent.creator_id
         })
 
       taxon =
@@ -148,20 +164,20 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
-    %Asset{
-      name: name,
-      org_id: org_id,
-      project_id: project_id,
-      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-      uuid: UUID.uuid1(:hex),
-      slug: Slugger.slugify(slug),
-      properties: []
-    }
-    |> Repo.preload(:org)
-    |> Repo.preload(:project)
-  end
+  # defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
+  #   %Asset{
+  #     name: name,
+  #     org_id: org_id,
+  #     project_id: project_id,
+  #     inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+  #     updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+  #     uuid: UUID.uuid1(:hex),
+  #     slug: Slugger.slugify(slug),
+  #     properties: []
+  #   }
+  #   |> Repo.preload(:org)
+  #   |> Repo.preload(:project)
+  # end
 
   def asset_descendants(asset) do
     entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
@@ -195,7 +211,14 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     Map.put_new(asset, :sensors, sensors)
   end
 
-  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
+  defp asset_struct(%{
+         name: name,
+         org_id: org_id,
+         slug: slug,
+         project_id: project_id,
+         asset_type_id: asset_type_id,
+         creator_id: creator_id
+       }) do
     %Asset{
       name: name,
       org_id: org_id,
@@ -204,6 +227,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       updated_at: DateTime.truncate(DateTime.utc_now(), :second),
       uuid: UUID.uuid1(:hex),
       slug: Slugger.slugify(slug),
+      asset_type_id: asset_type_id,
+      creator_id: creator_id,
       properties: []
     }
     |> Repo.preload(:org)

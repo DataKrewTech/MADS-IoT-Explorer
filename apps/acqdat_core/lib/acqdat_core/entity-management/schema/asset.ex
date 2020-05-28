@@ -19,7 +19,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   use AcqdatCore.Schema
 
   alias AcqdatCore.Schema.EntityManagement.{Organisation, AssetCategory, Project}
-  alias AcqdatCore.Schema.AssetType
+  alias AcqdatCore.Schema.EntityManagement.AssetType
   alias AcqdatCore.Schema.RoleManagement.User
 
   use AsNestedSet, scope: [:project_id]
@@ -79,7 +79,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
 
   @required_params ~w(uuid slug creator_id org_id project_id asset_type_id)a
   @update_required_params ~w(uuid slug org_id )a
-  @optional_params ~w(name lft rgt parent_id metadata description properties image owner_id image_url asset_category_id)a
+  @optional_params ~w(name lft rgt parent_id description properties image owner_id image_url asset_category_id)a
 
   @required_embedded_params ~w(name)a
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a

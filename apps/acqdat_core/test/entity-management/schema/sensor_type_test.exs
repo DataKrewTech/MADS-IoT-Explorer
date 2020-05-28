@@ -18,21 +18,22 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
       params = %{
         name: "Sensor Type 8",
+        project_id: project.id,
         description: "This is sensor type description",
         metadata: [
           %{
             name: "metadata 1",
-            type: "Type 1",
+            data_type: "Type 1",
             unit: "abc"
           },
           %{
             name: "metadata2",
-            type: "Type 2",
+            data_type: "Type 2",
             unit: "def"
           },
           %{
             name: "metadata3",
-            type: "Type 3",
+            data_type: "Type 3",
             unit: "ghi"
           }
         ],
@@ -48,10 +49,10 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
             unit: "def"
           }
         ],
-        org_id: organisation.id,
-        project_id: project.id
+        org_id: organisation.id
       }
 
+      asd = SensorType.changeset(%SensorType{}, params)
       %{valid?: validity} = SensorType.changeset(%SensorType{}, params)
       assert validity
     end
@@ -71,8 +72,8 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
       params = %{
         name: "Temperature",
-        org_id: -1,
-        project_id: project.id
+        project_id: project.id,
+        org_id: -1
       }
 
       changeset = SensorType.changeset(%SensorType{}, params)
@@ -86,8 +87,8 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
       params = %{
         name: "Temperature",
-        org_id: 1,
-        project_id: project.id
+        project_id: project.id,
+        org_id: 1
       }
 
       changeset = SensorType.changeset(%SensorType{}, params)
@@ -96,13 +97,12 @@ defmodule AcqdatCore.Schema.SensorTypeTest do
 
       params = %{
         name: "Temperature",
-        org_id: 1,
-        project_id: project.id
+        project_id: project.id,
+        org_id: 1
       }
 
       new_changeset = SensorType.changeset(%SensorType{}, params)
       {:error, result_changeset} = Repo.insert(new_changeset)
-
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
   end

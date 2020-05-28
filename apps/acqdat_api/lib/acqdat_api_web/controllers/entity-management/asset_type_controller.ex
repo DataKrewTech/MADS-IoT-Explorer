@@ -1,8 +1,8 @@
-defmodule AcqdatApiWeb.AssetTypeController do
+defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.AssetType
+  alias AcqdatApi.EntityManagement.AssetType
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.AssetType
+  import AcqdatApiWeb.Validators.EntityManagement.AssetType
 
   @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, params) do

@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Schema.AssetType do
+defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   @moduledoc """
   Models a asset-type in the system.
 
@@ -6,7 +6,7 @@ defmodule AcqdatCore.Schema.AssetType do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.{Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation}
 
   @typedoc """
   `name`: A unique name for asset per device. Note the same
@@ -58,10 +58,6 @@ defmodule AcqdatCore.Schema.AssetType do
 
   @permitted @required_params ++ @optional_params
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)
@@ -73,10 +69,6 @@ defmodule AcqdatCore.Schema.AssetType do
     |> common_changeset()
   end
 
-  @spec update_changeset(
-          AcqdatCore.Schema.AssetType.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
   def update_changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)

@@ -8,7 +8,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.SensorType do
       metadata: {:array, :map},
       parameters!: {:array, :map},
       project_id!: :integer,
-      org_id!: :integer
+      org_id!: :integer,
+      generated_by: [field: :string, default: "user"]
     })
   )
 

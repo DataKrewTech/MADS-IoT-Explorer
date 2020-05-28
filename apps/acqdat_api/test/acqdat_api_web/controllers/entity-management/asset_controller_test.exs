@@ -107,6 +107,21 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
           acc ++ [changes]
         end)
 
+      metadata =
+        Enum.reduce(asset.metadata, [], fn x, acc ->
+          %{id: id, data_type: data_type, name: name, unit: unit, uuid: uuid} = Map.from_struct(x)
+
+          changes = %{
+            "name" => name,
+            "data_type" => data_type,
+            "unit" => unit,
+            "uuid" => uuid,
+            "id" => id
+          }
+
+          acc ++ [changes]
+        end)
+
       result = conn |> json_response(200)
 
       assert result == %{
@@ -115,6 +130,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
                "mapped_parameters" => mapped_parameters,
                "name" => asset.name,
                "properties" => asset.properties,
+               "metadata" => metadata,
                "type" => "Asset"
              }
     end
@@ -126,13 +142,15 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     test "asset type create", %{conn: conn, org: org, user: user} do
       asset_manifest = build(:asset)
       project = insert(:project)
+      asset_type = insert(:asset_type)
 
       data = %{
         name: asset_manifest.name,
         mapped_parameters: asset_manifest.mapped_parameters,
         metadata: asset_manifest.metadata,
         creator_id: user.id,
-        project_id: project.id
+        project_id: project.id,
+        asset_type_id: Integer.to_string(asset_type.id)
       }
 
       conn = post(conn, Routes.asset_path(conn, :create, org.id, project.id), data)
@@ -179,8 +197,12 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     test "fails if required params are missing", %{conn: conn, org: org} do
       asset = insert(:asset)
       project = insert(:project)
+      asset_type = insert(:asset_type)
 
-      conn = post(conn, Routes.asset_path(conn, :create, org.id, project.id), %{})
+      conn =
+        post(conn, Routes.asset_path(conn, :create, org.id, project.id), %{
+          asset_type_id: Integer.to_string(asset.asset_type_id)
+        })
 
       response = conn |> json_response(400)
 

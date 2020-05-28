@@ -152,13 +152,15 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     end
 
     test "add respective asset as root element in the tree", context do
-      %{org: org, project: project} = context
+      %{org: org, project: project, asset: asset} = context
 
       params = %{
         name: "asset demo",
         org_id: project.org_id,
         org_name: org.name,
-        project_id: project.id
+        project_id: project.id,
+        asset_type_id: asset.asset_type_id,
+        creator_id: asset.creator_id
       }
 
       assert {:ok, root_asset} = Asset.add_as_root(params)
@@ -170,13 +172,16 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     setup do
       org = insert(:organisation)
       project = insert(:project)
+      asset = insert(:asset)
 
       {:ok, root_asset} =
         Asset.add_as_root(%{
           name: "root asset",
           org_id: project.org_id,
           org_name: org.name,
-          project_id: project.id
+          project_id: project.id,
+          asset_type_id: asset.asset_type_id,
+          creator_id: asset.creator_id
         })
 
       [parent_entity: root_asset, project: project, org: org]
@@ -197,13 +202,16 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     setup do
       org = insert(:organisation)
       project = insert(:project)
+      asset = insert(:asset)
 
       {:ok, root_asset} =
         Asset.add_as_root(%{
           name: "root asset",
           org_id: project.org_id,
           org_name: org.name,
-          project_id: project.id
+          project_id: project.id,
+          asset_type_id: asset.asset_type_id,
+          creator_id: asset.creator_id
         })
 
       [parent_entity: root_asset]
@@ -223,9 +231,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
   defp create_asset_tree(_context) do
     org = insert(:organisation)
     project = insert(:project)
+    asset_type = insert(:asset_type)
+    user = insert(:user)
 
-    asset_1 = build_asset_map("asset_1", org.id, org.name, project.id)
-
+    asset_1 = build_asset_map("asset_1", org.id, org.name, project.id, user.id, asset_type.id)
     # asset tree initialization
     # asset_1
     # |- asset_2
@@ -246,12 +255,14 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
      }}
   end
 
-  defp build_asset_map(name, org_id, org_name, project_id) do
+  defp build_asset_map(name, org_id, org_name, project_id, creator_id, asset_type_id) do
     %{
       name: name,
       org_id: org_id,
       org_name: org_name,
-      project_id: project_id
+      project_id: project_id,
+      creator_id: creator_id,
+      asset_type_id: asset_type_id
     }
   end
 
