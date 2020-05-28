@@ -54,12 +54,6 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    resources "/asset-types", AssetTypeController, only: [:create] do
-      resources "/assets", AssetController,
-        only: [:create, :show, :update, :delete, :index],
-        as: :assets
-    end
-
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],

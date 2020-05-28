@@ -11,7 +11,6 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
       add(:parameters, {:array, :map})
       add(:sensor_type_present, :boolean, default: false)
       add(:sensor_type_uuid, :string)
-
       add(:project_id, references("acqdat_projects", on_delete: :restrict), null: false)
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
 
@@ -40,9 +39,9 @@ defmodule AcqdatCore.Repo.Migrations.AddAssetType do
 
     alter table("acqdat_asset") do
       remove(:asset_type_id)
+      remove(:metadata)
       add(:metadata, :map)
       add(:asset_category_id, references("acqdat_asset_categories", on_delete: :restrict))
-      remove(:metadata)
     end
 
     drop table("acqdat_asset_types")

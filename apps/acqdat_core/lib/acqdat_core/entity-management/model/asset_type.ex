@@ -45,7 +45,6 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
         where: asset_type.org_id == ^org_id and asset_type.project_id == ^project_id,
         order_by: asset_type.id
       )
-
     paginated_asset_data = query |> Repo.paginate(page: page_number, page_size: page_size)
     asset_data_with_preloads = paginated_asset_data.entries |> Repo.preload(preloads)
 
@@ -100,7 +99,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       description: description,
       metadata: metadata,
       parameters: parameters,
-      org_id: org_id
+      org_id: org_id,
+      project_id: project_id
     } = params
 
     params = %{
@@ -109,7 +109,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       metadata: metadata,
       parameters: parameters,
       org_id: org_id,
-      generated_by: "asset"
+      generated_by: "asset",
+      project_id: project_id
     }
 
     case STModel.create(params) do

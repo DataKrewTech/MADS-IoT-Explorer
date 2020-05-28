@@ -7,7 +7,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
 
-
   @typedoc """
   `name`: A unique name for asset per device. Note the same
           name can be used for asset associated with another
@@ -18,11 +17,13 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   `sensor_type_uuid`: If a sensor type is created then it's uuid will be mapped to this asset type.
   `org`: Contains org_id upon which asset and consequently asset type is attached
   `project`: Inside organisation a project will be there on which asset will be attached.
-  `description`: A description of the asset-type
-  `metadata`: A metadata field which will store all the data related to asset-type and this metadata will be mapped to the asset which will inherit this asset type.
-  `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
+   `description`: A description of the asset-type
+   `metadata`: A metadata field which will store all the data related to asset-type and this metadata will be mapped to the asset which will inherit this asset type.
+   `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
   `parameters`: The different parameters of the asset type which will be inherited by sensor type which will be created along with this asset type.
   """
+
+  @type t :: %__MODULE__{}
 
   schema("acqdat_asset_types") do
     field(:uuid, :string, null: false)
@@ -48,14 +49,12 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
-
     belongs_to(:project, Project, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
   @required_params ~w(uuid slug project_id org_id name)a
-
   @optional_params ~w(description sensor_type_present sensor_type_uuid)a
   @embedded_metadata_required ~w(name uuid data_type)a
   @embedded_metadata_optional ~w(unit)a
