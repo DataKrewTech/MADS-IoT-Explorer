@@ -88,7 +88,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
         creator_id: params.creator_id,
         description: params.description,
         image_url: params.image_url,
-        mapped_parameters: mapped_parameters,
+        mapped_parameters: Enum.reverse(mapped_parameters),
         uuid: UUID.uuid1(:hex),
         slug: Slugger.slugify(org.name <> params.name),
         metadata: params.metadata,

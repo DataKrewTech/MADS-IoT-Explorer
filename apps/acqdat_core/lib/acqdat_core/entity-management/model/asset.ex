@@ -143,6 +143,14 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
+  @doc """
+    This function is used to create child assets from a given asset.
+    Here parent is the root asset and name and org_id is used
+    for the classification  and position is the position which can be [:child, :left, :right].
+
+    Metadata and Mapped Parameters are embeded schema so when you recieve parent asset it's parameters and metadata comes as a struct
+    so to convert it from struct to Map operation from line 154 to 164 is performed
+  """
   def add_as_child(parent, name, org_id, position) do
     try do
       metadata =

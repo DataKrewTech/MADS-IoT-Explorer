@@ -74,8 +74,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeControllerTest do
       assert response == %{
                "errors" => %{
                  "message" => %{
-                   "name" => ["can't be blank"],
-                   "parameters" => ["can't be blank"]
+                   "name" => ["can't be blank"]
                  }
                }
              }

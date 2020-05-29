@@ -181,6 +181,7 @@ defmodule AcqdatCore.Support.Factory do
       slug: sequence(:asset_type_name, &"AssetType#{&1}"),
       uuid: UUID.uuid1(:hex),
       org: build(:organisation),
+      project: build(:project),
       parameters: [
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),

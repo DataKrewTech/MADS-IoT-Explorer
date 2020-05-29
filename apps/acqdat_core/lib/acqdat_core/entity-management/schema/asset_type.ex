@@ -12,11 +12,19 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   `name`: A unique name for asset per device. Note the same
           name can be used for asset associated with another
           device.
+  `uuid`: Unique identifier to differentiate various asset type.
+  `slug`: Unique name given to each asset type can be used as second option to differentiate.
+  `sensor_type_present`: User has an option of creating sensor type which will directly inherit the parameters from asset type(default: false)
+  `sensor_type_uuid`: If a sensor type is created then it's uuid will be mapped to this asset type.
+  `org`: Contains org_id upon which asset and consequently asset type is attached
+  `project`: Inside organisation a project will be there on which asset will be attached.
    `description`: A description of the asset-type
-   `metadata`: A metadata field which will store all the data related to asset-type
+   `metadata`: A metadata field which will store all the data related to asset-type and this metadata will be mapped to the asset which will inherit this asset type.
+
    `org_id`: A organisation to which the asset and corresponding asset-type is belonged to.
-  `parameters`: The different parameters of the asset.
+  `parameters`: The different parameters of the asset type which will be inherited by sensor type which will be created along with this asset type.
   """
+
   @type t :: %__MODULE__{}
 
   schema("acqdat_asset_types") do

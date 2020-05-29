@@ -27,13 +27,15 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @typedoc """
   `uuid`: A universally unique id to identify the Asset.
   `name`: Name for easy identification of the Asset.
-  `access_token`: Access token to be used while sending data
-              to server from the Asset.
-  `parent_id`: Id of parent asset, if it's empty the asset is a root.
+  `description`:  Description of the asset.
+  `parent_id`: Parent ID will be nil if the asset is root and will be referreing to either project or another asset whose child the current asset is.
   `lft`: left index for tree structure.
   `rgt`: right index for tree structure.
   `mapped_parameters`: The parameters for an asset. They are mapped to parameter
     of a sensor belonging to the asset, hence the name.
+  `creator`: Hold the information of who has created this Asset.
+  `owner`: Owner will the one which hold the right to this Asset.
+  `asset type`: Every asset will have a asset type whose metadata will be mapped to asset at the time of creation.
   """
   @type t :: %__MODULE__{}
 

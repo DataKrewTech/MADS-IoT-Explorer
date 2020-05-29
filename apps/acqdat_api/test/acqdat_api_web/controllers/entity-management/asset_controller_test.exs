@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         id: 3
       }
 
-      conn = get(conn, Routes.asset_path(conn, :show, 1, 1, params.id))
+      conn = get(conn, Routes.assets_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -34,13 +34,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         id: -1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :show, 1, 1, params.id))
+      conn = get(conn, Routes.assets_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
     end
 
     test "asset with valid id", %{conn: conn, asset: asset} do
-      conn = get(conn, Routes.asset_path(conn, :show, asset.org.id, asset.project.id, asset.id))
+      conn = get(conn, Routes.assets_path(conn, :show, asset.org.id, asset.project.id, asset.id))
       result = conn |> json_response(200)
 
       assert result == %{
@@ -74,7 +74,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         asset: %{}
       }
 
-      conn = put(conn, Routes.asset_path(conn, :update, 1, 1, 1, params))
+      conn = put(conn, Routes.assets_path(conn, :update, 1, 1, 1, params))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -89,7 +89,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       conn =
         put(
           conn,
-          Routes.asset_path(conn, :update, asset.org.id, asset.project.id, asset.id, params)
+          Routes.assets_path(conn, :update, asset.org.id, asset.project.id, asset.id, params)
         )
 
       mapped_parameters =
@@ -104,7 +104,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
             "uuid" => uuid
           }
 
-          acc ++ [changes]
+          [changes | acc]
         end)
 
       metadata =
@@ -119,7 +119,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
             "id" => id
           }
 
-          acc ++ [changes]
+          [changes | acc]
         end)
 
       result = conn |> json_response(200)
@@ -127,10 +127,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       assert result == %{
                "description" => asset.description,
                "id" => asset.id,
-               "mapped_parameters" => mapped_parameters,
+               "mapped_parameters" => Enum.reverse(mapped_parameters),
                "name" => asset.name,
                "properties" => asset.properties,
-               "metadata" => metadata,
+               "metadata" => Enum.reverse(metadata),
                "type" => "Asset"
              }
     end
@@ -150,10 +150,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         metadata: asset_manifest.metadata,
         creator_id: user.id,
         project_id: project.id,
-        asset_type_id: Integer.to_string(asset_type.id)
+        asset_type_id: asset_type.id
       }
 
-      conn = post(conn, Routes.asset_path(conn, :create, org.id, project.id), data)
+      conn = post(conn, Routes.assets_path(conn, :create, org.id, project.id), data)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
@@ -169,7 +169,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.asset_path(conn, :create, org.id, project.id), data)
+      conn = post(conn, Routes.assets_path(conn, :create, org.id, project.id), data)
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -183,8 +183,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     #     creator_id: user.id
     #   }
 
-    #   conn = post(conn, Routes.asset_path(conn, :create, org.id), data)
-    #   conn = post(conn, Routes.asset_path(conn, :create, org.id), data)
+    #   conn = post(conn, Routes.assets_path(conn, :create, org.id), data)
+    #   conn = post(conn, Routes.assets_path(conn, :create, org.id), data)
     #   response = conn |> json_response(400)
 
     #   assert response == %{
@@ -200,8 +200,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       asset_type = insert(:asset_type)
 
       conn =
-        post(conn, Routes.asset_path(conn, :create, org.id, project.id), %{
-          asset_type_id: Integer.to_string(asset.asset_type_id)
+        post(conn, Routes.assets_path(conn, :create, org.id, project.id), %{
+          asset_type_id: asset.asset_type_id
         })
 
       response = conn |> json_response(400)
@@ -222,7 +222,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     test "asset delete", %{conn: conn, org: org} do
       asset = insert(:asset)
       project = insert(:project)
-      conn = delete(conn, Routes.asset_path(conn, :delete, org.id, project.id, asset.id), %{})
+      conn = delete(conn, Routes.assets_path(conn, :delete, org.id, project.id, asset.id), %{})
       response = conn |> json_response(200)
 
       assert Map.has_key?(response, "name")
@@ -240,7 +240,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       conn =
-        delete(conn, Routes.asset_path(conn, :delete, org.id, asset.project.id, asset.id), %{})
+        delete(conn, Routes.assets_path(conn, :delete, org.id, asset.project.id, asset.id), %{})
 
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
@@ -259,7 +259,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         "page_number" => 1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, params))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, params))
       response = conn |> json_response(200)
 
       assert length(response["assets"]) == 1
@@ -272,7 +272,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     test "if params are missing", %{conn: conn, org: org} do
       insert_list(3, :asset)
       project = insert(:project)
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, %{}))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, %{}))
       response = conn |> json_response(200)
       assert response["total_pages"] == 1
       assert length(response["assets"]) == response["total_entries"]
@@ -287,7 +287,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         "page_number" => 1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, params))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, params))
 
       response = conn |> json_response(200)
       assert response["page_number"] == params["page_number"]
@@ -305,7 +305,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         "page_number" => 1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, params))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, params))
 
       page1_response = conn |> json_response(200)
       assert page1_response["page_number"] == params["page_number"]
@@ -314,7 +314,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       assert length(page1_response["assets"]) == page1_response["page_size"]
 
       params = Map.put(params, "page_number", 2)
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, params))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, params))
       page2_response = conn |> json_response(200)
 
       assert page2_response["page_number"] == params["page_number"]
@@ -336,7 +336,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         "page_number" => 1
       }
 
-      conn = get(conn, Routes.asset_path(conn, :index, org.id, project.id, params))
+      conn = get(conn, Routes.assets_path(conn, :index, org.id, project.id, params))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end

@@ -160,7 +160,11 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
         org_name: org.name,
         project_id: project.id,
         asset_type_id: asset.asset_type_id,
-        creator_id: asset.creator_id
+        creator_id: asset.creator_id,
+        metadata: [],
+        mapped_parameters: [],
+        owner_id: asset.creator_id,
+        properties: []
       }
 
       assert {:ok, root_asset} = Asset.add_as_root(params)
@@ -181,7 +185,11 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           org_name: org.name,
           project_id: project.id,
           asset_type_id: asset.asset_type_id,
-          creator_id: asset.creator_id
+          creator_id: asset.creator_id,
+          metadata: [],
+          mapped_parameters: [],
+          owner_id: asset.creator_id,
+          properties: []
         })
 
       [parent_entity: root_asset, project: project, org: org]
@@ -211,7 +219,11 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           org_name: org.name,
           project_id: project.id,
           asset_type_id: asset.asset_type_id,
-          creator_id: asset.creator_id
+          creator_id: asset.creator_id,
+          metadata: [],
+          mapped_parameters: [],
+          owner_id: asset.creator_id,
+          properties: []
         })
 
       [parent_entity: root_asset]
@@ -262,7 +274,11 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       org_name: org_name,
       project_id: project_id,
       creator_id: creator_id,
-      asset_type_id: asset_type_id
+      asset_type_id: asset_type_id,
+      metadata: [],
+      mapped_parameters: [],
+      owner_id: creator_id,
+      properties: []
     }
   end
 
