@@ -5,8 +5,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.SensorType do
     verify_sensor_params(%{
       name!: :string,
       description: :string,
-      metadata: {:array, :map},
-      parameters!: {:array, :map},
+      metadata: [field: {:array, :map}, default: []],
+      parameters: [field: {:array, :map}, default: []],
       project_id!: :integer,
       org_id!: :integer,
       generated_by: [field: :string, default: "user"]

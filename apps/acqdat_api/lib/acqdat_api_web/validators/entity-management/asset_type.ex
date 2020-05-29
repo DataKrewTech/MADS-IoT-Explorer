@@ -5,8 +5,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.AssetType do
     verify_asset_params(%{
       name!: :string,
       description: :string,
-      metadata: {:array, :map},
-      parameters!: {:array, :map},
+      metadata: [field: {:array, :map}, default: []],
+      parameters: [field: {:array, :map}, default: []],
       org_id!: :integer,
       project_id!: :integer,
       sensor_type_present: [field: :boolean, default: false],
