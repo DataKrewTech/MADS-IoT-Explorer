@@ -82,11 +82,11 @@ defmodule AcqdatApiWeb.Router do
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets
 
     scope "/projects/:project_id", EntityManagement do
-      resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index] do
-        resources "/assets", AssetController,
-          only: [:create, :show, :update, :delete, :index],
-          as: :assets
-      end
+      resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
+
+      resources "/assets", AssetController,
+        only: [:create, :show, :update, :delete, :index],
+        as: :assets
 
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]

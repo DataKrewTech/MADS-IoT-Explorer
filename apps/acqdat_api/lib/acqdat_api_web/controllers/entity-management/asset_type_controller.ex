@@ -50,7 +50,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
     end
   end
 
-  def update(conn, %{"asset_type" => params}) do
+  def update(conn, params) do
     case conn.status do
       nil ->
         case AssetType.update(conn.assigns.asset_type, params) do
