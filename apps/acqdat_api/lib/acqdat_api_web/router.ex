@@ -65,13 +65,6 @@ defmodule AcqdatApiWeb.Router do
     get "/users/search", RoleManagement.UserController, :search_users
 
     scope "/", RoleManagement do
-      resources("/teams", TeamController, only: [:create, :index, :update])
-      put("/teams/:id/assets", TeamController, :update_assets, as: :update_team_assets)
-      put("/teams/:id/apps", TeamController, :update_apps, as: :update_team_apps)
-      put("/teams/:id/members", TeamController, :update_members, as: :update_team_members)
-    end
-
-    scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
       put("/users/:id/apps", UserController, :apps, as: :user_apps)
 
@@ -91,11 +84,6 @@ defmodule AcqdatApiWeb.Router do
       resources "/sensors", SensorController, only: [:create, :update, :delete, :index, :show]
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end
-
-    # resources "/users", UserController, only: [:show, :update, :index] do
-    #   resources "/settings", UserSettingController, only: [:create, :update], as: :settings
-    #   resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
-    # end
 
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets

@@ -23,14 +23,12 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   @doc """
   Updates an Asset with the provided params.
-
   **Updating asset position**
   Updating the asset position(root or under another asset) is done by using the
   `parent_id` key. If the `parent_id` is set to `nil` the asset(with it's
   descendants) will be  moved to the root. In case the asset is to be moved
   under another asset then the target asset `id` should be provided under the
   `parent_id` key.
-
   All the detail and position updates are run under a transaction using
   `Ecto.Multi`. In case if there is any error while updating all the changes
   are reverted.
@@ -153,7 +151,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   "add_as_child" function is used to create child assets from a given asset.
   Here parent is the root asset and name and org_id is used
   for the classification  and position is the position which can be [:child, :left, :right].
-
   """
 
   def add_as_child(%Asset{} = parent, %Asset{} = child, position) do

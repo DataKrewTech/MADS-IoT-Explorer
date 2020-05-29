@@ -1,7 +1,6 @@
 defmodule AcqdatCore.Model.EntityManagement.AssetType do
   alias AcqdatCore.Repo
   alias AcqdatCore.Schema.EntityManagement.{Asset, AssetType}
-  alias AcqdatCore.Model.EntityManagement.SensorType, as: STModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
@@ -91,31 +90,5 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       )
 
     List.first(Repo.all(query))
-  end
-
-  def add_sensor_type(params) do
-    %{
-      name: name,
-      description: description,
-      metadata: metadata,
-      parameters: parameters,
-      org_id: org_id,
-      project_id: project_id
-    } = params
-
-    params = %{
-      name: name <> "-sensor-type",
-      description: description,
-      metadata: metadata,
-      parameters: parameters,
-      org_id: org_id,
-      generated_by: "asset",
-      project_id: project_id
-    }
-
-    case STModel.create(params) do
-      {:ok, sensor_type} -> {:ok, sensor_type}
-      {:error, message} -> {:error, message}
-    end
   end
 end
