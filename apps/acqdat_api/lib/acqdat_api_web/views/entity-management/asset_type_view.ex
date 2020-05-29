@@ -42,7 +42,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
 
   def render("index.json", asset_type) do
     %{
-      sensors_type: render_many(asset_type.entries, AssetTypeView, "asset_type.json"),
+      asset_types: render_many(asset_type.entries, AssetTypeView, "asset_type.json"),
       page_number: asset_type.page_number,
       page_size: asset_type.page_size,
       total_entries: asset_type.total_entries,
