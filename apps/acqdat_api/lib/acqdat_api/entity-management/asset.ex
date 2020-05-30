@@ -80,7 +80,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
           end)
 
         false ->
-          nil
+          []
       end
 
     Repo.preload(
