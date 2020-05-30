@@ -53,7 +53,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       parent_id: asset.parent_id,
       asset_type_id: asset.asset_type_id,
       creator_id: asset.creator_id,
-
       metadata: render_many(asset.metadata, AssetView, "metadata.json"),
       mapped_parameters: render_many(asset.mapped_parameters, AssetView, "parameters.json")
     }
