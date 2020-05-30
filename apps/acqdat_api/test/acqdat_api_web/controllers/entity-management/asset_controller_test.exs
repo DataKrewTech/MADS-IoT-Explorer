@@ -131,7 +131,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
                "name" => asset.name,
                "properties" => asset.properties,
                "metadata" => Enum.reverse(metadata),
-               "type" => "Asset"
+               "type" => "Asset",
+               "asset_type_id" => asset.asset_type_id,
+               "creator_id" => asset.creator_id,
+               "parent_id" => asset.parent_id
              }
     end
   end
