@@ -18,31 +18,15 @@ defmodule AcqdatApi.EntityManagement.AssetType do
 
     case sensor_type_present do
       true ->
-        result =
-          Multi.new()
-          |> Multi.run(:create_sensor_type, fn _, _changes ->
-            add_sensor_type(params)
-          end)
-          |> Multi.run(:create_asset_type, fn _, %{create_sensor_type: sensor_type} ->
-            add_asset_type(sensor_type, params)
-          end)
-          |> Repo.transaction()
+        Multi.new()
+        |> Multi.run(:create_sensor_type, fn _, _changes ->
+          add_sensor_type(params)
+        end)
+        |> Multi.run(:create_asset_type, fn _, %{create_sensor_type: sensor_type} ->
+          add_asset_type(sensor_type, params)
+        end)
+        |> run_transaction()
 
-        case result do
-          {:ok, %{create_sensor_type: _create_sensor_type, create_asset_type: create_asset_type}} ->
-            verify_asset_type({:ok, create_asset_type})
-
-          {:error, failed_operation, failed_value, _changes_so_far} ->
-            case failed_operation do
-              :create_sensor_type -> verify_sensor_type_creation({:error, failed_value})
-              :create_asset_type -> verify_asset_type({:error, failed_value})
-            end
-        end
-
-      # |> Multi.run(:create_asset_type, fn _,_changes ->
-
-      # end)
-      # verify_sensor_type_creation(add_sensor_type(params), params)
       false ->
         verify_asset_type(create_asset(params))
     end
@@ -70,8 +54,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
     })
   end
 
-  defp verify_sensor_type_creation({:error, sensor_type}) do
-    {:error, %{error: extract_changeset_error(sensor_type)}}
+  defp verify_error_changeset({:error, changeset}) do
+    {:error, %{error: extract_changeset_error(changeset)}}
   end
 
   def create_asset(params) do
@@ -121,8 +105,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
      }}
   end
 
-  defp verify_asset_type({:error, asset_type}) do
-    {:error, %{error: extract_changeset_error(asset_type)}}
+  defp verify_asset_type({:error, changeset}) do
+    {:error, %{error: extract_changeset_error(changeset)}}
   end
 
   defp add_sensor_type(params) do
@@ -148,6 +132,21 @@ defmodule AcqdatApi.EntityManagement.AssetType do
     case STModel.create(params) do
       {:ok, sensor_type} -> {:ok, sensor_type}
       {:error, message} -> {:error, message}
+    end
+  end
+
+  defp run_transaction(multi_query) do
+    result = Repo.transaction(multi_query)
+
+    case result do
+      {:ok, %{create_sensor_type: _create_sensor_type, create_asset_type: create_asset_type}} ->
+        verify_asset_type({:ok, create_asset_type})
+
+      {:error, failed_operation, failed_value, _changes_so_far} ->
+        case failed_operation do
+          :create_sensor_type -> verify_error_changeset({:error, failed_value})
+          :create_asset_type -> verify_error_changeset({:error, failed_value})
+        end
     end
   end
 end

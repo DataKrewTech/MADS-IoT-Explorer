@@ -153,18 +153,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   """
   def add_as_child(parent, name, org_id, position) do
     try do
-      metadata =
-        Enum.reduce(parent.metadata, [], fn x, acc ->
-          {_, x} = Map.from_struct(x) |> Map.pop(:id)
-          acc ++ [x]
-        end)
-
-      mapped_parameters =
-        Enum.reduce(parent.mapped_parameters, [], fn x, acc ->
-          {_, x} = Map.from_struct(x) |> Map.pop(:id)
-          acc ++ [x]
-        end)
-
       child =
         asset_struct(%{
           name: name,
@@ -173,8 +161,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           project_id: parent.project.id,
           asset_type_id: parent.asset_type_id,
           creator_id: parent.creator_id,
-          metadata: metadata,
-          mapped_parameters: mapped_parameters,
           owner_id: parent.owner_id,
           properties: parent.properties
         })
@@ -191,7 +177,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  def add_taxon(%Asset{} = parent, %Asset{} = child, position) do
+  def add_as_child(%Asset{} = parent, %Asset{} = child, position) do
     try do
       taxon =
         %Asset{child | org_id: parent.org.id}
@@ -260,8 +246,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
          project_id: project_id,
          asset_type_id: asset_type_id,
          creator_id: creator_id,
-         metadata: metadata,
-         mapped_parameters: mapped_parameters,
          owner_id: owner_id,
          properties: properties
        }) do
@@ -275,8 +259,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       slug: Slugger.slugify(slug),
       asset_type_id: asset_type_id,
       creator_id: creator_id,
-      metadata: metadata,
-      mapped_parameters: mapped_parameters,
       owner_id: owner_id,
       properties: properties
     }

@@ -36,7 +36,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
 
   defp add_asset_as_child(root, params) do
     child = prepare_asset(params)
-    AssetModel.add_as_child(root, child.name, params.org_id, :child)
+    AssetModel.add_as_child(root, child, :child)
   end
 
   defp verify_asset({:ok, asset}) do
