@@ -190,21 +190,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
-    %Asset{
-      name: name,
-      org_id: org_id,
-      project_id: project_id,
-      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-      uuid: UUID.uuid1(:hex),
-      slug: Slugger.slugify(slug),
-      properties: []
-    }
-    |> Repo.preload(:org)
-    |> Repo.preload(:project)
-  end
-
   def asset_descendants(asset) do
     entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
     fetch_child_sensors(List.first(entities), entities, asset)
