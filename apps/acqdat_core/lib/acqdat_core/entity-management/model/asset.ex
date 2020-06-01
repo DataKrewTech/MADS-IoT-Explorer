@@ -144,12 +144,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   @doc """
-    This function is used to create child assets from a given asset.
-    Here parent is the root asset and name and org_id is used
-    for the classification  and position is the position which can be [:child, :left, :right].
+  "add_as_child" function is used to create child assets from a given asset.
+  Here parent is the root asset and name and org_id is used
+  for the classification  and position is the position which can be [:child, :left, :right].
 
-    Metadata and Mapped Parameters are embeded schema so when you recieve parent asset it's parameters and metadata comes as a struct
-    so to convert it from struct to Map operation from line 154 to 164 is performed
   """
   def add_as_child(parent, name, org_id, position) do
     try do
@@ -192,20 +190,20 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  # defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
-  #   %Asset{
-  #     name: name,
-  #     org_id: org_id,
-  #     project_id: project_id,
-  #     inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-  #     updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-  #     uuid: UUID.uuid1(:hex),
-  #     slug: Slugger.slugify(slug),
-  #     properties: []
-  #   }
-  #   |> Repo.preload(:org)
-  #   |> Repo.preload(:project)
-  # end
+  defp asset_struct(%{name: name, org_id: org_id, slug: slug, project_id: project_id}) do
+    %Asset{
+      name: name,
+      org_id: org_id,
+      project_id: project_id,
+      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+      updated_at: DateTime.truncate(DateTime.utc_now(), :second),
+      uuid: UUID.uuid1(:hex),
+      slug: Slugger.slugify(slug),
+      properties: []
+    }
+    |> Repo.preload(:org)
+    |> Repo.preload(:project)
+  end
 
   def asset_descendants(asset) do
     entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
