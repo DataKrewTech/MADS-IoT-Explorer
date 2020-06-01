@@ -41,7 +41,6 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
     end
   end
 
-  @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, params) do
     case conn.status do
       nil ->

@@ -2,10 +2,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   @moduledoc """
   Models a Project in the system.
   """
+  import Ecto.Query
   use AcqdatCore.Schema
 
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Repo
 
   @typedoc """
   `uuid`: A universally unique id to identify the Project.
@@ -29,6 +31,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
 
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:creator, User, on_replace: :raise)
+    many_to_many(:leads, User, join_through: "acqdat_project_leads", on_replace: :delete)
+    many_to_many(:users, User, join_through: "acqdat_project_users", on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
@@ -38,27 +42,23 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
 
   @permitted @required_params ++ @optional_params
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = project, params) do
     project
     |> cast(params, @permitted)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
-    |> common_changeset()
+    |> common_changeset(params)
   end
 
   def update_changeset(%__MODULE__{} = project, params) do
     project
     |> cast(params, @permitted)
     |> validate_required(@required_params)
-    |> common_changeset()
+    |> common_changeset(params)
   end
 
-  def common_changeset(changeset) do
+  def common_changeset(changeset, params) do
     changeset
     |> assoc_constraint(:org)
     |> assoc_constraint(:creator)
@@ -68,19 +68,31 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
       name: :unique_project_per_org,
       message: "unique name under organisation"
     )
+    |> put_project_leads(params.lead_ids)
+    |> put_project_users(params.user_ids)
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_uuid(changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
 
   defp random_string(length) do
     :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  end
+
+  defp put_project_users(changeset, user_ids) do
+    users = Repo.all(from(user in User, where: user.id in ^user_ids))
+    put_assoc(changeset, :users, Enum.map(users, &change/1))
+  end
+
+  defp put_project_leads(changeset, lead_ids) do
+    leads = Repo.all(from(user in User, where: user.id in ^lead_ids))
+    put_assoc(changeset, :leads, Enum.map(leads, &change/1))
   end
 end
