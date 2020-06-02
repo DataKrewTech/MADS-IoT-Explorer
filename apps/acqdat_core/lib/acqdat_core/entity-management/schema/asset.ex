@@ -36,6 +36,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   `creator`: Hold the information of who has created this Asset.
   `owner`: Owner will the one which hold the right to this Asset.
   `asset type`: Every asset will have a asset type whose metadata will be mapped to asset at the time of creation.
+  `metadata`: metadata will be inherited from the asset type based on the asset type id.
   """
   @type t :: %__MODULE__{}
 
