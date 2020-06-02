@@ -3,20 +3,18 @@ defmodule AcqdatApi.EntityManagement.Asset do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset}
+  alias AcqdatCore.Schema.EntityManagement.{Asset}
 
   defdelegate asset_descendants(id), to: AssetModel
   defdelegate get(id), to: AssetModel
 
-  @spec update_asset(AcqdatCore.Schema.EntityManagement.Asset.t(), map) ::
-          {:error, Ecto.Changeset.t()} | {:ok, AcqdatCore.Schema.EntityManagement.Asset.t()}
   defdelegate update_asset(asset, data), to: AssetModel
   defdelegate get_all(data, preloads), to: AssetModel
   defdelegate delete(asset), to: AssetModel
   defdelegate get(org_id, project_id), to: OrgModel
 
-  def create(params, asset_type) do
-    params = params_extraction(params, asset_type)
+  def create(params) do
+    params = params_extraction(params)
 
     case is_nil(params.parent_id) do
       true ->
@@ -40,25 +38,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
   end
 
   defp verify_asset({:ok, asset}) do
-    {:ok,
-     %{
-       id: asset.id,
-       creator_id: asset.creator_id,
-       description: asset.description,
-       image_url: asset.image_url,
-       mapped_parameters: asset.mapped_parameters,
-       uuid: asset.uuid,
-       slug: asset.slug,
-       metadata: asset.metadata,
-       name: asset.name,
-       project_id: asset.project_id,
-       org_id: asset.org_id,
-       owner_id: asset.owner_id,
-       parent_id: asset.parent_id,
-       asset_type_id: asset.asset_type_id,
-       properties: asset.properties,
-       org: asset.org
-     }}
+    {:ok, asset}
   end
 
   defp verify_asset({:error, asset}) do
@@ -66,32 +46,19 @@ defmodule AcqdatApi.EntityManagement.Asset do
   end
 
   defp prepare_asset(params) do
-    org = Repo.get!(Organisation, params.org_id)
-    %Ecto.Changeset{changes: changes} = Asset.changeset(%Asset{}, params)
-
-    mapped_parameters =
-      case Map.has_key?(changes, :mapped_parameters) do
-        true ->
-          %{mapped_parameters: mapped_parameters} = changes
-
-          Enum.reduce(mapped_parameters, [], fn x, acc ->
-            %Ecto.Changeset{changes: changes} = x
-            [changes | acc]
-          end)
-
-        false ->
-          []
-      end
+    metadata =
+      Enum.reduce(params.metadata, [], fn x, acc ->
+        x = x |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+        [x | acc]
+      end)
 
     Repo.preload(
       %Asset{
         creator_id: params.creator_id,
         description: params.description,
         image_url: params.image_url,
-        mapped_parameters: Enum.reverse(mapped_parameters),
-        uuid: UUID.uuid1(:hex),
-        slug: Slugger.slugify(org.name <> params.name),
-        metadata: params.metadata,
+        mapped_parameters: params.mapped_parameters,
+        metadata: metadata,
         name: params.name,
         org_id: params.org_id,
         owner_id: params.owner_id,
@@ -104,40 +71,8 @@ defmodule AcqdatApi.EntityManagement.Asset do
     )
   end
 
-  defp params_extraction(params, asset_type) do
-    %{
-      creator_id: creator_id,
-      description: description,
-      image_url: image_url,
-      mapped_parameters: mapped_parameters,
-      name: name,
-      org_id: org_id,
-      owner_id: owner_id,
-      parent_id: parent_id,
-      project_id: project_id,
-      properties: properties,
-      asset_type_id: asset_type_id
-    } = params
-
-    metadata =
-      Enum.reduce(asset_type.metadata, [], fn x, acc ->
-        {_, x} = Map.from_struct(x) |> Map.pop(:id)
-        acc ++ [x]
-      end)
-
-    %{
-      creator_id: creator_id,
-      description: description,
-      image_url: image_url,
-      mapped_parameters: mapped_parameters,
-      metadata: metadata,
-      name: name,
-      org_id: org_id,
-      owner_id: owner_id,
-      parent_id: parent_id,
-      project_id: project_id,
-      properties: properties,
-      asset_type_id: asset_type_id
-    }
+  defp params_extraction(params) do
+    Map.from_struct(params)
+    |> Map.drop([:_id, :__meta__])
   end
 end
