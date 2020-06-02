@@ -33,7 +33,7 @@ defmodule AcqdatCore.MixProject do
   def application do
     [
       mod: {AcqdatCore.Application, []},
-      extra_applications: [:logger, :arc_ecto, :scrivener_ecto]
+      extra_applications: [:logger, :arc_ecto, :scrivener_ecto, :virta]
     ]
   end
 
@@ -99,6 +99,9 @@ defmodule AcqdatCore.MixProject do
 
       # MQTT
       {:tortoise, "~> 0.9"}
+
+      # flow based programming
+      {:virta, "~> 0.1"}
     ]
   end
 
