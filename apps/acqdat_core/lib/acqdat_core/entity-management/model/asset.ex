@@ -251,7 +251,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
       _ ->
         {:error,
-          "Asset #{asset.name} tree contains sensors. Please delete associated sensors before deleting asset."}
+         "Asset #{asset.name} tree contains sensors. Please delete associated sensors before deleting asset."}
     end
   end
 

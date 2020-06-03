@@ -294,6 +294,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     user = insert(:user)
 
     asset_1 = build_asset_map("asset_1", org.id, org.name, project.id, user.id, asset_type.id)
+
     # asset tree initialization
     # asset_1
     # |- asset_2

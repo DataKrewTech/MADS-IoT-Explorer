@@ -6,6 +6,7 @@ defmodule AcqdatApi.EntityManagement.SensorType do
   defdelegate update(sensor_type, data), to: SensorTypeModel
   defdelegate get_all(data, preloads), to: SensorTypeModel
   defdelegate delete(sensor_type), to: SensorTypeModel
+
   # defdelegate get(org_id, project_id), to: OrgModel
 
   def create(params) do
