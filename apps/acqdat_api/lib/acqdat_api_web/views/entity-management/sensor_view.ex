@@ -17,18 +17,19 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       type: "Sensor",
       id: sensor.id,
       parent_id: sensor.parent_id,
-      # inserted_at: sensor.inserted_at,
+      sensor_type_id: sensor.sensor_type_id,
       name: sensor.name,
-      entities: render_many(sensor.parameters, SensorView, "data_tree.json")
+      metadata: render_many(sensor.metadata || [], SensorView, "metadata.json")
     }
   end
 
-  def render("data_tree.json", %{sensor: parameter}) do
+  def render("metadata.json", %{sensor: metadata}) do
     %{
-      id: parameter.id,
-      name: parameter.name,
-      type: "Parameter",
-      uuid: parameter.uuid
+      id: metadata.id,
+      name: metadata.name,
+      data_type: metadata.data_type,
+      unit: metadata.unit,
+      uuid: metadata.uuid
     }
   end
 

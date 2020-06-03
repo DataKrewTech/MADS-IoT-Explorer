@@ -92,7 +92,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     case conn.status do
       nil ->
         case Asset.delete(conn.assigns.asset) do
-          {_number, nil} ->
+          {:ok, {_number, nil}} ->
             conn
             |> put_status(200)
             |> render("asset.json", %{asset: conn.assigns.asset})

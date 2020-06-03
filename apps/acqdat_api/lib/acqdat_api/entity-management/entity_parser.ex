@@ -3,15 +3,20 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
-  alias AcqdatCore.Schema.EntityManagement.Project
+  alias AcqdatCore.Schema.EntityManagement.{Project, Asset}
   alias AcqdatCore.Repo
 
   def update_project_hierarchy(
+        current_user,
         project,
         %{"org_id" => org_id, "type" => type, "entities" => entities} = params
       ) do
     {org_id, _} = Integer.parse(org_id)
-    validate_tree_hirerachy(parse_n_update(entities, org_id, nil, type, params), project)
+
+    validate_tree_hirerachy(
+      parse_n_update(entities, org_id, nil, type, params, current_user),
+      project
+    )
   end
 
   ############################# private functions ###########################
@@ -62,12 +67,13 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     nil
   end
 
-  defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity)
+  defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity, current_user)
        when entities !== nil do
     Repo.transaction(fn ->
       try do
         for entity <- entities do
-          result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity)
+          result =
+            entity_seggr(entity, org_id, parent_id, parent_type, parent_entity, current_user)
 
           case result do
             {:ok, {:delete_asset, _data}} ->
@@ -79,14 +85,22 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
                 org_id,
                 entity["id"],
                 entity["type"],
-                parent_entity
+                parent_entity,
+                current_user
               )
 
             {:error, message} ->
               throw(message)
 
             _ ->
-              parse_n_update(entity["entities"], org_id, entity["id"], entity["type"], nil)
+              parse_n_update(
+                entity["entities"],
+                org_id,
+                entity["id"],
+                entity["type"],
+                nil,
+                current_user
+              )
           end
         end
       catch
@@ -96,7 +110,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     end)
   end
 
-  defp parse_n_update(entities, _org_id, _parent_id, _parent_type, _parent_entity)
+  defp parse_n_update(entities, _org_id, _parent_id, _parent_type, _parent_entity, _current_user)
        when entities == nil do
     nil
   end
@@ -106,7 +120,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          _org_id,
          _parent_id,
          _parent_type,
-         _parent_entity
+         _parent_entity,
+         _current_user
        )
        when type == "Project" do
     project_version = version |> Decimal.new()
@@ -118,10 +133,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          org_id,
          parent_id,
          parent_type,
-         parent_entity
+         parent_entity,
+         current_user
        )
        when type == "Asset" and action == "create" do
-    asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+    asset_creation(entity, org_id, parent_id, parent_type, parent_entity, current_user)
   end
 
   defp entity_seggr(
@@ -129,7 +145,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          org_id,
          _parent_id,
          _parent_type,
-         _parent_entity
+         _parent_entity,
+         _current_user
        )
        when type == "Asset" and action == "update" do
     asset_updation(entity, org_id)
@@ -140,7 +157,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          _org_id,
          _parent_id,
          _parent_type,
-         _parent_entity
+         _parent_entity,
+         _current_user
        )
        when type == "Asset" and action == "delete" do
     asset_deletion(entity)
@@ -151,7 +169,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          org_id,
          parent_id,
          parent_type,
-         parent_entity
+         parent_entity,
+         __current_user
        )
        when type == "Sensor" and action == "create" do
     sensor_creation(entity, org_id, parent_id, parent_type, parent_entity)
@@ -162,7 +181,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          org_id,
          _parent_id,
          _parent_type,
-         _parent_entity
+         _parent_entity,
+         _current_user
        )
        when type == "Sensor" and action == "update" do
     sensor_updation(entity, org_id)
@@ -173,60 +193,86 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
          _org_id,
          _parent_id,
          _parent_type,
-         _parent_entity
+         _parent_entity,
+         _current_user
        )
        when type == "Sensor" and action == "delete" do
     sensor_deletion(entity)
   end
 
-  defp entity_seggr(%{"type" => _type}, _org_id, _parent_id, _parent_type, _parent_entity) do
+  defp entity_seggr(
+         %{"type" => _type},
+         _org_id,
+         _parent_id,
+         _parent_type,
+         _parent_entity,
+         _current_user
+       ) do
     nil
   end
 
-  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity)
+  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity, current_user)
        when parent_type == "Project" do
-    add_asset_as_root(entity, org_id, parent_entity.id)
+    add_asset_as_root(entity, org_id, parent_entity.id, current_user.id)
   end
 
-  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity)
+  defp asset_creation(entity, org_id, parent_id, parent_type, parent_entity, current_user)
        when parent_type == "Asset" and is_nil(parent_entity) do
-    add_asset_as_child(entity, org_id, parent_id)
+    add_asset_as_child(entity, org_id, parent_id, current_user.id)
   end
 
-  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity)
+  defp asset_creation(entity, org_id, _parent_id, parent_type, parent_entity, current_user)
        when parent_type == "Asset" do
-    add_asset_as_child(entity, org_id, parent_entity.id)
+    add_asset_as_child(entity, org_id, parent_entity.id, current_user.id)
   end
 
-  defp add_asset_as_root(%{"name" => name}, org_id, project_id) do
-    validate_organisation(OrgModel.get_by_id(org_id), name, project_id)
+  defp add_asset_as_root(entity, org_id, project_id, current_user_id) do
+    validate_organisation(OrgModel.get_by_id(org_id), entity, project_id, current_user_id)
   end
 
-  defp validate_organisation({:ok, org}, asset_name, project_id) do
-    AssetModel.add_as_root(%{
-      name: asset_name,
-      org_id: org.id,
-      org_name: org.name,
-      project_id: project_id
-    })
+  defp validate_organisation({:ok, org}, entity, project_id, current_user_id) do
+    asset = prepare_asset_params(entity, org.id, project_id, current_user_id)
+    asset = Map.put(asset, :org_name, org.name)
+    AssetModel.add_as_root(asset)
   end
 
-  defp validate_organisation({:error, _}, _asset_name, _project_id) do
+  defp validate_organisation({:error, _}, _asset_name, _project_id, _current_user_id) do
     {:error, "Organisation not found"}
   end
 
-  defp add_asset_as_child(%{"name" => name}, org_id, parent_id) do
-    # {:ok, parent_entity} = AssetModel.get(parent_id)
-    # AssetModel.add_as_child(parent_entity, name, org_id, :child)
-    validate_parent_asset(AssetModel.get(parent_id), name, org_id)
+  defp add_asset_as_child(entity, org_id, parent_id, current_user_id) do
+    validate_parent_asset(AssetModel.get(parent_id), entity, org_id, current_user_id)
   end
 
-  defp validate_parent_asset({:ok, parent_entity}, asset_name, org_id) do
-    AssetModel.add_as_child(parent_entity, asset_name, org_id, :child)
+  defp validate_parent_asset({:ok, parent_entity}, entity, org_id, current_user_id) do
+    child = prepare_asset_params(entity, org_id, parent_entity.project_id, current_user_id)
+    AssetModel.add_as_child(parent_entity, child, :child)
   end
 
   defp validate_parent_asset({:error, _}, _asset_name, _org_id) do
     {:error, "Asset not found"}
+  end
+
+  defp prepare_asset_params(params, org_id, project_id, current_user_id) do
+    metadata =
+      Enum.reduce(params["metadata"] || [], [], fn x, acc ->
+        x = x |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+        [x | acc]
+      end)
+
+    %Asset{
+      creator_id: current_user_id,
+      description: params["description"],
+      image_url: params["image_url"],
+      mapped_parameters: params["mapped_parameters"],
+      metadata: metadata,
+      name: params["name"],
+      org_id: org_id,
+      owner_id: params["owner_id"],
+      project_id: project_id,
+      asset_type_id: params["asset_type_id"],
+      properties: params["properties"]
+    }
   end
 
   defp asset_updation(%{"id" => id} = entity, _org_id) do
@@ -240,13 +286,14 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     validate_asset(AssetModel.get(id), %{action: "delete"})
   end
 
-  defp sensor_creation(%{"name" => name}, org_id, parent_id, parent_type, nil) do
-    validate_sensor_asset(AssetModel.get(parent_id), name, org_id, parent_id, parent_type)
+  defp sensor_creation(entity, org_id, parent_id, parent_type, nil) do
+    validate_sensor_asset(AssetModel.get(parent_id), entity, org_id, parent_id, parent_type)
   end
 
-  defp sensor_creation(%{"name" => name}, org_id, _parent_id, _parent_type, parent_entity) do
+  defp sensor_creation(entity, org_id, _parent_id, _parent_type, parent_entity) do
     SensorModel.create(%{
-      name: name,
+      name: entity["name"],
+      sensor_type_id: entity["sensor_type_id"],
       parent_id: parent_entity.id,
       parent_type: "Asset",
       org_id: org_id,
@@ -254,9 +301,10 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     })
   end
 
-  defp validate_sensor_asset({:ok, asset}, name, org_id, parent_id, parent_type) do
+  defp validate_sensor_asset({:ok, asset}, entity, org_id, parent_id, parent_type) do
     SensorModel.create(%{
-      name: name,
+      ame: entity["name"],
+      sensor_type_id: entity["sensor_type_id"],
       parent_id: parent_id,
       parent_type: parent_type,
       org_id: org_id,

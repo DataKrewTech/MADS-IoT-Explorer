@@ -133,13 +133,21 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     setup do
       org = insert(:organisation)
       project = insert(:project)
+      user = insert(:user)
+      asset_type = insert(:asset_type)
 
       {:ok, root_asset} =
         Asset.add_as_root(%{
-          name: "root asset",
+          name: "asset demo",
           org_id: project.org_id,
           org_name: org.name,
-          project_id: project.id
+          project_id: project.id,
+          asset_type_id: asset_type.id,
+          creator_id: user.id,
+          metadata: [],
+          mapped_parameters: [],
+          owner_id: user.id,
+          properties: []
         })
 
       [asset: root_asset]

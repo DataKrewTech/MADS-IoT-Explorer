@@ -66,16 +66,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     |> run_under_transaction(:update_details)
   end
 
-  def fetch_root(org_id, parent_id) do
-    query =
-      from(asset in Asset,
-        where:
-          asset.org_id == ^org_id and is_nil(asset.parent_id) == true and asset.id == ^parent_id
-      )
-
-    Repo.one!(query) |> Repo.preload([:org, :project, :creator, :asset_type])
-  end
-
   def update_asset(asset, %{parent_id: parent_id} = params) when not is_nil(parent_id) do
     {:ok, parent_asset} = get(parent_id)
     params = Map.drop(params, [:parent_id])
@@ -100,6 +90,16 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   def update_asset(asset, params) do
     changeset = Asset.update_changeset(asset, params)
     Repo.update(changeset)
+  end
+
+  def fetch_root(org_id, parent_id) do
+    query =
+      from(asset in Asset,
+        where:
+          asset.org_id == ^org_id and is_nil(asset.parent_id) == true and asset.id == ^parent_id
+      )
+
+    Repo.one!(query) |> Repo.preload([:org, :project, :creator, :asset_type])
   end
 
   def delete(asset) do
@@ -223,11 +223,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     |> SensorModel.delete_all()
   end
 
-  defp fetch_self_n_child_descendants(asset) do
-    AsNestedSet.self_and_descendants(asset)
-    |> AsNestedSet.execute(Repo)
-  end
-
   defp fetch_child_sensors(_data, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->
@@ -253,6 +248,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         {:error,
          "Asset #{asset.name} tree contains sensors. Please delete associated sensors before deleting asset."}
     end
+  end
+
+  defp fetch_self_n_child_descendants(asset) do
+    AsNestedSet.self_and_descendants(asset)
+    |> AsNestedSet.execute(Repo)
   end
 
   defp fetch_all_descendant_sensors(asset) do

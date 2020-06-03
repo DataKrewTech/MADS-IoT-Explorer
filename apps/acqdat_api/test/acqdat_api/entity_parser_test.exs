@@ -11,15 +11,25 @@ defmodule AcqdatApi.EntityParserTest do
   describe "update_hierarchy/2" do
     setup do
       project = insert(:project)
-      [project: project]
+      current_user = insert(:user)
+      asset_type = insert(:asset_type)
+      sensor_type = insert(:sensor_type)
+
+      [
+        project: project,
+        current_user: current_user,
+        asset_type: asset_type,
+        sensor_type: sensor_type
+      ]
     end
 
     test "returns success and increments project version if hirerachy tree has been updated successfully",
-         %{project: project} do
+         %{project: project, current_user: current_user, asset_type: asset_type} do
       assert {:ok, message} =
                EntityParser.update_project_hierarchy(
+                 current_user,
                  project,
-                 valid_hierarchy_tree_params(project)
+                 valid_hierarchy_tree_params(project, asset_type)
                )
 
       updated_proj = Repo.get(Project, project.id)
@@ -27,9 +37,10 @@ defmodule AcqdatApi.EntityParserTest do
     end
 
     test "returns errors when project version in the request params does not match with current version",
-         %{project: project} do
+         %{project: project, current_user: current_user} do
       assert {:error, message} =
                EntityParser.update_project_hierarchy(
+                 current_user,
                  project,
                  invalid_project_version_params(project)
                )
@@ -37,26 +48,37 @@ defmodule AcqdatApi.EntityParserTest do
       assert message == ["Please update your current tree version"]
     end
 
-    test "successfully create asset tree with Sensors as descendants", %{project: project} do
+    test "successfully create asset tree with Sensors as descendants", %{
+      project: project,
+      current_user: current_user,
+      asset_type: asset_type,
+      sensor_type: sensor_type
+    } do
       assert length(Repo.all(Asset)) == 0
       assert length(Repo.all(Sensor)) == 0
 
       assert {:ok, message} =
                EntityParser.update_project_hierarchy(
+                 current_user,
                  project,
-                 valid_asset_tree_with_sensors_creation_params(project)
+                 valid_asset_tree_with_sensors_creation_params(project, asset_type, sensor_type)
                )
 
       assert length(Repo.all(Asset)) == 1
       assert length(Repo.all(Sensor)) == 2
     end
 
-    test "update sensor details of hirerachy", %{project: project} do
-      {:ok, asset} = create_root_asset(project)
+    test "update sensor details of hirerachy", %{
+      project: project,
+      current_user: current_user,
+      asset_type: asset_type
+    } do
+      {:ok, asset} = create_root_asset(project, asset_type, current_user)
       {:ok, sensor} = create_child_sensors(asset)
 
       assert {:ok, message} =
                EntityParser.update_project_hierarchy(
+                 current_user,
                  project,
                  update_sensor_tree_params(project, asset, sensor)
                )
@@ -65,7 +87,10 @@ defmodule AcqdatApi.EntityParserTest do
       assert updated_sensor.name == "updated #{sensor.name}"
     end
 
-    test "successfully deletes sensor which doesn't have any data", %{project: project} do
+    test "successfully deletes sensor which doesn't have any data", %{
+      project: project,
+      current_user: current_user
+    } do
       sensor_manifest = build(:sensor, parent_id: project.id, parent_type: "Project")
 
       {:ok, sensor} = Repo.insert(sensor_manifest)
@@ -96,11 +121,14 @@ defmodule AcqdatApi.EntityParserTest do
       }
 
       refute is_nil(Repo.get(Sensor, sensor.id))
-      assert {:ok, message} = EntityParser.update_project_hierarchy(project, params)
+      assert {:ok, message} = EntityParser.update_project_hierarchy(current_user, project, params)
       assert is_nil(Repo.get(Sensor, sensor.id))
     end
 
-    test "return errors if sensor contains data, during deletion", %{project: project} do
+    test "return errors if sensor contains data, during deletion", %{
+      project: project,
+      current_user: current_user
+    } do
       sensor_manifest =
         build(:sensor, parent_id: project.id, parent_type: "Project", has_timesrs_data: true)
 
@@ -119,7 +147,8 @@ defmodule AcqdatApi.EntityParserTest do
                 "type" => "Sensor",
                 "action" => "delete",
                 "id" => sensor.id,
-                "parent_id" => project.id
+                "parent_id" => project.id,
+                "sensor_type_id" => sensor.sensor_type_id
               }
             ],
             "id" => project.id,
@@ -135,19 +164,18 @@ defmodule AcqdatApi.EntityParserTest do
         "type" => "Organisation"
       }
 
-      assert {:error, message} = EntityParser.update_project_hierarchy(project, params)
+      assert {:error, message} =
+               EntityParser.update_project_hierarchy(current_user, project, params)
 
       assert message == "Something went wrong. Please verify your hirerachy tree."
     end
 
-    test "successfully deletes respective leaf asset", %{project: project} do
-      {:ok, asset} =
-        AssetModel.add_as_root(%{
-          name: "root asset",
-          org_id: project.org_id,
-          org_name: "demo org",
-          project_id: project.id
-        })
+    test "successfully deletes respective leaf asset", %{
+      project: project,
+      asset_type: asset_type,
+      current_user: current_user
+    } do
+      {:ok, asset} = create_root_asset(project, asset_type, current_user)
 
       params = %{
         "entities" => [
@@ -176,18 +204,16 @@ defmodule AcqdatApi.EntityParserTest do
         "type" => "Organisation"
       }
 
-      assert {:ok, message} = EntityParser.update_project_hierarchy(project, params)
+      assert {:ok, message} = EntityParser.update_project_hierarchy(current_user, project, params)
       assert is_nil(Repo.get(Asset, asset.id))
     end
 
-    test "deletion of asset fails if its child sensor has data", %{project: project} do
-      {:ok, asset} =
-        AssetModel.add_as_root(%{
-          name: "root asset",
-          org_id: project.org_id,
-          org_name: "demo org",
-          project_id: project.id
-        })
+    test "deletion of asset fails if its child sensor has data", %{
+      project: project,
+      asset_type: asset_type,
+      current_user: current_user
+    } do
+      {:ok, asset} = create_root_asset(project, asset_type, current_user)
 
       {:ok, sensor} = Repo.insert(build(:sensor, parent_id: asset.id, parent_type: "Asset"))
 
@@ -225,7 +251,8 @@ defmodule AcqdatApi.EntityParserTest do
         "type" => "Organisation"
       }
 
-      assert {:error, message} = EntityParser.update_project_hierarchy(project, params)
+      assert {:error, message} =
+               EntityParser.update_project_hierarchy(current_user, project, params)
 
       assert message == [
                "Asset root asset tree contains sensors. Please delete associated sensors before deleting asset."
@@ -233,15 +260,11 @@ defmodule AcqdatApi.EntityParserTest do
     end
 
     test "deletion of asset will not fail if it doesn't have sensors descendants", %{
-      project: project
+      project: project,
+      asset_type: asset_type,
+      current_user: current_user
     } do
-      {:ok, asset} =
-        AssetModel.add_as_root(%{
-          name: "root asset",
-          org_id: project.org_id,
-          org_name: "demo org",
-          project_id: project.id
-        })
+      {:ok, asset} = create_root_asset(project, asset_type, current_user)
 
       params = %{
         "entities" => [
@@ -270,11 +293,11 @@ defmodule AcqdatApi.EntityParserTest do
         "type" => "Organisation"
       }
 
-      assert {:ok, message} = EntityParser.update_project_hierarchy(project, params)
+      assert {:ok, message} = EntityParser.update_project_hierarchy(current_user, project, params)
       assert is_nil(Repo.get(Asset, asset.id))
     end
 
-    defp valid_hierarchy_tree_params(project) do
+    defp valid_hierarchy_tree_params(project, asset_type) do
       %{
         "entities" => [
           %{
@@ -285,7 +308,8 @@ defmodule AcqdatApi.EntityParserTest do
                 "parent_id" => nil,
                 "properties" => [],
                 "type" => "Asset",
-                "action" => "create"
+                "action" => "create",
+                "asset_type_id" => asset_type.id
               }
             ],
             "id" => project.id,
@@ -319,7 +343,7 @@ defmodule AcqdatApi.EntityParserTest do
       }
     end
 
-    defp valid_asset_tree_with_sensors_creation_params(project) do
+    defp valid_asset_tree_with_sensors_creation_params(project, asset_type, sensor_type) do
       %{
         "entities" => [
           %{
@@ -330,20 +354,23 @@ defmodule AcqdatApi.EntityParserTest do
                     "name" => "Soil Moisture Sensor",
                     "type" => "Sensor",
                     "action" => "create",
-                    "parent_id" => nil
+                    "parent_id" => nil,
+                    "sensor_type_id" => sensor_type.id
                   },
                   %{
                     "name" => "Moisture Sensor",
                     "type" => "Sensor",
                     "action" => "create",
-                    "parent_id" => nil
+                    "parent_id" => nil,
+                    "sensor_type_id" => sensor_type.id
                   }
                 ],
                 "name" => "Ipoh Factory",
                 "parent_id" => nil,
                 "properties" => [],
                 "type" => "Asset",
-                "action" => "create"
+                "action" => "create",
+                "asset_type_id" => asset_type.id
               }
             ],
             "id" => project.id,
@@ -396,12 +423,18 @@ defmodule AcqdatApi.EntityParserTest do
       }
     end
 
-    defp create_root_asset(project) do
+    defp create_root_asset(project, asset_type, current_user) do
       AssetModel.add_as_root(%{
+        creator_id: current_user.id,
         name: "root asset",
         org_id: project.org_id,
         org_name: "demo org",
-        project_id: project.id
+        owner_id: current_user.id,
+        project_id: project.id,
+        asset_type_id: asset_type.id,
+        mapped_parameters: [%{name: "demo", data_type: "temp", unit: "123"}],
+        metadata: [%{name: "demo", data_type: "temp", unit: "123"}],
+        properties: ["temp", "current", "voltage"]
       })
     end
 
