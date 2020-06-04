@@ -44,6 +44,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       uuid: sensor.uuid,
       parent_id: sensor.parent_id,
       parent_type: sensor.parent_type,
+      sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json"),
       metadata: render_many(sensor.metadata, SensorView, "metadata.json")
     }
   end
