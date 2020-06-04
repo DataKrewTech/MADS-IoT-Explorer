@@ -200,4 +200,3 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
     end
   end
 end
-

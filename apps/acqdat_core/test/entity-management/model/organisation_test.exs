@@ -2,7 +2,7 @@ defmodule AcqdatCore.Model.EntityManagement.OrganisationTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
-  alias AcqdatCore.Model.EntityManagement.Organisation
+  alias AcqdatCore.Model.EntityManagement.{Organisation, Asset}
 
   describe "get_by_id/1" do
     test "returns a particular organisation" do

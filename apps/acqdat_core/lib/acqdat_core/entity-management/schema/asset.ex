@@ -17,7 +17,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   to a specific project.
   """
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Organisation,Project, AssetType}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project, AssetType}
   alias AcqdatCore.Schema.RoleManagement.User
   use AsNestedSet, scope: [:project_id]
 

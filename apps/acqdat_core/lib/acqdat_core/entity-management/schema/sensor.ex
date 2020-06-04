@@ -28,7 +28,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     field(:slug, :string, null: false)
     field(:name, :string)
     field(:parent_id, :integer)
-    field(:metadata, :map)
     field(:parent_type, :string)
     field(:has_timesrs_data, :boolean, default: false)
 

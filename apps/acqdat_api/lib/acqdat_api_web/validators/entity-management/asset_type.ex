@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.AssetType do
   use Params
 
   defparams(
-    verify_asset_params(%{
+    verify_asset_type_params(%{
       name!: :string,
       description: :string,
       metadata: [field: {:array, :map}, default: []],

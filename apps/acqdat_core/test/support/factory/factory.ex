@@ -137,6 +137,7 @@ defmodule AcqdatCore.Support.Factory do
       name: sequence(:asset_type_name, &"AssetType#{&1}"),
       slug: sequence(:asset_type_name, &"AssetType#{&1}"),
       uuid: UUID.uuid1(:hex),
+      project: build(:project),
       org: build(:organisation),
       parameters: [
         %{
@@ -153,12 +154,12 @@ defmodule AcqdatCore.Support.Factory do
       metadata: [
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
-          type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
           unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
         },
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
-          type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
+          data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
           unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
         }
       ]

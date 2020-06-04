@@ -71,7 +71,6 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
-
   @spec delete(%{__struct__: atom | %{__changeset__: any}}) :: any
   def delete(asset_type) do
     case is_nil(asset_present?(asset_type)) do

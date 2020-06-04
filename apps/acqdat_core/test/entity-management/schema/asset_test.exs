@@ -37,14 +37,15 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       refute validity
 
       assert %{
+               asset_type_id: ["can't be blank"],
                org_id: ["can't be blank"],
-               parent_id: ["can't be blank"],
-               asset_type_id: ["can't be blank"]
+               creator_id: ["can't be blank"],
+               project_id: ["can't be blank"]
              } = errors_on(changeset)
     end
 
     test "returns error if org assoc constraint not satisfied", %{
-      user: user
+      user: user,
       project: project,
       asset_type: asset_type
     } do
@@ -80,8 +81,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
 
       assert %{
                project_id: ["can't be blank"],
-               creator_id: ["can't be blank"],
-               asset_type_id: ["can't be blank"]
+               creator_id: ["can't be blank"]
              } ==
                errors_on(result_changeset)
     end
@@ -110,7 +110,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
           parent_id: parent_asset.id,
           project: project,
           asset_type: asset_type,
-          creator: user,
+          creator: user
         )
         |> Map.from_struct()
         |> Map.put(:org_id, organisation.id)

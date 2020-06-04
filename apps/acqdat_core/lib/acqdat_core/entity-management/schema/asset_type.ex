@@ -65,7 +65,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
 
   @permitted @required_params ++ @optional_params
 
-
   @spec changeset(
           __MODULE__.t(),
           map
@@ -80,7 +79,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     |> validate_required(@required_params)
     |> common_changeset()
   end
-
 
   @spec update_changeset(
           AcqdatCore.Schema.AssetType.t(),
@@ -107,7 +105,6 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
       message: "asset type already exists"
     )
   end
-
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
