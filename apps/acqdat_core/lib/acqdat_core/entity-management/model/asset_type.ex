@@ -44,6 +44,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
         where: asset_type.org_id == ^org_id and asset_type.project_id == ^project_id,
         order_by: asset_type.id
       )
+
     paginated_asset_data = query |> Repo.paginate(page: page_number, page_size: page_size)
     asset_data_with_preloads = paginated_asset_data.entries |> Repo.preload(preloads)
 

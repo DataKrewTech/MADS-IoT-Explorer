@@ -15,7 +15,7 @@ defmodule AcqdatCore.Schema.EntityManagement.ProjectTest do
     end
 
     test "returns error changeset on empty params" do
-      changeset = Project.changeset(%Project{}, %{})
+      changeset = Project.changeset(%Project{}, %{lead_ids: [], user_ids: []})
 
       assert %{
                name: ["can't be blank"],
@@ -31,7 +31,9 @@ defmodule AcqdatCore.Schema.EntityManagement.ProjectTest do
       params = %{
         org_id: project.org_id,
         name: project.name,
-        creator_id: creator.id
+        creator_id: creator.id,
+        lead_ids: [],
+        user_ids: []
       }
 
       changeset = Project.changeset(%Project{}, params)
@@ -48,7 +50,9 @@ defmodule AcqdatCore.Schema.EntityManagement.ProjectTest do
       params = %{
         org_id: -1,
         name: project.name,
-        creator_id: creator.id
+        creator_id: creator.id,
+        lead_ids: [],
+        user_ids: []
       }
 
       changeset = Project.changeset(%Project{}, params)
@@ -64,7 +68,9 @@ defmodule AcqdatCore.Schema.EntityManagement.ProjectTest do
       params = %{
         org_id: org.id,
         name: "Demo Project",
-        creator_id: creator.id
+        creator_id: creator.id,
+        lead_ids: [],
+        user_ids: []
       }
 
       %{valid?: validity} = Project.changeset(%Project{}, params)
