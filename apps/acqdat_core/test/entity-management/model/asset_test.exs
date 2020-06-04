@@ -150,7 +150,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           properties: []
         })
 
-      [asset: root_asset]
+      [asset: root_asset, user: user]
     end
 
     test "deletes respective leaf asset", context do
@@ -179,9 +179,23 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     end
 
     test "deletion of asset will not fails if any of its descendant's sensor has no data", %{
-      asset: asset
+      asset: asset,
+      user: user
     } do
-      assert {:ok, child_asset} = Asset.add_as_child(asset, "child asset", asset.org_id, :child)
+      child_asset = %AssetSchema{
+        creator_id: user.id,
+        description: "test one",
+        mapped_parameters: [],
+        metadata: [],
+        name: "test asset",
+        org_id: asset.org_id,
+        owner_id: user.id,
+        project_id: asset.project_id,
+        asset_type_id: asset.asset_type_id,
+        properties: []
+      }
+
+      assert {:ok, child_asset} = Asset.add_as_child(asset, child_asset, :child)
 
       sensor_manifest1 =
         build(:sensor, parent_id: asset.id, parent_type: "Asset", has_timesrs_data: false)
@@ -202,6 +216,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       asset = insert(:asset)
       org = insert(:organisation)
       project = insert(:project)
+      asset_type = insert(:asset_type)
 
       [asset: asset, org: org, project: project]
     end
@@ -254,8 +269,20 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       %{project: project, parent_entity: parent_entity, org: org} = context
       user = insert(:user)
 
-      assert {:ok, child_asset} =
-               Asset.add_as_child(parent_entity, "child asset", project.org_id, :child)
+      child_asset = %AssetSchema{
+        creator_id: user.id,
+        description: "test one",
+        mapped_parameters: [],
+        metadata: [],
+        name: "test asset",
+        org_id: org.id,
+        owner_id: user.id,
+        project_id: project.id,
+        asset_type_id: parent_entity.asset_type_id,
+        properties: []
+      }
+
+      assert {:ok, child_asset} = Asset.add_as_child(parent_entity, child_asset, :child)
 
       refute is_nil(child_asset)
     end
@@ -301,7 +328,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     asset_type = insert(:asset_type)
     user = insert(:user)
 
-    asset_1 = build_asset_map("asset_1", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_2 = build_asset_map("asset_2", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_3 = build_asset_map("asset_3", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_4 = build_asset_map("asset_4", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_5 = build_asset_map("asset_5", org.id, org.name, project.id, user.id, asset_type.id)
 
     # asset tree initialization
     # asset_1
@@ -310,11 +340,15 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     #    |- asset_5
     # |- asset_3
 
-    {:ok, asset_1} = Asset.add_as_root(asset_1)
-    {:ok, asset_2} = Asset.add_as_child(asset_1, "asset_2", org.id, :child)
-    Asset.add_as_child(asset_1, "asset_3", org.id, :child)
-    Asset.add_as_child(asset_2, "asset_4", org.id, :child)
-    Asset.add_as_child(asset_2, "asset_5", org.id, :child)
+    {:ok, asset_1} =
+      Asset.add_as_root(
+        build_asset_root_map("asset_1", org.id, org.name, project.id, user.id, asset_type.id)
+      )
+
+    {:ok, asset_2} = Asset.add_as_child(asset_1, asset_2, :child)
+    Asset.add_as_child(asset_1, asset_3, :child)
+    Asset.add_as_child(asset_2, asset_4, :child)
+    Asset.add_as_child(asset_2, asset_5, :child)
 
     {:ok,
      %{
@@ -323,11 +357,25 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
      }}
   end
 
-  defp build_asset_map(name, org_id, org_name, project_id, creator_id, asset_type_id) do
+  defp build_asset_root_map(name, org_id, org_name, project_id, creator_id, asset_type_id) do
     %{
       name: name,
       org_id: org_id,
       org_name: org_name,
+      project_id: project_id,
+      creator_id: creator_id,
+      asset_type_id: asset_type_id,
+      metadata: [],
+      mapped_parameters: [],
+      owner_id: creator_id,
+      properties: []
+    }
+  end
+
+  defp build_asset_map(name, org_id, org_name, project_id, creator_id, asset_type_id) do
+    %AssetSchema{
+      name: name,
+      org_id: org_id,
       project_id: project_id,
       creator_id: creator_id,
       asset_type_id: asset_type_id,

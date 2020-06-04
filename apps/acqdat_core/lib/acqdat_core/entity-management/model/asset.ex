@@ -1,25 +1,11 @@
 defmodule AcqdatCore.Model.EntityManagement.Asset do
   import AsNestedSet.Modifiable
-  import AsNestedSet.Queriable, only: [dump_one: 2]
   import Ecto.Query
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Schema.EntityManagement.Asset
   alias Ecto.Multi
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
-
-  def child_assets(project_id) do
-    project_assets = fetch_root_assets(project_id)
-
-    Enum.reduce(project_assets, [], fn asset, acc ->
-      entities = AsNestedSet.descendants(asset) |> AsNestedSet.execute(Repo)
-
-      asset = fetch_child_sensors(nil, entities, asset)
-
-      res_asset = fetch_child_sensors(List.first(entities), entities, asset)
-      acc ++ [res_asset]
-    end)
-  end
 
   def get(id) when is_integer(id) do
     case Repo.get(Asset, id) |> Repo.preload([:org, :project]) do
@@ -29,6 +15,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       asset ->
         {:ok, asset}
     end
+  end
+
+  def child_assets(project_id) do
+    Asset |> dump_assets(%{project_id: project_id}) |> AsNestedSet.execute(Repo)
   end
 
   @doc """
@@ -151,31 +141,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   for the classification  and position is the position which can be [:child, :left, :right].
 
   """
-  def add_as_child(parent, name, org_id, position) do
-    try do
-      child =
-        asset_struct(%{
-          name: name,
-          org_id: org_id,
-          slug: parent.org.name <> parent.name <> name,
-          project_id: parent.project.id,
-          asset_type_id: parent.asset_type_id,
-          creator_id: parent.creator_id,
-          owner_id: parent.owner_id,
-          properties: parent.properties
-        })
-
-      taxon =
-        child
-        |> create(parent, position)
-        |> AsNestedSet.execute(Repo)
-
-      {:ok, taxon}
-    rescue
-      error in Ecto.InvalidChangesetError ->
-        {:error, error.changeset}
-    end
-  end
 
   def add_as_child(%Asset{} = parent, %Asset{} = child, position) do
     try do
@@ -221,6 +186,42 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   defp delete_sensors_descentants(asset) do
     Enum.map(fetch_self_n_child_descendants(asset), fn asset -> asset.id end)
     |> SensorModel.delete_all()
+  end
+
+  defp dump_assets(module, scope, parent_id \\ nil) do
+    fn repo ->
+      children = fetch_child_assets(repo, module, scope, parent_id)
+
+      Enum.reduce(children, [], fn asset, acc ->
+        res_asset = dump_assets(module, scope, asset.id).(repo)
+        sensor_entities = fetch_child_sensors(nil, res_asset, asset)
+
+        res_asset = fetch_child_sensors(List.first(res_asset), res_asset, sensor_entities)
+        acc ++ [res_asset]
+      end)
+    end
+  end
+
+  # NOTE: Taken referenece from as_nested_set queriable module dump function:
+  # https://github.com/secretworry/as_nested_set/blob/1883d61796c676fdb610c6be19fd565f501635de/lib/as_nested_set/queriable.ex#L117
+  defp fetch_child_assets(repo, module, scope, parent_id \\ nil) do
+    parent_id_column = :parent_id
+    left_column = :lft
+
+    children =
+      if parent_id do
+        from(q in module,
+          where: field(q, ^parent_id_column) == ^parent_id,
+          order_by: ^[left_column]
+        )
+      else
+        from(q in module,
+          where: is_nil(field(q, ^parent_id_column)),
+          order_by: ^[left_column]
+        )
+      end
+      |> AsNestedSet.Scoped.scoped_query(scope)
+      |> repo.all
   end
 
   defp fetch_child_sensors(_data, entities, asset) do
