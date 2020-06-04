@@ -10,6 +10,10 @@ defmodule AcqdatApiWeb.Plug.LoadProject do
     check_project(conn, project_id)
   end
 
+  def call(%{params: %{"id" => project_id}} = conn, _params) do
+    check_project(conn, project_id)
+  end
+
   defp check_project(conn, project_id) do
     {project_id, _} = Integer.parse(project_id)
 

@@ -4,7 +4,87 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
 
-    describe "index/2" do
+  describe "create/2" do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      user = insert(:user)
+      [org: org, user: user]
+    end
+
+    test "project create", %{conn: conn, org: org, user: user} do
+      project = build(:project)
+
+      data = %{
+        name: project.name,
+        creator_id: user.id
+      }
+
+      conn = post(conn, Routes.project_path(conn, :create, org.id), data)
+      response = conn |> json_response(200)
+
+      assert response = %{
+               "archived" => project.archived,
+               "creator_id" => user.id,
+               "name" => project.name,
+               "org_id" => org.id,
+               "slug" => project.slug,
+               "type" => "Project",
+               "version" => project.version
+             }
+    end
+
+    test "fails if authorization header not found", %{conn: conn, org: org, user: user} do
+      bad_access_token = "qwerty1234567uiop"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      data = %{
+        creator_id: user.id
+      }
+
+      conn = post(conn, Routes.project_path(conn, :create, org.id), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "fails if sent params are not unique", %{conn: conn, org: org, user: user} do
+      project = insert(:project)
+
+      data = %{
+        name: project.name,
+        creator_id: project.creator_id
+      }
+
+      conn = post(conn, Routes.project_path(conn, :create, project.org_id), data)
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "errors" => %{
+                 "message" => %{"error" => %{"name" => ["unique name under organisation"]}}
+               }
+             }
+    end
+
+    test "fails if required params are missing", %{conn: conn, org: org, user: user} do
+      conn = post(conn, Routes.project_path(conn, :create, org.id), %{})
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "errors" => %{
+                 "message" => %{
+                   "name" => ["can't be blank"],
+                   "creator_id" => ["can't be blank"]
+                 }
+               }
+             }
+    end
+  end
+
+  describe "index/2" do
     setup :setup_conn
 
     test "Project Data", %{conn: conn, org: org} do
@@ -81,6 +161,76 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       }
 
       conn = get(conn, Routes.project_path(conn, :index, org.id, params))
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
+  describe "update/2" do
+    setup :setup_conn
+
+    test "project update", %{conn: conn} do
+      project = insert(:project)
+      data = Map.put(%{}, :name, "Water Project")
+
+      conn = put(conn, Routes.project_path(conn, :update, project.org_id, project.id), data)
+      response = conn |> json_response(200)
+
+      assert response = %{
+               "archived" => project.archived,
+               "creator_id" => project.creator_id,
+               "name" => project.name,
+               "org_id" => project.org_id,
+               "slug" => project.slug,
+               "type" => "Project",
+               "version" => project.version
+             }
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn} do
+      bad_access_token = "qwerty12345678qwer"
+      project = insert(:project)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      data = Map.put(%{}, :name, "Water Project")
+      conn = put(conn, Routes.project_path(conn, :update, project.org_id, project.id), data)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
+  describe "delete/2" do
+    setup :setup_conn
+
+    test "project delete", %{conn: conn} do
+      project = insert(:project)
+
+      conn = delete(conn, Routes.project_path(conn, :delete, project.org_id, project.id))
+      response = conn |> json_response(200)
+
+      assert response = %{
+               "archived" => project.archived,
+               "creator_id" => project.creator_id,
+               "name" => project.name,
+               "org_id" => project.org_id,
+               "slug" => project.slug,
+               "type" => "Project",
+               "version" => project.version
+             }
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn} do
+      project = insert(:project)
+      bad_access_token = "qwerty1234567qwerty"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      conn = delete(conn, Routes.project_path(conn, :delete, project.org_id, project.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end

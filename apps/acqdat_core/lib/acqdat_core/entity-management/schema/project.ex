@@ -49,6 +49,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> add_slug()
     |> validate_required(@required_params)
     |> common_changeset(params)
+    |> put_project_leads(params.lead_ids)
+    |> put_project_users(params.user_ids)
   end
 
   def update_changeset(%__MODULE__{} = project, params) do
@@ -56,6 +58,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> common_changeset(params)
+    |> put_project_leads(params["lead_ids"])
+    |> put_project_users(params["user_ids"])
   end
 
   def common_changeset(changeset, params) do
@@ -68,8 +72,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
       name: :unique_project_per_org,
       message: "unique name under organisation"
     )
-    |> put_project_leads(params.lead_ids)
-    |> put_project_users(params.user_ids)
   end
 
   defp add_uuid(changeset) do
@@ -87,12 +89,24 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   end
 
   defp put_project_users(changeset, user_ids) do
-    users = Repo.all(from(user in User, where: user.id in ^user_ids))
-    put_assoc(changeset, :users, Enum.map(users, &change/1))
+    case is_nil(user_ids) do
+      false ->
+        users = Repo.all(from(user in User, where: user.id in ^user_ids))
+        put_assoc(changeset, :users, Enum.map(users, &change/1))
+
+      true ->
+        changeset
+    end
   end
 
   defp put_project_leads(changeset, lead_ids) do
-    leads = Repo.all(from(user in User, where: user.id in ^lead_ids))
-    put_assoc(changeset, :leads, Enum.map(leads, &change/1))
+    case is_nil(lead_ids) do
+      false ->
+        leads = Repo.all(from(user in User, where: user.id in ^lead_ids))
+        put_assoc(changeset, :leads, Enum.map(leads, &change/1))
+
+      true ->
+        changeset
+    end
   end
 end

@@ -50,6 +50,23 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
     }
   end
 
+  def render("project_index.json", %{project: project}) do
+    %{
+      type: "Project",
+      id: project.id,
+      name: project.name,
+      archived: project.archived,
+      slug: project.slug,
+      description: project.description,
+      version: project.version,
+      org_id: project.org_id,
+      avatar: project.avatar,
+      metadata: project.metadata,
+      start_date: project.start_date,
+      creator_id: project.creator_id
+    }
+  end
+
   def render("user.json", %{project: user}) do
     %{
       id: user.id,

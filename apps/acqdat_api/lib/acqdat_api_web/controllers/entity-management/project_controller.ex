@@ -1,28 +1,70 @@
 defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityManagement.Project
+  alias AcqdatApi.Image
+  alias AcqdatApi.ImageDeletion
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Project
 
   plug AcqdatApiWeb.Plug.LoadOrg
+  plug AcqdatApiWeb.Plug.LoadProject when action in [:update, :delete, :show]
+
   @doc """
-    This piece of code will be useful when we will implement Project role based listing
-    #case ProjectModel.check_adminship(Guardian.Plug.current_resource(conn)) do
-      #true ->
-      # false ->
-    #   conn
-    #   |> send_error(404, "User is not admin!")
-    #end
-    """
+  This piece of code will be useful when we will implement Project role based listing
+  #case ProjectModel.check_adminship(Guardian.Plug.current_resource(conn)) do
+  #true ->
+  # false ->
+  #   conn
+  #   |> send_error(404, "User is not admin!")
+  #end
+  """
+
   def index(conn, params) do
     changeset = verify_index_params(params)
+
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
         {:list, project} = {:list, Project.get_all(data, [])}
+
         conn
         |> put_status(200)
-        |> render("show.json", project)
+        |> render("index.json", project)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        %{assigns: %{project: project}} = conn
+        params = Map.put(params, "image_url", project.avatar)
+
+        params =
+          case is_nil(params["image"]) do
+            true ->
+              params
+
+            false ->
+              ImageDeletion.delete_operation(project, "project")
+              add_image_url(conn, params)
+          end
+
+        case Project.update(project, params) do
+          {:ok, project} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{project: project})
+
+          {:error, project} ->
+            error = extract_changeset_error(project)
+
+            conn
+            |> send_error(400, error)
+        end
 
       404 ->
         conn
@@ -33,6 +75,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   def create(conn, params) do
     case conn.status do
       nil ->
+        params = add_avatar_to_params(conn, params)
         changeset = verify_project(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
@@ -51,6 +94,53 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def delete(conn, _params) do
+    case conn.status do
+      nil ->
+        %{assigns: %{project: project}} = conn
+
+        case Project.delete(project) do
+          {:ok, project} ->
+            project = Map.put(project, :image_url, project.avatar)
+            ImageDeletion.delete_operation(project, "project")
+
+            conn
+            |> put_status(200)
+            |> render("show.json", %{project: project})
+
+          {:error, project} ->
+            error = extract_changeset_error(project)
+
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  defp add_avatar_to_params(conn, params) do
+    params = Map.put(params, "avatar", "")
+
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        add_image_url(conn, params)
+    end
+  end
+
+  defp add_image_url(conn, %{"image" => image} = params) do
+    with {:ok, image_name} <- Image.store({image, "project"}) do
+      Map.replace!(params, "avatar", Image.url({image_name, "project"}))
+    else
+      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end
