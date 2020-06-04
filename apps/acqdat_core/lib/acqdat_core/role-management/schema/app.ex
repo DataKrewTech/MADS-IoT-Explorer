@@ -71,11 +71,6 @@ defmodule AcqdatCore.Schema.RoleManagement.App do
     |> unique_constraint(:key, name: :acqdat_apps_key_index)
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
   defp add_key(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:key, generate_app_key(changeset))

@@ -62,9 +62,4 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
     |> unique_constraint(:name, name: :acqdat_organisation_name_index)
     |> unique_constraint(:uuid, name: :acqdat_organisation_uuid_index)
   end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
 end

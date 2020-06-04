@@ -93,20 +93,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     |> assoc_constraint(:sensor_type)
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:slug, Slugger.slugify(random_string(12)))
-  end
-
-  defp random_string(length) do
-    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
-  end
-
   defp create_metadata_changeset(schema, params) do
     schema
     |> cast(params, @permitted_metadata)

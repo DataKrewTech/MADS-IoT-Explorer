@@ -1,7 +1,6 @@
 defmodule AcqdatCore.Model.Widgets.WidgetType do
   alias AcqdatCore.Widgets.Schema.WidgetType
   alias AcqdatCore.Repo
-  alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
   def create(params) do

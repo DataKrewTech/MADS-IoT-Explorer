@@ -85,11 +85,6 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
     widget
     |> cast(params, @permitted)
   end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
 end
 
 defmodule AcqdatCore.Widgets.Schema.Widget.VisualSettings do

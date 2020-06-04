@@ -40,11 +40,4 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetCategory do
       message: "unique name per organisation"
     )
   end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
-  defp add_uuid(changeset), do: changeset
 end

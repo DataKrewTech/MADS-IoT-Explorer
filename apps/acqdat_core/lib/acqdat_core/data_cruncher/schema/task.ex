@@ -31,7 +31,22 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     field(:data, :map)
     field(:type, :string)
 
+    field(:uuid, :string, null: false)
+    field(:slug, :string, null: false)
+
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:user, User, on_replace: :raise)
+  end
+
+  @required ~w(graphs data type org_id user_id)a
+
+  def changeset(%__MODULE__{} = task, params) do
+    task
+    |> cast(params, @required)
+    |> assoc_constraint(:org)
+    |> assoc_constraint(:user)
+    |> validate_inclusion(:type, @task_types)
+    |> add_slug()
+    |> add_uuid()
   end
 end

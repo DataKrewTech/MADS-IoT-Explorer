@@ -93,25 +93,4 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
     |> unique_constraint(:access_token, name: :acqdat_gateway_access_token_index)
     |> unique_constraint(:name, name: :acqdat_gateway_name_org_id_project_id_index)
   end
-
-  defp add_uuid(changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
-  defp add_slug(changeset) do
-    changeset
-    |> put_change(:slug, Slugger.slugify(random_string(12)))
-  end
-
-  defp parameters_changeset(schema, params) do
-    schema
-    |> cast(params, @permitted_embedded)
-    |> add_uuid()
-    |> validate_required(@embedded_required_params)
-  end
-
-  defp random_string(length) do
-    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
-  end
 end

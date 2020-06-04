@@ -76,7 +76,6 @@ defmodule AcqdatCore.MixProject do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.6"},
-      {:poison, "~> 3.1"},
       {:sweet_xml, "~> 0.6"},
 
       # slugger
@@ -101,7 +100,7 @@ defmodule AcqdatCore.MixProject do
       {:tortoise, "~> 0.9"}
 
       # flow based programming
-      {:virta, "~> 0.1"}
+      {:virta, in_umbrella: true}
     ]
   end
 
