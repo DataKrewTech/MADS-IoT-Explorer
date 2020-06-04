@@ -40,9 +40,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       slug: project.slug,
       description: project.description,
       version: project.version,
+      location: project.location,
       org_id: project.org_id,
       avatar: project.avatar,
-      metadata: project.metadata,
+      metadata: render_many(project.metadata, ProjectView, "metadata.json"),
       start_date: project.start_date,
       creator_id: project.creator_id,
       leads: render_many(project.leads, ProjectView, "user.json"),
@@ -59,9 +60,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       slug: project.slug,
       description: project.description,
       version: project.version,
+      location: project.location,
       org_id: project.org_id,
       avatar: project.avatar,
-      metadata: project.metadata,
+      metadata: render_many(project.metadata, ProjectView, "metadata.json"),
       start_date: project.start_date,
       creator_id: project.creator_id
     }
@@ -75,6 +77,16 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       email: user.email,
       org_id: user.org_id,
       role_id: user.role_id
+    }
+  end
+
+  def render("metadata.json", %{project: parameter}) do
+    %{
+      id: parameter.id,
+      name: parameter.name,
+      data_type: parameter.data_type,
+      unit: parameter.unit,
+      uuid: parameter.uuid
     }
   end
 end

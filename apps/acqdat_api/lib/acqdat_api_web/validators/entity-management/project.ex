@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Project do
       name!: :string,
       description: :string,
       avatar: :string,
-      metadata: :map,
+      metadata: [field: {:array, :map}, default: []],
       location: :map,
       archived: [field: :boolean, default: false],
       version: [field: :integer, default: 1],

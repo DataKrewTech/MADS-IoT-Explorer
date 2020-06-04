@@ -23,11 +23,17 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     field(:slug, :string, null: false)
     field(:description, :string)
     field(:avatar, :string)
-    field(:metadata, :map)
     field(:location, :map)
     field(:archived, :boolean, default: false)
     field(:version, :decimal, precision: 2, scale: 1, default: 1.0)
     field(:start_date, :utc_datetime)
+
+    embeds_many :metadata, Metadata, on_replace: :delete do
+      field(:name, :string, null: false)
+      field(:data_type, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:unit, :string)
+    end
 
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:creator, User, on_replace: :raise)
@@ -38,13 +44,17 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   end
 
   @required_params ~w(name uuid slug version creator_id org_id)a
-  @optional_params ~w(metadata description location avatar archived start_date)a
+  @optional_params ~w(description location avatar archived start_date)a
+  @embedded_metadata_required ~w(name uuid data_type)a
+  @embedded_metadata_optional ~w(unit)a
+  @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
 
   @permitted @required_params ++ @optional_params
 
   def changeset(%__MODULE__{} = project, params) do
     project
     |> cast(params, @permitted)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
@@ -56,6 +66,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   def update_changeset(%__MODULE__{} = project, params) do
     project
     |> cast(params, @permitted)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset(params)
     |> put_project_leads(params["lead_ids"])
@@ -108,5 +119,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
       true ->
         changeset
     end
+  end
+
+  defp metadata_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_metadata)
+    |> add_uuid()
+    |> validate_required(@embedded_metadata_required)
   end
 end
