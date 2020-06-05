@@ -190,8 +190,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeControllerTest do
       assert length(response["sensors_type"]) == 1
       assertion_sensor = List.first(response["sensors_type"])
       assert assertion_sensor["id"] == test_sensor.id
-      assert assertion_sensor["org"]["id"] == test_sensor.org.id
-      assert assertion_sensor["org"]["name"] == test_sensor.org.name
+      assert assertion_sensor["org_id"] == test_sensor.org.id
     end
 
     test "if params are missing", %{conn: conn, org: org} do

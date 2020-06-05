@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.EntityManagement.SensorView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.EntityManagement.SensorView
+  alias AcqdatApiWeb.EntityManagement.{SensorView, SensorTypeView}
 
   def render("sensor.json", %{sensor: sensor}) do
     %{
@@ -17,9 +17,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       type: "Sensor",
       id: sensor.id,
       parent_id: sensor.parent_id,
+      parent_type: sensor.parent_type,
       sensor_type_id: sensor.sensor_type_id,
       name: sensor.name,
-      metadata: render_many(sensor.metadata || [], SensorView, "metadata.json")
+      sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json")
     }
   end
 

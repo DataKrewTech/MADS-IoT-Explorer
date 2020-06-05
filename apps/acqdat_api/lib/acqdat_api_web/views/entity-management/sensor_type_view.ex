@@ -14,8 +14,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeView do
       uuid: sensor_type.uuid,
       generated_by: sensor_type.generated_by,
       project_id: sensor_type.project_id,
-      parameters: render_many(sensor_type.parameters, SensorTypeView, "data_tree.json"),
-      org: render_one(sensor_type.org, OrganisationView, "org.json")
+      parameters: render_many(sensor_type.parameters, SensorTypeView, "data_tree.json")
     }
   end
 

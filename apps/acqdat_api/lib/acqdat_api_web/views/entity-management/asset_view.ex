@@ -1,7 +1,6 @@
 defmodule AcqdatApiWeb.EntityManagement.AssetView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.EntityManagement.AssetView
-  alias AcqdatApiWeb.EntityManagement.SensorView
+  alias AcqdatApiWeb.EntityManagement.{AssetView, AssetTypeView, SensorView}
 
   def render("asset_tree.json", %{asset: asset}) do
     assets =
@@ -30,6 +29,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       creator_id: asset.creator_id,
       metadata: render_many(asset.metadata, AssetView, "metadata.json"),
       mapped_parameters: render_many(asset.mapped_parameters, AssetView, "parameters.json"),
+      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json"),
       entities: (assets || []) ++ (sensors || [])
       # TODO: Need to uncomment below fields depending on the future usecases in the view
       # description: asset.description,

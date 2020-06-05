@@ -17,7 +17,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
       sensor_type_present: asset_type.sensor_type_present,
       sensor_type_uuid: asset_type.sensor_type_uuid,
       parameters: render_many(asset_type.parameters, AssetTypeView, "data_tree.json")
-      # org: render_one(asset_type.org, OrganisationView, "org.json")
     }
   end
 
