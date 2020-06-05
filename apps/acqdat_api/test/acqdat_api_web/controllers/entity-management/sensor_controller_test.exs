@@ -19,7 +19,16 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
         uuid: sensor_manifest.uuid,
         parent_id: asset.id,
         parent_type: "Asset",
-        sensor_type_id: sensor_type.id
+        sensor_type_id: sensor_type.id,
+        metadata: [
+          %{
+            name: "Sensor Metadata",
+            uuid: UUID.uuid1(:hex),
+            data_type: "Sensor Data Type",
+            unit: "Sensor Unit",
+            value: "123"
+          }
+        ]
       }
 
       conn = post(conn, Routes.sensor_path(conn, :create, asset.org_id, asset.project_id), data)
@@ -72,7 +81,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
       assert Map.has_key?(response, "parent_type")
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
-      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "sensor_type_id")
       assert Map.has_key?(response, "uuid")
       assert response["name"] == "Water Plant"
     end
@@ -92,7 +101,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
       assert Map.has_key?(response, "parent_type")
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
-      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "sensor_type_id")
       assert Map.has_key?(response, "uuid")
       assert response["parent_id"] == project.id
       assert response["parent_type"] == "Project"
