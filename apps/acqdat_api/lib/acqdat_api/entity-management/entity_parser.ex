@@ -307,7 +307,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   defp validate_sensor_asset({:ok, asset}, entity, org_id, parent_id, parent_type) do
     SensorModel.create(%{
-      ame: entity["name"],
+      nqame: entity["name"],
       sensor_type_id: entity["sensor_type_id"],
       parent_id: parent_id,
       parent_type: parent_type,
@@ -321,16 +321,12 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp sensor_updation(
-         %{"id" => id, "name" => name},
+         %{"id" => id} = entity,
          _org_id
        ) do
     {:ok, sensor} = SensorModel.get(id)
 
-    SensorModel.update(sensor, %{
-      name: name
-      # parent_id: parent_id,
-      # parent_type: parent_type
-    })
+    SensorModel.update(sensor, entity)
   end
 
   defp sensor_deletion(%{"id" => id}) do
