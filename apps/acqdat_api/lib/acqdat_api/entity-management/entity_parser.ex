@@ -34,7 +34,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp validate_parser_result(result, project) do
-    validate_res(Enum.filter(List.flatten(result_parsing(result)), &(!is_nil(&1))), project)
+    result
+    |> result_parsing()
+    |> List.flatten()
+    |> Enum.filter(&(!is_nil(&1)))
+    |> validate_res(project)
   end
 
   defp validate_res(data, project) when length(data) == 0 do
