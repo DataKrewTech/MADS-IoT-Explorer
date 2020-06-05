@@ -4,6 +4,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   import AcqdatApiWeb.Validators.EntityManagement.AssetType
   alias AcqdatApi.EntityManagement.AssetType
 
+  plug AcqdatApiWeb.Plug.LoadProject
+  plug AcqdatApiWeb.Plug.LoadOrg
   plug :load_asset_type when action in [:update, :delete]
 
   def create(conn, params) do
@@ -48,7 +50,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
     end
   end
 
-  def update(conn, %{"asset_type" => params}) do
+  def update(conn, params) do
     case conn.status do
       nil ->
         case AssetType.update(conn.assigns.asset_type, params) do
