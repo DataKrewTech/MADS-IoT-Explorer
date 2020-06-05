@@ -10,7 +10,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
     test "sensor create", %{conn: conn} do
       asset = insert(:asset)
 
-      # sensor_type = insert(:sensor_type)
+      sensor_type = insert(:sensor_type)
 
       sensor_manifest = build(:sensor)
 
@@ -18,7 +18,8 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
         name: sensor_manifest.name,
         uuid: sensor_manifest.uuid,
         parent_id: asset.id,
-        parent_type: "Asset"
+        parent_type: "Asset",
+        sensor_type_id: sensor_type.id
       }
 
       conn = post(conn, Routes.sensor_path(conn, :create, asset.org_id, asset.project_id), data)
@@ -27,7 +28,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
       assert Map.has_key?(response, "parent_type")
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
-      # assert Map.has_key?(response, "sensor_type_id")
+      assert Map.has_key?(response, "sensor_type_id")
       assert Map.has_key?(response, "uuid")
     end
 

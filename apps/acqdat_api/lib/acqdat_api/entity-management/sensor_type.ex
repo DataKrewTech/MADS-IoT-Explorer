@@ -7,8 +7,6 @@ defmodule AcqdatApi.EntityManagement.SensorType do
   defdelegate get_all(data, preloads), to: SensorTypeModel
   defdelegate delete(sensor_type), to: SensorTypeModel
 
-  # defdelegate get(org_id, project_id), to: OrgModel
-
   def create(params) do
     %{
       name: name,
