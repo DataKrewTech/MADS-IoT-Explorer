@@ -10,7 +10,7 @@ defmodule AcqdatCore.Seed.EntityManagement.SensorsData do
     energy_sensor = Sensor |> where([sensor], sensor.name == "Air Quality Sensor") |> Repo.one |> Repo.preload([:sensor_type])
 
     sensor_list = sensor_data_list(org.id, vibration_sensor) ++ sensor_data_list(org.id, moisture_sensor) ++ sensor_data_list(org.id, energy_sensor)
-    
+
     Repo.transaction(fn ->
       Enum.each(sensor_list, fn data ->
         changeset = SensorsData.changeset(%SensorsData{}, data)
