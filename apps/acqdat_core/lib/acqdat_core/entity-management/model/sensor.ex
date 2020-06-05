@@ -38,6 +38,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Sensor
     |> where([sensor], sensor.project_id == ^project_id)
     |> where([sensor], sensor.parent_type == "Project")
+    |> preload([:sensor_type])
     |> Repo.all()
   end
 
@@ -89,12 +90,14 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
   def child_sensors_query(root) when is_list(root) == false do
     from(sensor in Sensor,
+      preload: [:sensor_type],
       where: sensor.parent_id == ^root.id and sensor.parent_type == "Asset"
     )
   end
 
   def child_sensors_query(asset_ids) when is_list(asset_ids) do
     from(sensor in Sensor,
+      preload: [:sensor_type],
       where: sensor.parent_id in ^asset_ids and sensor.parent_type == "Asset"
     )
   end

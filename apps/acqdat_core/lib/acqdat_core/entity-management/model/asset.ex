@@ -8,7 +8,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   alias AcqdatCore.Model.Helper, as: ModelHelper
 
   def get(id) when is_integer(id) do
-    case Repo.get(Asset, id) |> Repo.preload([:org, :project]) do
+    case Repo.get(Asset, id) |> Repo.preload([:org, :project, :asset_type]) do
       nil ->
         {:error, "not found"}
 
@@ -158,8 +158,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   def asset_descendants(asset) do
-    entities = asset |> AsNestedSet.descendants() |> AsNestedSet.execute(Repo)
-    fetch_child_sensors(List.first(entities), entities, asset)
+    asset_descen_tree =
+      Asset |> dump_assets(%{project_id: asset.project_id}, asset.id) |> AsNestedSet.execute(Repo)
+
+    Map.put_new(asset, :assets, asset_descen_tree)
   end
 
   def fetch_root_assets(project_id) do
@@ -194,15 +196,15 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
       Enum.reduce(children, [], fn asset, acc ->
         res_asset = dump_assets(module, scope, asset.id).(repo)
-        sensor_entities = fetch_child_sensors(nil, res_asset, asset)
+        sensor_entities = fetch_asset_descendants_map(nil, res_asset, asset)
 
-        res_asset = fetch_child_sensors(List.first(res_asset), res_asset, sensor_entities)
+        res_asset = fetch_asset_descendants_map(List.first(res_asset), res_asset, sensor_entities)
         acc ++ [res_asset]
       end)
     end
   end
 
-  # NOTE: Taken referenece from as_nested_set queriable module dump function:
+  # NOTE: Taken reference from as_nested_set queriable module dump function:
   # https://github.com/secretworry/as_nested_set/blob/1883d61796c676fdb610c6be19fd565f501635de/lib/as_nested_set/queriable.ex#L117
   defp fetch_child_assets(repo, module, scope, parent_id \\ nil) do
     parent_id_column = :parent_id
@@ -211,11 +213,13 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     children =
       if parent_id do
         from(q in module,
+          preload: [:asset_type],
           where: field(q, ^parent_id_column) == ^parent_id,
           order_by: ^[left_column]
         )
       else
         from(q in module,
+          preload: [:asset_type],
           where: is_nil(field(q, ^parent_id_column)),
           order_by: ^[left_column]
         )
@@ -224,7 +228,12 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       |> repo.all
   end
 
-  defp fetch_child_sensors(_data, entities, asset) do
+  defp fetch_asset_descendants_map(nil, _entities, asset) do
+    sensors = SensorModel.child_sensors(asset)
+    Map.put_new(asset, :sensors, sensors)
+  end
+
+  defp fetch_asset_descendants_map(_data, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->
         entities = SensorModel.child_sensors(asset)
@@ -233,11 +242,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       end)
 
     Map.put_new(asset, :assets, entities_with_sensors)
-  end
-
-  defp fetch_child_sensors(nil, _entities, asset) do
-    sensors = SensorModel.child_sensors(asset)
-    Map.put_new(asset, :sensors, sensors)
   end
 
   defp validate_and_delete_asset(asset) do
@@ -259,11 +263,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   defp fetch_all_descendant_sensors(asset) do
     Enum.map(fetch_self_n_child_descendants(asset), fn asset -> asset.id end)
     |> SensorModel.child_sensors()
-  end
-
-  defp fetch_self_n_child_descendants(asset) do
-    AsNestedSet.self_and_descendants(asset)
-    |> AsNestedSet.execute(Repo)
   end
 
   defp asset_struct(%{
@@ -289,8 +288,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       owner_id: owner_id,
       properties: properties
     }
-    |> Repo.preload(:org)
-    |> Repo.preload(:project)
+    |> Repo.preload([:org, :project])
   end
 
   defp run_under_transaction(multi, result_key) do
