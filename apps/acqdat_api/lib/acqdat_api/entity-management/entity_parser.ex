@@ -268,7 +268,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       creator_id: current_user_id,
       description: params["description"],
       image_url: params["image_url"],
-      mapped_parameters: params["mapped_parameters"],
+      mapped_parameters: [],
       metadata: metadata,
       name: params["name"],
       org_id: org_id,
@@ -290,16 +290,29 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     validate_asset(AssetModel.get(id), %{action: "delete"})
   end
 
-  defp sensor_creation(entity, org_id, parent_id, parent_type, nil) do
+  defp sensor_creation(entity, org_id, parent_id, parent_type, nil) when parent_type == "Asset" do
     validate_sensor_asset(AssetModel.get(parent_id), entity, org_id, parent_id, parent_type)
   end
 
-  defp sensor_creation(entity, org_id, _parent_id, _parent_type, parent_entity) do
+  defp sensor_creation(entity, org_id, _parent_id, parent_type, parent_entity)
+       when parent_type == "Project" do
     SensorModel.create(%{
       name: entity["name"],
       sensor_type_id: entity["sensor_type_id"],
       parent_id: parent_entity.id,
-      parent_type: "Asset",
+      parent_type: parent_type,
+      org_id: org_id,
+      project_id: parent_entity.id
+    })
+  end
+
+  defp sensor_creation(entity, org_id, _parent_id, parent_type, parent_entity)
+       when parent_type == "Asset" do
+    SensorModel.create(%{
+      name: entity["name"],
+      sensor_type_id: entity["sensor_type_id"],
+      parent_id: parent_entity.id,
+      parent_type: parent_type,
       org_id: org_id,
       project_id: parent_entity.project_id
     })
@@ -307,10 +320,10 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   defp validate_sensor_asset({:ok, asset}, entity, org_id, parent_id, parent_type) do
     SensorModel.create(%{
-      nqame: entity["name"],
+      name: entity["name"],
       sensor_type_id: entity["sensor_type_id"],
       parent_id: parent_id,
-      parent_type: parent_type,
+      parent_type: "Asset",
       org_id: org_id,
       project_id: asset.project_id
     })

@@ -55,6 +55,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
       field(:data_type, :string, null: false)
       field(:uuid, :string, null: false)
       field(:unit, :string)
+      field(:value, :string)
     end
 
     embeds_many :mapped_parameters, MappedParameters do
@@ -151,6 +152,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   defp metadata_changeset(schema, params) do
     schema
     |> cast(params, @permitted_metadata)
+    |> add_uuid()
     |> validate_required(@embedded_metadata_required)
   end
 end
