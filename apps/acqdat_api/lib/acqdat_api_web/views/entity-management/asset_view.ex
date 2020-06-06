@@ -64,7 +64,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       name: metadata.name,
       data_type: metadata.data_type,
       unit: metadata.unit,
-      uuid: metadata.uuid
+      uuid: metadata.uuid,
+      value: metadata.value
     }
   end
 
