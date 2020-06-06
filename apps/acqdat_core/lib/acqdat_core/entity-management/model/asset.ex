@@ -112,6 +112,20 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
+      asset_struct =
+        asset_struct(%{
+          name: name,
+          org_id: org_id,
+          slug: org_name <> name,
+          project_id: project_id,
+          creator_id: creator_id,
+          asset_type_id: asset_type_id,
+          metadata: metadata,
+          mapped_parameters: mapped_parameters,
+          owner_id: owner_id,
+          properties: properties
+        })
+
       taxon =
         asset_struct(%{
           name: name,
@@ -228,11 +242,19 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       |> repo.all
   end
 
+  @doc """
+  "fetch_asset_descendants_map" function will return all the sensors of the leaf asset.
+
+  """
   defp fetch_asset_descendants_map(nil, _entities, asset) do
     sensors = SensorModel.child_sensors(asset)
     Map.put_new(asset, :sensors, sensors)
   end
 
+  @doc """
+  "fetch_asset_descendants_map" function will return all the descendants(assets/sensors) of the respective asset.
+
+  """
   defp fetch_asset_descendants_map(_data, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->
@@ -273,7 +295,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
          asset_type_id: asset_type_id,
          creator_id: creator_id,
          owner_id: owner_id,
-         properties: properties
+         properties: properties,
+         metadata: metadata
        }) do
     %Asset{
       name: name,
@@ -286,7 +309,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       asset_type_id: asset_type_id,
       creator_id: creator_id,
       owner_id: owner_id,
-      properties: properties
+      properties: properties,
+      metadata: metadata
     }
     |> Repo.preload([:org, :project])
   end

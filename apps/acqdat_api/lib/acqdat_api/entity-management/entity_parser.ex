@@ -235,8 +235,11 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp validate_organisation({:ok, org}, entity, project_id, current_user_id) do
-    asset = prepare_asset_params(entity, org.id, project_id, current_user_id)
-    asset = Map.put(asset, :org_name, org.name)
+    asset =
+      entity
+      |> prepare_asset_params(org.id, project_id, current_user_id)
+      |> Map.put(:org_name, org.name)
+
     AssetModel.add_as_root(asset)
   end
 
