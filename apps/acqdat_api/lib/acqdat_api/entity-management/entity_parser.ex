@@ -261,18 +261,12 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp prepare_asset_params(params, org_id, project_id, current_user_id) do
-    metadata =
-      Enum.reduce(params["metadata"] || [], [], fn x, acc ->
-        x = x |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
-        [x | acc]
-      end)
-
     %Asset{
       creator_id: current_user_id,
       description: params["description"],
       image_url: params["image_url"],
       mapped_parameters: [],
-      metadata: metadata,
+      metadata: parse_metadata(params["metadata"] || []),
       name: params["name"],
       org_id: org_id,
       owner_id: params["owner_id"],
@@ -305,7 +299,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       parent_id: parent_entity.id,
       parent_type: parent_type,
       org_id: org_id,
-      project_id: parent_entity.id
+      project_id: parent_entity.id,
+      metadata: parse_metadata(entity["metadata"] || [])
     })
   end
 
@@ -317,7 +312,8 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       parent_id: parent_entity.id,
       parent_type: parent_type,
       org_id: org_id,
-      project_id: parent_entity.project_id
+      project_id: parent_entity.project_id,
+      metadata: parse_metadata(entity["metadata"] || [])
     })
   end
 
@@ -328,8 +324,16 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
       parent_id: parent_id,
       parent_type: "Asset",
       org_id: org_id,
-      project_id: asset.project_id
+      project_id: asset.project_id,
+      metadata: parse_metadata(entity["metadata"] || [])
     })
+  end
+
+  defp parse_metadata(metadata) do
+    Enum.reduce(metadata || [], [], fn x, acc ->
+      x = x |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+      [x | acc]
+    end)
   end
 
   defp validate_sensor_asset({:error, _message}, _name, _org_id, _parent_id, _parent_type) do

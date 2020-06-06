@@ -66,7 +66,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorTest do
 
       {:error, result_changeset} = Repo.insert(changeset)
 
-      assert %{project_id: ["can't be blank"]} ==
+      assert %{project_id: ["can't be blank"], sensor_type_id: ["can't be blank"]} ==
                errors_on(result_changeset)
     end
 

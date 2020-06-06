@@ -23,7 +23,6 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       sensor_type_id: sensor.sensor_type_id,
       name: sensor.name,
       sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json"),
-      entities: render_many(sensor.parameters, SensorView, "data_tree.json"),
       metadata: render_many(sensor.metadata, SensorView, "metadata.json")
     }
   end
@@ -34,7 +33,8 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       name: metadata.name,
       data_type: metadata.data_type,
       unit: metadata.unit,
-      uuid: metadata.uuid
+      uuid: metadata.uuid,
+      value: metadata.value
     }
   end
 
