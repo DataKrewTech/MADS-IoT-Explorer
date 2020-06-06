@@ -107,14 +107,16 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       metadata =
         Enum.reduce(asset.metadata, [], fn x, acc ->
-          %{id: id, data_type: data_type, name: name, unit: unit, uuid: uuid} = Map.from_struct(x)
+          %{id: id, data_type: data_type, name: name, unit: unit, uuid: uuid, value: value} =
+            Map.from_struct(x)
 
           changes = %{
             "name" => name,
             "data_type" => data_type,
             "unit" => unit,
             "uuid" => uuid,
-            "id" => id
+            "id" => id,
+            "value" => value
           }
 
           [changes | acc]
