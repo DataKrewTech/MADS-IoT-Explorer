@@ -16,37 +16,20 @@ defmodule AcqdatApi.EntityManagement.Project do
     verify_project(ProjectModel.create(project_create_attrs(attrs)))
   end
 
-  defp project_create_attrs(%{
-         name: name,
-         description: description,
-         avatar: avatar,
-         metadata: metadata,
-         location: location,
-         archived: archived,
-         version: version,
-         start_date: start_date,
-         org_id: org_id,
-         creator_id: creator_id,
-         lead_ids: lead_ids,
-         user_ids: user_ids
-       }) do
+  defp project_create_attrs(
+         %{
+           lead_ids: lead_ids,
+           user_ids: user_ids
+         } = params
+       ) do
+    params = params_extraction(params)
+
     lead_ids = [0 | lead_ids]
     user_ids = [0 | user_ids]
 
-    %{
-      name: name,
-      description: description,
-      avatar: avatar,
-      metadata: metadata,
-      location: location,
-      archived: archived,
-      version: version,
-      start_date: start_date,
-      org_id: org_id,
-      creator_id: creator_id,
-      lead_ids: lead_ids,
-      user_ids: user_ids
-    }
+    params
+    |> Map.replace!(:lead_ids, lead_ids)
+    |> Map.replace!(:user_ids, user_ids)
   end
 
   defp verify_project({:ok, project}) do
@@ -59,6 +42,11 @@ defmodule AcqdatApi.EntityManagement.Project do
   end
 
   defp update_version(params, project) do
-    Map.put_new(params, "version", project.version + 1)
+    Map.put_new(params, "version", Decimal.to_integer(project.version) + 1)
+  end
+
+  defp params_extraction(params) do
+    Map.from_struct(params)
+    |> Map.drop([:_id, :__meta__])
   end
 end

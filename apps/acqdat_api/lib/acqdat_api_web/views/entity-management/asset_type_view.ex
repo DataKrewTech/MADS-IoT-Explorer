@@ -3,7 +3,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
   alias AcqdatApiWeb.EntityManagement.AssetTypeView
   # alias AcqdatApiWeb.EntityManagement.OrganisationView
 
-
   def render("asset_type.json", %{asset_type: asset_type}) do
     %{
       id: asset_type.id,
