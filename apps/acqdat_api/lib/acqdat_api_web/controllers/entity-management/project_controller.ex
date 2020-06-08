@@ -11,12 +11,15 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
   @doc """
   This piece of code will be useful when we will implement Project role based listing
-  #case ProjectModel.check_adminship(Guardian.Plug.current_resource(conn)) do
-  #true ->
-  # false ->
-  #   conn
-  #   |> send_error(404, "User is not admin!")
-  #end
+
+  ## Examples
+
+    case ProjectModel.check_adminship(Guardian.Plug.current_resource(conn)) do
+    true ->
+     false ->
+       conn
+       |> send_error(404, "User is not admin!")
+    end
   """
 
   def index(conn, params) do
@@ -43,15 +46,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
         %{assigns: %{project: project}} = conn
         params = Map.put(params, "image_url", project.avatar)
 
-        params =
-          case is_nil(params["image"]) do
-            true ->
-              params
-
-            false ->
-              ImageDeletion.delete_operation(project, "project")
-              add_image_url(conn, params)
-          end
+        params = extract_image(conn, project, params)
 
         case Project.update(project, params) do
           {:ok, project} ->
@@ -132,6 +127,17 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
         params
 
       false ->
+        add_image_url(conn, params)
+    end
+  end
+
+  defp extract_image(conn, project, params) do
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        ImageDeletion.delete_operation(project, "project")
         add_image_url(conn, params)
     end
   end

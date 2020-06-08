@@ -13,7 +13,11 @@ defmodule AcqdatApi.EntityManagement.Project do
   end
 
   def create(attrs) do
-    verify_project(ProjectModel.create(project_create_attrs(attrs)))
+    verify_project(
+      attrs
+      |> project_create_attrs()
+      |> ProjectModel.create()
+    )
   end
 
   defp project_create_attrs(
