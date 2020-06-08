@@ -33,6 +33,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
       field(:data_type, :string, null: false)
       field(:uuid, :string, null: false)
       field(:unit, :string)
+      field(:value, :string)
     end
 
     belongs_to(:org, Organisation, on_replace: :delete)
@@ -46,7 +47,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   @required_params ~w(name uuid slug version creator_id org_id)a
   @optional_params ~w(description location avatar archived start_date)a
   @embedded_metadata_required ~w(name uuid data_type)a
-  @embedded_metadata_optional ~w(unit)a
+  @embedded_metadata_optional ~w(unit value)a
   @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
 
   @permitted @required_params ++ @optional_params

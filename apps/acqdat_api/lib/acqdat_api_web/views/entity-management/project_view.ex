@@ -88,6 +88,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       name: parameter.name,
       data_type: parameter.data_type,
       unit: parameter.unit,
+      value: parameter.value,
       uuid: parameter.uuid
     }
   end
