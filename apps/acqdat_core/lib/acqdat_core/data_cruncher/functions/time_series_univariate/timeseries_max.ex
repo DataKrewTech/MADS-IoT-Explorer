@@ -1,5 +1,6 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMax do
-  @inports [:datasource]
+
+  @inports [:ts_datasource]
   @outports [:tsmax]
 
   use Virta.Component
