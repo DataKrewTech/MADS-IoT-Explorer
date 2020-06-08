@@ -176,7 +176,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       response = conn |> json_response(200)
 
       assert response = %{
-               "archived" => project.archived,
                "creator_id" => project.creator_id,
                "name" => project.name,
                "org_id" => project.org_id,
