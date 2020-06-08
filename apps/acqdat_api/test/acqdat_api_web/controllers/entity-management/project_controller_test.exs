@@ -105,7 +105,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       assert assertion_project["name"] == test_project.name
       assert assertion_project["org_id"] == test_project.org_id
       assert assertion_project["slug"] == test_project.slug
-      assert assertion_project["version"] == test_project.version
     end
 
     test "if params are missing", %{conn: conn, org: org} do
@@ -182,8 +181,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
                "name" => project.name,
                "org_id" => project.org_id,
                "slug" => project.slug,
-               "type" => "Project",
-               "version" => project.version
+               "type" => "Project"
              }
     end
 
