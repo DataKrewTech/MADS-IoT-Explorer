@@ -172,7 +172,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     asset_descen_tree =
       Asset |> dump_assets(%{project_id: asset.project_id}, asset.id) |> AsNestedSet.execute(Repo)
 
-    Map.put_new(asset, :assets, asset_descen_tree)
+    sensor_des = fetch_asset_descendants_map(nil, asset, asset)
+    Map.put_new(sensor_des, :assets, asset_descen_tree)
   end
 
   def fetch_root_assets(project_id) do
@@ -184,7 +185,25 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     Repo.all(query)
   end
 
+  def fetch_mapped_parameters(asset) do
+    Enum.reduce(asset.sensors, [], fn sensor, acc ->
+      res_params = gen_asset_mapped_params(sensor)
+      acc ++ res_params
+    end)
+  end
+
   ############################# private functions ###########################
+
+  defp gen_asset_mapped_params(%{sensor_type: sensor_type} = sensor) do
+    Enum.map(sensor_type.parameters, fn parameter ->
+      %{
+        name: parameter.name,
+        parameter_uuid: parameter.uuid,
+        sensor_uuid: sensor.uuid,
+        sensor_type_uuid: sensor.sensor_type.uuid
+      }
+    end)
+  end
 
   defp delete_child_and_its_descendants(asset) do
     case delete_sensors_descentants(asset) do
