@@ -62,28 +62,27 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     |> add_uuid()
     |> cast_embed(:workflows, with: &Workflow.changeset/2)
   end
-
 end
 
 defmodule AcqdatCore.DataCruncher.Schema.Workflow do
-    @moduledoc """
-    Models a workflow.
+  @moduledoc """
+  Models a workflow.
 
-    A workflow schema consists of a graph and data with which nodes/vertices in the
-    graph are intitialized with.
-    """
+  A workflow schema consists of a graph and data with which nodes/vertices in the
+  graph are intitialized with.
+  """
 
-    use AcqdatCore.Schema
+  use AcqdatCore.Schema
 
-    @type t :: %__MODULE__{}
+  @type t :: %__MODULE__{}
 
-    embedded_schema do
-      field(:graph, :map)
-      field(:data, {:array, :map})
-    end
+  embedded_schema do
+    field(:graph, :map)
+    field(:data, {:array, :map})
+  end
 
-    def changeset(%__MODULE__{} = workflow, params) do
-      workflow
-      |> cast(params, [:graph, :data])
-    end
+  def changeset(%__MODULE__{} = workflow, params) do
+    workflow
+    |> cast(params, [:graph, :data])
+  end
 end
