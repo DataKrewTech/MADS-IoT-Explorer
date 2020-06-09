@@ -40,7 +40,8 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(graphs data type org_id user_id)a
+  @required ~w(uuid slug org_id user_id)a
+  @embedded_workflow_required ~w(graphs data)a
 
   @doc """
   Returns a changeset for performing `create` and `update` operations.
@@ -79,10 +80,11 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   embedded_schema do
     field(:graph, :map)
     field(:data, {:array, :map})
+    field(:output, {:array, :map})
   end
 
   def changeset(%__MODULE__{} = workflow, params) do
     workflow
-    |> cast(params, [:graph, :data])
+    |> cast(params, [:graph, :data, :output])
   end
 end
