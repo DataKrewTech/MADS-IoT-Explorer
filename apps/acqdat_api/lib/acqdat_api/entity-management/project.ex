@@ -28,8 +28,8 @@ defmodule AcqdatApi.EntityManagement.Project do
        ) do
     params = params_extraction(params)
 
-    lead_ids = [0 | lead_ids]
-    user_ids = [0 | user_ids]
+    lead_ids = [-1 | lead_ids]
+    user_ids = [-1 | user_ids]
 
     params
     |> Map.replace!(:lead_ids, lead_ids)

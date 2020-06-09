@@ -111,7 +111,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(changeset) do
+  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end

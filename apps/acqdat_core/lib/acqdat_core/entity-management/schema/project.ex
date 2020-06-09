@@ -86,12 +86,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     )
   end
 
-  defp add_uuid(changeset) do
+  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(changeset) do
+  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end
