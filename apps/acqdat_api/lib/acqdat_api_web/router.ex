@@ -85,6 +85,7 @@ defmodule AcqdatApiWeb.Router do
 
     scope "/projects/:project_id", EntityManagement do
       resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
+      resources "/gateways", GatewayController, except: [:new, :edit]
 
       resources "/assets", AssetController,
         only: [:create, :show, :update, :delete, :index],

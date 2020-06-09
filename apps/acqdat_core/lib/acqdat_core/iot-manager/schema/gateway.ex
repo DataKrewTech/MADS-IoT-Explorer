@@ -45,7 +45,6 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
 
   @required_params ~w(name access_token slug uuid org_id project_id channel parent_id parent_type)a
   @optional_params ~w(description serializer current_location image_url static_data streaming_data mapped_parameters)a
-
   @permitted @required_params ++ @optional_params
 
   def changeset(%__MODULE__{} = gateway, params) do
