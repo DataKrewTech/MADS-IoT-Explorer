@@ -127,7 +127,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       assert result == %{
                "description" => asset.description,
                "id" => asset.id,
-               "mapped_parameters" => Enum.reverse(mapped_parameters),
                "name" => asset.name,
                "properties" => asset.properties,
                "metadata" => Enum.reverse(metadata),
@@ -160,7 +159,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
-      assert Map.has_key?(response, "mapped_parameters")
     end
 
     test "fails if authorization header not found", %{conn: conn, org: org} do
@@ -230,7 +228,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
-      assert Map.has_key?(response, "mapped_parameters")
       assert Map.has_key?(response, "properties")
     end
 
