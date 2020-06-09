@@ -27,8 +27,13 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
     field(:access_token, :string, null: false)
     field(:serializer, :map)
 
-    # field(:image_url, :string)
-    # field(:image, :any, virtual: true)
+    field(:current_location, :map)
+    field(:channel, :string, null: false)
+    field(:status, :integer, virtual: true)
+    field(:image_url, :string)
+    field(:image, :any, virtual: true)
+    field(:static_data, {:array, :map})
+    field(:streaming_data, {:array, :map})
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
@@ -37,15 +42,11 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(access_token slug uuid org_id project_id)a
-  @optional_params ~w(name parent_type description parent_id serializer)a
+  @required_params ~w(name access_token slug uuid org_id project_id channel)a
+  @optional_params ~w(parent_type description parent_id serializer current_location image_url static_data streaming_data)a
 
   @permitted @required_params ++ @optional_params
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = gateway, params) do
     gateway
     |> cast(params, @permitted)
@@ -69,14 +70,15 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
     |> unique_constraint(:slug, name: :acqdat_gateway_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_gateway_uuid_index)
     |> unique_constraint(:access_token, name: :acqdat_gateway_access_token_index)
+    |> unique_constraint(:name, name: :acqdat_gateway_name_org_id_project_id_index)
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_uuid(changeset) do
     changeset
     |> put_change(:uuid, UUID.uuid1(:hex))
   end
 
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
+  defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
   end

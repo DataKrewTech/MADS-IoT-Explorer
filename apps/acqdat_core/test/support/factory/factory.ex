@@ -270,7 +270,8 @@ defmodule AcqdatCore.Support.Factory do
       access_token: sequence(:gateway_name, &"Gateway#{&1}"),
       slug: sequence(:gateway_name, &"Gateway#{&1}"),
       org: build(:organisation),
-      project: build(:project)
+      project: build(:project),
+      channel: sequence(:gateway_name, &"Gateway#{&1}")
     }
   end
 
