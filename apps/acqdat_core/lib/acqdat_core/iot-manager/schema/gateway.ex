@@ -33,6 +33,7 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
     field(:image_url, :string)
     field(:image, :any, virtual: true)
     field(:static_data, {:array, :map})
+    field(:mapped_parameters, :map)
 
     embeds_many :streaming_data, StreamingData, on_replace: :delete do
       field(:name, :string, null: false)
@@ -40,8 +41,6 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
       field(:data_type, :string, null: false)
       field(:unit, :string)
     end
-
-    field(:mapped_parameters, :map)
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
