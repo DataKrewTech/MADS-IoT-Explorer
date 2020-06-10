@@ -1,6 +1,6 @@
 defmodule AcqdatCore.DataCruncher.Domain.Task do
 
-  def register_workflows() do
+  def register_workflows(task) do
 
   end
 

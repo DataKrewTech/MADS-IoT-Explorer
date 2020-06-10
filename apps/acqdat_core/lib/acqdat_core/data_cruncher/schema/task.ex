@@ -70,8 +70,9 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   Models a workflow.
 
   A workflow schema consists of a graph and data with which nodes/vertices in the
-  graph are intitialized with.
+  graph are intitialized.
   """
+
 
   use AcqdatCore.Schema
 

@@ -5,6 +5,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
   A workflow is essentially a graph with vertices and edges. A workflow is usually
   a part of a `task`. See `AcqdatCore.DataCruncher.Schema.Tasks`.
   """
+  alias Virta.{Registry, Executor}
 
   @doc """
   Registers a workflow.
@@ -13,20 +14,18 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
   a dedicated supervision tree is created for the workflow under which all
   it's nodes are added.
   """
-  def register() do
-
+  def register(workflow_id, graph) do
+    Registry.register(workflow_id, graph)
   end
 
   @doc """
   Executes a workflow.
 
+  **Note**
   A workflow should be registered before it can be executed.
   """
-  def execute() do
-
+  def execute(workflow_id, data) do
+    Executor.call(workflow_id, data)
   end
 
-  def add_edge() do
-
-  end
 end

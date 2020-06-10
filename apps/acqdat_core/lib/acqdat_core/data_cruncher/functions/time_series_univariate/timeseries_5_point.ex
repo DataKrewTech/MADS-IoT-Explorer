@@ -16,6 +16,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSFivepointSummary do
   alias AcqdatCore.Repo
   use Virta.Component
 
+  @impl true
   def run(request_id, inport_args, _outport_args, _instance_pid) do
   end
 end
