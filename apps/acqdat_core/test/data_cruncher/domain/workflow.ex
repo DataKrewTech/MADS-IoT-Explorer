@@ -5,7 +5,5 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
   alias AcqdatCore.Test.Support.SensorsData
 
   describe "register/1" do
-
   end
-
 end
