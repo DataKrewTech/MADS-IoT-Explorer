@@ -14,6 +14,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   @type t :: %__MODULE__{}
 
   schema("acqdat_workflows") do
+    field(:uuid, :string, null: false)
     field(:graph, :map)
     field(:input_data, {:array, :map})
 
@@ -23,7 +24,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(graph input_data)a
+  @required ~w(uuid graphs data)a
 
   def changeset(%__MODULE__{} = workflow, params) do
     workflow
