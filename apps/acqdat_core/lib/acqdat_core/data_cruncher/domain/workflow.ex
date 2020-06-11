@@ -18,6 +18,10 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     Registry.register(workflow_id, graph)
   end
 
+  def de_register(workflow_id) do
+
+  end
+
   @doc """
   Executes a workflow.
 
