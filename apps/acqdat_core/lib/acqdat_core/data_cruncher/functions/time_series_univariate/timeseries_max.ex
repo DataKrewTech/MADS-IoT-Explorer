@@ -1,5 +1,4 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMax do
-
   @inports [:ts_datasource]
   @outports [:tsmax]
 
@@ -12,8 +11,5 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMax do
   end
 
   defp process(data) do
-
   end
-
-
 end

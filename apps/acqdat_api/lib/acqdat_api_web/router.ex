@@ -58,6 +58,7 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
+      resources "/tasks", DataCruncher.TasksController, only: [:create]
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings

@@ -1,5 +1,4 @@
 defmodule AcqdatCore.DataCruncher.Token do
-
   @data_types ~w(
     query_stream
     timeseries_univariate
@@ -26,5 +25,4 @@ defmodule AcqdatCore.DataCruncher.Token do
   def valid_data_type?(data_type) do
     Enum.member?(@data_types, data_type)
   end
-
 end

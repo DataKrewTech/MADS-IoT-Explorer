@@ -44,6 +44,13 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
 
   @doc """
   Returns a changeset for performing `create` and `update` operations.
+
+  **Note**
+  Workflows set inside a task are set as has_many associations, please make sure
+  to pass in the entire list of workflows during `update` operation else
+  it would be removed from the record.
+  See `Ecto.Changeset.cast_embed(changeset, name, opts \\ [])` and
+  `Ecto.Changeset.cast_assoc(changeset, name, opts \\ [])`
   """
   def changeset(%__MODULE__{} = task, params) do
     task
@@ -53,5 +60,6 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     |> validate_inclusion(:type, @task_types)
     |> add_slug()
     |> add_uuid()
+    |> cast_assoc(:workflows, with: &Workflow.changeset/2)
   end
 end

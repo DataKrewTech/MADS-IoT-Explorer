@@ -27,5 +27,4 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
   def execute(workflow_id, data) do
     Executor.call(workflow_id, data)
   end
-
 end
