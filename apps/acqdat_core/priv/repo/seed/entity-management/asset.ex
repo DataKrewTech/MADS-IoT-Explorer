@@ -1,7 +1,4 @@
 defmodule AcqdatCore.Seed.EntityManagement.Asset do
-  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project, AssetType}
-  alias AcqdatCore.Schema.RoleManagement.User
-  alias AcqdatApiWeb.Helpers
   import AsNestedSet.Modifiable
   import Tirexs.HTTP
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project, AssetType}
@@ -120,23 +117,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
       project_id: params.project_id
       )
   end
-
-  defp seed_asset_type(org, project) do
-    asset_type = %AssetType{
-        name: "Asset Type",
-        description: "This is seeded asset type",
-        sensor_type_present: false,
-        uuid: UUID.uuid1(:hex),
-        slug: Slugger.slugify("Asset Type"),
-        org_id: org.id,
-        project_id: project.id
-     }
-     case Repo.insert(asset_type) do
-       {:ok, asset_type} -> asset_type
-       {:error, error} -> raise RuntimeError, message: "Problem Inserting Asset Type"
-     end
-  end
-end
 
   defp seed_asset_type(org, project) do
     asset_type = %AssetType{

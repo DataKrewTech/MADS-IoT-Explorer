@@ -87,7 +87,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
     sensors = sensors ++ sensors1
     sensors = sensors -- [params, params, params, params, params, params]
-
     Enum.reduce(sensors, 0, fn sensor, x ->
       sensor_type = insert_sensor_type(sensor, org, project, x)
       sensor = Map.put_new(sensor, :sensor_type_id, sensor_type.id)
