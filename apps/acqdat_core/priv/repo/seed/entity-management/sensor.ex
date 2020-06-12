@@ -1,8 +1,4 @@
 defmodule AcqdatCore.Seed.EntityManagement.Sensor do
-  #TODO
-  # alias AcqdatCore.Schema.{Sensor}
-  # alias AcqdatCore.Repo
-
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Sensor, Project, SensorType}
   alias AcqdatCore.Repo
 
@@ -24,11 +20,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     %{name: "Temperature", data_type: "string"}
   ]
 
-  #NOTE: Commented it, as it is not currently getting used here
-  # @occupancy_sensor [
-  #   %{name: "Occupancy", data_type: "boolean"}
-  # ]
-
   @air_quality_sensor [
     %{name: "Air Temperature", data_type: "string"},
     %{name: "O2 Level", data_type: "string"},
@@ -48,6 +39,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     [org] = Repo.all(Organisation)
     [project | _] = Repo.all(Project)
     assets = Repo.all(Asset)
+
     sensors = assets
     |> Enum.map(fn
       %Asset{name: "Wet Process"} = asset ->
@@ -63,13 +55,13 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
       %Asset{name: "Singapore Office"} = asset ->
         %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
       %Asset{name: "Bintan Factory"} = _asset ->  %{}
-
       end)
     |> Enum.map(fn sensor ->
       sensor
       |> Map.put(:inserted_at, DateTime.truncate(DateTime.utc_now(), :second))
       |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
     end)
+
     sensors1 =
     assets
     |> Enum.map(fn
@@ -82,7 +74,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
       %Asset{name: "Executive Space"} = _asset -> %{}
       %Asset{name: "Singapore Office"} = _asset -> %{}
       %Asset{name: "Bintan Factory"} = _asset ->  %{}
-
       end)
     |> Enum.map(fn sensor ->
       sensor
@@ -94,7 +85,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     %{}
     |> Map.put(:inserted_at, DateTime.truncate(DateTime.utc_now(), :second))
     |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
-
     sensors = sensors ++ sensors1
     sensors = sensors -- [params, params, params, params, params, params]
 
