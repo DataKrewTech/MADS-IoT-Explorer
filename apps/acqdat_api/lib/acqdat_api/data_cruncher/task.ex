@@ -4,7 +4,11 @@ defmodule AcqdatApi.DataCruncher.Task do
   alias AcqdatCore.Repo
   alias AcqdatCore.DataCrunche.Model.Task, as: TaskModel
   alias AcqdatCore.DataCruncher.Domain.Task
-  
+
+  def create(%{"id" => id, "action" => action} = params) when action == "execute" or action == "register" do
+    verify_task(TaskModel.get(id), params)
+  end
+
   def create(params) do
     Multi.new()
     |> Multi.run(:create_task, fn _, _changes ->
@@ -16,6 +20,26 @@ defmodule AcqdatApi.DataCruncher.Task do
     |> run_transaction()
   end
 
+  defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
+    Task.execute_workflows(task)
+  end
+
+  defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
+    #Task.execute_workflows(task)
+    Multi.new()
+    |> Multi.run(:update_task, fn _, _changes ->
+      TaskModel.update(task, params)
+    end)
+    |> Multi.run(:register_workflows, fn _, %{update_task: task} ->
+      Task.register_workflows(task)
+    end)
+    |> run_transaction()
+  end
+
+  defp verify_task({:error, message}, _action) do
+    {:error, message}
+  end
+
   defp run_transaction(multi_query) do
     result = Repo.transaction(multi_query)
 
@@ -23,7 +47,12 @@ defmodule AcqdatApi.DataCruncher.Task do
       {:ok, %{create_task: _create_task, register_workflows: _register_workflows}} ->
         {:ok, %{create_task: task}} = result
         {:ok, task}
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+
+      {:ok, %{update_task: _create_task, register_workflows: _register_workflows}} ->
+        {:ok, %{update_task: task}} = result
+        {:ok, task}
+
+        {:error, failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
   end

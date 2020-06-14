@@ -8,4 +8,14 @@ defmodule AcqdatCore.DataCrunche.Model.Task do
     changeset = Tasks.changeset(%Tasks{}, params)
     Repo.insert(changeset)
   end
+
+  def get(id) when is_integer(id) do
+    case Repo.get(Tasks, id) |> Repo.preload([:workflows]) do
+      nil ->
+        {:error, "task not found"}
+
+      task ->
+        {:ok, task}
+    end
+  end
 end
