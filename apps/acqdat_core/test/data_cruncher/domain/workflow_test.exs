@@ -1,19 +1,20 @@
 defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   import AcqdatCore.Test.Support.SensorsData
   alias AcqdatCore.DataCruncher.Functions.TSMax
   alias Virta.Core.Out
-  alias Virta.Node
-  alias Virta.EdgeData
+  alias Virta.{Node, EdgeData}
   alias AcqdatCore.DataCruncher.Domain.Workflow
   alias AcqdatCore.DataCruncher.Model.Dataloader
-
+  alias AcqdatCore.DataCruncher.Token
 
   describe "register/2" do
     test "registers a workflow" do
-      graph = create_graph()
+      node_from = %Node{module: TSMax, id: UUID.uuid1(:hex)}
+      node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
+      graph = create_graph(node_from, node_to)
       workflow_id = UUID.uuid1(:hex)
       {:ok, message} = Workflow.register(workflow_id, graph)
       assert message == "registered"
@@ -27,26 +28,43 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     @tag timeout: :infinity
     @tag sensor_data_quantity: 10
     @tag time_interval_seconds: 5
-    test "registers a workflow", context do
+    test "executes a workflow succesfully", context do
       %{sensor: sensor} = context
+      node_from = %Node{module: TSMax, id: UUID.uuid1(:hex)}
+      node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
       [param | _] = sensor.sensor_type.parameters
-      date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
-      date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
-      result = Dataloader.load(:pds, %{sensor_id: sensor.id,
-        param_uuid: param.uuid, date_from: date_from, date_to: date_to})
+      graph = create_graph(node_from, node_to)
+      graph_data = prepare_graph_data(sensor, param, node_from)
 
-      require IEx
-      IEx.pry
-      graph = create_graph()
-
+      workflow_id = UUID.uuid1(:hex)
+      {:ok, _message} = Workflow.register(workflow_id, graph)
+      {_request_id, output} = Workflow.execute(workflow_id, graph_data)
+      assert Map.has_key?(output, :tsmax)
     end
   end
 
-  def create_graph() do
+  defp prepare_graph_data(sensor, param, node) do
+    date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
+    date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
+    data = Dataloader.load_stream(:pds, %{sensor_id: sensor.id,
+      param_uuid: param.uuid, date_from: date_from, date_to: date_to})
+
+    %{
+      node =>  [
+        {
+          UUID.uuid1(:hex), :ts_datasource,
+          %Token{data: data, data_type: :query_stream}
+        }
+      ]
+    }
+  end
+
+  def create_graph(node_from, node_to) do
+
     Graph.new(type: :directed)
     |> Graph.add_edge(
-      %Node{module: TSMax, id: UUID.uuid1(:hex)},
-      %Node{module: Out, id: UUID.uuid1(:hex)},
+      node_from,
+      node_to,
       label: %EdgeData{from: :tsmax, to: :tsmax}
     )
   end
