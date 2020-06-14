@@ -32,4 +32,5 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMax do
   defp process_data(_) do
     0
   end
+
 end
