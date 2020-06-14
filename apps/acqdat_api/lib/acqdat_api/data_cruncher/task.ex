@@ -48,6 +48,21 @@ defmodule AcqdatApi.DataCruncher.Task do
     |> run_transaction()
   end
 
+  defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
+    Task.execute_workflows(task)
+  end
+
+  defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
+    Multi.new()
+    |> Multi.run(:update_task, fn _, _changes ->
+      TaskModel.update(task, params)
+    end)
+    |> Multi.run(:register_workflows, fn _, %{update_task: task} ->
+      Task.register_workflows(task)
+    end)
+    |> run_transaction()
+  end
+
   defp verify_task({:error, message}, _action) do
     {:error, message}
   end
@@ -64,7 +79,7 @@ defmodule AcqdatApi.DataCruncher.Task do
         {:ok, %{update_task: task}} = result
         {:ok, task}
 
-        {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
   end
