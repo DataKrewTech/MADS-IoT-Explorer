@@ -1,4 +1,3 @@
-
 defmodule AcqdatCore.Test.Support.SensorsData do
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Repo
@@ -10,8 +9,12 @@ defmodule AcqdatCore.Test.Support.SensorsData do
   Check context map for parameters required.
   """
   def put_sensor_data(context) do
-    %{sensor_data_quantity: quantity, time_interval_seconds: time_interval,
-      sensor: sensor, org: org} = context
+    %{
+      sensor_data_quantity: quantity,
+      time_interval_seconds: time_interval,
+      sensor: sensor,
+      org: org
+    } = context
 
     sensor_data = add_sensor_data(sensor, org, quantity, time_interval)
 
@@ -23,7 +26,9 @@ defmodule AcqdatCore.Test.Support.SensorsData do
     initializer = prepare_sensor_data(sensor, org, timestamp)
 
     generator = fn data ->
-      prepare_sensor_data(sensor, org,
+      prepare_sensor_data(
+        sensor,
+        org,
         Timex.shift(data.inserted_timestamp, seconds: time_interval)
       )
     end
@@ -43,15 +48,18 @@ defmodule AcqdatCore.Test.Support.SensorsData do
       sensor_id: sensor.id,
       parameters: random_data_for_params(sensor),
       inserted_timestamp: timestamp,
-      inserted_at: timestamp,
+      inserted_at: timestamp
     }
   end
 
   defp random_data_for_params(sensor) do
     Enum.map(sensor.sensor_type.parameters, fn parameter ->
-      %{ name: parameter.name, data_type: parameter.data_type,
-        uuid: parameter.uuid, value: to_string(:random.uniform(30)) }
+      %{
+        name: parameter.name,
+        data_type: parameter.data_type,
+        uuid: parameter.uuid,
+        value: to_string(:random.uniform(30))
+      }
     end)
   end
-
 end
