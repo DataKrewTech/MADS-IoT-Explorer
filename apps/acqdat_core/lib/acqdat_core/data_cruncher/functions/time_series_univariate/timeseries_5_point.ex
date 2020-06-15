@@ -18,6 +18,5 @@ defmodule AcqdatCore.DataCruncher.Functions.TSFivepointSummary do
 
   @impl true
   def run(request_id, inport_args, _outport_args, _instance_pid) do
-
   end
 end
