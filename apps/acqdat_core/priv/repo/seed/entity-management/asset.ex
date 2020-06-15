@@ -1,5 +1,7 @@
 defmodule AcqdatCore.Seed.EntityManagement.Asset do
-  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project, AssetType}
+  alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatApiWeb.Helpers
   import AsNestedSet.Modifiable
   alias AcqdatCore.Repo
   import Tirexs.HTTP
@@ -25,15 +27,16 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
   ]
 
   def seed_asset!() do
+    [org] = Repo.all(Organisation)
+    [project | _] = Repo.all(Project)
+    asset_type = seed_asset_type(org, project)
     for asset <- @asset_manifest do
-      create_taxonomy(asset)
+      create_taxonomy(asset, asset_type, org, project)
     end
   end
 
-  def create_taxonomy({parent, children, properties}) do
-    [org] = Repo.all(Organisation)
-    [project | _] = Repo.all(Project)
-
+  def create_taxonomy({parent, children, properties}, asset_type, org, project) do
+    [user] = Repo.all(User)
     asset =
       Repo.preload(
         %Asset{
@@ -44,7 +47,9 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
           uuid: UUID.uuid1(:hex),
           slug: Slugger.slugify(org.name <>parent),
-          properties: properties
+          properties: properties,
+          asset_type_id: asset_type.id,
+          creator_id: user.id
           },
         :org
       )
@@ -52,7 +57,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
      root = add_root(asset)
      insert_asset("assets", root)
      for taxon <- children do
-       create_taxon(taxon, root)
+       create_taxon(taxon, root, asset_type, user)
      end
   end
 
@@ -62,7 +67,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
     |> AsNestedSet.execute(Repo)
   end
 
-  defp create_taxon({parent, children, properties}, root) do
+  defp create_taxon({parent, children, properties}, root, asset_type, user) do
     child =
       Repo.preload(
         %Asset{
@@ -74,14 +79,16 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
           slug: Slugger.slugify(root.org.name <> root.name <> parent),
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
           updated_at: DateTime.truncate(DateTime.utc_now(), :second),
-          properties: properties
+          properties: properties,
+          asset_type_id: asset_type.id,
+          creator_id: user.id
           },
           [:org])
 
     {:ok, root} = add_taxon(root, child, :child)
 
     for taxon <- children do
-      create_taxon(taxon, root)
+      create_taxon(taxon, root, asset_type, user)
     end
   end
 
@@ -110,6 +117,22 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
       uuid: params.uuid,
       project_id: params.project_id
       )
+  end
+
+  defp seed_asset_type(org, project) do
+    asset_type = %AssetType{
+        name: "Asset Type",
+        description: "This is seeded asset type",
+        sensor_type_present: false,
+        uuid: UUID.uuid1(:hex),
+        slug: Slugger.slugify("Asset Type"),
+        org_id: org.id,
+        project_id: project.id
+     }
+     case Repo.insert(asset_type) do
+       {:ok, asset_type} -> asset_type
+       {:error, error} -> raise RuntimeError, message: "Problem Inserting Asset Type"
+     end
   end
 end
 

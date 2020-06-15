@@ -11,9 +11,10 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
         {:error, "organisation not found"}
 
       org ->
-        entities = ProjectModel.hierarchy_data(org.id, project_id)
+        [heirarchy | gateway] = ProjectModel.hierarchy_data(org.id, project_id)
 
-        org = Map.put_new(org, :project_data, entities)
+        org = Map.put_new(org, :project_data, heirarchy)
+        org = Map.put_new(org, :gateway_data, gateway)
         {:ok, org}
     end
   end

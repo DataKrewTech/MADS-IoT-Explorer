@@ -2,6 +2,9 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
   import Ecto.Query
   alias AcqdatCore.Schema.EntityManagement.Gateway
   alias AcqdatCore.Schema.EntityManagement.Project
+  alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
+  alias AcqdatCore.Model.EntityManagement.Asset, as: AModel
+  alias AcqdatCore.Model.EntityManagement.Project, as: PModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
 
@@ -63,5 +66,29 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
       {:error, gateway} ->
         {:error, gateway}
     end
+  end
+
+  def fetch_gateways(project_id) do
+    query =
+      from(gateway in Gateway,
+        where: gateway.project_id == ^project_id
+      )
+
+    Repo.all(query)
+  end
+
+  def attach_parent(gateway) do
+    {:ok, parent} =
+      case gateway.parent_type do
+        "Project" -> PModel.get_by_id(gateway.parent_id)
+        "Asset" -> AModel.get(gateway.parent_id)
+      end
+
+    Map.put_new(gateway, :parent, parent)
+  end
+
+  def attach_childs(gateway) do
+    child_sensors = SModel.get_all_by_parent_gateway(gateway.id)
+    Map.put(gateway, :childs, child_sensors)
   end
 end

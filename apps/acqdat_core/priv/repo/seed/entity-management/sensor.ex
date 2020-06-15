@@ -3,7 +3,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
   # alias AcqdatCore.Schema.{Sensor}
   # alias AcqdatCore.Repo
 
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Sensor, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Sensor, Project, SensorType}
   alias AcqdatCore.Repo
 
   @energy_parameters_list [
@@ -44,8 +44,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     %{name: "K Level", data_type: "string"}
   ]
 
-
-  
   def seed_sensors() do
     [org] = Repo.all(Organisation)
     [project | _] = Repo.all(Project)
@@ -62,7 +60,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
         %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
       %Asset{name: "Executive Space"} = asset ->
         %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Occupancy Sensor", parameters: @air_quality_sensor, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Occupancy Sensor")}
-      %Asset{name: "Singapore Office"} = asset ->  
+      %Asset{name: "Singapore Office"} = asset ->
         %{org_id: org.id, project_id: project.id, parent_id: asset.id, name: "Energy Meter", parameters: @energy_parameters_list, parent_type: "Asset", slug: Slugger.slugify(asset.slug <> "Energy Meter")}
       %Asset{name: "Bintan Factory"} = _asset ->  %{}
 
@@ -72,7 +70,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
       |> Map.put(:inserted_at, DateTime.truncate(DateTime.utc_now(), :second))
       |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
     end)
-    sensors1 = 
+    sensors1 =
     assets
     |> Enum.map(fn
       %Asset{name: "Wet Process"} = asset ->
@@ -92,7 +90,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
       |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
     end)
 
-    params = 
+    params =
     %{}
     |> Map.put(:inserted_at, DateTime.truncate(DateTime.utc_now(), :second))
     |> Map.put(:updated_at, DateTime.truncate(DateTime.utc_now(), :second))
@@ -100,10 +98,28 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     sensors = sensors ++ sensors1
     sensors = sensors -- [params, params, params, params, params, params]
 
-    Enum.each(sensors, fn sensor -> 
+    Enum.reduce(sensors, 0, fn sensor, x ->
+      sensor_type = insert_sensor_type(sensor, org, project, x)
+      sensor = Map.put_new(sensor, :sensor_type_id, sensor_type.id)
       changeset = Sensor.changeset(%Sensor{}, sensor)
       Repo.insert(changeset)
+      x = x + 1
     end)
-    
+  end
+
+  defp insert_sensor_type(sensor, org, project, counter) do
+    params = %{
+        name: "Sensor Type #{counter}",
+        metadata: [],
+        parameters:  sensor.parameters,
+        org_id: org.id,
+        generated_by: "user",
+        project_id: project.id
+      }
+    sensor_type = SensorType.changeset(%SensorType{}, params)
+      case Repo.insert(sensor_type) do
+        {:ok, sensor_type} -> sensor_type
+        {:error, error} -> raise RuntimeError, message: "Problem Inserting Sensor Type"
+      end
   end
 end

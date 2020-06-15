@@ -42,8 +42,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(name access_token slug uuid org_id project_id channel)a
-  @optional_params ~w(parent_type description parent_id serializer current_location image_url static_data streaming_data)a
+  @required_params ~w(name access_token slug uuid org_id project_id channel parent_id parent_type)a
+  @optional_params ~w(description serializer current_location image_url static_data streaming_data)a
 
   @permitted @required_params ++ @optional_params
 

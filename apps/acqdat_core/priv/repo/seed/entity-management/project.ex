@@ -10,7 +10,9 @@ defmodule AcqdatCore.Seed.EntityManagement.Project do
     params = %{
       name: "Demo Project",
       org_id: org.id,
-      creator_id: creator.id
+      creator_id: creator.id,
+      lead_ids: [],
+      user_ids: []
     }
     proj = Project.changeset(%Project{}, params)
     Repo.insert!(proj, on_conflict: :nothing)
