@@ -75,9 +75,12 @@ defmodule AcqdatCore.Test.Support.SensorsData do
 
   defp random_data_for_params(sensor) do
     Enum.map(sensor.sensor_type.parameters, fn parameter ->
-      %{ name: parameter.name, data_type: parameter.data_type,
-        uuid: parameter.uuid, value: to_string(:random.uniform(30)) }
+      %{
+        name: parameter.name,
+        data_type: parameter.data_type,
+        uuid: parameter.uuid,
+        value: to_string(:random.uniform(30))
+      }
     end)
   end
-
 end
