@@ -5,7 +5,8 @@ defmodule AcqdatApi.DataCruncher.Task do
   alias AcqdatCore.DataCrunche.Model.Task, as: TaskModel
   alias AcqdatCore.DataCruncher.Domain.Task
 
-  def create(%{"id" => id, "action" => action} = params) when action == "execute" or action == "register" do
+  def create(%{"id" => id, "action" => action} = params)
+      when action == "execute" or action == "register" do
     verify_task(TaskModel.get(id), params)
   end
 
@@ -25,7 +26,7 @@ defmodule AcqdatApi.DataCruncher.Task do
   end
 
   defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
-    #Task.execute_workflows(task)
+    # Task.execute_workflows(task)
     Multi.new()
     |> Multi.run(:update_task, fn _, _changes ->
       TaskModel.update(task, params)

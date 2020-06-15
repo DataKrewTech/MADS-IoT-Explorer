@@ -24,25 +24,30 @@ defmodule AcqdatCore.DataCruncher.Model.Dataloader do
   """
   @spec load_stream(:pds | :sds, map) :: Stream.t()
   def load_stream(:pds, params) do
-    %{sensor_id: sensor_id, param_uuid: param_uuid,
-       date_from: date_from, date_to: date_to} = params
+    %{sensor_id: sensor_id, param_uuid: param_uuid, date_from: date_from, date_to: date_to} =
+      params
 
-    subquery = from(
-      data in SensorsData,
-      where: data.sensor_id == ^sensor_id and data.inserted_timestamp >= ^date_from and
-        data.inserted_timestamp <= ^date_to
-    )
+    subquery =
+      from(
+        data in SensorsData,
+        where:
+          data.sensor_id == ^sensor_id and data.inserted_timestamp >= ^date_from and
+            data.inserted_timestamp <= ^date_to
+      )
 
-    query = from(
-      data in subquery,
-      cross_join: c in fragment("unnest(?)", data.parameters),
-      where: fragment("?->>'uuid'=?", c, ^param_uuid),
-      select: [data.inserted_timestamp,
-        fragment("?->>'value'", c),
-        fragment("?->>'name'", c),
-        fragment("?->>'uuid'", c)
-      ]
-    )
+    query =
+      from(
+        data in subquery,
+        cross_join: c in fragment("unnest(?)", data.parameters),
+        where: fragment("?->>'uuid'=?", c, ^param_uuid),
+        select: [
+          data.inserted_timestamp,
+          fragment("?->>'value'", c),
+          fragment("?->>'name'", c),
+          fragment("?->>'uuid'", c)
+        ]
+      )
+
     Repo.stream(query)
   end
 
@@ -50,5 +55,4 @@ defmodule AcqdatCore.DataCruncher.Model.Dataloader do
   def load_stream(:sds, _params) do
     Stream.map([], fn x -> x end)
   end
-
 end

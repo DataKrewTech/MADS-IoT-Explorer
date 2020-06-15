@@ -46,13 +46,20 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
   defp prepare_graph_data(sensor, param, node) do
     date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
     date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
-    data = Dataloader.load_stream(:pds, %{sensor_id: sensor.id,
-      param_uuid: param.uuid, date_from: date_from, date_to: date_to})
+
+    data =
+      Dataloader.load_stream(:pds, %{
+        sensor_id: sensor.id,
+        param_uuid: param.uuid,
+        date_from: date_from,
+        date_to: date_to
+      })
 
     %{
-      node =>  [
+      node => [
         {
-          UUID.uuid1(:hex), :ts_datasource,
+          UUID.uuid1(:hex),
+          :ts_datasource,
           %Token{data: data, data_type: :query_stream}
         }
       ]
@@ -60,7 +67,6 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
   end
 
   def create_graph(node_from, node_to) do
-
     Graph.new(type: :directed)
     |> Graph.add_edge(
       node_from,
@@ -73,8 +79,15 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     org = insert(:organisation)
     project = insert(:project, org: org)
     sensor_type = setup_sensor_type(org, project)
-    sensor = insert(:sensor, sensor_type: sensor_type, org: org, project: project,
-      name: "vibration_sensor")
+
+    sensor =
+      insert(:sensor,
+        sensor_type: sensor_type,
+        org: org,
+        project: project,
+        name: "vibration_sensor"
+      )
+
     [sensor: sensor, org: org]
   end
 
@@ -86,7 +99,11 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
       %{name: "z_axis_acc", data_type: "integer", uuid: UUID.uuid1(:hex)}
     ]
 
-    insert(:sensor_type, name: "vibration_sensor_type", org: org,
-      project: project, parameters: vibration_type_parameters)
+    insert(:sensor_type,
+      name: "vibration_sensor_type",
+      org: org,
+      project: project,
+      parameters: vibration_type_parameters
+    )
   end
 end
