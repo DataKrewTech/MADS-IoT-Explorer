@@ -30,6 +30,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     field(:name, :string)
     field(:parent_id, :integer)
     field(:parent_type, :string)
+    field(:description, :string)
     field(:has_timesrs_data, :boolean, default: false)
 
     embeds_many :metadata, Metadata, on_replace: :delete do
@@ -52,7 +53,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   end
 
   @required_params ~w(org_id project_id sensor_type_id uuid slug name)a
-  @optional_params ~w(gateway_id parent_id parent_type)a
+  @optional_params ~w(gateway_id parent_id parent_type description)a
 
   @embedded_metadata_required ~w(name uuid data_type value)a
   @embedded_metadata_optional ~w(unit)a

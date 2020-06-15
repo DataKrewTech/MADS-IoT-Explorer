@@ -10,7 +10,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Sensor do
       org_id!: :integer,
       project_id!: :integer,
       gateway_id: :integer,
-      sensor_type_id!: :integer
+      sensor_type_id!: :integer,
+      description: :string
     })
   )
 
@@ -31,6 +32,7 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Sensor do
       parent_id: :integer,
       parent_type: :string,
       name: :string,
+      description: :string,
       project_id!: :integer
     })
   )

@@ -13,7 +13,8 @@ defmodule AcqdatApi.EntityManagement.Sensor do
          org_id: org_id,
          parent_id: parent_id,
          parent_type: parent_type,
-         project_id: project_id
+         project_id: project_id,
+         description: description
        }) do
     %{
       sensor_type_id: sensor_type_id,
@@ -22,7 +23,8 @@ defmodule AcqdatApi.EntityManagement.Sensor do
       org_id: org_id,
       parent_id: parent_id,
       parent_type: parent_type,
-      project_id: project_id
+      project_id: project_id,
+      description: description
     }
   end
 
@@ -35,7 +37,8 @@ defmodule AcqdatApi.EntityManagement.Sensor do
        sensor_type_id: sensor.sensor_type_id,
        parent_id: sensor.parent_id,
        parent_type: sensor.parent_type,
-       metadata: sensor.metadata
+       metadata: sensor.metadata,
+       description: sensor.description
      }}
   end
 

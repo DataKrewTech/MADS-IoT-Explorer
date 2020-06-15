@@ -76,6 +76,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorType do
     sensor_type
     |> cast(params, @permitted)
     |> cast_embed(:parameters, with: &parameters_changeset/2)
+    |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
