@@ -20,7 +20,7 @@ defmodule AcqdatCore.Repo.Migrations.AcqdatGatewayDataDump do
         null: false,
         primary_key: true
       )
-      add(:data, :map)
+      add(:data, :map, null: false)
       timestamps(type: :timestamptz, updated_at: false)
     end
     create(unique_index(:acqdat_gateway_data_dump, [:inserted_timestamp]))
