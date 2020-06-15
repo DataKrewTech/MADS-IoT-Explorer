@@ -34,6 +34,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
     field(:image, :any, virtual: true)
     field(:static_data, {:array, :map})
     field(:streaming_data, {:array, :map})
+    field(:mapped_parameters, :map)
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
@@ -43,7 +44,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Gateway do
   end
 
   @required_params ~w(name access_token slug uuid org_id project_id channel parent_id parent_type)a
-  @optional_params ~w(description serializer current_location image_url static_data streaming_data)a
+  @optional_params ~w(description serializer current_location image_url static_data streaming_data mapped_parameters)a
 
   @permitted @required_params ++ @optional_params
 

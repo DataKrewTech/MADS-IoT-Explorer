@@ -8,6 +8,7 @@ defmodule AcqdatCore.Repo.Migrations.AlterGateway do
       add(:channel, :string, null: false)
       add(:static_data, {:array, :map})
       add(:streaming_data, {:array, :map})
+      add(:mapped_parameters, :map)
     end
 
     create unique_index("acqdat_gateway", [:name, :org_id, :project_id])
