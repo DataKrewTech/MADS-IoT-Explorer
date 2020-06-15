@@ -15,7 +15,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Gateway do
       parent_id!: :integer,
       parent_type!: :string,
       name!: :string,
-      project_id!: :integer
+      project_id!: :integer,
+      mapped_parameters: :map
     })
   )
 
