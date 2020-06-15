@@ -12,8 +12,8 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Gateway do
       org_id!: :integer,
       image_url: :string,
       description: :string,
-      parent_id: :integer,
-      parent_type: :string,
+      parent_id!: :integer,
+      parent_type!: :string,
       name!: :string,
       project_id!: :integer
     })
