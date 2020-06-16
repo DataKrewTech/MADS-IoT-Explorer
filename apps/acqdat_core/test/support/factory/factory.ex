@@ -264,6 +264,8 @@ defmodule AcqdatCore.Support.Factory do
   end
 
   def gateway_factory() do
+    asset = insert(:asset)
+
     %Gateway{
       uuid: UUID.uuid1(:hex),
       name: sequence(:gateway_name, &"Gateway#{&1}"),
@@ -271,7 +273,12 @@ defmodule AcqdatCore.Support.Factory do
       slug: sequence(:gateway_name, &"Gateway#{&1}"),
       org: build(:organisation),
       project: build(:project),
-      channel: sequence(:gateway_name, &"Gateway#{&1}")
+      parent_id: asset.id,
+      parent_type: "Asset",
+      channel: sequence(:gateway_name, &"Gateway#{&1}"),
+      mapped_parameters: %{},
+      streaming_data: [],
+      static_data: []
     }
   end
 

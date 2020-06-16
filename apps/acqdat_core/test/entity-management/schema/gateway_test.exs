@@ -22,7 +22,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayTest do
                org_id: ["can't be blank"],
                project_id: ["can't be blank"],
                channel: ["can't be blank"],
-               access_token: ["can't be blank"]
+               access_token: ["can't be blank"],
+               parent_id: ["can't be blank"],
+               parent_type: ["can't be blank"]
              } == errors_on(changeset)
     end
 
@@ -34,7 +36,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayTest do
         name: gateway.name,
         project_id: gateway.project_id,
         access_token: gateway.access_token,
-        channel: gateway.channel
+        channel: gateway.channel,
+        parent_id: gateway.parent_id,
+        parent_type: gateway.parent_type
       }
 
       changeset = Gateway.changeset(%Gateway{}, params)
@@ -52,7 +56,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayTest do
         name: gateway.name,
         project_id: project.id,
         access_token: gateway.access_token,
-        channel: gateway.channel
+        channel: gateway.channel,
+        parent_id: gateway.parent_id,
+        parent_type: gateway.parent_type
       }
 
       changeset = Gateway.changeset(%Gateway{}, params)
@@ -71,7 +77,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayTest do
         name: gateway.name,
         project_id: project.id,
         access_token: gateway.access_token,
-        channel: gateway.channel
+        channel: gateway.channel,
+        parent_id: gateway.parent_id,
+        parent_type: gateway.parent_type
       }
 
       %{valid?: validity} = Gateway.changeset(%Gateway{}, params)
