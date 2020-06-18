@@ -24,11 +24,12 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(uuid graphs data)a
+  @required ~w(graph input_data uuid)a
 
   def changeset(%__MODULE__{} = workflow, params) do
     workflow
     |> cast(params, @required)
+    |> add_uuid()
     |> validate_required(@required)
     |> assoc_constraint(:task)
   end

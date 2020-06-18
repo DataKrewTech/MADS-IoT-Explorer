@@ -1,5 +1,5 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMin do
-  @inports [:ts_datasource]
+  @inports [:ts_min_datasource]
   @outports [:tsmin]
 
   use Virta.Component
