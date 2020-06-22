@@ -34,11 +34,13 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
     end)
   end
 
-  def persist_output_to_temp_table({_request_id, output_data}, %{id: id} = workflow) do
+  ############################# private functions ###########################
+
+  defp persist_output_to_temp_table({_request_id, output_data}, %{id: id} = workflow) do
     TempOutput.create(%{workflow_id: id, data: [output_data], format: "array"})
   end
 
-  def execute_workflow(%{input_data: input_data, uuid: worflow_uuid} = workflow) do
+  defp execute_workflow(%{input_data: input_data, uuid: worflow_uuid} = workflow) do
     input_data
     |> generate_graph_data()
     |> Workflow.execute(worflow_uuid)
@@ -87,17 +89,17 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   end
 
   defp create_graph(%{graph: graph} = workflow) do
-    new_graph = Graph.new(type: :directed)
-
     nodes =
       Enum.reduce(graph["edge_list"], [], fn edge, acc ->
         acc ++ [gen_edge(edge)]
       end)
 
-    Graph.add_edges(new_graph, nodes)
+    Graph.new(type: :directed)
+    |> Graph.add_edges(nodes)
   end
 
   defp gen_edge(%{"source_node" => source_node, "target_node" => target_node}) do
+    # TODO: Modify for the multiple output nodes
     source_module = source_node |> parse_module()
     target_module = target_node |> parse_module()
 
