@@ -28,7 +28,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
   **Note**
   A workflow should be registered before it can be executed.
   """
-  def execute(workflow_id, data) do
+  def execute(data, workflow_id) do
     Executor.call(workflow_id, data)
   end
 end

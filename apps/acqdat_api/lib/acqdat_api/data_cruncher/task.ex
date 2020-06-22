@@ -16,17 +16,28 @@ defmodule AcqdatApi.DataCruncher.Task do
       TaskModel.create(params)
     end)
     |> Multi.run(:register_workflows, fn _, %{create_task: task} ->
-      Task.register_workflows(task)
+      task
+      |> Repo.preload(workflows: :temp_output)
+      |> Task.register_workflows()
     end)
     |> run_transaction()
   end
 
   defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
-    Task.execute_workflows(task)
+    task
+    |> Task.execute_workflows()
+    |> validate_task_workflows(task)
+  end
+
+  defp validate_task_workflows({:ok, _data}, task) do
+    {:ok, (task |> Repo.preload(workflows: :temp_output))}
+  end
+
+  defp validate_task_workflows({:error, _data}, _task) do
+    {:error, "something went wrong!"}
   end
 
   defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
-    # Task.execute_workflows(task)
     Multi.new()
     |> Multi.run(:update_task, fn _, _changes ->
       TaskModel.update(task, params)
@@ -46,7 +57,7 @@ defmodule AcqdatApi.DataCruncher.Task do
 
     case result do
       {:ok, %{create_task: _create_task, register_workflows: _register_workflows}} ->
-        {:ok, %{create_task: task}} = result
+        {:ok, %{register_workflows: task}} = result
         {:ok, task}
 
       {:ok, %{update_task: _create_task, register_workflows: _register_workflows}} ->

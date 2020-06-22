@@ -3,7 +3,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   alias AcqdatCore.DataCruncher.Domain.Workflow
   alias Virta.Core.Out
   alias Virta.{Node, EdgeData}
-  alias AcqdatCore.DataCruncher.Model.Dataloader
+  alias AcqdatCore.DataCruncher.Model.{Dataloader, TempOutput}
   alias AcqdatCore.DataCruncher.Token
 
   def register_workflows(task) do
@@ -25,21 +25,23 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   end
 
   def execute_workflows(task) do
-    task = task |> Repo.preload([:workflows])
-
-    Enum.each(task.workflows, fn workflow ->
-      execute_workflow(workflow)
+    Repo.transaction(fn ->
+      Enum.each(task.workflows, fn workflow ->
+        workflow
+        |> execute_workflow()
+        |> persist_output_to_temp_table(workflow)
+      end)
     end)
+  end
 
-    {:ok, task}
+  def persist_output_to_temp_table({_request_id, output_data}, %{id: id} = workflow) do
+    TempOutput.create(%{workflow_id: id, data: [output_data], format: "array"})
   end
 
   def execute_workflow(%{input_data: input_data, uuid: worflow_uuid} = workflow) do
-    # TODO: Needs to decide the output format
-    graph_data = generate_graph_data(input_data)
-    {_request_id, output} = Workflow.execute(worflow_uuid, graph_data)
-    # IO.puts("output")
-    # IO.puts(output.tsmax)
+    input_data
+    |> generate_graph_data()
+    |> Workflow.execute(worflow_uuid)
   end
 
   defp generate_graph_data(input_data) do
