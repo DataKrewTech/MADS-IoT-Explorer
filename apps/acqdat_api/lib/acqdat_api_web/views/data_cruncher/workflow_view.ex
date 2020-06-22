@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.DataCruncher.WorkflowView do
   def render("workflow.json", %{workflow: workflow}) do
     %{
       id: workflow.id,
+      uuid: workflow.uuid,
       graph: workflow.graph,
       input_data: workflow.input_data
     }

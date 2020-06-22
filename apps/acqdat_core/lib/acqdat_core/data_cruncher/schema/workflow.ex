@@ -1,6 +1,6 @@
 defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   @moduledoc """
-  Models a workflow.
+  Models a workflow temporary output.
 
   A workflow schema consists of a graph and data with which nodes/vertices in the
   graph are intitialized.
@@ -8,8 +8,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.Organisation
-  alias AcqdatCore.DataCruncher.Schema.Tasks
+  alias AcqdatCore.DataCruncher.Schema.{Tasks, TempOutput, WorkflowOutput}
 
   @type t :: %__MODULE__{}
 
@@ -20,6 +19,8 @@ defmodule AcqdatCore.DataCruncher.Schema.Workflow do
 
     # associations
     belongs_to(:task, Tasks, on_replace: :delete)
+    has_many(:temp_output, TempOutput, on_replace: :delete)
+    has_many(:wkflow_output, WorkflowOutput, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
