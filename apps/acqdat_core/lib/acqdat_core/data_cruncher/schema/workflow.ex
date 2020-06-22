@@ -1,6 +1,6 @@
 defmodule AcqdatCore.DataCruncher.Schema.Workflow do
   @moduledoc """
-  Models a workflow.
+  Models a workflow temporary output.
 
   A workflow schema consists of a graph and data with which nodes/vertices in the
   graph are intitialized.
