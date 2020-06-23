@@ -10,11 +10,13 @@ defmodule AcqdatCore.DataCruncher.Model.ComponentHelper do
     |> Stream.filter(&is_atom(&1))
     |> Enum.map(fn module ->
       data = module.component_properties()
-      Map.merge(data,
-      %{
-        module: to_string(module),
-      })
-    end)
 
+      Map.merge(
+        data,
+        %{
+          module: to_string(module)
+        }
+      )
+    end)
   end
 end

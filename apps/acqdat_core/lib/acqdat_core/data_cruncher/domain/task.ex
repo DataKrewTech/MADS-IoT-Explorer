@@ -89,17 +89,32 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   end
 
   defp create_graph(%{graph: graph} = workflow) do
-    nodes =
+    edge_list =
       Enum.reduce(graph["edge_list"], [], fn edge, acc ->
         acc ++ [gen_edge(edge)]
       end)
 
+    # NOTE: added outer edges for handling of multiple outputs in our graph
+    out_edge_list =
+      Enum.reduce(graph["vertices"], [], fn vertex, acc ->
+        if vertex["type"] == "output" do
+          acc ++ [gen_out_edge(vertex)]
+        end
+      end)
+
     Graph.new(type: :directed)
-    |> Graph.add_edges(nodes)
+    |> Graph.add_edges(edge_list ++ out_edge_list)
+  end
+
+  defp gen_out_edge(%{"id" => id, "module" => module, "o_ports" => output_port}) do
+    node_from = %Node{module: module, id: id}
+    node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
+
+    {node_from, node_to,
+     label: %EdgeData{from: String.to_atom(output_port), to: String.to_atom(output_port)}}
   end
 
   defp gen_edge(%{"source_node" => source_node, "target_node" => target_node}) do
-    # TODO: Modify for the multiple output nodes
     source_module = source_node |> parse_module()
     target_module = target_node |> parse_module()
 
