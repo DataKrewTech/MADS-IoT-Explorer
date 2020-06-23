@@ -50,6 +50,9 @@ defmodule AcqdatUmbrella.MixProject do
       # cors
       {:corsica, "~> 1.0"},
 
+      # worker pool
+      {:poolboy, "~> 1.5.1"},
+
       # http client
       {:httpoison, "~> 1.4"},
 

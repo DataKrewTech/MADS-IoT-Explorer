@@ -1,15 +1,11 @@
-defmodule AcqdatApiWeb.Plug.LoadGateway do
+defmodule AcqdatIotWeb.Plugs.VerifyGateway do
   import Plug.Conn
-  alias AcqdatCore.Model.IotManager.Gateway, as: GModel
+  alias AcqdatCore.Model.EntityManagement.Gateway, as: GModel
 
   @spec init(any) :: any
   def init(default), do: default
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(%{params: %{"id" => gateway_id}} = conn, _params) do
-    check_gateway(conn, gateway_id)
-  end
-
   def call(%{params: %{"gateway_id" => gateway_id}} = conn, _params) do
     check_gateway(conn, gateway_id)
   end
@@ -19,7 +15,17 @@ defmodule AcqdatApiWeb.Plug.LoadGateway do
 
     case GModel.get_by_id(gateway_id) do
       {:ok, gateway} ->
-        assign(conn, :gateway, gateway)
+        [token] = Plug.Conn.get_req_header(conn, "authorization")
+        ["Bearer", access_token] = String.split(token, " ")
+
+        case access_token == gateway.access_token do
+          true ->
+            assign(conn, :gateway, gateway)
+
+          false ->
+            conn
+            |> put_status(404)
+        end
 
       {:error, _message} ->
         conn

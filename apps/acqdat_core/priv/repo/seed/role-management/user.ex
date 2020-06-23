@@ -22,6 +22,7 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
     create("users", data)
   end
 
+  #put("/organisation",%{mappings: %{properties: %{join_field: %{type: "join", relations: %{organisation: "user"}}}}})
   def create(type, params) do
     post("#{type}/_doc/#{params.id}",
       id: params.id,

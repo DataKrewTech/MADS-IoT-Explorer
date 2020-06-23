@@ -9,7 +9,9 @@ defmodule AcqdatIot.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      AcqdatIotWeb.Endpoint
+      AcqdatIotWeb.Endpoint,
+      AcqdatIot.DataDump.Supervisor,
+      AcqdatIot.DataParser.Supervisor
       # Starts a worker by calling: AcqdatIot.Worker.start_link(arg)
       # {AcqdatIot.Worker, arg},
     ]

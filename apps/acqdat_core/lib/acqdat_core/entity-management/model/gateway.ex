@@ -13,6 +13,11 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
     Repo.insert(changeset)
   end
 
+  def return_mapped_parameter(gateway_id) do
+    gateway = Repo.get(Gateway, gateway_id)
+    gateway.mapped_parameters
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Gateway, id) do
       nil ->

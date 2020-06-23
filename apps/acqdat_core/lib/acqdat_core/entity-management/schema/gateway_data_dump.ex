@@ -42,5 +42,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataDump do
     |> assoc_constraint(:gateway)
     |> assoc_constraint(:org)
     |> assoc_constraint(:project)
+    |> unique_constraint(:inserted_timestamp,
+      name: :acqdat_gateway_data_dump_inserted_timestamp_index,
+      message: "data with same time stamp"
+    )
   end
 end
