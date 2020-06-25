@@ -10,33 +10,40 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   """
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
+  alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
 
   @typedoc """
   `name`: Name of the dashboard, which will be unique with respective to project.
   `uuid`: A universally unique id to identify the Dashboard.
+  `settings`: All the settings of dashboard
   """
   @type t :: %__MODULE__{}
   schema("acqdat_dashboard") do
     field(:name, :string, null: false)
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
+    field(:settings, :map)
 
+    # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
+    has_many(:widget_instances, WidgetInstance)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(uuid slug name org_id project_id)a
+  @required_params ~w(uuid slug name org_id project_id)a
+  @optional_params ~w(settings)a
+  @permitted @optional_params ++ @required_params
 
   def changeset(%__MODULE__{} = task, params) do
     task
-    |> cast(params, @required)
+    |> cast(params, @permitted)
     |> assoc_constraint(:org)
     |> assoc_constraint(:project)
     |> add_slug()
     |> add_uuid()
-    |> validate_required(@required)
+    |> validate_required(@required_params)
     |> unique_constraint(:name,
       name: :unique_dashboard_name_per_project,
       message: "unique name under project"

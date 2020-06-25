@@ -6,6 +6,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateDashboardTable do
       add(:name, :string, null: false)
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
+      add(:settings, :map)
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
       add(:project_id, references("acqdat_projects", on_delete: :delete_all), null: false)
 
