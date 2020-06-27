@@ -96,6 +96,10 @@ defmodule AcqdatApiWeb.Router do
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end
 
+    scope "/projects/:project_id", DashboardManagement do
+      resources "/dashboards", DashboardController, only: [:index]
+    end
+
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets
   end
