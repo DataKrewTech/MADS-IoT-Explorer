@@ -2,7 +2,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
   @moduledoc """
   Models the schema where timeseries related data is stored
   for all the sensors.
-
   Each row in this table corresponds to a sensor value at
   a particular time, for a particular organisation.
   """

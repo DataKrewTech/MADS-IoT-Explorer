@@ -48,7 +48,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
           Task.start_link(fn ->
             ElasticSearch.create_user("organisation", user, %{id: user.org_id})
           end)
-
           conn
           |> put_status(200)
           |> render("user_details_without_user_setting.json", %{user_details: user})

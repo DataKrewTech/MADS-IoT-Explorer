@@ -2,7 +2,6 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
   @moduledoc """
   Models the schema where timeseries related data is stored
   for all the gateway.
-
   Each row in this table corresponds to a gateway value at
   a particular time, for a particular organisation.
   """

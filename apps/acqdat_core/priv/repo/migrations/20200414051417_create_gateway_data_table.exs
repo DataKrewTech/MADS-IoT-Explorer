@@ -24,7 +24,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateGatewayDataTable do
     flush()
     # Convert above created GatewayData Table to HyperTable to incorporate timeseries data
     # TODO: Need to think, if we can use time_partitioning_func for the chunk partioning, on the basis of (inserted_timestamp + org_id + gateway_id)
-    execute("SELECT create_hypertable('acqdat_gateway_data', 'inserted_timestamp')")
+    # execute("SELECT create_hypertable('acqdat_gateway_data', 'inserted_timestamp')")
   end
 
   def down do

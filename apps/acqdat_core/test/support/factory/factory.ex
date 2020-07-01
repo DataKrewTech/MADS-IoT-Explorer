@@ -262,7 +262,7 @@ defmodule AcqdatCore.Support.Factory do
 
   def gateway_factory() do
     asset = insert(:asset)
-
+    sensor = insert(:sensor)
     %Gateway{
       uuid: UUID.uuid1(:hex),
       name: sequence(:gateway_name, &"Gateway#{&1}"),
@@ -273,7 +273,48 @@ defmodule AcqdatCore.Support.Factory do
       parent_id: asset.id,
       parent_type: "Asset",
       channel: sequence(:gateway_name, &"Gateway#{&1}"),
-      mapped_parameters: %{},
+      mapped_parameters: %{
+        "x_axis": %{
+          "type": "value",
+          "entity": "sensor",
+          "entity_id": sensor.id,
+          "value": "771e9f94b49511eabc9998460aa1c6de"
+        },
+        "axis": %{
+          "type": "list",
+          "value": [
+            %{
+              "type": "value",
+              "entity": "sensor",
+              "entity_id": sensor.id,
+              "value": "771e9f94b49511eabc9998460aa1c6de"
+            }
+          ]
+        },
+        "axis_object": %{
+          "type": "object",
+          "value": %{
+            "x_axis": %{
+              "type": "object",
+              "value": %{
+                "type": "value",
+                "entity": "sensor",
+                "entity_id": sensor.id,
+                "value": "771e9f94b49511eabc9998460aa1c6de"
+              }
+            },
+            "y_axis": %{
+              "type": "object",
+              "value": %{
+                "type": "value",
+                "entity": "sensor",
+                "entity_id": sensor.id,
+                "value": "771e9f94b49511eabc9998460aa1c6de"
+              }
+            }
+          }
+        }
+      },
       streaming_data: [],
       static_data: []
     }
