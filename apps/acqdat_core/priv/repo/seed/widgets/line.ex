@@ -17,23 +17,21 @@ defmodule AcqdatCore.Seed.Widgets.Line do
       },
       data: %{
         series: %{
-          data_type: :list,
+          data_type: :object,
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
             color: %{data_type: :string, value: %{}, properties: %{}},
+            multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}}
           }
         },
         axes: %{
           data_type: :object,
           value: %{},
           properties: %{
-            x: %{data_type: :list, value: %{},
-              properties: %{multiple: %{data_type: :boolean, value: %{data: false}, properties: %{}}}
-            },
-            y: %{data_type: :list, value: %{},
-              properties: %{multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}}}
-            }
+            multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}},
+            x: %{data_type: :list, value: %{}, properties: %{}},
+            y: %{data_type: :list, value: %{}, properties: %{}}
           }
         }
       }

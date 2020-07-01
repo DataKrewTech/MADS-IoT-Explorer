@@ -4,24 +4,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   import AcqdatApiWeb.Validators.DashboardManagement.Dashboard
   alias AcqdatApi.DashboardManagement.Dashboard
 
-  # alias AcqdatApi.Image
-  # alias AcqdatApi.ImageDeletion
-
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
-
-  @doc """
-  This piece of code will be useful when we will implement Project role based listing
-
-  ## Examples
-
-    case ProjectModel.check_adminship(Guardian.Plug.current_resource(conn)) do
-    true ->
-     false ->
-       conn
-       |> send_error(404, "User is not admin!")
-    end
-  """
 
   def index(conn, params) do
     changeset = verify_index_params(params)
