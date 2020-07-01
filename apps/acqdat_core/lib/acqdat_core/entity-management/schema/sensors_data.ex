@@ -50,10 +50,25 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
     |> assoc_constraint(:org)
   end
 
+  def update_changeset(%__MODULE__{} = sensor_data, params) do
+    sensor_data
+    |> cast(params, @required_params)
+    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
+    |> validate_required(@required_params)
+    |> assoc_constraint(:sensor)
+    |> assoc_constraint(:org)
+  end
+
   defp parameters_changeset(schema, params) do
     schema
     |> cast(params, @embedded_required_params)
     |> add_uuid()
+    |> validate_required(@embedded_required_params)
+  end
+
+  defp update_parameters_changeset(schema, params) do
+    schema
+    |> cast(params, @embedded_required_params)
     |> validate_required(@embedded_required_params)
   end
 

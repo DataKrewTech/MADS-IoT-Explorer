@@ -42,12 +42,10 @@ defmodule AcqdatIot.DataParser do
 
   defp parse_data(mapped_parameters, %{key: key, value: value}) when is_map(value) do
     %{"value" => rules} = mapped_parameters[key]
-
     Enum.zip(rules, value)
     |> Enum.all?(fn {{_key, rule}, {_key, value}} ->
       %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} =
         extract_rule_data(rule)
-
       send_data(entity, entity_id, parameter_uuid, value)
     end)
   end
@@ -68,9 +66,7 @@ defmodule AcqdatIot.DataParser do
       from(sensor_data in SData,
         where: sensor_data.sensor_id == ^entity_id
       )
-
     sensor_datas = Repo.all(query)
-
     Enum.each(sensor_datas, fn sensor_data ->
       insert_sensor_data(sensor_data, parameter_uuid, value)
     end)
@@ -92,24 +88,23 @@ defmodule AcqdatIot.DataParser do
   defp insert_sensor_data(sensor_data, parameter_uuid, value) do
     %{parameters: parameters} = sensor_data
     parameters = prepare_parameters(parameters, parameter_uuid, value)
-    changeset = SData.changeset(sensor_data, %{parameters: parameters})
+    changeset = SData.update_changeset(sensor_data, %{parameters: parameters})
     Repo.update(changeset)
   end
 
   defp insert_gateway_data(gateway_data, parameter_uuid, value) do
     %{parameters: parameters} = gateway_data
     parameters = prepare_parameters(parameters, parameter_uuid, value)
-    changeset = GData.changeset(gateway_data, %{parameters: parameters})
+    changeset = GData.update_changeset(gateway_data, %{parameters: parameters})
     Repo.update(changeset)
   end
 
   defp prepare_parameters(parameters, parameter_uuid, value) do
     Enum.reduce(parameters, [], fn parameter, acc ->
       parameter = Map.from_struct(parameter)
-
       parameter =
         case parameter.uuid == parameter_uuid do
-          true -> Map.replace!(parameter, :value, value)
+          true -> Map.replace!(parameter, :value, Integer.to_string(value))
           false -> parameter
         end
 

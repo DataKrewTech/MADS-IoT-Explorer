@@ -63,7 +63,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end
 
-    get "/users/search", RoleManagement.UserController, :search_users
+    get "/search_users", RoleManagement.UserController, :search_users
 
     scope "/", RoleManagement do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)

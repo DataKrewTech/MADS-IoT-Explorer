@@ -70,8 +70,8 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
-  def search_user(type, params) do
-    case do_user_search(type, params) do
+  def search_user(org_id, params) do
+    case do_user_search(org_id, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
@@ -101,8 +101,8 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  defp do_user_search(type, params) do
-    query = create_query("first_name", params, type)
+  defp do_user_search(org_id, params) do
+    query = create_user_search_query(org_id, params)
     Tirexs.Query.create_resource(query)
   end
 
@@ -126,5 +126,23 @@ defmodule AcqdatApi.ElasticSearch do
 
   defp create_query(field, value, index) do
     [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]]], index: "#{index}"]
+  end
+
+  defp create_user_search_query(org_id, label) do
+    [search: [query: [bool: [must: [[parent_id: [type: "user", id: org_id]]], filter: [term: ["first_name.keyword": "#{label}"]]] ]], index: "organisation"]
+  end
+
+  # [ "#{field}": [query: "#{value}", fuzziness: 1]
+  def create_user(type, params, org) do
+    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
+      id: params.id,
+      email: params.email,
+      first_name: params.first_name,
+      last_name: params.last_name,
+      org_id: params.org_id,
+      is_invited: params.is_invited,
+      role_id: params.role_id,
+      "join_field": %{"name": "user", "parent": org.id}
+      )
   end
 end

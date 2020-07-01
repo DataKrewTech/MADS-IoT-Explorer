@@ -13,17 +13,17 @@ defmodule AcqdatCore.Seed.EntityManagement.Organisation do
     }
     organisation = Organisation.changeset(%Organisation{}, params)
     org = Repo.insert!(organisation, on_conflict: :nothing)
+    create("organisation", org)
   end
 
   def create(type, params) do
+    put("/organisation",%{mappings: %{properties: %{join_field: %{type: "join", relations: %{organisation: "user"}}}}})
     post("#{type}/_doc/#{params.id}",
       id: params.id,
-      email: params.email,
-      first_name: params.first_name,
-      last_name: params.last_name,
-      org_id: params.org_id,
-      is_invited: params.is_invited,
-      role_id: params.role_id)
+      name: params.name,
+      uuid: params.uuid,
+      "join_field": "organisation"
+      )
   end
 
 end

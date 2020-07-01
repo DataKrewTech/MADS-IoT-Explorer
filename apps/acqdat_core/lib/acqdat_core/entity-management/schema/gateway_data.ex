@@ -50,6 +50,25 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
     |> assoc_constraint(:org)
   end
 
+  @spec changeset(
+          __MODULE__.t(),
+          map
+        ) :: Ecto.Changeset.t()
+  def update_changeset(%__MODULE__{} = gateway_data, params) do
+    gateway_data
+    |> cast(params, @required_params)
+    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
+    |> validate_required(@required_params)
+    |> assoc_constraint(:gateway)
+    |> assoc_constraint(:org)
+  end
+
+  defp update_parameters_changeset(schema, params) do
+    schema
+    |> cast(params, @embedded_required_params)
+    |> validate_required(@embedded_required_params)
+  end
+
   defp parameters_changeset(schema, params) do
     schema
     |> cast(params, @embedded_required_params)

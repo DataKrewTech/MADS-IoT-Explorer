@@ -27,7 +27,7 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
 
       404 ->
         conn
-        |> send_error(404, "Access ")
+        |> send_error(404, "Unauthorized")
     end
   end
 end

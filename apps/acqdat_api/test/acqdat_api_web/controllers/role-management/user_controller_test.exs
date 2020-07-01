@@ -225,59 +225,59 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
     end
   end
 
-  # describe "search_users/2" do
-  #   setup :setup_conn
+  describe "search_users/2" do
+    setup :setup_conn
 
-  #   test "fails if authorization header not found", %{conn: conn} do
-  #     bad_access_token = "avcbd123489u"
-  #     org = insert(:organisation)
+    test "fails if authorization header not found", %{conn: conn} do
+      bad_access_token = "avcbd123489u"
+      org = insert(:organisation)
 
-  #     conn =
-  #       conn
-  #       |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #     conn =
-  #       get(conn, Routes.organisation_user_path(conn, :search_users, org.id), %{
-  #         "label" => "Chandu"
-  #       })
+      conn =
+        get(conn, Routes.user_path(conn, :search_users, org.id), %{
+          "label" => "Chandu"
+        })
 
-  #     result = conn |> json_response(403)
-  #     assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #   end
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
 
-  # test "search with valid params", %{conn: conn, user: user} do
-  #   conn =
-  #     get(conn, Routes.organisation_user_path(conn, :search_users, user.org_id), %{
-  #       "label" => "Chandu"
-  #     })
+  test "search with valid params", %{conn: conn, user: user} do
+    conn =
+      get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
+        "label" => "Chandu"
+      })
 
-  #   result = conn |> json_response(200)
-  #   assert result = %{
-  #            "users" => [
-  #              %{
-  #                "email" => "chandu@stack-avenue.com",
-  #                "first_name" => "Chandu",
-  #                "id" => 1,
-  #                "last_name" => "Developer",
-  #                "org_id" => 1
-  #              }
-  #            ]
-  #          }
-  # end
+    result = conn |> json_response(200)
+    assert result = %{
+             "users" => [
+               %{
+                 "email" => "chandu@stack-avenue.com",
+                 "first_name" => "Chandu",
+                 "id" => 1,
+                 "last_name" => "Developer",
+                 "org_id" => 1
+               }
+             ]
+           }
+  end
 
-  #   test "search with no hits ", %{conn: conn} do
-  #     org = insert(:organisation)
+    test "search with no hits ", %{conn: conn} do
+      org = insert(:organisation)
 
-  #     conn =
-  #       get(conn, Routes.organisation_user_path(conn, :search_users, org.id), %{
-  #         "label" => "Datakrew"
-  #       })
+      conn =
+        get(conn, Routes.user_path(conn, :search_users, org.id), %{
+          "label" => "Datakrew"
+        })
 
-  #     result = conn |> json_response(200)
+      result = conn |> json_response(200)
 
-  #     assert result = %{
-  #              "users" => []
-  #            }
-  #   end
-  # end
+      assert result = %{
+               "users" => []
+             }
+    end
+  end
 end

@@ -45,6 +45,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, user}} <- {:create, User.create(data)} do
+           Task.start_link(ElasticSearch.create_user("organisation", user, %{id: user.org_id}))
           conn
           |> put_status(200)
           |> render("user_details_without_user_setting.json", %{user_details: user})
@@ -62,10 +63,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
-  def search_users(conn, %{"label" => label}) do
+  def search_users(conn, %{"label" => label, "org_id" => org_id}) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_user("users", label) do
+        with {:ok, hits} <- ElasticSearch.search_user(org_id, label) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
           {:error, message} ->

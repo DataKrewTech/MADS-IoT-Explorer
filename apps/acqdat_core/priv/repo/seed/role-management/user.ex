@@ -19,18 +19,19 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
     }
     user = User.changeset(%User{}, params)
     data = Repo.insert!(user, on_conflict: :nothing)
-    create("users", data)
+    create("organisation", data, org)
   end
 
-  #put("/organisation",%{mappings: %{properties: %{join_field: %{type: "join", relations: %{organisation: "user"}}}}})
-  def create(type, params) do
-    post("#{type}/_doc/#{params.id}",
+  def create(type, params, org) do
+    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
       id: params.id,
       email: params.email,
       first_name: params.first_name,
       last_name: params.last_name,
       org_id: params.org_id,
       is_invited: params.is_invited,
-      role_id: params.role_id)
+      role_id: params.role_id,
+      "join_field": %{"name": "user", "parent": org.id}
+      )
   end
 end
