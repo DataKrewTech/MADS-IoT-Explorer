@@ -211,10 +211,13 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance.Axes do
   embedded_schema do
     field(:name, :string)
     field(:source_type, :string)
-    field(:source_details, :map)
+    field(:source_metadata, :map)
+    # field(:entity_id, :integer)
+    # field(:entity_type, :string)
+    # field(:parameter, :string)
   end
 
-  @permitted ~w(name source_type source_details)a
+  @permitted ~w(name source_type source_metadata)a
 
   def changeset(%__MODULE__{} = axes, params) do
     axes

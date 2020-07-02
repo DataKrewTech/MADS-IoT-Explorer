@@ -100,6 +100,9 @@ defmodule AcqdatApiWeb.Router do
       resources "/dashboards", DashboardController, only: [:index]
     end
 
+    post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances", DashboardManagement.WidgetInstanceController, :create,
+    as: :create_widget_instances
+
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets
   end

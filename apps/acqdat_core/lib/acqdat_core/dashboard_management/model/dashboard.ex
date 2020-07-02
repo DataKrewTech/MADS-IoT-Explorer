@@ -4,6 +4,16 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
 
+  def get_by_id(id) when is_integer(id) do
+    case Repo.get(Dashboard, id) do
+      nil ->
+        {:error, "dashboard with this id not found"}
+
+      project ->
+        {:ok, project}
+    end
+  end
+
   def get_all(%{
         page_size: page_size,
         page_number: page_number,
