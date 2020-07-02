@@ -5,10 +5,11 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
 
   It is used to model associations between dashboard and widget
 
-  A widget_instance has three important properties along with others:
+  A widget_instance has four important properties along with others:
   - `data_settings`
   - `visual_settings`
   - `widget_settings`
+  - `series_data`
 
   **Data Settings**
   The data settings holds properties of data source which would be
@@ -24,6 +25,13 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   **Widget Settings**
   Widget Settings hold the settings which are widget specific on a prticular dashboard, like
   height, width of the widgets on the respective dashboard.
+
+  **Series Data**
+  Series Data holds mapping of all the series's axes and its associated datasources.
+  Each and every axes will be associated with it respective datasource.
+  Datasource will be of two categories:
+  - `pds`: primary data source
+  - `sds`: secondary data source
   """
 
   use AcqdatCore.Schema
@@ -31,15 +39,13 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   alias AcqdatCore.DashboardManagement.Schema.Dashboard
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.DataSettings
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.VisualSettings
+  alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.SeriesData
 
   @typedoc """
   `label`: widget_instance name
   `uuid`: unique number
-  `image_url`: holds the image url for a widget
   `default_values`: holds initial values for keys defined in data and visual
     settings
-  `category`: category of the widget
-  `policies`: policy of that widget
   `properties`: properties of a widget
   `visual_settings`: holds visualization related settings
   `data_settings`: holds data related settings for a widget
@@ -54,14 +60,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     field(:widget_settings, :map)
     field(:properties, :map)
     field(:uuid, :string)
-    field(:image_url, :string)
     field(:default_values, :map)
-    field(:category, {:array, :string})
-    field(:policies, :map)
 
     # embedded associations
     embeds_many(:visual_settings, VisualSettings)
     embeds_many(:data_settings, DataSettings)
+    embeds_many(:series_data, SeriesData)
 
     # associations
     belongs_to(:widget, Widget, on_replace: :delete)
@@ -70,8 +74,8 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(label default_values widget_id dashboard_id slug uuid)a
-  @optional ~w(properties image_url policies category widget_settings)a
+  @required ~w(label widget_id dashboard_id slug uuid)a
+  @optional ~w(properties widget_settings default_values)a
   @permitted @required ++ @optional
 
   @spec changeset(
@@ -87,6 +91,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     |> add_uuid()
     |> cast_embed(:visual_settings, with: &VisualSettings.changeset/2)
     |> cast_embed(:data_settings, with: &DataSettings.changeset/2)
+    |> cast_embed(:series_data, with: &SeriesData.changeset/2)
     |> validate_required(@required)
     |> unique_constraint(:label,
       name: :unique_widget_name_per_dashboard,
@@ -170,5 +175,49 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance.DataSettings do
     settings
     |> cast(params, @permitted)
     |> cast_embed(:properties, with: &DataSettings.changeset/2)
+  end
+end
+
+defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance.SeriesData do
+  @moduledoc """
+  Embed schema for Series Data and its data-sources.
+  """
+
+  use AcqdatCore.Schema
+  alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.Axes
+
+  embedded_schema do
+    field(:name, :string)
+    field(:color, :string)
+    embeds_many(:axes, Axes)
+  end
+
+  @permitted ~w(name color)a
+
+  def changeset(%__MODULE__{} = series, params) do
+    series
+    |> cast(params, @permitted)
+    |> cast_embed(:axes, with: &Axes.changeset/2)
+  end
+end
+
+defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance.Axes do
+  @moduledoc """
+  Embed schema for Axes of widget.
+  """
+
+  use AcqdatCore.Schema
+
+  embedded_schema do
+    field(:name, :string)
+    field(:source_type, :string)
+    field(:source_details, :map)
+  end
+
+  @permitted ~w(name source_type source_details)a
+
+  def changeset(%__MODULE__{} = axes, params) do
+    axes
+    |> cast(params, @permitted)
   end
 end

@@ -14,7 +14,9 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
       default_values: widget.default_values,
       image_url: widget.image_url,
       uuid: widget.uuid,
-      widget_type: render_one(widget.widget_type, WidgetTypeView, "widget_type.json")
+      widget_type: render_one(widget.widget_type, WidgetTypeView, "widget_type.json"),
+      visual_settings: render_many(widget.visual_settings, WidgetView, "visual_settings.json"),
+      data_settings: render_many(widget.data_settings, WidgetView, "data_settings.json")
     }
   end
 
@@ -38,6 +40,24 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
       category: widget.category,
       image_url: widget.image_url,
       uuid: widget.uuid
+    }
+  end
+
+  def render("visual_settings.json", %{widget: settings}) do
+    %{
+      key: settings.key,
+      data_type: settings.data_type,
+      value: settings.value["data"] || "",
+      properties: render_many(settings.properties, WidgetView, "visual_settings.json")
+    }
+  end
+
+  def render("data_settings.json", %{widget: settings}) do
+    %{
+      key: settings.key,
+      data_type: settings.data_type,
+      value: settings.value["data"] || "",
+      properties: render_many(settings.properties, WidgetView, "data_settings.json")
     }
   end
 
