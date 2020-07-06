@@ -17,7 +17,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   def hierarchy_data(org_id, project_id) do
     org_projects = fetch_projects(org_id, project_id)
 
-    heirarchy =
+    hierarchy =
       Enum.reduce(org_projects, [], fn project, acc ->
         entities = AssetModel.child_assets(project.id)
         sensors = SensorModel.get_all_by_parent_project(project.id)
@@ -27,19 +27,34 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
     gateway = get_gateways(project_id)
 
-    [heirarchy | gateway]
+    [hierarchy | gateway]
   end
 
-  defp get_gateways(project_id) do
+  def get_gateways(project_id) do
     gateways = GatewayModel.fetch_gateways(project_id)
+
+    gateway_ids = fetch_gateway_ids(gateways)
+    sensors = SensorModel.get_all_by_parent_gateway(gateway_ids)
 
     Enum.reduce(gateways, [], fn gateway, acc ->
       gateway =
         gateway
         |> GatewayModel.attach_parent()
-        |> GatewayModel.attach_childs()
+        |> attach_children(sensors)
 
       acc ++ [gateway]
+    end)
+  end
+
+  def attach_children(gateway, sensors) do
+    child_sensors = Enum.filter(sensors, fn sensor -> sensor.gateway_id == gateway.id end)
+
+    Map.put(gateway, :childs, child_sensors)
+  end
+
+  defp fetch_gateway_ids(gateways) do
+    Enum.reduce(gateways, [], fn gateway, acc ->
+      acc ++ [gateway.id]
     end)
   end
 

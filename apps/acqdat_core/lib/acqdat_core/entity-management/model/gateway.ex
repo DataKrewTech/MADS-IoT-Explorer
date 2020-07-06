@@ -71,7 +71,7 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
   def fetch_gateways(project_id) do
     query =
       from(gateway in Gateway,
-        where: gateway.project_id == ^project_id
+        where: gateway.parent_id == ^project_id
       )
 
     Repo.all(query)
@@ -85,10 +85,5 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
       end
 
     Map.put_new(gateway, :parent, parent)
-  end
-
-  def attach_childs(gateway) do
-    child_sensors = SModel.get_all_by_parent_gateway(gateway.id)
-    Map.put(gateway, :childs, child_sensors)
   end
 end

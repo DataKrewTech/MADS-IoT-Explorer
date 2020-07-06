@@ -1,9 +1,10 @@
 defmodule AcqdatCore.Schema.EntityManagement.GatewayDataDump do
   @moduledoc """
-  Models the schema where initially gateway data will be stored
+  Purpose:-
 
-  Which later will be transferred to gateway actual data table
-  depending on the parameters mapped in that gateway.
+  Models the schema where initially gateway data will be stored
+  as a data dump which later will be transferred to gateway actual data table
+  parsed according to the parameters mapped in that gateway.
   """
 
   use AcqdatCore.Schema
