@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.EntityManagement.Gateway do
+defmodule AcqdatApiWeb.Validators.IotManager.Gateway do
   use Params
 
   defparams(

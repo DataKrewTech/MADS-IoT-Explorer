@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
-  alias AcqdatCore.Model.EntityManagement.Gateway, as: GatewayModel
+  alias AcqdatCore.Model.IotManager.Gateway, as: GatewayModel
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
@@ -25,37 +25,9 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
         acc ++ [Map.put_new(map_data, :sensors, sensors)]
       end)
 
-    gateway = get_gateways(project_id)
+    gateway = GatewayModel.get_gateways(project_id)
 
     [hierarchy | gateway]
-  end
-
-  def get_gateways(project_id) do
-    gateways = GatewayModel.fetch_gateways(project_id)
-
-    gateway_ids = fetch_gateway_ids(gateways)
-    sensors = SensorModel.get_all_by_parent_gateway(gateway_ids)
-
-    Enum.reduce(gateways, [], fn gateway, acc ->
-      gateway =
-        gateway
-        |> GatewayModel.attach_parent()
-        |> attach_children(sensors)
-
-      acc ++ [gateway]
-    end)
-  end
-
-  def attach_children(gateway, sensors) do
-    child_sensors = Enum.filter(sensors, fn sensor -> sensor.gateway_id == gateway.id end)
-
-    Map.put(gateway, :childs, child_sensors)
-  end
-
-  defp fetch_gateway_ids(gateways) do
-    Enum.reduce(gateways, [], fn gateway, acc ->
-      acc ++ [gateway.id]
-    end)
   end
 
   def get_by_id(id) when is_integer(id) do

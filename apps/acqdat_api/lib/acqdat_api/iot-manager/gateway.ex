@@ -1,7 +1,7 @@
-defmodule AcqdatApi.EntityManagement.Gateway do
+defmodule AcqdatApi.IotManager.Gateway do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
-  alias AcqdatCore.Model.EntityManagement.Gateway
+  alias AcqdatCore.Model.IotManager.Gateway
 
   defdelegate get_all(data, preloads), to: Gateway
   defdelegate delete(gateway), to: Gateway

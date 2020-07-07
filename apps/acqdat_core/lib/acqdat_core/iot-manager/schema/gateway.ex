@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Schema.EntityManagement.Gateway do
+defmodule AcqdatCore.Schema.IotManager.Gateway do
   @moduledoc """
   Models a Gateway in the system.
 

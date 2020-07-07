@@ -17,13 +17,13 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Test.Support.WidgetData
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
+  alias AcqdatCore.Schema.IotManager.Gateway
 
   alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
     Organisation,
     AssetType,
     Asset,
-    Gateway,
     Project,
     SensorType,
     AssetType,

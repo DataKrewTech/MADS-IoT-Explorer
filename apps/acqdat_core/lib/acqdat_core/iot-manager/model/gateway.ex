@@ -1,6 +1,6 @@
-defmodule AcqdatCore.Model.EntityManagement.Gateway do
+defmodule AcqdatCore.Model.IotManager.Gateway do
   import Ecto.Query
-  alias AcqdatCore.Schema.EntityManagement.Gateway
+  alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AModel
@@ -85,5 +85,33 @@ defmodule AcqdatCore.Model.EntityManagement.Gateway do
       end
 
     Map.put_new(gateway, :parent, parent)
+  end
+
+  def get_gateways(project_id) do
+    gateways = fetch_gateways(project_id)
+
+    gateway_ids = fetch_gateway_ids(gateways)
+    sensors = SModel.get_all_by_parent_gateway(gateway_ids)
+
+    Enum.reduce(gateways, [], fn gateway, acc ->
+      gateway =
+        gateway
+        |> attach_parent()
+        |> attach_children(sensors)
+
+      acc ++ [gateway]
+    end)
+  end
+
+  def attach_children(gateway, sensors) do
+    child_sensors = Enum.filter(sensors, fn sensor -> sensor.gateway_id == gateway.id end)
+
+    Map.put(gateway, :childs, child_sensors)
+  end
+
+  defp fetch_gateway_ids(gateways) do
+    Enum.reduce(gateways, [], fn gateway, acc ->
+      acc ++ [gateway.id]
+    end)
   end
 end

@@ -1,8 +1,8 @@
-defmodule AcqdatApiWeb.EntityManagement.GatewayView do
+defmodule AcqdatApiWeb.IotManager.GatewayView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.EntityManagement.OrganisationView
   alias AcqdatApiWeb.EntityManagement.ProjectView
-  alias AcqdatApiWeb.EntityManagement.GatewayView
+  alias AcqdatApiWeb.IotManager.GatewayView
   alias AcqdatApiWeb.EntityManagement.SensorView
   alias AcqdatCore.Repo
 

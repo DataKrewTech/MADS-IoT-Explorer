@@ -1,10 +1,10 @@
-defmodule AcqdatCore.Schema.EntityManagement.GatewayTest do
+defmodule AcqdatCore.Schema.IotManager.GatewayTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
 
   import AcqdatCore.Support.Factory
 
-  alias AcqdatCore.Schema.EntityManagement.Gateway
+  alias AcqdatCore.Schema.IotManager.Gateway
 
   describe "changeset/2" do
     setup do

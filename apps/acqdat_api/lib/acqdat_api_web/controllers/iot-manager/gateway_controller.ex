@@ -1,10 +1,10 @@
-defmodule AcqdatApiWeb.EntityManagement.GatewayController do
+defmodule AcqdatApiWeb.IotManager.GatewayController do
   use AcqdatApiWeb, :controller
-  alias AcqdatApi.EntityManagement.Gateway
+  alias AcqdatApi.IotManager.Gateway
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.EntityManagement.Gateway
+  import AcqdatApiWeb.Validators.IotManager.Gateway
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
