@@ -9,4 +9,13 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.Dashboard do
       project_id!: :integer
     })
   )
+
+  defparams(
+    verify_create(%{
+      project_id!: :integer,
+      org_id!: :integer,
+      name!: :string,
+      description: :string
+    })
+  )
 end

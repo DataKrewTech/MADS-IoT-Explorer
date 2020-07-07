@@ -20,6 +20,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   @type t :: %__MODULE__{}
   schema("acqdat_dashboard") do
     field(:name, :string, null: false)
+    field(:description, :string)
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
     field(:settings, :map)
@@ -33,7 +34,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   end
 
   @required_params ~w(uuid slug name org_id project_id)a
-  @optional_params ~w(settings)a
+  @optional_params ~w(settings description)a
   @permitted @optional_params ++ @required_params
 
   def changeset(%__MODULE__{} = task, params) do

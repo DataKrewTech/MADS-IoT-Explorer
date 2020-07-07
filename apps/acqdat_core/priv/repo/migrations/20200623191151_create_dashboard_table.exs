@@ -4,6 +4,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateDashboardTable do
   def change do
     create table("acqdat_dashboard") do
       add(:name, :string, null: false)
+      add(:description, :string)
       add(:uuid, :string, null: false)
       add(:slug, :string, null: false)
       add(:settings, :map)

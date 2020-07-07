@@ -97,7 +97,7 @@ defmodule AcqdatApiWeb.Router do
     end
 
     scope "/projects/:project_id", DashboardManagement do
-      resources "/dashboards", DashboardController, only: [:index]
+      resources "/dashboards", DashboardController, only: [:index, :create]
     end
 
     post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances",

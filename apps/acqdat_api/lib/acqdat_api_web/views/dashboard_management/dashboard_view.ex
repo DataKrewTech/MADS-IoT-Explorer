@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
     %{
       id: dashboard.id,
       name: dashboard.name,
+      description: dashboard.description,
       org_id: dashboard.org_id,
       slug: dashboard.slug,
       uuid: dashboard.uuid,

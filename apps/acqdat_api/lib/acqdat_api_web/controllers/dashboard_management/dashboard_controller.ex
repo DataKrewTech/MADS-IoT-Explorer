@@ -24,4 +24,28 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
         |> send_error(404, "Resource Not Found")
     end
   end
+
+  def create(conn, params) do
+    case conn.status do
+      nil ->
+        changeset = verify_create(params)
+
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:create, {:ok, dashboard}} <- {:create, Dashboard.create(data)} do
+          conn
+          |> put_status(200)
+          |> render("dashboard.json", %{dashboard: dashboard})
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 end

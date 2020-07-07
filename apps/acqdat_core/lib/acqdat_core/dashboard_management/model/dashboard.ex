@@ -4,6 +4,11 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
 
+  def create(params) do
+    changeset = Dashboard.changeset(%Dashboard{}, params)
+    Repo.insert(changeset)
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Dashboard, id) do
       nil ->
