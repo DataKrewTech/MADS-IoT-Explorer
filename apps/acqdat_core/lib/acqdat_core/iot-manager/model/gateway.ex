@@ -1,7 +1,6 @@
 defmodule AcqdatCore.Model.IotManager.Gateway do
   import Ecto.Query
   alias AcqdatCore.Schema.IotManager.Gateway
-  alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AModel
   alias AcqdatCore.Model.EntityManagement.Project, as: PModel
@@ -75,6 +74,13 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
       )
 
     Repo.all(query)
+  end
+
+  def fetch_hierarchy_data(org, org_id, project_id) do
+    hierarchy = PModel.hierarchy_data(org_id, project_id)
+    gateway = get_gateways(project_id)
+    org = Map.put_new(org, :project_data, hierarchy)
+    org = Map.put_new(org, :gateway_data, gateway)
   end
 
   def attach_parent(gateway) do

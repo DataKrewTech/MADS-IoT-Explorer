@@ -2,6 +2,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.IotManager.Gateway
   alias AcqdatApi.Image
+  alias AcqdatCore.Model.IotManager.Gateway, as: GModel
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.ImageDeletion
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.IotManager.Gateway
@@ -9,6 +11,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
   plug AcqdatApiWeb.Plug.LoadGateway when action in [:update, :delete, :show]
+  plug :load_hierarchy_tree when action in [:hierarchy]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -80,6 +83,21 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     end
   end
 
+  def hierarchy(conn, _params) do
+    case conn.status do
+      nil ->
+        org = conn.assigns.org
+
+        conn
+        |> put_status(200)
+        |> render("organisation_tree.json", org)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
   def delete(conn, _params) do
     case conn.status do
       nil ->
@@ -135,6 +153,28 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       Map.replace!(params, "image_url", Image.url({image_name, "gateway"}))
     else
       {:error, error} -> send_error(conn, 400, error)
+    end
+  end
+
+  defp load_hierarchy_tree(
+         %{params: %{"org_id" => org_id, "project_id" => project_id}} = conn,
+         _params
+       ) do
+    check_org(conn, org_id, project_id)
+  end
+
+  defp check_org(conn, org_id, project_id) do
+    {org_id, _} = Integer.parse(org_id)
+    {project_id, _} = Integer.parse(project_id)
+
+    case OrgModel.get(org_id, project_id) do
+      {:ok, org} ->
+        org = GModel.fetch_hierarchy_data(org, org_id, project_id)
+        assign(conn, :org, org)
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
     end
   end
 end

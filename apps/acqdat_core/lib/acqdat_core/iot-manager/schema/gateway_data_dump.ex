@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Schema.EntityManagement.GatewayDataDump do
+defmodule AcqdatCore.Schema.IotManager.GatewayDataDump do
   @moduledoc """
   Purpose:-
 
@@ -8,7 +8,8 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataDump do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
+  alias AcqdatCore.Schema.IotManager.Gateway
 
   @typedoc """
   `inserted_timestamp`: The timestamp sent by device sending the gateway data.

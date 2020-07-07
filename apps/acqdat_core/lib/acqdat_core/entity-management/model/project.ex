@@ -4,7 +4,6 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
-  alias AcqdatCore.Model.IotManager.Gateway, as: GatewayModel
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
@@ -17,17 +16,12 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   def hierarchy_data(org_id, project_id) do
     org_projects = fetch_projects(org_id, project_id)
 
-    hierarchy =
-      Enum.reduce(org_projects, [], fn project, acc ->
-        entities = AssetModel.child_assets(project.id)
-        sensors = SensorModel.get_all_by_parent_project(project.id)
-        map_data = Map.put_new(project, :assets, entities)
-        acc ++ [Map.put_new(map_data, :sensors, sensors)]
-      end)
-
-    gateway = GatewayModel.get_gateways(project_id)
-
-    [hierarchy | gateway]
+    Enum.reduce(org_projects, [], fn project, acc ->
+      entities = AssetModel.child_assets(project.id)
+      sensors = SensorModel.get_all_by_parent_project(project.id)
+      map_data = Map.put_new(project, :assets, entities)
+      acc ++ [Map.put_new(map_data, :sensors, sensors)]
+    end)
   end
 
   def get_by_id(id) when is_integer(id) do
