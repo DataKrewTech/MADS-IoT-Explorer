@@ -3,6 +3,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
   The Module exposes helper functions to interact with sensor
   data.
   """
+  import Ecto.Query
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Repo
 
@@ -35,5 +36,28 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
   def create(params) do
     changeset = SensorsData.changeset(%SensorsData{}, params)
     Repo.insert(changeset)
+  end
+
+  def get_all_by_parameters(entity_id, param_name, date_from, date_to) do
+    subquery =
+      from(
+        data in SensorsData,
+        where:
+          data.sensor_id == ^entity_id and data.inserted_timestamp >= ^date_from and
+            data.inserted_timestamp <= ^date_to
+      )
+
+    query =
+      from(
+        data in subquery,
+        cross_join: c in fragment("unnest(?)", data.parameters),
+        where: fragment("?->>'name'=?", c, ^param_name),
+        select: [
+          data.inserted_timestamp,
+          fragment("?->>'value'", c)
+        ]
+      )
+
+    Repo.all(query)
   end
 end

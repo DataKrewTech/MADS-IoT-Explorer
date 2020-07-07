@@ -1,4 +1,6 @@
 defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
+  alias AcqdatCore.Model.EntityManagement.SensorData
+
   @moduledoc """
     Embedded Schema of the settings of the widget with it keys and subkeys
   """
@@ -286,9 +288,108 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   for different widgets. A detailed information can be found
   [here](https://api.highcharts.com/highcharts/series)
   """
-  # TODO: Data handling to be implmented.
-  @spec arrange_series_structure(map, list) :: map
-  def arrange_series_structure(axes, series) do
-    %{}
+
+  # @spec arrange_series_structure(map, list) :: map
+  # def arrange_series_structure(axes, series) do
+  #   %{}
+  # end
+
+  # this function will return series data in this format:
+  # [
+  #   %{
+  #     data: [
+  #       %{"x" => ~U[2020-06-15 08:08:52Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-15 09:55:32Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-15 10:02:12Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-15 12:42:12Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-16 08:08:52Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-16 10:55:32Z], "y" => "10"},
+  #       %{"x" => ~U[2020-06-24 10:35:32Z], "y" => "10"}
+  #     ],
+  #     name: "jane"
+  #   },
+  #   %{
+  #     data: [
+  #       %{"x" => ~U[2020-06-15 08:08:52Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-15 09:55:32Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-15 10:03:52Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-15 12:42:12Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-16 02:18:52Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-16 08:08:52Z], "y" => "16"},
+  #       %{"x" => ~U[2020-06-17 11:55:32Z], "y" => "16"}
+  #     ],
+  #     name: "jone"
+  #   }
+  # ]
+
+  def arrange_series_structure(series_data) do
+    Enum.reduce(series_data, [], fn series, acc_data ->
+      metadata = fetch_axes_specific_data(series.axes)
+
+      uniq_keys = metadata |> fetch_uniq_keys |> Stream.uniq()
+
+      parsed_data = uniq_keys |> parse_series_data(metadata)
+
+      acc_data ++ [%{name: series.name, data: parsed_data}]
+    end)
+  end
+
+  ############################# private functions ###########################
+
+  defp fetch_axes_specific_data(axes) do
+    Enum.reduce(axes, %{}, fn axis, acc ->
+      res = axis |> validate_data_source
+      q = (res || []) |> Enum.map(fn [a, b] -> {a, b} end) |> Map.new()
+      Map.put(acc, axis.name, q)
+    end)
+  end
+
+  defp validate_data_source(%{
+         source_type: source_type,
+         source_metadata: %{
+           "parameter" => parameter,
+           "entity_id" => entity_id,
+           "entity_type" => entity_type
+         }
+       })
+       when source_type == "pds" and parameter != "inserted_timestamp" do
+    fetch_from_data_source(entity_id, entity_type, parameter)
+  end
+
+  defp validate_data_source(%{
+         source_type: source_type,
+         source_metadata: %{"parameter" => parameter}
+       })
+       when source_type == "pds" and parameter == "inserted_timestamp" do
+  end
+
+  defp fetch_from_data_source(entity_id, entity_type, parameter) when entity_type == "sensor" do
+    date_from = Timex.shift(Timex.now(), months: -1) |> DateTime.truncate(:second)
+    date_to = Timex.now() |> DateTime.truncate(:second)
+    SensorData.get_all_by_parameters(entity_id, parameter, date_from, date_to)
+  end
+
+  defp fetch_uniq_keys(metadata) do
+    Enum.reduce(Map.keys(metadata), [], fn x, acc ->
+      acc ++ Map.keys(metadata[x])
+    end)
+  end
+
+  defp parse_series_data(uniq_keys, metadata) do
+    Stream.map(uniq_keys, fn key ->
+      Enum.reduce(Map.keys(metadata), %{}, fn x, acc ->
+        value = metadata[x] |> axes_params_value(key)
+        Map.put(acc, x, value)
+      end)
+    end)
+    |> Enum.into([])
+  end
+
+  defp axes_params_value(axes, key) when axes == %{} do
+    key
+  end
+
+  defp axes_params_value(axes, key) when axes != %{} do
+    axes[key] || "0"
   end
 end

@@ -18,11 +18,12 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
            dashboard_id: dashboard_id,
            widget_id: widget_id,
            series: series
-         }, widget 
+         },
+         widget
        ) do
-
     data_settings = parse_struct_to_map(widget.data_settings)
     visual_settings = parse_struct_to_map(widget.visual_settings)
+
     %{
       label: label,
       dashboard_id: dashboard_id,
@@ -45,8 +46,8 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
     {:error, %{error: extract_changeset_error(widget)}}
   end
 
-  #NOTE: Below code is for parsing and converting nested struct to nested map
-  #taken_reference from here: https://elixirforum.com/t/convert-a-nested-struct-into-a-nested-map/23814/7
+  # NOTE: Below code is for parsing and converting nested struct to nested map
+  # taken_reference from here: https://elixirforum.com/t/convert-a-nested-struct-into-a-nested-map/23814/7
 
   defp sample(map), do: :maps.map(&do_sample/2, map)
 
