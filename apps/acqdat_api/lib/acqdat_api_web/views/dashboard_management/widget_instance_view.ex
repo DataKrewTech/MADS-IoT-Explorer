@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.DashboardManagement.WidgetInstanceView
 
-  def render("show.json", %{widget_inst: widget}) do
+  def render("show.json", %{widget_instance: widget}) do
     %{
       id: widget.id,
       widget_id: widget.widget_id,
@@ -13,8 +13,13 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       visual_settings:
         render_many(widget.visual_settings, WidgetInstanceView, "visual_settings.json"),
       data_settings: render_many(widget.data_settings, WidgetInstanceView, "data_settings.json"),
-      series_data: render_many(widget.series_data, WidgetInstanceView, "series_data.json")
+      series_data: render_many(widget.series_data, WidgetInstanceView, "series_data.json"),
+      series: widget.data
     }
+  end
+
+  def render("data.json", %{widget_instance: data}) do
+    Map.from_struct(data)
   end
 
   def render("series_data.json", %{widget_instance: series}) do

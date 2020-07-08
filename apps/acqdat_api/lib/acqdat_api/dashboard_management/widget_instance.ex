@@ -1,6 +1,9 @@
 defmodule AcqdatApi.DashboardManagement.WidgetInstance do
-  alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
   import AcqdatApiWeb.Helpers
+  alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
+  alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
+
+  defdelegate get_by_id(widget_id), to: WidgetInstanceModel
 
   def create(attrs, conn) do
     verify_widget(
@@ -39,7 +42,10 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   end
 
   defp verify_widget({:ok, widget}) do
-    {:ok, widget}
+    updated_widget =
+      widget |> Map.put(:data, HighCharts.arrange_series_structure(widget.series_data))
+
+    {:ok, updated_widget}
   end
 
   defp verify_widget({:error, widget}) do

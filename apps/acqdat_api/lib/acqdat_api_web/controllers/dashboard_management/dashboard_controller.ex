@@ -48,4 +48,25 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
         |> send_error(404, "Resource Not Found")
     end
   end
+
+  def show(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        {id, _} = Integer.parse(id)
+
+        case Dashboard.get_with_widgets(id) do
+          {:error, message} ->
+            send_error(conn, 400, message)
+
+          {:ok, dashboard} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{dashboard: dashboard})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 end

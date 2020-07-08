@@ -97,13 +97,18 @@ defmodule AcqdatApiWeb.Router do
     end
 
     scope "/projects/:project_id", DashboardManagement do
-      resources "/dashboards", DashboardController, only: [:index, :create]
+      resources "/dashboards", DashboardController, only: [:index, :create, :show]
     end
 
     post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances",
          DashboardManagement.WidgetInstanceController,
          :create,
          as: :create_widget_instances
+
+    get "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+        DashboardManagement.WidgetInstanceController,
+        :show,
+        as: :show_widget_instances
 
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets

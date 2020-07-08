@@ -1,6 +1,7 @@
 defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   import Ecto.Query
   alias AcqdatCore.DashboardManagement.Schema.Dashboard
+  alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
 
@@ -14,8 +15,20 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
       nil ->
         {:error, "dashboard with this id not found"}
 
-      project ->
-        {:ok, project}
+      dashboard ->
+        {:ok, dashboard}
+    end
+  end
+
+  def get_with_widgets(id) when is_integer(id) do
+    case Repo.get(Dashboard, id) do
+      nil ->
+        {:error, "dashboard with this id not found"}
+
+      dashboard ->
+        widgets = WidgetInstanceModel.get_all_by_dashboard_id(dashboard.id)
+        dashboard = Map.put(dashboard, :widgets, widgets)
+        {:ok, dashboard}
     end
   end
 

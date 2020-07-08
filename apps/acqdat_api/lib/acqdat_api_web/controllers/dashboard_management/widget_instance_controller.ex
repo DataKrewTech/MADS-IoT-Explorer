@@ -17,13 +17,34 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
              {:create, {:ok, widget_inst}} <- {:create, WidgetInstance.create(data, conn)} do
           conn
           |> put_status(200)
-          |> render("show.json", %{widget_inst: widget_inst})
+          |> render("show.json", %{widget_instance: widget_inst})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
             send_error(conn, 400, message)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        {id, _} = Integer.parse(id)
+
+        case WidgetInstance.get_by_id(id) do
+          {:error, message} ->
+            send_error(conn, 400, message)
+
+          {:ok, widget_instance} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{widget_instance: widget_instance})
         end
 
       404 ->
