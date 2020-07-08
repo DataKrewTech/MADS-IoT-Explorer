@@ -12,6 +12,15 @@ defmodule AcqdatApi.EntityManagement.Gateway do
     Gateway.create(params) |> verify_gateway()
   end
 
+  def store_data(%{"gateway_id" => gateway_id, "commands" => command}) do
+    AcqdatApi.Worker.put(String.to_integer(gateway_id), command)
+  end
+
+  def follow_mqtt_path() do
+    require IEx
+    IEx.pry()
+  end
+
   defp verify_gateway({:ok, gateway}) do
     gateway = gateway |> Repo.preload([:org, :project])
     {:ok, gateway}

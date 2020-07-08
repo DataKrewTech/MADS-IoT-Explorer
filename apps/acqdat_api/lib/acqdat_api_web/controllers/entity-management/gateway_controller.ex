@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.EntityManagement.GatewayController do
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadGateway when action in [:update, :delete, :show]
+  plug AcqdatApiWeb.Plug.LoadGateway when action in [:update, :delete, :show, :store_commands]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -21,6 +21,33 @@ defmodule AcqdatApiWeb.EntityManagement.GatewayController do
         conn
         |> put_status(200)
         |> render("index.json", gateway)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def store_commands(conn, params) do
+    case conn.status do
+      nil ->
+        case conn.assigns.gateway.channel do
+          "streaming" ->
+            case Gateway.store_data(params) do
+              true ->
+                conn
+                |> put_status(200)
+                |> json(%{"data inserted" => true})
+
+              false ->
+                conn
+                |> put_status(400)
+                |> json(%{"data inserted" => false})
+            end
+
+          "mqtt" ->
+            Gateway.follow_mqtt_path()
+        end
 
       404 ->
         conn

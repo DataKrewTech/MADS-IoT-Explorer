@@ -10,7 +10,9 @@ defmodule AcqdatApi.Application do
     children = [
       # Start the endpoint when the application starts
       AcqdatApiWeb.Endpoint,
+      AcqdatApi.Worker,
       {Task.Supervisor, name: Datakrew.TaskSupervisor}
+
       # Starts a worker by calling: AcqdatApi.Worker.start_link(arg)
       # {AcqdatApi.Worker, arg},
     ]
