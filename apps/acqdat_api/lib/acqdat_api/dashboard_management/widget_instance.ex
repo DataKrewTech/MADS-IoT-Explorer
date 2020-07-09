@@ -3,7 +3,8 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
-  defdelegate get_by_id(widget_id), to: WidgetInstanceModel
+  defdelegate get_by_filter(widget_id, filter_month, start_date, end_date),
+    to: WidgetInstanceModel
 
   def create(attrs, conn) do
     verify_widget(
@@ -20,7 +21,8 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
            label: label,
            dashboard_id: dashboard_id,
            widget_id: widget_id,
-           series: series
+           series: series,
+           settings: settings
          },
          widget
        ) do
@@ -33,7 +35,8 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
       widget_id: widget_id,
       data_settings: data_settings,
       visual_settings: visual_settings,
-      series_data: series
+      series_data: series,
+      widget_settings: settings
     }
   end
 

@@ -322,9 +322,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   #   }
   # ]
 
-  def arrange_series_structure(series_data) do
+  def arrange_series_structure(series_data, filter_month \\ "1", start_date \\ "", end_date \\ "") do
     Enum.reduce(series_data, [], fn series, acc_data ->
-      metadata = fetch_axes_specific_data(series.axes)
+      metadata = fetch_axes_specific_data(series.axes, filter_month, start_date, end_date)
 
       uniq_keys = metadata |> fetch_uniq_keys |> Stream.uniq()
 
@@ -336,37 +336,73 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
   ############################# private functions ###########################
 
-  defp fetch_axes_specific_data(axes) do
+  defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
-      res = axis |> validate_data_source
+      res = axis |> validate_data_source(filter_month, start_date, end_date)
       q = (res || []) |> Enum.map(fn [a, b] -> {a, b} end) |> Map.new()
       Map.put(acc, axis.name, q)
     end)
   end
 
-  defp validate_data_source(%{
-         source_type: source_type,
-         source_metadata: %{
-           "parameter" => parameter,
-           "entity_id" => entity_id,
-           "entity_type" => entity_type
-         }
-       })
+  defp validate_data_source(
+         %{
+           source_type: source_type,
+           source_metadata: %{
+             "parameter" => parameter,
+             "entity_id" => entity_id,
+             "entity_type" => entity_type
+           }
+         },
+         filter_month,
+         start_date,
+         end_date
+       )
        when source_type == "pds" and parameter != "inserted_timestamp" do
-    fetch_from_data_source(entity_id, entity_type, parameter)
+    fetch_from_data_source(entity_id, entity_type, parameter, filter_month, start_date, end_date)
   end
 
-  defp validate_data_source(%{
-         source_type: source_type,
-         source_metadata: %{"parameter" => parameter}
-       })
+  defp validate_data_source(
+         %{
+           source_type: source_type,
+           source_metadata: %{"parameter" => parameter}
+         },
+         _filter_month,
+         _start_date,
+         _end_date
+       )
        when source_type == "pds" and parameter == "inserted_timestamp" do
   end
 
-  defp fetch_from_data_source(entity_id, entity_type, parameter) when entity_type == "sensor" do
-    date_from = Timex.shift(Timex.now(), months: -1) |> DateTime.truncate(:second)
-    date_to = Timex.now() |> DateTime.truncate(:second)
+  defp fetch_from_data_source(
+         entity_id,
+         entity_type,
+         parameter,
+         filter_month,
+         start_date,
+         end_date
+       )
+       when entity_type == "sensor" do
+    {filter_month, _} = Integer.parse(filter_month)
+    date_to = end_date |> validate_and_parse_end_date
+    date_from = start_date |> validate_and_parse_start_date(filter_month)
+
     SensorData.get_all_by_parameters(entity_id, parameter, date_from, date_to)
+  end
+
+  defp validate_and_parse_end_date(date) do
+    if is_nil(date) || date == "" do
+      Timex.now() |> DateTime.truncate(:second)
+    else
+      parse_date(date)
+    end
+  end
+
+  defp validate_and_parse_start_date(date, filter_month) do
+    if is_nil(date) || date == "" do
+      Timex.shift(Timex.now(), months: -filter_month) |> DateTime.truncate(:second)
+    else
+      parse_date(date)
+    end
   end
 
   defp fetch_uniq_keys(metadata) do
@@ -391,5 +427,10 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
   defp axes_params_value(axes, key) when axes != %{} do
     axes[key] || "0"
+  end
+
+  defp parse_date(date) do
+    date
+    |> Timex.parse!("{YYYY}-{0M}-{0D}")
   end
 end

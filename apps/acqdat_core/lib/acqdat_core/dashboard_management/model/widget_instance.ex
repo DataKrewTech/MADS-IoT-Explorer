@@ -19,19 +19,27 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
     end)
   end
 
-  def get_by_id(id) when is_integer(id) do
+  def get_by_filter(id, filter_month \\ "1", start_date, end_date) when is_integer(id) do
     case Repo.get(WidgetInstance, id) do
       nil ->
         {:error, "widget instance with this id not found"}
 
       widget_instance ->
-        widget_instance = widget_instance |> add_series_data()
+        widget_instance = widget_instance |> add_series_data(filter_month, start_date, end_date)
         {:ok, widget_instance}
     end
   end
 
-  defp add_series_data(widget_instance) do
+  defp add_series_data(widget_instance, filter_month \\ "1", start_date \\ "", end_date \\ "") do
     widget_instance
-    |> Map.put(:data, HighCharts.arrange_series_structure(widget_instance.series_data))
+    |> Map.put(
+      :data,
+      HighCharts.arrange_series_structure(
+        widget_instance.series_data,
+        filter_month,
+        start_date,
+        end_date
+      )
+    )
   end
 end

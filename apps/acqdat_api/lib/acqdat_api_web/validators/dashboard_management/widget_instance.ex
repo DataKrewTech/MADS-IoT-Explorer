@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.WidgetInstance do
       org_id!: :integer,
       widget_id!: :integer,
       dashboard_id!: :integer,
+      settings: :map,
       series: [field: {:array, :map}, default: []]
     })
   )
