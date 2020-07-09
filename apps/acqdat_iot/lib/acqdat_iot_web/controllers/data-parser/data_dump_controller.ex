@@ -1,12 +1,12 @@
 defmodule AcqdatIotWeb.DataParser.DataDumpController do
   use AcqdatIotWeb, :controller
-  alias AcqdatIot.DataDump.Worker.Server
-  import AcqdatIoTWeb.Helpers
-  import AcqdatIoTWeb.Validators.DataParser.DataDump
+  alias AcqdatIot.DataDump
+  import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.DataParser.DataDump
 
-  plug AcqdatIoTWeb.Plug.LoadProject
-  plug AcqdatIoTWeb.Plug.LoadOrg
-  plug AcqdatIoTWeb.Plug.LoadGateway
+  plug AcqdatApiWeb.Plug.LoadProject
+  plug AcqdatApiWeb.Plug.LoadOrg
+  plug AcqdatApiWeb.Plug.LoadGateway
 
   def create(conn, params) do
     case conn.status do
@@ -15,11 +15,17 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
 
         case extract_changeset_data(changeset) do
           {:ok, data} ->
-            Server.create(data)
+            case DataDump.create(data) do
+              {:ok, command} ->
+                conn
+                |> put_status(200)
+                |> render("command.json", %{command: command})
 
-            conn
-            |> put_status(202)
-            |> json(%{"data inserted" => true})
+              {:error, message} ->
+                conn
+                |> put_status(200)
+                |> json(%{"data inserted" => true, "command" => nil})
+            end
 
           {:error, error} ->
             send_error(conn, 400, error)
