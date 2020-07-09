@@ -10,11 +10,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       properties: widget.properties,
       default_values: widget.default_values,
       uuid: widget.uuid,
-      visual_settings:
-        render_many(widget.visual_settings, WidgetInstanceView, "visual_settings.json"),
-      data_settings: render_many(widget.data_settings, WidgetInstanceView, "data_settings.json"),
       series_data: render_many(widget.series_data, WidgetInstanceView, "series_data.json"),
-      series: widget.data,
+      chart_details: widget.chart_details,
       widget_settings: widget.widget_settings
     }
   end

@@ -33,9 +33,9 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
   defp add_series_data(widget_instance, filter_month \\ "1", start_date \\ "", end_date \\ "") do
     widget_instance
     |> Map.put(
-      :data,
-      HighCharts.arrange_series_structure(
-        widget_instance.series_data,
+      :chart_details,
+      HighCharts.fetch_highchart_details(
+        widget_instance,
         filter_month,
         start_date,
         end_date

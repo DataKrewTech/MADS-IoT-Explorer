@@ -322,7 +322,29 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   #   }
   # ]
 
-  def arrange_series_structure(series_data, filter_month \\ "1", start_date \\ "", end_date \\ "") do
+  def fetch_highchart_details(widget, filter_month \\ "1", start_date \\ "", end_date \\ "") do
+    highchart_details = widget.visual_settings |> parse_visual_properties
+
+    series_data =
+      widget.series_data |> arrange_series_structure(filter_month, start_date, end_date)
+
+    Map.put(highchart_details, "series", series_data)
+  end
+
+  ############################# private functions ###########################
+
+  def parse_visual_properties(properties) do
+    Enum.reduce(properties, %{}, fn setting, acc ->
+      if setting.properties != [] do
+        value = parse_visual_properties(setting.properties)
+        Map.put(acc, setting.key, value)
+      else
+        Map.put(acc, setting.key, setting.value["data"])
+      end
+    end)
+  end
+
+  def arrange_series_structure(series_data, filter_month, start_date, end_date) do
     Enum.reduce(series_data, [], fn series, acc_data ->
       metadata = fetch_axes_specific_data(series.axes, filter_month, start_date, end_date)
 
@@ -333,8 +355,6 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
       acc_data ++ [%{name: series.name, data: parsed_data}]
     end)
   end
-
-  ############################# private functions ###########################
 
   defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
