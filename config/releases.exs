@@ -45,5 +45,3 @@ config :acqdat_core, AcqdatCore.Repo,
   database: "acqdat_core_dev",
   hostname: db_host,
   pool_size: 100
-
-# configure logger

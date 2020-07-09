@@ -69,3 +69,11 @@ config :acqdat_core, AcqdatCore.Repo,
   database: "acqdat_core_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :vernemq_mads_plugin, VernemqMadsPlugin.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
+  database: "acqdat_core_dev",
+  hostname: "localhost",
+  pool_size: 10

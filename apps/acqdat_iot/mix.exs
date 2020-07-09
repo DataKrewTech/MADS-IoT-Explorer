@@ -41,6 +41,7 @@ defmodule AcqdatIot.MixProject do
 
       # validation api params
       {:params, "~> 2.0"}
+      {:tortoise, "~> 0.9"}
     ]
   end
 end
