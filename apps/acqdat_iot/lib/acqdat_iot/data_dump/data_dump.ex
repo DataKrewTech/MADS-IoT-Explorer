@@ -9,8 +9,12 @@ defmodule AcqdatIot.DataDump do
     GenServer.cast(pid, {:data_dump, params})
 
     case Worker.get(params.gateway_id) do
-      command -> {:ok, command}
-      nil -> {:error, "command not found"}
+      command ->
+        Worker.delete(params.gateway_id)
+        {:ok, command}
+
+      nil ->
+        {:error, "command not found"}
     end
   end
 

@@ -30,4 +30,8 @@ defmodule AcqdatApi.Worker do
   def put(key, value) do
     :ets.insert(:command_storage, {key, value})
   end
+
+  def delete(key) do
+    :ets.delete(:command_storage, key)
+  end
 end
