@@ -2,7 +2,7 @@ defmodule AcqdatIot.DataDump.Worker do
   use GenServer
   alias AcqdatIot.DataDump
   alias AcqdatIot.DataParser.Worker.Server
-  alias AcqdatCore.Model.EntityManagement.GatewayDataDump, as: GDDModel
+  alias AcqdatCore.Model.IotManager.GatewayDataDump, as: GDDModel
   import AcqdatApiWeb.Helpers
 
   def start_link(_) do

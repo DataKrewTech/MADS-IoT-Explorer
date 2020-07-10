@@ -1,6 +1,6 @@
 defmodule AcqdatIotWeb.Plugs.VerifyGateway do
   import Plug.Conn
-  alias AcqdatCore.Model.EntityManagement.Gateway, as: GModel
+  alias AcqdatCore.Model.IotManager.Gateway, as: GModel
 
   @spec init(any) :: any
   def init(default), do: default

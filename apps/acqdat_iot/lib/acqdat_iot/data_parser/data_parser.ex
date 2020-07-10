@@ -1,7 +1,7 @@
 defmodule AcqdatIot.DataParser do
   import Ecto.Query
-  alias AcqdatCore.Schema.EntityManagement.GatewayDataDump, as: GDD
-  alias AcqdatCore.Model.EntityManagement.Gateway, as: GModel
+  alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
+  alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SData
   alias AcqdatCore.Schema.EntityManagement.GatewayData, as: GData
   alias AcqdatCore.Repo

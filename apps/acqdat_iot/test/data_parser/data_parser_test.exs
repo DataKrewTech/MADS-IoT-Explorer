@@ -5,8 +5,8 @@ defmodule AcqdatIotWeb.DataParser do
   alias AcqdatApiWeb.Guardian
   alias AcqdatIot.DataParser
   alias AcqdatCore.Schema.EntityManagement.SensorsData
-  alias AcqdatCore.Schema.EntityManagement.Gateway
-  alias AcqdatCore.Model.EntityManagement.GatewayDataDump
+  alias AcqdatCore.Schema.IotManager.Gateway
+  alias AcqdatCore.Model.IotManager.GatewayDataDump
   alias AcqdatCore.Repo
   import Plug.Conn
   import AcqdatCore.Support.Factory

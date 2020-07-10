@@ -1,6 +1,6 @@
-defmodule AcqdatCore.Model.EntityManagement.GatewayDataDump do
+defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
   alias AcqdatCore.Repo
-  alias AcqdatCore.Schema.EntityManagement.GatewayDataDump
+  alias AcqdatCore.Schema.IotManager.GatewayDataDump
 
   def create(params) do
     changeset = GatewayDataDump.changeset(%GatewayDataDump{}, params)

@@ -10,7 +10,15 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
     setup do
       project = insert(:project)
       gateway1 = insert(:gateway, parent_type: "Project", parent_id: project.id)
-      gateway2 = insert(:gateway, parent_type: "Project", parent_id: project.id)
+
+      gateway2 =
+        insert(:gateway,
+          parent_type: "Project",
+          parent_id: project.id,
+          access_token:
+            "123yJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY3FkYXRfYXBpIiwiZXhwIjoxNTkyNjUxMjAwLCJpYXQiOjE1OTI2MzMyMDAsImlzcyI6ImFjcWRhdF9hcGkiLCJqdGkiOiJmYmY2NjliZi00YzI4LTQ1N2MtODFiOS0z"
+        )
+
       sensor1 = insert(:sensor, gateway_id: gateway1.id)
       sensor2 = insert(:sensor, gateway_id: gateway2.id)
 

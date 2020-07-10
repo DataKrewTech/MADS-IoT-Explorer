@@ -1,5 +1,5 @@
 defmodule AcqdatIot.DataDump do
-  alias AcqdatCore.Model.EntityManagement.GatewayDataDump, as: GDDModel
+  alias AcqdatCore.Model.IotManager.GatewayDataDump, as: GDDModel
   alias AcqdatIot.DataDump.Worker.Server
 
   def create(params) do
