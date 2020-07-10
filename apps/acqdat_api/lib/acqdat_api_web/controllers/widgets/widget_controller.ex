@@ -1,13 +1,14 @@
 defmodule AcqdatApiWeb.Widgets.WidgetController do
   use AcqdatApiWeb, :controller
+  import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.Widgets.Widget
   alias AcqdatApi.Widgets.Widget
   alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.Widgets.WidgetType, as: WTModel
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
-  import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.Widgets.Widget
+  alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   plug :load_widget when action in [:show, :update, :delete]
   plug :load_widget_type when action in [:create]
@@ -69,9 +70,17 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   def show(conn, _params) do
     case conn.status do
       nil ->
+        widget =
+          conn.assigns.widget
+          |> Map.put(
+            :visual_prop,
+            HighCharts.parse_properties(conn.assigns.widget.visual_settings)
+          )
+          |> Map.put(:data_prop, HighCharts.parse_properties(conn.assigns.widget.data_settings))
+
         conn
         |> put_status(200)
-        |> render("widget.json", %{widget: conn.assigns.widget})
+        |> render("widget.json", %{widget: widget})
 
       404 ->
         conn

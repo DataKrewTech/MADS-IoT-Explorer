@@ -16,7 +16,9 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
       uuid: widget.uuid,
       widget_type: render_one(widget.widget_type, WidgetTypeView, "widget_type.json"),
       visual_settings: render_many(widget.visual_settings, WidgetView, "visual_settings.json"),
-      data_settings: render_many(widget.data_settings, WidgetView, "data_settings.json")
+      data_settings: render_many(widget.data_settings, WidgetView, "data_settings.json"),
+      visual_prop: widget.visual_prop,
+      data_prop: widget.data_prop
     }
   end
 

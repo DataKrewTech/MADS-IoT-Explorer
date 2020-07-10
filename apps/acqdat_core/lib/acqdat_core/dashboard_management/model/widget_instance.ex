@@ -14,7 +14,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
       WidgetInstance |> where([widget], widget.dashboard_id == ^dashboard_id) |> Repo.all()
 
     Enum.reduce(widget_instances, [], fn widget, acc ->
-      widget = widget |> add_series_data()
+      widget = widget |> HighCharts.fetch_highchart_details()
       acc ++ [widget]
     end)
   end
@@ -25,21 +25,11 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
         {:error, "widget instance with this id not found"}
 
       widget_instance ->
-        widget_instance = widget_instance |> add_series_data(filter_month, start_date, end_date)
+        widget_instance =
+          widget_instance
+          |> HighCharts.fetch_highchart_details(filter_month, start_date, end_date)
+
         {:ok, widget_instance}
     end
-  end
-
-  defp add_series_data(widget_instance, filter_month \\ "1", start_date \\ "", end_date \\ "") do
-    widget_instance
-    |> Map.put(
-      :chart_details,
-      HighCharts.fetch_highchart_details(
-        widget_instance,
-        filter_month,
-        start_date,
-        end_date
-      )
-    )
   end
 end
