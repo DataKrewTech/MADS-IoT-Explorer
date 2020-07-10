@@ -129,7 +129,17 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   defp create_user_search_query(org_id, label) do
-    [search: [query: [bool: [must: [[parent_id: [type: "user", id: org_id]]], filter: [term: ["first_name.keyword": "#{label}"]]] ]], index: "organisation"]
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "user", id: org_id]]],
+            filter: [term: ["first_name.keyword": "#{label}"]]
+          ]
+        ]
+      ],
+      index: "organisation"
+    ]
   end
 
   # [ "#{field}": [query: "#{value}", fuzziness: 1]
@@ -142,7 +152,7 @@ defmodule AcqdatApi.ElasticSearch do
       org_id: params.org_id,
       is_invited: params.is_invited,
       role_id: params.role_id,
-      "join_field": %{"name": "user", "parent": org.id}
-      )
+      join_field: %{name: "user", parent: org.id}
+    )
   end
 end

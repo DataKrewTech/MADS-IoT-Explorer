@@ -45,7 +45,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, user}} <- {:create, User.create(data)} do
-           Task.start_link(ElasticSearch.create_user("organisation", user, %{id: user.org_id}))
+          Task.start_link(ElasticSearch.create_user("organisation", user, %{id: user.org_id}))
+
           conn
           |> put_status(200)
           |> render("user_details_without_user_setting.json", %{user_details: user})

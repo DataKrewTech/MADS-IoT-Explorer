@@ -268,10 +268,12 @@ defmodule AcqdatCore.Support.Factory do
   def gateway_factory() do
     asset = insert(:asset)
     sensor = insert(:sensor)
+
     %Gateway{
       uuid: UUID.uuid1(:hex),
       name: sequence(:gateway_name, &"Gateway#{&1}"),
-      access_token: "1yJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY3FkYXRfYXBpIiwiZXhwIjoxNTkyNjUxMjAwLCJpYXQiOjE1OTI2MzMyMDAsImlzcyI6ImFjcWRhdF9hcGkiLCJqdGkiOiJmYmY2NjliZi00YzI4LTQ1N2MtODFiOS0z",
+      access_token:
+        "1yJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY3FkYXRfYXBpIiwiZXhwIjoxNTkyNjUxMjAwLCJpYXQiOjE1OTI2MzMyMDAsImlzcyI6ImFjcWRhdF9hcGkiLCJqdGkiOiJmYmY2NjliZi00YzI4LTQ1N2MtODFiOS0z",
       slug: sequence(:gateway_name, &"Gateway#{&1}"),
       org: build(:organisation),
       project: build(:project),
@@ -279,42 +281,42 @@ defmodule AcqdatCore.Support.Factory do
       parent_type: "Asset",
       channel: sequence(:gateway_name, &"Gateway#{&1}"),
       mapped_parameters: %{
-        "x_axis": %{
-          "type": "value",
-          "entity": "sensor",
-          "entity_id": sensor.id,
-          "value": "771e9f94b49511eabc9998460aa1c6de"
+        x_axis: %{
+          type: "value",
+          entity: "sensor",
+          entity_id: sensor.id,
+          value: "771e9f94b49511eabc9998460aa1c6de"
         },
-        "axis": %{
-          "type": "list",
-          "value": [
+        axis: %{
+          type: "list",
+          value: [
             %{
-              "type": "value",
-              "entity": "sensor",
-              "entity_id": sensor.id,
-              "value": "771e9f94b49511eabc9998460aa1c6de"
+              type: "value",
+              entity: "sensor",
+              entity_id: sensor.id,
+              value: "771e9f94b49511eabc9998460aa1c6de"
             }
           ]
         },
-        "axis_object": %{
-          "type": "object",
-          "value": %{
-            "x_axis": %{
-              "type": "object",
-              "value": %{
-                "type": "value",
-                "entity": "sensor",
-                "entity_id": sensor.id,
-                "value": "771e9f94b49511eabc9998460aa1c6de"
+        axis_object: %{
+          type: "object",
+          value: %{
+            x_axis: %{
+              type: "object",
+              value: %{
+                type: "value",
+                entity: "sensor",
+                entity_id: sensor.id,
+                value: "771e9f94b49511eabc9998460aa1c6de"
               }
             },
-            "y_axis": %{
-              "type": "object",
-              "value": %{
-                "type": "value",
-                "entity": "sensor",
-                "entity_id": sensor.id,
-                "value": "771e9f94b49511eabc9998460aa1c6de"
+            y_axis: %{
+              type: "object",
+              value: %{
+                type: "value",
+                entity: "sensor",
+                entity_id: sensor.id,
+                value: "771e9f94b49511eabc9998460aa1c6de"
               }
             }
           }
