@@ -24,6 +24,19 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
         options:  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      elastic_search:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+        env: 
+          discovery.type: single-node
+          bootstrap.memory_lock: true
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: 
+          - 9200:9200
+        options: >-
+          --health-cmd "curl --silent --fail localhost:9200/_cluster/health || exit 1" 
+          --health-interval 5s
+          --health-retries 12
+          --health-timeout 2s
 
     steps:
     - uses: actions/checkout@v1
@@ -40,6 +53,7 @@ jobs:
       run:  mix coveralls.json --umbrella
       env:
         DB_HOST: db
+        ELASTIC_SEARCH_HOST: http://elastic_search:9200
     - name: Report coverage to Codecov
       uses: codecov/codecov-action@v1 
       with: 
