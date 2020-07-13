@@ -2,7 +2,6 @@ defmodule AcqdatIot.DataDump.Worker.Server do
   use GenServer
   alias AcqdatIot.DataDump.Worker.Manager
 
-  # FIRST MODULE FOR INIT AND MODULE REGISTER
   def start_link(_) do
     GenServer.start_link(__MODULE__, name: __MODULE__)
   end
@@ -17,7 +16,6 @@ defmodule AcqdatIot.DataDump.Worker.Server do
     |> Map.drop([:_id, :__meta__])
   end
 
-  ################################### Server Calls #######################
   def init(params) do
     {:ok, params}
   end

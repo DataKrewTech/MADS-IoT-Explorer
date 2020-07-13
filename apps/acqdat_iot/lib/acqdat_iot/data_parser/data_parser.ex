@@ -10,7 +10,6 @@ defmodule AcqdatIot.DataParser do
     mapped_parameters = fetch_mapped_parameters(gateway_id)
     [converted_data] = convert_data_to_key_value(data)
     parse_data(mapped_parameters, converted_data)
-    # Repo.delete(data_dump)
   end
 
   defp fetch_mapped_parameters(gateway_id) do
