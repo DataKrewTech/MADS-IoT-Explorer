@@ -19,7 +19,8 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
     end)
   end
 
-  def get_by_filter(id, filter_month \\ "1", start_date, end_date) when is_integer(id) do
+  def get_by_filter(id, filter_month \\ "1", start_date \\ "", end_date \\ "")
+      when is_integer(id) do
     case Repo.get(WidgetInstance, id) do
       nil ->
         {:error, "widget instance with this id not found"}

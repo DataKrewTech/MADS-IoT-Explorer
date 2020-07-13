@@ -323,8 +323,6 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   # ]
 
   def fetch_highchart_details(widget, filter_month \\ "1", start_date \\ "", end_date \\ "") do
-    # highchart_details = widget.visual_settings |> parse_properties
-
     series_data =
       widget.series_data |> arrange_series_structure(filter_month, start_date, end_date)
 
@@ -352,7 +350,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
       parsed_data = uniq_keys |> parse_series_data(metadata)
 
-      acc_data ++ [%{name: series.name, data: parsed_data}]
+      acc_data ++ [%{name: series.name, color: series.color, data: parsed_data}]
     end)
   end
 

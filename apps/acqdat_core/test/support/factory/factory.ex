@@ -12,6 +12,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
+  alias AcqdatCore.DashboardManagement.Schema.{Dashboard, WidgetInstance}
 
   alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
@@ -90,6 +91,26 @@ defmodule AcqdatCore.Support.Factory do
     %Role{
       name: sequence(:name, &"Role-#{&1}"),
       description: "Member of the organisation"
+    }
+  end
+
+  def dashboard_factory() do
+    %Dashboard{
+      uuid: UUID.uuid1(:hex),
+      name: sequence(:dashboard_name, &"Dashboard#{&1}"),
+      slug: sequence(:dashboard_name, &"Dashboard#{&1}"),
+      org: build(:organisation),
+      project: build(:project)
+    }
+  end
+
+  def widget_instance_factory() do
+    %WidgetInstance{
+      uuid: UUID.uuid1(:hex),
+      label: sequence(:widget_inst_name, &"WidgetInstance#{&1}"),
+      slug: sequence(:widget_inst_name, &"WidgetInstance#{&1}"),
+      dashboard: build(:dashboard),
+      widget: build(:widget)
     }
   end
 
