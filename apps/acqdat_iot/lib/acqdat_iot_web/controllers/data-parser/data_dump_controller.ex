@@ -1,6 +1,6 @@
 defmodule AcqdatIotWeb.DataParser.DataDumpController do
   use AcqdatIotWeb, :controller
-  alias AcqdatIot.DataDump
+  alias AcqdatIot.DataDump.Worker.Server
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DataParser.DataDump
 
@@ -15,10 +15,10 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
 
         case extract_changeset_data(changeset) do
           {:ok, data} ->
-            DataDump.create(data)
+            Server.create(data)
 
             conn
-            |> put_status(200)
+            |> put_status(202)
             |> json(%{"data inserted" => true})
 
           {:error, error} ->

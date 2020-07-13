@@ -6,6 +6,7 @@ defmodule AcqdatIotWeb.DataParser do
   alias AcqdatIot.DataParser
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Schema.IotManager.Gateway
+  alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
   alias AcqdatCore.Model.IotManager.GatewayDataDump
   alias AcqdatCore.Repo
   import Plug.Conn
@@ -23,7 +24,7 @@ defmodule AcqdatIotWeb.DataParser do
       sensors_data: sensors_data
     } do
       {:ok, data_dump} = GatewayDataDump.create(params1)
-      DataParser.extract_data()
+      extract_data()
       [data] = Repo.all(SensorsData)
 
       %{x_axis: %{value: %{value: x_uuid}}, y_axis: %{value: %{value: y_uuid}}} =
@@ -47,7 +48,7 @@ defmodule AcqdatIotWeb.DataParser do
       sensors_data: sensors_data
     } do
       {:ok, data_dump} = GatewayDataDump.create(params2)
-      DataParser.extract_data()
+      extract_data()
       [data] = Repo.all(SensorsData)
       [%{value: uuid}] = gateway.mapped_parameters[:axis].value
       [sensor_parameter1, sensor_parameter2] = sensors_data.parameters
@@ -68,7 +69,7 @@ defmodule AcqdatIotWeb.DataParser do
       sensors_data: sensors_data
     } do
       {:ok, data_dump} = GatewayDataDump.create(params3)
-      DataParser.extract_data()
+      extract_data()
       [data] = Repo.all(SensorsData)
       uuid = gateway.mapped_parameters[:x_axis].value
       [sensor_parameter1, sensor_parameter2] = sensors_data.parameters
@@ -228,5 +229,10 @@ defmodule AcqdatIotWeb.DataParser do
 
     sensors_data_changeset = SensorsData.changeset(%SensorsData{}, params)
     Repo.insert!(sensors_data_changeset)
+  end
+
+  def extract_data() do
+    data_dumps = Repo.all(GDD)
+    Enum.each(data_dumps, fn data -> DataParser.start_parsing(data) end)
   end
 end

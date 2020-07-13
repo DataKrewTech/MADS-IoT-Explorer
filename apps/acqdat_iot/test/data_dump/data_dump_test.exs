@@ -27,7 +27,7 @@ defmodule AcqdatIotWeb.DataDump do
       conn =
         post(conn, Routes.data_dump_path(conn, :create, org.id, project.id, gateway.id), params)
 
-      result = conn |> json_response(200)
+      result = conn |> json_response(202)
       assert result = %{"data inserted" => true}
     end
 

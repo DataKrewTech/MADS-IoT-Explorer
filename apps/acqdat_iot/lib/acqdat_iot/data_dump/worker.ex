@@ -19,8 +19,7 @@ defmodule AcqdatIot.DataDump.Worker do
   end
 
   defp verify_data_dump({:ok, data}) do
-    {:ok, pid} = GenServer.start_link(Server, data)
-    GenServer.cast(pid, {:data_parser, data})
+    GenServer.cast(Server, {:data_parser, data})
     {:ok, data}
   end
 

@@ -1,15 +1,9 @@
 defmodule AcqdatIot.DataParser do
   import Ecto.Query
-  alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SData
   alias AcqdatCore.Schema.EntityManagement.GatewayData, as: GData
   alias AcqdatCore.Repo
-
-  def extract_data() do
-    data_dumps = Repo.all(GDD)
-    Enum.each(data_dumps, fn data -> start_parsing(data) end)
-  end
 
   def start_parsing(data_dump) do
     %{gateway_id: gateway_id, data: data} = data_dump
@@ -44,7 +38,7 @@ defmodule AcqdatIot.DataParser do
     %{"value" => rules} = mapped_parameters[key]
 
     Enum.zip(rules, value)
-    |> Enum.all?(fn {{_key, rule}, {_key, value}} ->
+    |> Enum.all?(fn {{_key, rule}, {_pair, value}} ->
       %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} =
         extract_rule_data(rule)
 
@@ -113,11 +107,11 @@ defmodule AcqdatIot.DataParser do
           false -> parameter
         end
 
-      acc = acc ++ [parameter]
+      acc ++ [parameter]
     end)
   end
 
   defp extract_rule_data(%{"value" => value}) do
-    %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} = value
+    value
   end
 end
