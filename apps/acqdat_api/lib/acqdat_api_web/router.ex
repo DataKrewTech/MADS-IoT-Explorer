@@ -57,6 +57,9 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
+    resources "/components", DataCruncher.ComponentsController, only: [:index]
+    get("/projects/:project_id/hierarchy", DataCruncher.EntityController, :fetch_hierarchy)
+
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/tasks", DataCruncher.TasksController, only: [:create]
       resources "/settings", RoleManagement.UserSettingController,
