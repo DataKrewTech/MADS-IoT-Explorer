@@ -13,7 +13,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       [dashboard: dashboard]
     end
 
-    test "fails if invalid token in in authorization header", %{conn: conn} do
+    test "fails if invalid token in authorization header", %{conn: conn} do
       bad_access_token = "qwerty1234567qwerty12"
 
       conn =

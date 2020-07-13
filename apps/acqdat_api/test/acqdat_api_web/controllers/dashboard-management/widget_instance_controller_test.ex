@@ -14,7 +14,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       [org: org, widget_instance: widget_instance]
     end
 
-    test "fails if invalid token in in authorization header", %{
+    test "fails if invalid token in authorization header", %{
       conn: conn,
       org: org,
       widget_instance: widget_instance
