@@ -38,3 +38,5 @@ config :argon2_elixir,
   m_cost: 8
 
 config :acqdat_core, AcqdatCore.Mailer, adapter: Bamboo.TestAdapter
+
+config :vernemq_mads_plugin, read_repo: AcqdatCore.Repo

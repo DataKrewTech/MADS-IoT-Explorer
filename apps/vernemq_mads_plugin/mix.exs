@@ -28,7 +28,11 @@ defmodule VernemqMadsPlugin.MixProject do
     [
       extra_applications: [:logger],
       mod: {VernemqMadsPlugin.Application, []},
-      env: [vmq_plugin_hooks()]
+      env: [
+        vmq_plugin_hooks(),
+        database_creds(),
+        read_repo: VernemqMadsPlugin.Repo
+      ]
     ]
   end
 
@@ -50,6 +54,20 @@ defmodule VernemqMadsPlugin.MixProject do
     {:vmq_plugin_hooks, hooks}
   end
 
+  defp database_creds() do
+    {
+      VernemqMadsPlugin.Repo,
+      [
+        adapter: Ecto.Adapters.Postgres,
+        username: System.fetch_env!("DB_USER"),
+        password: System.fetch_env!("DB_PASSWORD"),
+        database: "acqdat_core_dev",
+        hostname: System.fetch_env!("DB_HOST"),
+        pool_size: 10
+      ]
+    }
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -58,6 +76,7 @@ defmodule VernemqMadsPlugin.MixProject do
       # {:sibling_app_in_umbrella, in_umbrella: true}
       {:ecto_sql, "~> 3.2.0"},
       {:postgrex, ">= 0.0.0"},
+      {:acqdat_core, in_umbrella: true, only: :test}
     ]
   end
 end

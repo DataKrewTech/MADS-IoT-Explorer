@@ -17,6 +17,9 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
   """
   @type t :: %__MODULE__{}
 
+  @parent_type ~w(Project Asset)s
+  @channel ~w(http mqtt)s
+
   schema("acqdat_gateway") do
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
@@ -63,6 +66,8 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
     |> cast_embed(:streaming_data, with: &parameters_changeset/2)
     |> add_uuid()
     |> add_slug()
+    |> validate_inclusion(:parent_type, @parent_type)
+    |> validate_inclusion(:channel, @channel)
     |> validate_required(@required_params)
     |> common_changeset()
   end
@@ -72,6 +77,8 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
     |> cast(params, @permitted)
     |> cast_embed(:streaming_data, with: &parameters_changeset/2)
     |> validate_required(@required_params)
+    |> validate_inclusion(:parent_type, @parent_type)
+    |> validate_inclusion(:channel, @channel)
     |> common_changeset()
   end
 
