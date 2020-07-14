@@ -23,4 +23,17 @@ defmodule AcqdatApiWeb.Plug.LoadUser do
         |> put_status(404)
     end
   end
+
+  def call(%{params: %{"user_id" => id}} = conn, _params) do
+    {id, _} = Integer.parse(id)
+
+    case UserModel.get(id) do
+      {:ok, user} ->
+        assign(conn, :user, user)
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
+    end
+  end
 end

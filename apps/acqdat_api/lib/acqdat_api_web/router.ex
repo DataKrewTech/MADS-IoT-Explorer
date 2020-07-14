@@ -61,7 +61,8 @@ defmodule AcqdatApiWeb.Router do
     get("/projects/:project_id/hierarchy", DataCruncher.EntityController, :fetch_hierarchy)
 
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
-      resources "/tasks", DataCruncher.TasksController, only: [:create]
+      resources "/tasks", DataCruncher.TasksController, only: [:create, :index, :show]
+
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings

@@ -95,15 +95,16 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
       end)
 
     # NOTE: added outer edges for handling of multiple outputs in our graph
-    out_edge_list =
-      Enum.reduce(graph["vertices"], [], fn vertex, acc ->
-        if vertex["type"] == "output" do
-          acc ++ [gen_out_edge(vertex)]
-        end
-      end)
+    # out_edge_list =
+    #   Enum.reduce(graph["vertices"], [], fn vertex, acc ->
+    #     if vertex["type"] == "output" do
+    #       acc ++ [gen_out_edge(vertex)]
+    #     end
+    #   end)
 
     Graph.new(type: :directed)
-    |> Graph.add_edges(edge_list ++ out_edge_list)
+    |> Graph.add_edges(edge_list)
+    #|> Graph.add_edges(edge_list ++ out_edge_list)
   end
 
   defp gen_out_edge(%{"id" => id, "module" => module, "o_ports" => output_port}) do
@@ -146,7 +147,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   end
 
   defp fetch_function_module(%{"module" => module}) do
-    Module.concat(["AcqdatCore.DataCruncher.Functions.#{module}"])
+    Module.concat([module])
   end
 
   defp parse_date(date) do

@@ -1,9 +1,11 @@
 defmodule AcqdatApi.DataCruncher.Task do
-  import AcqdatApiWeb.Helpers
   alias Ecto.Multi
   alias AcqdatCore.Repo
   alias AcqdatCore.DataCrunche.Model.Task, as: TaskModel
   alias AcqdatCore.DataCruncher.Domain.Task
+
+  defdelegate get_all(data), to: TaskModel
+  defdelegate get(id), to: TaskModel
 
   def create(%{"id" => id, "action" => action} = params)
       when action == "execute" or action == "register" do
@@ -23,12 +25,6 @@ defmodule AcqdatApi.DataCruncher.Task do
     |> run_transaction()
   end
 
-  defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
-    task
-    |> Task.execute_workflows()
-    |> validate_task_workflows(task)
-  end
-
   defp validate_task_workflows({:ok, _data}, task) do
     {:ok, task |> Repo.preload(workflows: :temp_output)}
   end
@@ -37,19 +33,10 @@ defmodule AcqdatApi.DataCruncher.Task do
     {:error, "something went wrong!"}
   end
 
-  defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
-    Multi.new()
-    |> Multi.run(:update_task, fn _, _changes ->
-      TaskModel.update(task, params)
-    end)
-    |> Multi.run(:register_workflows, fn _, %{update_task: task} ->
-      Task.register_workflows(task)
-    end)
-    |> run_transaction()
-  end
-
   defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
-    Task.execute_workflows(task)
+    task
+    |> Task.execute_workflows()
+    |> validate_task_workflows(task)
   end
 
   defp verify_task({:ok, task}, %{"action" => action} = params) when action == "register" do
@@ -79,7 +66,7 @@ defmodule AcqdatApi.DataCruncher.Task do
         {:ok, %{update_task: task}} = result
         {:ok, task}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
   end
