@@ -101,7 +101,7 @@ defmodule AcqdatCore.Schema.IotManager.GatewayTest do
         name: "Demo Gateway updated"
       }
 
-      %{valid?: validity} = Gateway.update_changeset(gateway, params)
+      %{valid?: validity} = Gateway.changeset(gateway, params)
       assert validity
     end
   end

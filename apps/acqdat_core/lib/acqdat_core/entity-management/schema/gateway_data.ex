@@ -8,7 +8,8 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation}
+  alias AcqdatCore.Schema.IotManager.Gateway
 
   @typedoc """
   `inserted_timestamp`: The timestamp sent by device sending the gateway data.
@@ -20,11 +21,11 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
   schema("acqdat_gateway_data") do
     field(:inserted_timestamp, :utc_datetime, primary_key: true)
 
-    embeds_one :parameters, Parameters do
+    embeds_many :parameters, Parameters do
       field(:name, :string, null: false)
       field(:uuid, :string, null: false)
       field(:data_type, :string, null: false)
-      field(:value, :string, null: false)
+      field(:value, :integer, null: false)
     end
 
     # associations
@@ -37,10 +38,6 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
   @required_params ~w(inserted_timestamp gateway_id org_id)a
   @embedded_required_params ~w(name uuid data_type value)a
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
   def changeset(%__MODULE__{} = gateway_data, params) do
     gateway_data
     |> cast(params, @required_params)
@@ -50,34 +47,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
     |> assoc_constraint(:org)
   end
 
-  @spec changeset(
-          __MODULE__.t(),
-          map
-        ) :: Ecto.Changeset.t()
-  def update_changeset(%__MODULE__{} = gateway_data, params) do
-    gateway_data
-    |> cast(params, @required_params)
-    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
-    |> validate_required(@required_params)
-    |> assoc_constraint(:gateway)
-    |> assoc_constraint(:org)
-  end
-
-  defp update_parameters_changeset(schema, params) do
+  def parameters_changeset(schema, params) do
     schema
     |> cast(params, @embedded_required_params)
     |> validate_required(@embedded_required_params)
-  end
-
-  defp parameters_changeset(schema, params) do
-    schema
-    |> cast(params, @embedded_required_params)
-    |> add_uuid()
-    |> validate_required(@embedded_required_params)
-  end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
   end
 end

@@ -8,8 +8,9 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Gateway, Organisation, Project, SensorsData}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project, SensorsData}
   alias AcqdatCore.Schema.EntityManagement.{SensorType}
+  alias AcqdatCore.Schema.IotManager.Gateway
 
   @typedoc """
   `uuid`: A universallly unique id for the sensor.

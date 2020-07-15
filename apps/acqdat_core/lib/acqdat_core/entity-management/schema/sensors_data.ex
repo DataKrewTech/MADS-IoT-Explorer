@@ -24,7 +24,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
       field(:name, :string, null: false)
       field(:uuid, :string, null: false)
       field(:data_type, :string, null: false)
-      field(:value, :string, null: false)
+      field(:value, :integer, null: false)
     end
 
     # associations
@@ -50,30 +50,9 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
     |> assoc_constraint(:org)
   end
 
-  def update_changeset(%__MODULE__{} = sensor_data, params) do
-    sensor_data
-    |> cast(params, @required_params)
-    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
-    |> validate_required(@required_params)
-    |> assoc_constraint(:sensor)
-    |> assoc_constraint(:org)
-  end
-
-  defp parameters_changeset(schema, params) do
-    schema
-    |> cast(params, @embedded_required_params)
-    |> add_uuid()
-    |> validate_required(@embedded_required_params)
-  end
-
-  defp update_parameters_changeset(schema, params) do
+  def parameters_changeset(schema, params) do
     schema
     |> cast(params, @embedded_required_params)
     |> validate_required(@embedded_required_params)
-  end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
   end
 end

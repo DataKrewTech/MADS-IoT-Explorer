@@ -28,7 +28,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   def update(%Gateway{} = project, params) do
-    changeset = Gateway.update_changeset(project, params)
+    changeset = Gateway.changeset(project, params)
 
     case Repo.update(changeset) do
       {:ok, gateway} ->

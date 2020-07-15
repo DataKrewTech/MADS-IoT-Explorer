@@ -1,116 +1,166 @@
 defmodule AcqdatIot.DataParser do
-  import Ecto.Query
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
-  alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SData
-  alias AcqdatCore.Schema.EntityManagement.GatewayData, as: GData
   alias AcqdatCore.Repo
+  alias AcqdatCore.Schema.EntityManagement.GatewayData, as: GDSchema
+  alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SDSchema
+  alias AcqdatCore.Schema.EntityManagement.GatewayData.Parameters, as: GParam
+  alias AcqdatCore.Schema.EntityManagement.SensorsData.Parameters, as: SParam
+  alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
 
   def start_parsing(data_dump) do
-    %{gateway_id: gateway_id, data: data} = data_dump
+    %{gateway_id: gateway_id, data: iot_data} = data_dump
     mapped_parameters = fetch_mapped_parameters(gateway_id)
-    [converted_data] = convert_data_to_key_value(data)
-    parse_data(mapped_parameters, converted_data)
+
+    %{gateway_data: gateway_data, sensor_data: sensor_data} =
+      Enum.reduce(iot_data, %{}, fn {key, value}, acc ->
+        if mapped_parameters[key]["type"] == "value" do
+          parse_data(mapped_parameters[key], value, acc)
+        else
+          key_mapped_parameters = mapped_parameters[key]["value"]
+          parse_data(key_mapped_parameters, value, acc)
+        end
+      end)
+
+    gateway_data =
+      Enum.reduce(gateway_data, [], fn {key, parameters}, acc ->
+        params = %{
+          gateway_id: key,
+          org_id: data_dump.org_id,
+          parameters: parameters,
+          inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+          inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
+        }
+
+        parameters = prepare_gateway_parameters(parameters)
+        params = Map.replace!(params, :parameters, parameters)
+        acc ++ [params]
+      end)
+
+    sensor_data =
+      Enum.reduce(sensor_data, [], fn {key, parameters}, acc ->
+        params = %{
+          sensor_id: key,
+          org_id: data_dump.org_id,
+          parameters: parameters,
+          inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
+          inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
+        }
+
+        parameters = prepare_sensor_parameters(parameters)
+        params = Map.replace!(params, :parameters, parameters)
+        acc ++ [params]
+      end)
+
+    Repo.insert_all(SDSchema, sensor_data)
+    Repo.insert_all(GDSchema, gateway_data)
+  end
+
+  defp prepare_gateway_parameters(parameters) do
+    Enum.reduce(parameters, [], fn param, acc ->
+      acc ++ [struct!(GParam, param)]
+    end)
+  end
+
+  defp prepare_sensor_parameters(parameters) do
+    Enum.reduce(parameters, [], fn param, acc ->
+      acc ++ [struct!(SParam, param)]
+    end)
   end
 
   defp fetch_mapped_parameters(gateway_id) do
     GModel.return_mapped_parameter(gateway_id)
   end
 
-  defp parse_data(mapped_parameters, %{key: key, value: value}) when is_integer(value) do
-    %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} =
-      mapped_parameters[key]
-
-    send_data(entity, entity_id, parameter_uuid, value)
-  end
-
-  defp parse_data(mapped_parameters, %{key: key, value: value}) when is_list(value) do
-    %{"value" => rules} = mapped_parameters[key]
-
-    Enum.zip(rules, value)
-    |> Enum.all?(fn {rule, value} ->
+  defp parse_data(mapped_parameters, value, acc) when is_list(value) do
+    mapped_parameters
+    |> Enum.zip(value)
+    |> Enum.reduce(acc, fn {rule, value}, acc ->
       %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} = rule
-      send_data(entity, entity_id, parameter_uuid, value)
+      create_data_struct(entity, entity_id, parameter_uuid, value, acc)
     end)
   end
 
-  defp parse_data(mapped_parameters, %{key: key, value: value}) when is_map(value) do
-    %{"value" => rules} = mapped_parameters[key]
-
-    Enum.zip(rules, value)
-    |> Enum.all?(fn {{_key, rule}, {_pair, value}} ->
-      %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} =
-        extract_rule_data(rule)
-
-      send_data(entity, entity_id, parameter_uuid, value)
+  # recursive call to extract real values
+  defp parse_data(mapped_parameters, value, acc) when is_map(value) do
+    Enum.reduce(value, acc, fn {key, value}, acc ->
+      if mapped_parameters[key]["type"] == "value" do
+        parse_data(mapped_parameters[key], value, acc)
+      else
+        key_mapped_parameters = mapped_parameters[key]["value"]
+        parse_data(key_mapped_parameters, value, acc)
+      end
     end)
   end
 
-  defp convert_data_to_key_value(data) do
-    for {key, value} <- data, do: %{key: key, value: value}
+  defp parse_data(mapped_parameters, value, acc) do
+    %{"entity" => entity, "entity_id" => entity_id, "value" => parameter_uuid} = mapped_parameters
+
+    create_data_struct(entity, entity_id, parameter_uuid, value, acc)
   end
 
-  defp send_data(entity, entity_id, parameter_uuid, value) do
-    case entity do
-      "gateway" -> map_to_gateway(entity_id, parameter_uuid, value)
-      "sensor" -> map_to_sensor(entity_id, parameter_uuid, value)
+  defp create_data_struct("sensor", entity_id, parameter_uuid, value, acc) do
+    parameter = get_parameter_attributes("sensor", entity_id, parameter_uuid)
+
+    value = %{
+      name: parameter.name,
+      data_type: parameter.data_type,
+      uuid: parameter_uuid,
+      value: value
+    }
+
+    acc = Map.put_new(acc, :sensor_data, %{})
+
+    value =
+      Map.put(acc[:sensor_data], entity_id, collate_value(acc[:sensor_data], entity_id, value))
+
+    Map.put(acc, :sensor_data, value)
+  end
+
+  defp create_data_struct("gateway", entity_id, parameter_uuid, value, acc) do
+    parameter = get_parameter_attributes("gateway", entity_id, parameter_uuid)
+
+    value = %{
+      name: parameter["name"],
+      data_type: parameter["data_type"],
+      uuid: parameter_uuid,
+      value: value
+    }
+
+    acc = Map.put_new(acc, :gateway_data, %{})
+
+    value =
+      Map.put(acc[:gateway_data], entity_id, collate_value(acc[:gateway_data], entity_id, value))
+
+    Map.put(acc, :gateway_data, value)
+  end
+
+  def collate_value(acc, key, value) do
+    if acc[key] do
+      [value | acc[key]]
+    else
+      [value]
     end
   end
 
-  defp map_to_sensor(entity_id, parameter_uuid, value) do
-    query =
-      from(sensor_data in SData,
-        where: sensor_data.sensor_id == ^entity_id
-      )
+  defp get_parameter_attributes("sensor", entity_id, parameter_uuid) do
+    {:ok, sensor} = SModel.get(entity_id)
 
-    sensor_datas = Repo.all(query)
+    [result] =
+      Enum.filter(sensor.sensor_type.parameters, fn parameter ->
+        parameter.uuid == parameter_uuid
+      end)
 
-    Enum.each(sensor_datas, fn sensor_data ->
-      insert_sensor_data(sensor_data, parameter_uuid, value)
-    end)
+    result
   end
 
-  defp map_to_gateway(entity_id, parameter_uuid, value) do
-    query =
-      from(gateway_data in GData,
-        where: gateway_data.gateway_id == ^entity_id
-      )
+  defp get_parameter_attributes("gateway", entity_id, parameter_uuid) do
+    {:ok, gateway} = GModel.get_by_id(entity_id)
 
-    gateway_datas = Repo.all(query)
+    [result] =
+      Enum.filter(gateway.streaming_data, fn parameter ->
+        parameter["uuid"] == parameter_uuid
+      end)
 
-    Enum.each(gateway_datas, fn gateway_data ->
-      insert_gateway_data(gateway_data, parameter_uuid, value)
-    end)
-  end
-
-  defp insert_sensor_data(sensor_data, parameter_uuid, value) do
-    %{parameters: parameters} = sensor_data
-    parameters = prepare_parameters(parameters, parameter_uuid, value)
-    changeset = SData.update_changeset(sensor_data, %{parameters: parameters})
-    Repo.update(changeset)
-  end
-
-  defp insert_gateway_data(gateway_data, parameter_uuid, value) do
-    %{parameters: parameters} = gateway_data
-    parameters = prepare_parameters(parameters, parameter_uuid, value)
-    changeset = GData.update_changeset(gateway_data, %{parameters: parameters})
-    Repo.update(changeset)
-  end
-
-  defp prepare_parameters(parameters, parameter_uuid, value) do
-    Enum.reduce(parameters, [], fn parameter, acc ->
-      parameter = Map.from_struct(parameter)
-
-      parameter =
-        case parameter.uuid == parameter_uuid do
-          true -> Map.replace!(parameter, :value, Integer.to_string(value))
-          false -> parameter
-        end
-
-      acc ++ [parameter]
-    end)
-  end
-
-  defp extract_rule_data(%{"value" => value}) do
-    value
+    result
   end
 end

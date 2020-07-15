@@ -20,6 +20,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
         {:error, "not found"}
 
       sensor ->
+        sensor = Repo.preload(sensor, [:sensor_type])
         {:ok, sensor}
     end
   end
