@@ -69,7 +69,7 @@ defmodule AcqdatCore.Test.Support.SensorsData do
       sensor_id: sensor.id,
       parameters: random_data_for_params(sensor),
       inserted_timestamp: timestamp,
-      inserted_at: timestamp,
+      inserted_at: timestamp
     }
   end
 

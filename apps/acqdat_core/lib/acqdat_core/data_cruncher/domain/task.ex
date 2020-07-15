@@ -59,7 +59,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
           res = [
             {
               UUID.uuid1(:hex),
-              String.to_atom(node["i_port"]),
+              String.to_atom(node["inports"]),
               stream_data
             }
           ]
@@ -95,21 +95,24 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
       end)
 
     # NOTE: added outer edges for handling of multiple outputs in our graph
-    # out_edge_list =
-    #   Enum.reduce(graph["vertices"], [], fn vertex, acc ->
-    #     if vertex["type"] == "output" do
-    #       acc ++ [gen_out_edge(vertex)]
-    #     end
-    #   end)
+    out_node_id = UUID.uuid1(:hex)
+
+    out_edge_list =
+      Enum.reduce(graph["vertices"], [], fn vertex, acc1 ->
+        if vertex["type"] == "output" do
+          (acc1 || []) ++ [gen_out_edge(vertex, out_node_id)]
+        end
+      end)
 
     Graph.new(type: :directed)
-    |> Graph.add_edges(edge_list)
-    #|> Graph.add_edges(edge_list ++ out_edge_list)
+    |> Graph.add_edges(edge_list ++ out_edge_list)
   end
 
-  defp gen_out_edge(%{"id" => id, "module" => module, "o_ports" => output_port}) do
-    node_from = %Node{module: module, id: id}
-    node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
+  defp gen_out_edge(%{"id" => id, "module" => module, "outports" => output_ports}, out_node_id) do
+    module_name = Module.concat([module])
+    node_from = %Node{module: module_name, id: id}
+    node_to = %Node{module: Out, id: out_node_id}
+    output_port = output_ports |> List.first()
 
     {node_from, node_to,
      label: %EdgeData{from: String.to_atom(output_port), to: String.to_atom(output_port)}}
@@ -121,15 +124,15 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
 
     node_from = source_module |> gen_node(source_node)
     node_to = target_module |> gen_node(target_node)
-    {node_from, node_to, label: gen_edge_data(source_node)}
+    {node_from, node_to, label: gen_edge_data(source_node, target_node)}
   end
 
   defp gen_node(module, %{"id" => id} = graph_node) do
     %Node{module: module, id: id}
   end
 
-  defp gen_edge_data(%{"o_ports" => output_port}) do
-    %EdgeData{from: String.to_atom(output_port), to: String.to_atom(output_port)}
+  defp gen_edge_data(%{"outports" => output_port}, %{"inports" => input_port}) do
+    %EdgeData{from: String.to_atom(output_port), to: String.to_atom(input_port)}
   end
 
   defp parse_module(%{"type" => node_type} = graph_node) do
@@ -139,7 +142,8 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
         |> fetch_function_module()
 
       "output" ->
-        Out
+        graph_node
+        |> fetch_function_module()
 
       _ ->
         graph_node["module"]

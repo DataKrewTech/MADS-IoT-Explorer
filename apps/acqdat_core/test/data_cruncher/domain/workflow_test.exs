@@ -4,6 +4,9 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
   import AcqdatCore.Support.Factory
   import AcqdatCore.Test.Support.SensorsData
   alias AcqdatCore.DataCruncher.Functions.TSMax
+  alias AcqdatCore.DataCruncher.Functions.TSMin
+  alias AcqdatCore.DataCruncher.Functions.Print
+  alias AcqdatCore.DataCruncher.Functions.Email
   alias Virta.Core.Out
   alias Virta.{Node, EdgeData}
   alias AcqdatCore.DataCruncher.Domain.Workflow
@@ -28,22 +31,40 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     @tag timeout: :infinity
     @tag sensor_data_quantity: 10
     @tag time_interval_seconds: 5
-    test "executes a workflow succesfully", context do
+
+    test "executes a workflow having multiple outnodes", context do
       %{sensor: sensor} = context
-      node_from = %Node{module: TSMax, id: UUID.uuid1(:hex)}
-      node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
       [param | _] = sensor.sensor_type.parameters
-      graph = create_graph(node_from, node_to)
-      graph_data = prepare_graph_data(sensor, param, node_from)
+
+      edge_list = [
+        {%Node{module: TSMax, id: "tamshh"}, %Node{module: Print, id: "print bhgb"},
+         label: %EdgeData{from: :tsmax, to: :ts_datasource}},
+        {%Node{module: Print, id: "print bhgb"}, %Node{module: Out, id: "outnoderfr"},
+         label: %EdgeData{from: :tsprint, to: :tsprint}},
+        {%Node{module: TSMax, id: "tamshh"}, %Node{module: Email, id: "email bhgb"},
+         label: %EdgeData{from: :tsmax, to: :ts_datasource}},
+        {%Node{module: Email, id: "email bhgb"}, %Node{module: Out, id: "outnoderfr"},
+         label: %EdgeData{from: :tsemail, to: :tsemail}}
+      ]
+
+      graph =
+        Graph.new(type: :directed)
+        |> Graph.add_edges(edge_list)
+
+      graph_data =
+        prepare_graph_data(sensor, param, %Node{
+          module: AcqdatCore.DataCruncher.Functions.TSMax,
+          id: "tamshh"
+        })
 
       workflow_id = UUID.uuid1(:hex)
       {:ok, _message} = Workflow.register(workflow_id, graph)
-      {_request_id, output} = Workflow.execute(workflow_id, graph_data)
-      assert Map.has_key?(output, :tsmax)
+      {_request_id, output} = Workflow.execute(graph_data, workflow_id)
+      assert Map.has_key?(output, :tsprint)
     end
   end
 
-  defp prepare_graph_data(sensor, param, node) do
+  defp prepare_graph_data(sensor, param, node1) do
     date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
     date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
 
@@ -56,7 +77,7 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
       })
 
     %{
-      node => [
+      node1 => [
         {
           UUID.uuid1(:hex),
           :ts_datasource,
