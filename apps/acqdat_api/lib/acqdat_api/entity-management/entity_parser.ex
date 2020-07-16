@@ -317,7 +317,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     })
   end
 
-  defp validate_sensor_asset({:ok, asset}, entity, org_id, parent_id, parent_type) do
+  defp validate_sensor_asset({:ok, asset}, entity, org_id, parent_id, _parent_type) do
     SensorModel.create(%{
       name: entity["name"],
       sensor_type_id: entity["sensor_type_id"],

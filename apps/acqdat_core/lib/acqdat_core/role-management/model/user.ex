@@ -49,7 +49,6 @@ defmodule AcqdatCore.Model.RoleManagement.User do
 
   Expects `user_id` as the argument.
   """
-  @spec delete(non_neg_integer) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete(user) do
     user |> Repo.delete()
   end

@@ -1,6 +1,5 @@
 defmodule AcqdatApi.ElasticSearch do
   import Tirexs.HTTP
-  import Tirexs.Search
 
   def create(type, params) do
     create_function = fn ->

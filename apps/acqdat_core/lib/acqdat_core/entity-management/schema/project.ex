@@ -59,7 +59,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
-    |> common_changeset(params)
+    |> common_changeset()
     |> put_project_leads(params.lead_ids)
     |> put_project_users(params.user_ids)
   end
@@ -69,12 +69,12 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
     |> cast(params, @permitted)
     |> cast_embed(:metadata, with: &metadata_changeset/2)
     |> validate_required(@required_params)
-    |> common_changeset(params)
+    |> common_changeset()
     |> put_project_leads(params["lead_ids"])
     |> put_project_users(params["user_ids"])
   end
 
-  def common_changeset(changeset, params) do
+  def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
     |> assoc_constraint(:creator)
