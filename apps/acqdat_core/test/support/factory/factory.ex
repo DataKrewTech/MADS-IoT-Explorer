@@ -8,12 +8,6 @@ defmodule AcqdatCore.Support.Factory do
 
   @access_time_hours 5
 
-  # @image %Plug.Upload{
-  #   content_type: "image/png",
-  #   filename: "image.png",
-  #   path: "test/support/image.png"
-  # }
-
   alias AcqdatCore.Test.Support.WidgetData
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
@@ -272,8 +266,7 @@ defmodule AcqdatCore.Support.Factory do
     %Gateway{
       uuid: UUID.uuid1(:hex),
       name: sequence(:gateway_name, &"Gateway#{&1}"),
-      access_token:
-        "1yJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY3FkYXRfYXBpIiwiZXhwIjoxNTkyNjUxMjAwLCJpYXQiOjE1OTI2MzMyMDAsImlzcyI6ImFjcWRhdF9hcGkiLCJqdGkiOiJmYmY2NjliZi00YzI4LTQ1N2MtODFiOS0z",
+      access_token: random_string(64),
       slug: sequence(:gateway_name, &"Gateway#{&1}"),
       org: build(:organisation),
       project: build(:project),
@@ -284,6 +277,10 @@ defmodule AcqdatCore.Support.Factory do
       streaming_data: [],
       static_data: []
     }
+  end
+
+  defp random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 
   def employee_factory() do
