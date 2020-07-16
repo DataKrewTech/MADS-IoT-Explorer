@@ -59,10 +59,10 @@ defmodule VernemqMadsPlugin.MixProject do
       VernemqMadsPlugin.Repo,
       [
         adapter: Ecto.Adapters.Postgres,
-        username: System.fetch_env!("DB_USER"),
-        password: System.fetch_env!("DB_PASSWORD"),
+        username: System.get_env("DB_USER", "postgres"),
+        password: System.get_env("DB_PASSWORD", "postgres"),
         database: "acqdat_core_dev",
-        hostname: System.fetch_env!("DB_HOST"),
+        hostname: System.get_env("DB_HOST", "localhost"),
         pool_size: 10
       ]
     }

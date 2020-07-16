@@ -55,9 +55,6 @@ defmodule AcqdatCore.MixProject do
       # neseted sets
       {:as_nested_set, "~> 3.2"},
 
-      # json
-      {:jason, "~> 1.0"},
-
       # Pagination
       {:scrivener_ecto, "~> 2.0"},
 
@@ -86,7 +83,6 @@ defmodule AcqdatCore.MixProject do
       {:slugger, "~> 0.3"},
 
       # mailer
-      {:poison, "~> 3.1"},
       {:bamboo, github: "thoughtbot/bamboo"},
       {:phoenix, "~> 1.4.10"},
       {:gettext, "~> 0.11"},
@@ -99,7 +95,10 @@ defmodule AcqdatCore.MixProject do
       {:tirexs, "~> 0.8"},
 
       # csv parsing
-      {:nimble_csv, "~> 0.7"}
+      {:nimble_csv, "~> 0.7"},
+
+      # MQTT
+      {:tortoise, "~> 0.9"}
     ]
   end
 
