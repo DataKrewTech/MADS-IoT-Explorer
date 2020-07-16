@@ -320,6 +320,39 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
     end
   end
 
+  describe "fetch_mapped_parameters/1" do
+    setup do
+      org = insert(:organisation)
+      project = insert(:project)
+      asset = insert(:asset)
+
+      {:ok, root_asset} =
+        Asset.add_as_root(%{
+          name: "root asset",
+          org_id: project.org_id,
+          org_name: org.name,
+          project_id: project.id,
+          asset_type_id: asset.asset_type_id,
+          creator_id: asset.creator_id,
+          metadata: [],
+          mapped_parameters: [],
+          owner_id: asset.creator_id,
+          properties: []
+        })
+
+      sensor = build(:sensor, parent_id: root_asset.id, parent_type: "Asset")
+      {:ok, _sensors_data} = Repo.insert(sensor)
+      asset = Asset.child_assets(project.id)
+
+      [asset: asset]
+    end
+
+    test "get assets mapped_parameters from sensors descendants", %{asset: asset} do
+      result = Asset.fetch_mapped_parameters(List.first(asset))
+      assert length(result) != 0
+    end
+  end
+
   ############## helper functions ##############################
 
   defp create_asset_tree(_context) do
