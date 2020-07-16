@@ -52,20 +52,23 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
       Enum.reduce(input_data, %{}, fn data, acc ->
         stream_data = %Token{data: fetch_data_stream(data), data_type: :query_stream}
 
-        Enum.reduce(data["nodes"], %{}, fn node, acc ->
-          module = node |> fetch_function_module()
-          node_from = module |> gen_node(node)
+        int_nodes =
+          Enum.reduce(data["nodes"], %{}, fn node, acc1 ->
+            module = node |> fetch_function_module()
+            node_from = module |> gen_node(node)
 
-          res = [
-            {
-              UUID.uuid1(:hex),
-              String.to_atom(node["inports"]),
-              stream_data
-            }
-          ]
+            res = [
+              {
+                UUID.uuid1(:hex),
+                String.to_atom(node["inports"]),
+                stream_data
+              }
+            ]
 
-          Map.put(acc, node_from, res)
-        end)
+            Map.put(acc1, node_from, res)
+          end)
+
+        Map.merge(acc, int_nodes)
       end)
   end
 
@@ -115,7 +118,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
     output_port = output_ports |> List.first()
 
     {node_from, node_to,
-     label: %EdgeData{from: String.to_atom(output_port), to: String.to_atom(output_port)}}
+     label: %EdgeData{from: String.to_atom(output_port), to: String.to_atom(id)}}
   end
 
   defp gen_edge(%{"source_node" => source_node, "target_node" => target_node}) do

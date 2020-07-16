@@ -32,19 +32,25 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     @tag sensor_data_quantity: 10
     @tag time_interval_seconds: 5
 
-    test "executes a workflow having multiple outnodes", context do
+    test "executes a workflow succesfully", context do
       %{sensor: sensor} = context
+      node_from = %Node{module: TSMax, id: UUID.uuid1(:hex)}
+      node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
       [param | _] = sensor.sensor_type.parameters
 
       edge_list = [
-        {%Node{module: TSMax, id: "tamshh"}, %Node{module: Print, id: "print bhgb"},
+        {%Node{module: TSMax, id: "tamshh"}, %Node{module: Print, id: "print43454"},
          label: %EdgeData{from: :tsmax, to: :ts_datasource}},
-        {%Node{module: Print, id: "print bhgb"}, %Node{module: Out, id: "outnoderfr"},
-         label: %EdgeData{from: :tsprint, to: :tsprint}},
+        {%Node{module: Print, id: "print43454"}, %Node{module: Out, id: "outnoderfr"},
+         label: %EdgeData{from: :tsprint, to: :print43454}},
         {%Node{module: TSMax, id: "tamshh"}, %Node{module: Email, id: "email bhgb"},
          label: %EdgeData{from: :tsmax, to: :ts_datasource}},
         {%Node{module: Email, id: "email bhgb"}, %Node{module: Out, id: "outnoderfr"},
-         label: %EdgeData{from: :tsemail, to: :tsemail}}
+         label: %EdgeData{from: :tsemail, to: :email_bhgb}},
+        {%Node{module: TSMin, id: "miniden"}, %Node{module: Print, id: "print6555"},
+         label: %EdgeData{from: :tsmin, to: :ts_datasource}},
+        {%Node{module: Print, id: "print6555"}, %Node{module: Out, id: "outnoderfr"},
+         label: %EdgeData{from: :tsprint, to: :print6555}}
       ]
 
       graph =
@@ -52,19 +58,21 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
         |> Graph.add_edges(edge_list)
 
       graph_data =
-        prepare_graph_data(sensor, param, %Node{
-          module: AcqdatCore.DataCruncher.Functions.TSMax,
-          id: "tamshh"
-        })
+        prepare_graph_data(
+          sensor,
+          param,
+          %Node{module: AcqdatCore.DataCruncher.Functions.TSMax, id: "tamshh"},
+          %Node{module: TSMin, id: "miniden"}
+        )
 
       workflow_id = UUID.uuid1(:hex)
       {:ok, _message} = Workflow.register(workflow_id, graph)
       {_request_id, output} = Workflow.execute(graph_data, workflow_id)
-      assert Map.has_key?(output, :tsprint)
+      assert Map.has_key?(output, :print43454)
     end
   end
 
-  defp prepare_graph_data(sensor, param, node1) do
+  defp prepare_graph_data(sensor, param, node1, node2) do
     date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
     date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
 
@@ -78,6 +86,13 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
 
     %{
       node1 => [
+        {
+          UUID.uuid1(:hex),
+          :ts_datasource,
+          %Token{data: data, data_type: :query_stream}
+        }
+      ],
+      node2 => [
         {
           UUID.uuid1(:hex),
           :ts_datasource,
