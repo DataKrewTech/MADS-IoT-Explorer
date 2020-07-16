@@ -6,9 +6,7 @@ defmodule AcqdatIotWeb.DataParserTest do
   alias AcqdatCore.Schema.EntityManagement.GatewayData
   alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
   alias AcqdatCore.Test.Support.DataDump
-  alias AcqdatCore.Re
-
-  # import AcqdatCore.Support.Factory
+  alias AcqdatCore.Repo
 
   describe "data parser test/1" do
     @tag timeout: :infinity

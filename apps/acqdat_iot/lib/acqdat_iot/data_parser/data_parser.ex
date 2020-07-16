@@ -80,7 +80,6 @@ defmodule AcqdatIot.DataParser do
     end)
   end
 
-  # recursive call to extract real values
   defp parse_data(mapped_parameters, value, acc) when is_map(value) do
     Enum.reduce(value, acc, fn {key, value}, acc ->
       if mapped_parameters[key]["type"] == "value" do
