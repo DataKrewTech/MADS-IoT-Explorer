@@ -1,7 +1,6 @@
 defmodule AcqdatIot.DataParser.Worker do
   use GenServer
   alias AcqdatIot.DataParser
-  import AcqdatApiWeb.Helpers
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil)

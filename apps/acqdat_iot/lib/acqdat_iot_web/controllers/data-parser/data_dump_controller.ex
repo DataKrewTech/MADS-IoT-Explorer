@@ -1,12 +1,12 @@
 defmodule AcqdatIotWeb.DataParser.DataDumpController do
   use AcqdatIotWeb, :controller
   alias AcqdatIot.DataDump.Worker.Server
-  import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.DataParser.DataDump
+  import AcqdatIoTWeb.Helpers
+  import AcqdatIoTWeb.Validators.DataParser.DataDump
 
-  plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadGateway
+  plug AcqdatIoTWeb.Plug.LoadProject
+  plug AcqdatIoTWeb.Plug.LoadOrg
+  plug AcqdatIoTWeb.Plug.LoadGateway
 
   def create(conn, params) do
     case conn.status do

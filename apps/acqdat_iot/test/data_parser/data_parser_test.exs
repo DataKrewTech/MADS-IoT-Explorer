@@ -1,5 +1,8 @@
 defmodule AcqdatIotWeb.DataParserTest do
-  use ExUnit.Case, async: true
+  # Tests are being run with async false as it leads to deadlock
+  # situtation. Check server logs after setting async: true.
+
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   alias AcqdatIot.DataParser
   alias AcqdatCore.Schema.EntityManagement.SensorsData
@@ -9,9 +12,8 @@ defmodule AcqdatIotWeb.DataParserTest do
   alias AcqdatCore.Repo
 
   describe "data parser test/1" do
-    @tag timeout: :infinity
     test "data parser" do
-      [data_dump, sensor1, sensor2, gateway] = DataDump.setup_gateway()
+      [data_dump, _sensor1, _sensor2, gateway] = DataDump.setup_gateway()
       DataParser.start_parsing(struct(GDD, data_dump))
       sensors_data = Repo.all(SensorsData)
       [gateway_data] = Repo.all(GatewayData)
@@ -23,7 +25,7 @@ defmodule AcqdatIotWeb.DataParserTest do
         "value" => %{
           "lambda" => %{"value" => %{"alpha" => alpha, "beta" => beta}},
           "x_axis" => x_axis,
-          "z_axis" => %{"value" => [z_axis1, z_axis2]}
+          "z_axis" => %{"value" => [z_axis1, _z_axis2]}
         }
       } = axis_object
 

@@ -1,8 +1,9 @@
 defmodule AcqdatIot.DataDump.Worker do
   use GenServer
+  import AcqdatIoTWeb.Helpers
   alias AcqdatIot.DataParser.Worker.Server
   alias AcqdatCore.Model.IotManager.GatewayDataDump, as: GDDModel
-  import AcqdatApiWeb.Helpers
+  require Logger
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil)
@@ -23,6 +24,14 @@ defmodule AcqdatIot.DataDump.Worker do
   end
 
   defp verify_data_dump({:error, data}) do
-    {:error, %{error: extract_changeset_error(data)}}
+    error =
+      data
+      |> extract_changeset_error()
+      |> Enum.map(fn {key, value} ->
+        {String.to_existing_atom(key), value}
+      end)
+
+    Logger.warn("Error logging iot data dump", error)
+    {:ok, ""}
   end
 end

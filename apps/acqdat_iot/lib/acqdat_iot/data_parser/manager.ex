@@ -13,8 +13,8 @@ defmodule AcqdatIot.DataParser.Worker.Manager do
     [
       name: {:local, __MODULE__},
       worker_module: Worker,
-      size: 1000,
-      max_overflow: 500
+      size: 50,
+      max_overflow: 30
     ]
   end
 end

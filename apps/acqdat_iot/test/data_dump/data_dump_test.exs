@@ -1,12 +1,9 @@
 defmodule AcqdatIotWeb.DataDump do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   use AcqdatIotWeb.ConnCase
-  alias AcqdatApiWeb.Guardian
   import Plug.Conn
   import AcqdatCore.Support.Factory
-
-  @access_time_hours 5
 
   describe "create/2" do
     setup :setup_gateway
@@ -28,7 +25,7 @@ defmodule AcqdatIotWeb.DataDump do
         post(conn, Routes.data_dump_path(conn, :create, org.id, project.id, gateway.id), params)
 
       result = conn |> json_response(202)
-      assert result = %{"data inserted" => true}
+      assert result == %{"data inserted" => true}
     end
 
     test "fails if authorization header not found", %{conn: conn, org: org, gateway: gateway} do

@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.DataParser.DataDump do
+defmodule AcqdatIoTWeb.Validators.DataParser.DataDump do
   use Params
 
   defparams(

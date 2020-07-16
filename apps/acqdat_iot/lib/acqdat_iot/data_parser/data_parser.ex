@@ -11,21 +11,32 @@ defmodule AcqdatIot.DataParser do
     %{gateway_id: gateway_id, data: iot_data} = data_dump
     mapped_parameters = fetch_mapped_parameters(gateway_id)
 
-    %{gateway_data: gateway_data, sensor_data: sensor_data} =
-      Enum.reduce(iot_data, %{}, fn {key, value}, acc ->
-        if mapped_parameters[key]["type"] == "value" do
-          parse_data(mapped_parameters[key], value, acc)
-        else
-          key_mapped_parameters = mapped_parameters[key]["value"]
-          parse_data(key_mapped_parameters, value, acc)
-        end
-      end)
+    iot_data
+    |> Enum.reduce(%{}, fn {key, value}, acc ->
+      if mapped_parameters[key]["type"] == "value" do
+        parse_data(mapped_parameters[key], value, acc)
+      else
+        key_mapped_parameters = mapped_parameters[key]["value"]
+        parse_data(key_mapped_parameters, value, acc)
+      end
+    end)
+    |> persist_data(data_dump.org_id)
+  end
 
+  ######### persist data private helpers #############
+
+  defp persist_data(iot_data, org_id) do
+    Enum.map(iot_data, fn {key, data} ->
+      data_manifest(key, data, org_id)
+    end)
+  end
+
+  defp data_manifest(:gateway_data, data, org_id) do
     gateway_data =
-      Enum.reduce(gateway_data, [], fn {key, parameters}, acc ->
+      Enum.reduce(data, [], fn {key, parameters}, acc ->
         params = %{
           gateway_id: key,
-          org_id: data_dump.org_id,
+          org_id: org_id,
           parameters: parameters,
           inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
@@ -36,11 +47,15 @@ defmodule AcqdatIot.DataParser do
         acc ++ [params]
       end)
 
+    Repo.insert_all(GDSchema, gateway_data)
+  end
+
+  defp data_manifest(:sensor_data, data, org_id) do
     sensor_data =
-      Enum.reduce(sensor_data, [], fn {key, parameters}, acc ->
+      Enum.reduce(data, [], fn {key, parameters}, acc ->
         params = %{
           sensor_id: key,
-          org_id: data_dump.org_id,
+          org_id: org_id,
           parameters: parameters,
           inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
@@ -52,8 +67,9 @@ defmodule AcqdatIot.DataParser do
       end)
 
     Repo.insert_all(SDSchema, sensor_data)
-    Repo.insert_all(GDSchema, gateway_data)
   end
+
+  ##################### parsing data private helpers ###################
 
   defp prepare_gateway_parameters(parameters) do
     Enum.reduce(parameters, [], fn param, acc ->
