@@ -1,6 +1,6 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMin do
   @inports [:ts_datasource]
-  @outports [:tsmax]
+  @outports [:tsmin]
   @display_name "TimeSeries Min"
   @properties %{}
   @category :function
