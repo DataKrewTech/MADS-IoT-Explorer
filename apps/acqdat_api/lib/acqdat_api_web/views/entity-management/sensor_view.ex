@@ -22,8 +22,20 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       parent_type: sensor.parent_type,
       sensor_type_id: sensor.sensor_type_id,
       name: sensor.name,
+      entities: render_many(sensor.sensor_type.parameters, SensorView, "sensor_parameters.json"),
       sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json"),
       metadata: render_many(sensor.metadata, SensorView, "metadata.json")
+    }
+  end
+
+  def render("sensor_parameters.json", %{sensor: parameter}) do
+    %{
+      id: parameter.id,
+      name: parameter.name,
+      data_type: parameter.data_type,
+      unit: parameter.unit,
+      uuid: parameter.uuid,
+      type: "SensorParameter"
     }
   end
 
