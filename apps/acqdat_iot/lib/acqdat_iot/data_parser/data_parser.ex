@@ -120,8 +120,8 @@ defmodule AcqdatIot.DataParser do
     parameter = get_parameter_attributes("gateway", entity_id, parameter_uuid)
 
     value = %{
-      name: parameter["name"],
-      data_type: parameter["data_type"],
+      name: parameter.name,
+      data_type: parameter.data_type,
       uuid: parameter_uuid,
       value: value
     }
@@ -158,7 +158,7 @@ defmodule AcqdatIot.DataParser do
 
     [result] =
       Enum.filter(gateway.streaming_data, fn parameter ->
-        parameter["uuid"] == parameter_uuid
+        parameter.uuid == parameter_uuid
       end)
 
     result

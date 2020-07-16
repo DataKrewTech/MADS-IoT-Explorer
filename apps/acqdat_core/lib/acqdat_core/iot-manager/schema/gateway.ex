@@ -33,7 +33,14 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
     field(:image_url, :string)
     field(:image, :any, virtual: true)
     field(:static_data, {:array, :map})
-    field(:streaming_data, {:array, :map})
+
+    embeds_many :streaming_data, StreamingData, on_replace: :delete do
+      field(:name, :string, null: false)
+      field(:uuid, :string, null: false)
+      field(:data_type, :string, null: false)
+      field(:unit, :string)
+    end
+
     field(:mapped_parameters, :map)
 
     # associations
@@ -44,12 +51,16 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
   end
 
   @required_params ~w(name access_token slug uuid org_id project_id channel parent_id parent_type)a
-  @optional_params ~w(description serializer current_location image_url static_data streaming_data mapped_parameters)a
+  @optional_params ~w(description serializer current_location image_url static_data mapped_parameters)a
+  @embedded_required_params ~w(name uuid data_type)a
+  @embedded_optional_params ~w(unit)a
+  @permitted_embedded @embedded_optional_params ++ @embedded_required_params
   @permitted @required_params ++ @optional_params
 
   def changeset(%__MODULE__{} = gateway, params) do
     gateway
     |> cast(params, @permitted)
+    |> cast_embed(:streaming_data, with: &parameters_changeset/2)
     |> add_uuid()
     |> add_slug()
     |> validate_required(@required_params)
@@ -59,6 +70,7 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
   def update_changeset(%__MODULE__{} = gateway, params) do
     gateway
     |> cast(params, @permitted)
+    |> cast_embed(:streaming_data, with: &parameters_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
@@ -81,6 +93,13 @@ defmodule AcqdatCore.Schema.IotManager.Gateway do
   defp add_slug(changeset) do
     changeset
     |> put_change(:slug, Slugger.slugify(random_string(12)))
+  end
+
+  defp parameters_changeset(schema, params) do
+    schema
+    |> cast(params, @permitted_embedded)
+    |> add_uuid()
+    |> validate_required(@embedded_required_params)
   end
 
   defp random_string(length) do
