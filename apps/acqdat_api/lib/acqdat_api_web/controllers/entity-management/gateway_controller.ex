@@ -46,6 +46,7 @@ defmodule AcqdatApiWeb.EntityManagement.GatewayController do
             end
 
           "mqtt" ->
+            # this here is the portion of code that's need to be integrated with the mqtt flow
             Gateway.follow_mqtt_path()
         end
 

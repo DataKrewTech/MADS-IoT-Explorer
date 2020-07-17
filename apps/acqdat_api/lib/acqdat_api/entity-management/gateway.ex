@@ -16,6 +16,8 @@ defmodule AcqdatApi.EntityManagement.Gateway do
     AcqdatApi.Worker.put(String.to_integer(gateway_id), command)
   end
 
+  # this function will hold the logic to integrate with the mqtt flow of IOT manager
+
   def follow_mqtt_path() do
     require IEx
     IEx.pry()
