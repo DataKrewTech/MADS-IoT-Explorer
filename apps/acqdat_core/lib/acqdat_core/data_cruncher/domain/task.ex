@@ -3,7 +3,8 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   alias AcqdatCore.DataCruncher.Domain.Workflow
   alias Virta.Core.Out
   alias Virta.{Node, EdgeData}
-  alias AcqdatCore.DataCruncher.Model.{Dataloader, TempOutput}
+  alias AcqdatCore.DataCruncher.Model.Dataloader
+  alias AcqdatCore.DataCruncher.Schema.TempOutput
   alias AcqdatCore.DataCruncher.Token
 
   def register_workflows(task) do
@@ -36,8 +37,23 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
 
   ############################# private functions ###########################
 
-  defp persist_output_to_temp_table({_request_id, output_data}, %{id: id} = workflow) do
-    TempOutput.create(%{workflow_id: id, data: [output_data], format: "array"})
+  defp persist_output_to_temp_table({_request_id, output_data}, %{id: workflow_id} = workflow) do
+    bulk_data = workflow_id |> generate_temp_output_bulk_data(output_data)
+    Repo.insert_all(TempOutput, bulk_data)
+  end
+
+  defp generate_temp_output_bulk_data(workflow_id, output_data) do
+    Enum.reduce(output_data, [], fn {key, val}, acc ->
+      ele = [
+        workflow_id: workflow_id,
+        data: %{value: val},
+        source_id: Atom.to_string(key),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      ]
+
+      acc ++ [ele]
+    end)
   end
 
   defp execute_workflow(%{input_data: input_data, uuid: worflow_uuid} = workflow) do

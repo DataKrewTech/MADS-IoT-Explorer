@@ -14,7 +14,8 @@ defmodule AcqdatCore.DataCruncher.Schema.TempOutput do
 
   schema("acqdat_temp_output") do
     field(:format, :string)
-    field(:data, {:array, :map})
+    field(:source_id, :string)
+    field(:data, :map)
     field(:async, :boolean, default: false)
 
     # associations
@@ -23,7 +24,7 @@ defmodule AcqdatCore.DataCruncher.Schema.TempOutput do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(format data workflow_id)a
+  @required ~w(source_id data workflow_id)a
 
   def changeset(%__MODULE__{} = temp_output, params) do
     temp_output

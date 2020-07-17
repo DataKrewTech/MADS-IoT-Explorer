@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.DataCruncher.TempOutputView do
     %{
       id: output.id,
       format: output.format,
+      source_id: output.source_id,
       async: output.async,
       data: output.data
     }

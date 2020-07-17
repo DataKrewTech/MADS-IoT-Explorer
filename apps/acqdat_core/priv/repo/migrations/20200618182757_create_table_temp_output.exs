@@ -4,7 +4,8 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableTempOutput do
   def change do
     create table("acqdat_temp_output") do
       add(:format, :string)
-      add(:data, {:array, :map})
+      add(:source_id, :string)
+      add(:data, :map)
       add(:async, :boolean, default: false)
       add(:workflow_id, references("acqdat_workflows", on_delete: :delete_all), null: false)
 

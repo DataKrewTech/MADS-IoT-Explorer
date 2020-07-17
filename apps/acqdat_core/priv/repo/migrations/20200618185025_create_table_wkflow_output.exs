@@ -4,7 +4,8 @@ defmodule AcqdatCore.Repo.Migrations.CreateTableWkflowOutput do
   def change do
     create table("acqdat_wkflow_output") do
       add(:format, :string)
-      add(:data, {:array, :map})
+      add(:source_id, :string)
+      add(:data, :map)
       add(:async, :boolean, default: false)
       add(:workflow_id, references("acqdat_workflows", on_delete: :delete_all), null: false)
 
