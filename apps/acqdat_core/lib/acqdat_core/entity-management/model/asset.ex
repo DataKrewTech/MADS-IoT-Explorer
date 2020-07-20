@@ -110,20 +110,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
-      asset_struct =
-        asset_struct(%{
-          name: name,
-          org_id: org_id,
-          slug: org_name <> name,
-          project_id: project_id,
-          creator_id: creator_id,
-          asset_type_id: asset_type_id,
-          metadata: metadata,
-          mapped_parameters: mapped_parameters,
-          owner_id: owner_id,
-          properties: properties
-        })
-
       taxon =
         asset_struct(%{
           name: name,
@@ -205,21 +191,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end)
   end
 
-  defp delete_child_and_its_descendants(asset) do
-    case delete_sensors_descentants(asset) do
-      {:error, message} ->
-        {:error, message}
-
-      _ ->
-        AsNestedSet.delete(asset) |> AsNestedSet.execute(Repo)
-    end
-  end
-
-  defp delete_sensors_descentants(asset) do
-    Enum.map(fetch_self_n_child_descendants(asset), fn asset -> asset.id end)
-    |> SensorModel.delete_all()
-  end
-
   defp dump_assets(module, scope, parent_id \\ nil) do
     fn repo ->
       children = fetch_child_assets(repo, module, scope, parent_id)
@@ -236,41 +207,35 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   # NOTE: Taken reference from as_nested_set queriable module dump function:
   # https://github.com/secretworry/as_nested_set/blob/1883d61796c676fdb610c6be19fd565f501635de/lib/as_nested_set/queriable.ex#L117
-  defp fetch_child_assets(repo, module, scope, parent_id \\ nil) do
+  defp fetch_child_assets(repo, module, scope, parent_id) do
     parent_id_column = :parent_id
     left_column = :lft
 
-    children =
-      if parent_id do
-        from(q in module,
-          preload: [:asset_type],
-          where: field(q, ^parent_id_column) == ^parent_id,
-          order_by: ^[left_column]
-        )
-      else
-        from(q in module,
-          preload: [:asset_type],
-          where: is_nil(field(q, ^parent_id_column)),
-          order_by: ^[left_column]
-        )
-      end
-      |> AsNestedSet.Scoped.scoped_query(scope)
-      |> repo.all
+    if parent_id do
+      from(q in module,
+        preload: [:asset_type],
+        where: field(q, ^parent_id_column) == ^parent_id,
+        order_by: ^[left_column]
+      )
+    else
+      from(q in module,
+        preload: [:asset_type],
+        where: is_nil(field(q, ^parent_id_column)),
+        order_by: ^[left_column]
+      )
+    end
+    |> AsNestedSet.Scoped.scoped_query(scope)
+    |> repo.all
   end
 
-  @doc """
-  "fetch_asset_descendants_map" function will return all the sensors of the leaf asset.
-
-  """
+  # fetch_asset_descendants_map" function will return all the sensors of the leaf asset.
   defp fetch_asset_descendants_map(nil, _entities, asset) do
     sensors = SensorModel.child_sensors(asset)
     Map.put_new(asset, :sensors, sensors)
   end
 
-  @doc """
-  "fetch_asset_descendants_map" function will return all the descendants(assets/sensors) of the respective asset.
-
-  """
+  # fetch_asset_descendants_map" function will return all the descendants(assets/sensors)
+  # of the respective asset.
   defp fetch_asset_descendants_map(_data, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->

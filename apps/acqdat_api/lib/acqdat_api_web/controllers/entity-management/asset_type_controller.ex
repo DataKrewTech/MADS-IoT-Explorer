@@ -59,13 +59,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
             |> put_status(200)
             |> render("asset_type.json", %{asset_type: asset_type})
 
-          {:error, asset_type} ->
-            error =
-              case String.valid?(asset_type) do
-                false -> extract_changeset_error(asset_type)
-                true -> asset_type
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end
@@ -85,13 +85,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
             |> put_status(200)
             |> render("asset_type.json", %{asset_type: asset_type})
 
-          {:error, asset_type} ->
-            error =
-              case String.valid?(asset_type) do
-                false -> extract_changeset_error(asset_type)
-                true -> asset_type
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end

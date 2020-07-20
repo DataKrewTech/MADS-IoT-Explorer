@@ -77,13 +77,13 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
             |> put_status(200)
             |> render("sensor_type.json", %{sensor_type: sensor_type})
 
-          {:error, sensor_type} ->
-            error =
-              case String.valid?(sensor_type) do
-                false -> extract_changeset_error(sensor_type)
-                true -> sensor_type
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end
@@ -105,13 +105,13 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
             |> put_status(200)
             |> render("sensor_type.json", %{sensor_type: sensor_type})
 
-          {:error, sensor_type} ->
-            error =
-              case String.valid?(sensor_type) do
-                false -> extract_changeset_error(sensor_type)
-                true -> sensor_type
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end

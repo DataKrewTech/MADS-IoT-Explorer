@@ -38,7 +38,7 @@ defmodule AcqdatApiWeb.ToolManagementController do
          {:ok, tools} <- ToolManagement.tool_box_status(data.tool_box_uuid) do
       render(conn, "tools.json", tools: tools)
     else
-      {:extract, {:error, changeset}} ->
+      {:extract, {:error, %Ecto.Changeset{} = changeset}} ->
         errors = extract_changeset_error(changeset)
 
         conn
