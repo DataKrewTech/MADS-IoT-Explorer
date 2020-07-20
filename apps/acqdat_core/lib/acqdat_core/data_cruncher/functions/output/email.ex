@@ -30,7 +30,7 @@ defmodule AcqdatCore.DataCruncher.Functions.Email do
   defp process_data(result) do
     # TODO: Need to do proper data parsing, before sensing it to mailer, also needs to consider current_user details
     current_user = "gdkjrkg"
-
+    # Mailer.deliver_later()
     DataCruncherEmail.email(current_user, result)
     |> Mailer.deliver_now()
   end
