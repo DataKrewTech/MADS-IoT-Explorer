@@ -25,4 +25,13 @@ defmodule AcqdatApi.IotManager.Gateway do
     Map.from_struct(params)
     |> Map.drop([:_id, :__meta__])
   end
+
+  def store_data(%{"gateway_id" => gateway_id, "commands" => command}) do
+    AcqdatApi.Worker.put(String.to_integer(gateway_id), command)
+  end
+
+  def follow_mqtt_path() do
+    require IEx
+    IEx.pry()
+  end
 end
