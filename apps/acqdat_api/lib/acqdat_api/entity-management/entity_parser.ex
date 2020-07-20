@@ -92,8 +92,10 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
                 parent_entity,
                 current_user
               )
+
             {:error, message} ->
               throw(message)
+
             _ ->
               parse_n_update(
                 entity["entities"],

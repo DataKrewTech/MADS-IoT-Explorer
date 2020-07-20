@@ -70,6 +70,7 @@ defmodule AcqdatCore.Schema.AssetTypeTest do
 
     test "returns error if assoc constraint not satisfied", context do
       %{project: project} = context
+
       params = %{
         name: "Temperature",
         org_id: -1,
@@ -84,6 +85,7 @@ defmodule AcqdatCore.Schema.AssetTypeTest do
 
     test "returns error if unique constraint not satisified", context do
       %{project: project, organisation: organisation} = context
+
       params = %{
         name: "Temperature",
         org_id: organisation.id,

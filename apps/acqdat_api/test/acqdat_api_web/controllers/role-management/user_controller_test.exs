@@ -256,14 +256,25 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       result = conn |> json_response(200)
 
+      role = %{
+        "description" => user.role.description,
+        "id" => user.role.id,
+        "name" => user.role.name
+      }
+
+      organisation = %{"id" => user.org.id, "name" => user.org.name, "type" => "Organisation"}
+
       assert result == %{
                "users" => [
                  %{
-                   "email" => "chandu@stack-avenue.com",
-                   "first_name" => "Chandu",
-                   "id" => 1,
-                   "last_name" => "Developer",
-                   "org_id" => 1
+                   "email" => user.email,
+                   "first_name" => user.first_name,
+                   "id" => user.id,
+                   "last_name" => user.last_name,
+                   "org_id" => user.org_id,
+                   "role_id" => user.role_id,
+                   "org" => organisation,
+                   "role" => role
                  }
                ]
              }
@@ -289,6 +300,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
   def setup_index(%{user: user, org: org}) do
     create_organisation("organisation", org)
     create_user("organisation", user, org)
+    :timer.sleep(1000)
   end
 
   def create_organisation(type, params) do

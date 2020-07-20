@@ -322,7 +322,7 @@ defmodule AcqdatCore.Support.Factory do
     )
   end
 
-   def sensors_data_factory() do
+  def sensors_data_factory() do
     %SensorsData{
       inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
       sensor_id: 1,

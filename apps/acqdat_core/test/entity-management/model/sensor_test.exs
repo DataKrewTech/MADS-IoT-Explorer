@@ -130,8 +130,13 @@ defmodule AcqdatCore.Model.EntityManagement.SensorTest do
     test "will raise an error if sensors data is present for respective sensor leaf" do
       # NOTE: currently we are assuming, if sensor has field has_timesrs_data set as true, it contains sensors data
       sensor = insert(:sensor)
-      sensor_data = build(:sensors_data, sensor_id: sensor.id, org_id: sensor.org_id,
-        project_id: sensor.project.id)
+
+      sensor_data =
+        build(:sensors_data,
+          sensor_id: sensor.id,
+          org_id: sensor.org_id,
+          project_id: sensor.project.id
+        )
 
       {:ok, _sensors_data} = Repo.insert(sensor_data)
 

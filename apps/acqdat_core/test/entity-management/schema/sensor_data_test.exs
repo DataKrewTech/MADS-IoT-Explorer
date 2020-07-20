@@ -59,7 +59,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorDataTest do
         parameters: [%{data_type: "string", name: "Voltage", value: "456"}],
         inserted_timestamp: DateTime.utc_now(),
         sensor_id: sensor.id,
-        project_id: sensor.project.id,
+        project_id: sensor.project.id
       }
 
       %{valid?: validity} = changeset = SensorsData.changeset(%SensorsData{}, params)

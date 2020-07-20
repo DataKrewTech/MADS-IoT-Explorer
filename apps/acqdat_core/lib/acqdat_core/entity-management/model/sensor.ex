@@ -127,19 +127,21 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
   def delete(sensor_id) do
     sensor = Repo.get(Sensor, sensor_id)
+
     if has_iot_data?(sensor.id, sensor.project_id) do
-      {:error,
-       "It contains time-series data. Please delete sensors data before deleting sensor."}
+      {:error, "It contains time-series data. Please delete sensors data before deleting sensor."}
     else
       Repo.delete(sensor)
     end
   end
 
   defp has_iot_data?(sensor_id, project_id) do
-    query = from(
-      data in SensorsData,
-      where: data.sensor_id == ^sensor_id and data.project_id == ^project_id
-    )
+    query =
+      from(
+        data in SensorsData,
+        where: data.sensor_id == ^sensor_id and data.project_id == ^project_id
+      )
+
     Repo.exists?(query)
   end
 

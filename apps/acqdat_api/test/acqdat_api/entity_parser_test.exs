@@ -130,13 +130,17 @@ defmodule AcqdatApi.EntityParserTest do
       current_user: current_user
     } do
       sensor_manifest =
-        build(:sensor, parent_id: project.id, parent_type: "Project",
-          has_timesrs_data: true, project: project)
+        build(:sensor,
+          parent_id: project.id,
+          parent_type: "Project",
+          has_timesrs_data: true,
+          project: project
+        )
 
       {:ok, sensor} = Repo.insert(sensor_manifest)
 
-      sensor_data = build(:sensors_data, sensor_id: sensor.id, org_id: sensor.org_id,
-        project_id: project.id)
+      sensor_data =
+        build(:sensors_data, sensor_id: sensor.id, org_id: sensor.org_id, project_id: project.id)
 
       {:ok, _sensors_data} = Repo.insert(sensor_data)
 
@@ -170,7 +174,9 @@ defmodule AcqdatApi.EntityParserTest do
                EntityParser.update_project_hierarchy(current_user, project, params)
 
       assert message ==
-        ["It contains time-series data. Please delete sensors data before deleting sensor."]
+               [
+                 "It contains time-series data. Please delete sensors data before deleting sensor."
+               ]
     end
 
     test "successfully deletes respective leaf asset", %{

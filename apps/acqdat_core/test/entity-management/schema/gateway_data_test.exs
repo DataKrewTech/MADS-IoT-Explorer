@@ -17,8 +17,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataTest do
       %{gateway: gateway, organisation: organisation} = context
 
       params = %{
-        parameters: [%{data_type: "string", name: "Voltage", value: "456",
-          uuid: UUID.uuid1(:hex)}],
+        parameters: [
+          %{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}
+        ],
         inserted_timestamp: DateTime.utc_now(),
         gateway_id: gateway.id,
         org_id: organisation.id,
@@ -35,7 +36,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataTest do
       %{gateway: gateway} = context
 
       params = %{
-        parameters: [%{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}],
+        parameters: [
+          %{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}
+        ],
         gateway_id: gateway.id,
         org_id: gateway.org_id,
         project_id: gateway.project_id
@@ -51,7 +54,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataTest do
       %{gateway: gateway} = context
 
       params = %{
-        parameters: [%{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}],
+        parameters: [
+          %{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}
+        ],
         inserted_timestamp: DateTime.utc_now(),
         gateway_id: gateway.id,
         project_id: gateway.project_id
@@ -67,7 +72,9 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayDataTest do
       %{gateway: gateway} = context
 
       params = %{
-        parameters: [%{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}],
+        parameters: [
+          %{data_type: "string", name: "Voltage", value: "456", uuid: UUID.uuid1(:hex)}
+        ],
         inserted_timestamp: DateTime.utc_now(),
         org_id: gateway.org_id,
         project_id: gateway.project_id

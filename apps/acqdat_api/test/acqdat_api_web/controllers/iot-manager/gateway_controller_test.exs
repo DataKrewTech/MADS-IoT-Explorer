@@ -113,9 +113,11 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       gateway: gateway
     } do
       bad_access_token = "qwerty12345678qwer"
+
       conn =
         conn
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
       data = Map.put(%{}, :name, "Water Plant")
 
       conn =
