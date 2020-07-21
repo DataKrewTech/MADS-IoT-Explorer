@@ -21,7 +21,7 @@ defmodule AcqdatCore.Seed.Widgets.Area do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
-            color: %{data_type: :string, value: %{}, properties: %{}},
+            color: %{data_type: :color, value: %{}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}}
           }
         },

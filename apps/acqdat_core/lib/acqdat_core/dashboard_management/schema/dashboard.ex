@@ -28,7 +28,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:project, Project, on_replace: :delete)
-    has_many(:widget_instances, WidgetInstance)
+    has_many(:widget_instances, WidgetInstance, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end

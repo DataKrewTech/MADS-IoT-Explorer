@@ -60,6 +60,128 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
     end
   end
 
+  describe "update/2" do
+    setup :setup_conn
+
+    setup do
+      dashboard = insert(:dashboard)
+
+      [dashboard: dashboard]
+    end
+
+    test "dashboard update", %{conn: conn, dashboard: dashboard} do
+      data = %{
+        name: "updated dashboard name"
+      }
+
+      conn =
+        put(
+          conn,
+          Routes.dashboard_path(
+            conn,
+            :update,
+            dashboard.org_id,
+            dashboard.project_id,
+            dashboard.id
+          ),
+          data
+        )
+
+      response = conn |> json_response(200)
+
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      assert response["name"] == "updated dashboard name"
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn} do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        id: 3
+      }
+
+      conn = put(conn, Routes.dashboard_path(conn, :update, 1, 1, params.id))
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "dashboard with invalid dashboard id", %{conn: conn, dashboard: dashboard} do
+      params = %{
+        id: -1
+      }
+
+      conn =
+        put(
+          conn,
+          Routes.dashboard_path(conn, :update, dashboard.org_id, dashboard.project_id, params.id)
+        )
+
+      result = conn |> json_response(404)
+      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+    end
+  end
+
+  describe "delete/2" do
+    setup :setup_conn
+
+    setup do
+      dashboard = insert(:dashboard)
+
+      [dashboard: dashboard]
+    end
+
+    test "dashboard delete", %{conn: conn, dashboard: dashboard} do
+      conn =
+        delete(
+          conn,
+          Routes.dashboard_path(
+            conn,
+            :delete,
+            dashboard.org_id,
+            dashboard.project_id,
+            dashboard.id
+          )
+        )
+
+      response = conn |> json_response(200)
+
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn} do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        id: 3
+      }
+
+      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, 1, params.id))
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "dashboard with invalid dashboard id", %{conn: conn} do
+      params = %{
+        id: -1
+      }
+
+      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, 1, params.id))
+
+      result = conn |> json_response(404)
+      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+    end
+  end
+
   describe "create/2" do
     setup :setup_conn
 
