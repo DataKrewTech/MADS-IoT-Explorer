@@ -124,7 +124,7 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
         name: "vibration_sensor"
       )
 
-    [sensor: sensor, org: org]
+    [sensor: sensor, org: org, project: project]
   end
 
   defp setup_sensor_type(org, project) do
