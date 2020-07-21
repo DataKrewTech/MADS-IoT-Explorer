@@ -10,6 +10,15 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
     Repo.insert(changeset)
   end
 
+  def update(dashboard, params) do
+    changeset = Dashboard.update_changeset(dashboard, params)
+    Repo.update(changeset)
+  end
+
+  def delete(dashboard) do
+    Repo.delete(dashboard)
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Dashboard, id) do
       nil ->

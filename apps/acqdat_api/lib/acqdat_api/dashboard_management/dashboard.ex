@@ -4,6 +4,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
 
   defdelegate get_all(data), to: DashboardModel
   defdelegate get_with_widgets(dashboard_id), to: DashboardModel
+  defdelegate update(dashboard, data), to: DashboardModel
+  defdelegate delete(dashboard), to: DashboardModel
 
   def create(attrs) do
     %{

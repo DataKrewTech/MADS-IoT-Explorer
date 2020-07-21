@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
+  plug AcqdatApiWeb.Plug.LoadDashboard when action in [:update, :delete]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -62,6 +63,58 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
             conn
             |> put_status(200)
             |> render("show.json", %{dashboard: dashboard})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        case Dashboard.update(conn.assigns.dashboard, params) do
+          {:ok, dashboard} ->
+            conn
+            |> put_status(200)
+            |> render("dashboard.json", %{dashboard: dashboard})
+
+          {:error, dashboard} ->
+            error =
+              case String.valid?(dashboard) do
+                false -> extract_changeset_error(dashboard)
+                true -> dashboard
+              end
+
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def delete(conn, _params) do
+    case conn.status do
+      nil ->
+        case Dashboard.delete(conn.assigns.dashboard) do
+          {:ok, dashboard} ->
+            conn
+            |> put_status(200)
+            |> render("dashboard.json", %{dashboard: dashboard})
+
+          {:error, dashboard} ->
+            error =
+              case String.valid?(dashboard) do
+                false -> extract_changeset_error(dashboard)
+                true -> dashboard
+              end
+
+            conn
+            |> send_error(400, error)
         end
 
       404 ->

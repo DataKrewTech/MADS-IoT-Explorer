@@ -37,14 +37,27 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   @optional_params ~w(settings description)a
   @permitted @optional_params ++ @required_params
 
-  def changeset(%__MODULE__{} = task, params) do
-    task
+  def changeset(%__MODULE__{} = dashboard, params) do
+    dashboard
     |> cast(params, @permitted)
-    |> assoc_constraint(:org)
-    |> assoc_constraint(:project)
     |> add_slug()
     |> add_uuid()
     |> validate_required(@required_params)
+    |> common_changeset()
+  end
+
+  def update_changeset(%__MODULE__{} = dashboard, params) do
+    dashboard
+    |> cast(params, @permitted)
+    |> validate_required(@required_params)
+    |> common_changeset()
+  end
+
+  @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  def common_changeset(changeset) do
+    changeset
+    |> assoc_constraint(:org)
+    |> assoc_constraint(:project)
     |> unique_constraint(:name,
       name: :unique_dashboard_name_per_project,
       message: "unique name under project"
