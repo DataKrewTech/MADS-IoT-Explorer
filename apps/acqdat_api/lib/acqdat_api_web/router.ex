@@ -110,6 +110,16 @@ defmodule AcqdatApiWeb.Router do
         :show,
         as: :show_widget_instances
 
+    delete "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+           DashboardManagement.WidgetInstanceController,
+           :delete,
+           as: :delete_widget_instances
+
+    put "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+        DashboardManagement.WidgetInstanceController,
+        :update,
+        as: :update_widget_instances
+
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets
   end

@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.WidgetInstance do
   use Params
 
   defparams(
-    verify_create(%{
+    verify_params(%{
       label!: :string,
       org_id!: :integer,
       widget_id!: :integer,

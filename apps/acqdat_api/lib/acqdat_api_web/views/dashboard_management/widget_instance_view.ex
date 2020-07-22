@@ -15,6 +15,15 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
     }
   end
 
+  def render("widget_instance.json", %{widget_instance: widget}) do
+    %{
+      id: widget.id,
+      widget_id: widget.widget_id,
+      label: widget.label,
+      uuid: widget.uuid
+    }
+  end
+
   def render("series_data.json", %{widget_instance: series}) do
     %{
       name: series.name,

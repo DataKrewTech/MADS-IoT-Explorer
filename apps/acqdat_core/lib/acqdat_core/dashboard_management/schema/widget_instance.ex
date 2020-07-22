@@ -49,7 +49,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     field(:visual_properties, :map)
 
     # embedded associations
-    embeds_many(:series_data, SeriesData)
+    embeds_many(:series_data, SeriesData, on_replace: :delete)
 
     # associations
     belongs_to(:widget, Widget, on_replace: :delete)
@@ -69,25 +69,30 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   def changeset(%__MODULE__{} = widget_instance, params) do
     widget_instance
     |> cast(params, @permitted)
-    |> assoc_constraint(:widget)
-    |> assoc_constraint(:dashboard)
     |> add_slug()
     |> add_uuid()
     |> cast_embed(:series_data, with: &SeriesData.changeset/2)
     |> validate_required(@required)
+    |> common_changeset()
+  end
+
+  def update_changeset(%__MODULE__{} = widget_instance, params) do
+    widget_instance
+    |> cast(params, @permitted)
+    |> cast_embed(:series_data, with: &SeriesData.changeset/2)
+    |> validate_required(@required)
+    |> common_changeset()
+  end
+
+  @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp common_changeset(changeset) do
+    changeset
+    |> assoc_constraint(:widget)
+    |> assoc_constraint(:dashboard)
     |> unique_constraint(:label,
       name: :unique_widget_name_per_dashboard,
       message: "unique widget label under dashboard"
     )
-  end
-
-  @spec update_changeset(
-          AcqdatCore.Widgets.Schema.Widget.t(),
-          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
-        ) :: Ecto.Changeset.t()
-  def update_changeset(%__MODULE__{} = widget, params) do
-    widget
-    |> cast(params, @permitted)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
