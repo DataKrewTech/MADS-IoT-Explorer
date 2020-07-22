@@ -4,12 +4,12 @@ defmodule AcqdatCore.Model.IotManager.MQTTBroker do
   """
   alias AcqdatCore.Model.IotManager.MQTT.Handler
 
-  def start_project_client(project_id, topic, qos, password) do
+  def start_project_client(project_id, subscription_topics, password) do
     Tortoise.Supervisor.start_child(
       client_id: project_id,
       handler: Handler,
       server: {Tortoise.Transport.Tcp, host: 'localhost', port: 1883},
-      subsriptions: [{topic, qos}],
+      subsriptions: subscription_topics,
       username: project_id,
       password: password
     )

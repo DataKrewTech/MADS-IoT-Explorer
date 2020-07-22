@@ -6,6 +6,44 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
 
   alias AcqdatCore.Model.IotManager.Gateway
 
+  describe "create/1" do
+    setup %{} do
+      org = insert(:organisation)
+      project = insert(:project, org: org)
+      [project: project, org: org]
+    end
+
+    test "create a gateway with http channel", context do
+      %{project: project, org: org} = context
+      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
+        channel: "http", parent_id: project.id, parent_type: "Project",
+        access_token: "abcd1234"
+      }
+      {:ok, gateway} = Gateway.create(params)
+      assert gateway.name == params.name
+    end
+
+    test "returns invalid changeset if any error", context do
+      %{project: project, org: org} = context
+      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
+        channel: "http", parent_id: project.id, parent_type: "Project"
+      }
+      {:error, changeset} = Gateway.create(params)
+      assert %{access_token: ["can't be blank"]} == errors_on(changeset)
+    end
+
+    @tag timeout: :infinity
+    test "create a gateway with mqtt channel", context do
+      %{project: project, org: org} = context
+      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
+        channel: "mqtt", parent_id: project.id, parent_type: "Project",
+        access_token: "abcd1234"
+      }
+      {:ok, gateway} = Gateway.create(params)
+      assert gateway.name == params.name
+    end
+  end
+
   describe "get_gateways/1" do
     setup do
       project = insert(:project)
@@ -31,7 +69,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       ]
     end
 
-    test "fetch heirarchy with gateways", %{
+    test "fetch hierarchy with gateways", %{
       project: project,
       gateway1: gateway1,
       gateway2: gateway2,
