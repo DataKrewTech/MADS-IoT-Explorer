@@ -130,9 +130,11 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       nil ->
         channel = conn.assigns.gateway.channel
         Gateway.setup_command(channel, params)
+
         conn
         |> put_status(200)
         |> json(%{"command_set" => true})
+
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
