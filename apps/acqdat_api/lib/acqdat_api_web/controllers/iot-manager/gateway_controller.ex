@@ -128,24 +128,11 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   def store_commands(conn, params) do
     case conn.status do
       nil ->
-        case conn.assigns.gateway.channel do
-          "http" ->
-            case Gateway.store_data(params) do
-              true ->
-                conn
-                |> put_status(200)
-                |> json(%{"data inserted" => true})
-
-              false ->
-                conn
-                |> put_status(400)
-                |> json(%{"data inserted" => false})
-            end
-
-          "mqtt" ->
-            Gateway.follow_mqtt_path()
-        end
-
+        channel = conn.assigns.gateway.channel
+        Gateway.setup_command(channel, params)
+        conn
+        |> put_status(200)
+        |> json(%{"command_set" => true})
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
