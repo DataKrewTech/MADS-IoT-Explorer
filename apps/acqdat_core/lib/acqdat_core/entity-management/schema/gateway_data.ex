@@ -8,8 +8,6 @@ defmodule AcqdatCore.Schema.EntityManagement.GatewayData do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Organisation}
-  alias AcqdatCore.Schema.IotManager.Gateway
 
   @typedoc """
   `inserted_timestamp`: The timestamp sent by device sending the gateway data.

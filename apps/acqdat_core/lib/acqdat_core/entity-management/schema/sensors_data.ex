@@ -8,7 +8,6 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Sensor, Organisation}
 
   @typedoc """
   `inserted_timestamp`: The timestamp sent by device sending the sensor data.
