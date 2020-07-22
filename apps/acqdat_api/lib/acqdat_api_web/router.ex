@@ -80,6 +80,7 @@ defmodule AcqdatApiWeb.Router do
 
     scope "/projects/:project_id", IotManager do
       resources "/gateways", GatewayController, except: [:new, :edit]
+      post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
       get("/hierarchy", GatewayController, :hierarchy)
     end
 
