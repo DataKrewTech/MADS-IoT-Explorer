@@ -22,7 +22,6 @@ defmodule AcqdatIot.DataDump.Worker.Server do
   end
 
   def handle_cast({:data_dump, params}, _status) do
-    IO.inspect(params)
     response = data_dump(params)
     {:noreply, response}
   end
