@@ -139,4 +139,15 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
       assert %{widget_id: ["can't be blank"]} == errors_on(changeset)
     end
   end
+
+  describe "delete/1" do
+    test "deletes a particular widget_instance" do
+      widget_instance = insert(:widget_instance)
+
+      {:ok, result} = WidgetInstanceModel.delete(widget_instance)
+
+      assert not is_nil(result)
+      assert result.id == widget_instance.id
+    end
+  end
 end
