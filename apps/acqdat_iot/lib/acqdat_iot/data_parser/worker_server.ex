@@ -6,8 +6,8 @@ defmodule AcqdatIot.DataParser.Worker.Server do
     {:ok, params}
   end
 
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, name: __MODULE__)
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def handle_cast({:data_parser, params}, _status) do

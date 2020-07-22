@@ -161,7 +161,7 @@ defmodule AcqdatIot.DataParser do
 
   defp get_parameter_attributes("sensor", entity_id, parameter_uuid) do
     {:ok, sensor} = SModel.get(entity_id)
-
+    # here one check needs to be put incase result is returned to he an empty list
     [result] =
       Enum.filter(sensor.sensor_type.parameters, fn parameter ->
         parameter.uuid == parameter_uuid

@@ -9,7 +9,7 @@ defmodule AcqdatIotWeb.DataDump do
     setup :setup_gateway
 
     test "data dump create", %{conn: conn, org: org, gateway: gateway} do
-      project = insert(:project)
+      project = gateway.project
 
       params = %{
         data: %{
