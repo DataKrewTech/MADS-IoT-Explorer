@@ -4,7 +4,7 @@ defmodule AcqdatIotWeb.DataParser.DataDumpView do
 
   def render("index.json", data_dump) do
     %{
-      gateways: render_many(data_dump.entries, DataDumpView, "show.json"),
+      data_dumps: render_many(data_dump.entries, DataDumpView, "show.json"),
       page_number: data_dump.page_number,
       page_size: data_dump.page_size,
       total_entries: data_dump.total_entries,

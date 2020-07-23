@@ -2,6 +2,8 @@ defmodule AcqdatCore.Test.Support.DataDump do
   # alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
+  alias AcqdatCore.Schema.IotManager.GatewayDataDump
+  alias AcqdatCore.Test.Support.DataDump
   alias AcqdatCore.Repo
   # alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
   # alias AcqdatCore.Model.IotManager.GatewayDataDump
@@ -55,6 +57,13 @@ defmodule AcqdatCore.Test.Support.DataDump do
     [dump_iot_data(gateway), sensor1, sensor2, gateway]
   end
 
+  def insert_multiple_datadumps(gateway) do
+    data_dump1 = DataDump.dump_iot_data(gateway)
+    data_dump2 = DataDump.dump_iot_data(gateway)
+    data_dump3 = DataDump.dump_iot_data(gateway)
+    Repo.insert_all(GatewayDataDump, [data_dump1, data_dump2, data_dump3])
+  end
+
   def insert_gateway(org, project, asset) do
     params = %{
       uuid: UUID.uuid1(:hex),
@@ -100,7 +109,8 @@ defmodule AcqdatCore.Test.Support.DataDump do
         },
         "y_axis" => 21
       },
-      inserted_timestamp: DateTime.utc_now()
+      inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+      inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second)
     }
   end
 
