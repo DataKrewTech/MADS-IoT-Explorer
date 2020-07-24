@@ -35,6 +35,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
       dashboard_id: dashboard_id,
       widget_id: widget_id,
       series_data: series,
+      widget_settings: settings,
       visual_properties: visual_prop
     }
   end
