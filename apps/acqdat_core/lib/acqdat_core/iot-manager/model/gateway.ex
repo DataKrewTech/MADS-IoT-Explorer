@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AModel
   alias AcqdatCore.Model.EntityManagement.Project, as: PModel
-  alias AcqdatCore.Schema.IotManager.BrokerCredentials
+  alias AcqdatCore.Model.IotManager.MQTT.BrokerCredentials
   alias AcqdatCore.Model.IotManager.MQTTBroker
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
@@ -22,9 +22,15 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{insert_gateway: gateway}} ->
-        {:ok, gateway}
-
+      {:ok, %{setup_mqtt_if_needed: data}} ->
+        if Map.has_key?(data, :access_token) do
+          gateway = data.gateway
+          Task.start(fn ->
+            start_project_client(gateway, gateway.project, data)
+          end)
+        else
+          {:ok, data.gateway}
+        end
       {:error, _failed_operation, failed_value, _} ->
         {:error, failed_value}
     end
@@ -79,10 +85,20 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     ModelHelper.paginated_response(project_data_with_preloads, paginated_project_data)
   end
 
-  def delete(gateway) do
+  def delete(%{channel: "http"} = gateway) do
     case Repo.delete(gateway) do
       {:ok, gateway} ->
-        gateway = gateway |> Repo.preload([:org, :project])
+        {:ok, gateway}
+
+      {:error, gateway} ->
+        {:error, gateway}
+    end
+  end
+
+  def delete(%{channel: "mqtt"} = gateway) do
+    BrokerCredentials.delete(gateway.uuid)
+    case Repo.delete(gateway) do
+      {:ok, gateway} ->
         {:ok, gateway}
 
       {:error, gateway} ->
@@ -138,46 +154,73 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     Map.put(gateway, :childs, child_sensors)
   end
 
+  def send_mqtt_command(gateway, payload) do
+    gateway = Repo.preload(gateway, [project: :org])
+    project = gateway.project
+    org = gateway.project.org
+    topic = "/org/#{org.uuid}/project/#{project.uuid}/gateway/#{gateway.uuid}/config"
+    MQTTBroker.publish(project.uuid, topic, Jason.encode!(payload))
+  end
+
   ##################### private functions #####################
 
   def start_broker_if_needed(gateway) do
     initiation_for_channel(gateway, gateway.channel)
   end
 
-  defp initiation_for_channel(gateway, "http"), do: {:ok, gateway}
+  defp initiation_for_channel(gateway, "http"), do: {:ok, %{gateway: gateway}}
   defp initiation_for_channel(gateway, "mqtt") do
-    gateway = Repo.preload(gateway, :project)
+    gateway = Repo.preload(gateway, [project: :org])
     project = gateway.project
-    gateway_credentials = create_broker_crdentials(gateway.uuid,
-      gateway.access_token, "gateway")
-    project_credentials = create_broker_crdentials(project.uuid, UUID.uuid1(:hex),
-      "project")
-    {2, _} = Repo.insert_all(BrokerCredentials, [gateway_credentials, project_credentials])
-    start_project_client(project, project_credentials)
+
+    if BrokerCredentials.subscription_present?(project.uuid) do
+      validate_gateway_creds_results(gateway,
+        BrokerCredentials.create(gateway, gateway.access_token, "Gateway"))
+    else
+      validate_project_create_results(project, gateway,
+        BrokerCredentials.create(gateway, gateway.access_token, "Gateway"))
+    end
   end
 
-  defp start_project_client(project, credentials) do
+  # adding only gateway credentials
+  defp validate_gateway_creds_results(gateway, {:ok, _creds}) do
+    {:ok, %{gateway: gateway}}
+  end
+  defp validate_gateway_creds_results(_gateway, {:error, changeset}) do
+    {:error, changeset}
+  end
+
+  # adding both gateway and project credentials
+  defp validate_project_create_results(_project, _gateway, {:error, changeset}) do
+    {:error, changeset}
+  end
+  defp validate_project_create_results(project, gateway, {:ok, _creds}) do
+    access_token = UUID.uuid1(:hex)
+    validate_project_credentials(project, gateway, BrokerCredentials.create(
+      project,
+      access_token,
+      "Project"
+    ))
+  end
+
+  defp validate_project_credentials(_project, _gateway, {:error, changeset}) do
+    {:error, changeset}
+  end
+  defp validate_project_credentials(_project, gateway, {:ok, credentials}) do
+    {:ok , %{gateway: gateway, access_token: credentials.access_token}}
+  end
+
+  defp start_project_client(_gateway = %{channel: "mqtt"}, project, credentials) do
     topics = [
-      {"/org/#{project.org.id}/project/#{project.id}/gateway/#", 0}
+      {"/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0}
     ]
     MQTTBroker.start_project_client(
-      project.id,
+      project.uuid,
       topics,
       credentials.access_token
-    )
-  end
-
-  defp create_broker_crdentials(uuid, access_token, entity_type) do
-    time = DateTime.utc_now() |> DateTime.truncate(:second)
-    %{
-      entity_uuid: uuid,
-      access_token: access_token,
-      entity_type: entity_type,
-
-      inserted_at: time,
-      updated_at: time
-    }
-  end
+      )
+    end
+    defp start_project_client(_gateway, _project, _credentials), do: :ok
 
   defp fetch_gateway_ids(gateways) do
     Enum.reduce(gateways, [], fn gateway, acc ->

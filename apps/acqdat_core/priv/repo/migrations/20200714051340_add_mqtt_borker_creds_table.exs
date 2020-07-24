@@ -6,6 +6,7 @@ defmodule AcqdatCore.Repo.Migrations.AddMqttBorkerCredsTable do
       add(:entity_uuid, :string, null: false)
       add(:access_token, :string, null: false)
       add(:entity_type, :string, null: false)
+      add(:subscriptions, {:array, :map})
 
       timestamps(type: :timestamptz)
     end

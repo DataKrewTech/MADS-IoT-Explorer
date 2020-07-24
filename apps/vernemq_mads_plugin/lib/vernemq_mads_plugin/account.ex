@@ -1,7 +1,7 @@
 defmodule VernemqMadsPlugin.Account do
 
   @repo Application.get_env(:vernemq_mads_plugin, :read_repo)
-  alias VernemqMadsPlugin.GatewaySchema
+  alias VernemqMadsPlugin.BrokerCredentials
   @error_message "Invalid Credentials"
 
   @doc """
@@ -11,14 +11,14 @@ defmodule VernemqMadsPlugin.Account do
   all the clients.
   """
   def is_authenticated(uuid, access_token) do
-    GatewaySchema
-    |> @repo.get_by(uuid: uuid)
+    BrokerCredentials
+    |> @repo.get_by(entity_uuid: uuid)
     |> validate(access_token)
   end
 
   defp validate(nil, _access_token), do: {:error, @error_message}
-  defp validate(gateway, access_token) do
-    if gateway.access_token == access_token do
+  defp validate(entity, access_token) do
+    if entity.access_token == access_token do
       :ok
     else
       {:error, @error_message}

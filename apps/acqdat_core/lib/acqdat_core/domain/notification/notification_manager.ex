@@ -13,8 +13,8 @@ defmodule AcqdatCore.Domain.Notification.Manager do
     [
       name: {:local, __MODULE__},
       worker_module: Worker,
-      size: 1000,
-      max_overflow: 500
+      size: 10,
+      max_overflow: 10
     ]
   end
 end

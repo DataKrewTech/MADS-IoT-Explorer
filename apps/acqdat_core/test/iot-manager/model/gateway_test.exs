@@ -5,6 +5,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
   import AcqdatCore.Support.Factory
 
   alias AcqdatCore.Model.IotManager.Gateway
+  alias AcqdatCore.Schema.IotManager.BrokerCredentials
 
   describe "create/1" do
     setup %{} do
@@ -30,17 +31,6 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       }
       {:error, changeset} = Gateway.create(params)
       assert %{access_token: ["can't be blank"]} == errors_on(changeset)
-    end
-
-    @tag timeout: :infinity
-    test "create a gateway with mqtt channel", context do
-      %{project: project, org: org} = context
-      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
-        channel: "mqtt", parent_id: project.id, parent_type: "Project",
-        access_token: "abcd1234"
-      }
-      {:ok, gateway} = Gateway.create(params)
-      assert gateway.name == params.name
     end
   end
 
@@ -88,4 +78,5 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert child2.id == sensor2.id
     end
   end
+
 end

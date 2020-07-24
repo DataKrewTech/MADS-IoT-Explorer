@@ -19,6 +19,8 @@ defmodule AcqdatCore.Model.IotManager.MQTT.Handler do
     {:ok, state}
   end
   def handle_message(topic, payload, state) do
+    require IEx
+    IEx.pry
     # unhandled message! You will crash if you subscribe to something
     # and you don't have a 'catch all' matcher; crashing on unexpected
     # messages could be a strategy though.
