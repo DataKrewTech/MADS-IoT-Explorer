@@ -18,7 +18,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 },
                 borderColor: %{data_type: :color, default_value: "#335cad", user_controlled: true},
                 plotBackgroundColor: %{
-                  data_type: :string,
+                  data_type: :color,
                   default_value: "",
                   user_controlled: true
                 },
@@ -92,7 +92,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                   data_type: :list,
                   properties: %{
                     backgroundColor: %{
-                      data_type: :string,
+                      data_type: :color,
                       default_value:
                         "{ linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, #ffffff], [1, #e6e6e6]]}",
                       user_controlled: false
@@ -160,7 +160,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               data_type: :object,
               user_controlled: false,
               properties: %{
-                backgroundColor: %{data_type: :string, default_value: "", user_controlled: true},
+                backgroundColor: %{data_type: :color, default_value: "", user_controlled: true},
                 valuePrefix: %{data_type: :string, default_value: "", user_controlled: true},
                 valueSuffix: %{data_type: :string, default_value: "", user_controlled: true},
                 pointFormat: %{
