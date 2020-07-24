@@ -12,7 +12,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       slug: dashboard.slug,
       uuid: dashboard.uuid,
       project_id: dashboard.project_id,
-      settings: dashboard.settings
+      settings: dashboard.settings,
+      widget_layouts: dashboard.widget_layouts
     }
   end
 

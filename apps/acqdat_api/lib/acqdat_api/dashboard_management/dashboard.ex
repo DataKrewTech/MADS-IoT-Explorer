@@ -13,7 +13,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       description: description,
       project_id: project_id,
       org_id: org_id,
-      settings: settings
+      settings: settings,
+      widget_layouts: widget_layouts
     } = attrs
 
     dashboard_params = %{
@@ -21,7 +22,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       description: description,
       project_id: project_id,
       org_id: org_id,
-      settings: settings
+      settings: settings,
+      widget_layouts: widget_layouts
     }
 
     verify_dashboard(DashboardModel.create(dashboard_params))
