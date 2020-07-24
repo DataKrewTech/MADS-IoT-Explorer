@@ -218,7 +218,7 @@ defmodule AcqdatCore.Support.Factory do
       project: build(:project),
       parent_id: asset.id,
       parent_type: "Asset",
-      channel: sequence(:gateway_name, &"Gateway#{&1}"),
+      channel: "http",
       mapped_parameters: %{},
       streaming_data: [],
       static_data: []

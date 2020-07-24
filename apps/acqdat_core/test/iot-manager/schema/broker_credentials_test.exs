@@ -23,7 +23,7 @@ defmodule AcqdatCore.Schema.IotManager.BrokerCredentialsTest do
     test "returns a valid changeset", context do
       %{project: project} = context
       params = %{entity_uuid: project.uuid, access_token: "avcd1234",
-        entity_type: "project"}
+        entity_type: "Project"}
       %{valid?: validity} = BrokerCredentials.changeset(%BrokerCredentials{}, params)
       assert validity
     end
@@ -36,7 +36,7 @@ defmodule AcqdatCore.Schema.IotManager.BrokerCredentialsTest do
           qos: 0}
         ]
       params = %{entity_uuid: project.uuid, access_token: "avcd1234",
-        entity_type: "project", subscriptions: topics}
+        entity_type: "Project", subscriptions: topics}
 
       changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
       assert {:ok, _creds} = Repo.insert(changeset)

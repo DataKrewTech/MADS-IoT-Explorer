@@ -48,6 +48,26 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
     }
   end
 
+  def render("delete.json", %{gateway: gateway}) do
+    %{
+      type: "Gateway",
+      id: gateway.id,
+      name: gateway.name,
+      access_token: gateway.access_token,
+      serializer: gateway.serializer,
+      channel: gateway.channel,
+      parent_id: gateway.parent_id,
+      parent_type: gateway.parent_type,
+      slug: gateway.slug,
+      description: gateway.description,
+      static_data: render_many(gateway.static_data, GatewayView, "data.json"),
+      streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      current_location: gateway.current_location,
+      org_id: gateway.org_id,
+      image_url: gateway.image_url
+    }
+  end
+
   def render("data.json", %{gateway: data}) do
     %{
       data: data

@@ -107,11 +107,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         case Gateway.delete(gateway) do
           {:ok, gateway} ->
             gateway = Map.put(gateway, :image_url, gateway.image_url)
-            ImageDeletion.delete_operation(gateway, "gateway")
+            if gateway.image_url do
+              ImageDeletion.delete_operation(gateway, "gateway")
+            end
 
             conn
             |> put_status(200)
-            |> render("show.json", %{gateway: gateway})
+            |> render("delete.json", %{gateway: gateway})
 
           {:error, gateway} ->
             error = extract_changeset_error(gateway)
@@ -129,8 +131,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   def store_commands(conn, params) do
     case conn.status do
       nil ->
+        gateway = conn.asssigns.gateway
         channel = conn.assigns.gateway.channel
-        Gateway.setup_command(channel, params)
+        Gateway.setup_command(gateway, channel, params)
 
         conn
         |> put_status(200)

@@ -1,5 +1,5 @@
-defmodule AcqdatIot.DataParser.Worker.Manager do
-  alias AcqdatIot.DataParser.Worker
+defmodule AcqdatCore.IotManager.DataDump.Worker.Manager do
+  alias AcqdatCore.IotManager.DataDump.Worker
 
   def child_spec(_) do
     :poolboy.child_spec(

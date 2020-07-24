@@ -1,6 +1,6 @@
 defmodule AcqdatIotWeb.DataParser.DataDumpController do
   use AcqdatIotWeb, :controller
-  alias AcqdatIot.DataDump.Worker.Server
+  alias AcqdatCore.IotManager.DataDump.Worker.Server
   import AcqdatIoTWeb.Helpers
   import AcqdatIoTWeb.Validators.DataParser.DataDump
 

@@ -27,13 +27,13 @@ defmodule AcqdatApi.IotManager.Gateway do
     |> Map.drop([:_id, :__meta__])
   end
 
-  def setup_command(_channel = "http", params) do
-    %{"gateway_id" => gateway_id, "commands" => command} = params
-    HTTPCommandHandler.put(String.to_integer(gateway_id), command)
+  def setup_command(gateway, _channel = "http", params) do
+    %{"commands" => command} = params
+    HTTPCommandHandler.put(String.to_integer(gateway.id), command)
   end
 
-  def setup_command(_channel = "mqtt", params) do
-    require IEx
-    IEx.pry()
+  def setup_command(gateway, _channel = "mqtt", params) do
+    %{"commands" => command} = params
+    Gateway.send_mqtt_command(gateway, command)
   end
 end

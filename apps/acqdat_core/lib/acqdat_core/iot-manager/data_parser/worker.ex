@@ -1,6 +1,6 @@
-defmodule AcqdatIot.DataParser.Worker do
+defmodule AcqdatCore.IotManager.DataParser.Worker do
   use GenServer
-  alias AcqdatIot.DataParser
+  alias AcqdatCore.IotManager.DataParser
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil)

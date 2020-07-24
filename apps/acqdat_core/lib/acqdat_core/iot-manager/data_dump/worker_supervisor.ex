@@ -1,7 +1,7 @@
-defmodule AcqdatIot.DataDump.Supervisor do
+defmodule AcqdatCore.IotManager.DataDump.Supervisor do
   use Supervisor
 
-  alias AcqdatIot.DataDump.Worker.{Server, Manager}
+  alias AcqdatCore.IotManager.DataDump.Worker.{Server, Manager}
 
   def start_link(args) do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)

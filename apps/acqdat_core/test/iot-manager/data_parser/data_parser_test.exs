@@ -4,7 +4,7 @@ defmodule AcqdatIotWeb.DataParserTest do
 
   use ExUnit.Case, async: false
   use AcqdatCore.DataCase
-  alias AcqdatIot.DataParser
+  alias AcqdatCore.IotManager.DataParser
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Schema.EntityManagement.GatewayData
   alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD

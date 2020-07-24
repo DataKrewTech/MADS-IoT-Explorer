@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Model.IotManager.GatewayTest do
+defmodule AcqdatCore.Model.IotManager.BrokerCredentialsTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   alias AcqdatCore.Schema.IotManager.BrokerCredentials
@@ -11,12 +11,6 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       result = BrokerModel.broker_clients()
       assert length(result) == 2
       assert Enum.all?(result, fn x -> x.entity_type == "Project" end)
-    end
-  end
-
-  describe "delete" do
-    test "delete an entity" do
-      setup_clients()
     end
   end
 

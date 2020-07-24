@@ -1,6 +1,6 @@
-defmodule AcqdatIot.DataParser.Worker.Server do
+defmodule AcqdatCore.IotManager.DataParser.Worker.Server do
   use GenServer
-  alias AcqdatIot.DataParser.Worker.Manager
+  alias AcqdatCore.IotManager.DataParser.Worker.Manager
 
   def init(params) do
     {:ok, params}

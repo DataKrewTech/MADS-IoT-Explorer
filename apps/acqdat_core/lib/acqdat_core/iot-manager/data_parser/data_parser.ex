@@ -1,4 +1,4 @@
-defmodule AcqdatIot.DataParser do
+defmodule AcqdatCore.IotManager.DataParser do
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Repo
   alias AcqdatCore.Schema.EntityManagement.GatewayData, as: GDSchema

@@ -1,6 +1,6 @@
-defmodule AcqdatIot.DataDump.Worker.Server do
+defmodule AcqdatCore.IotManager.DataDump.Worker.Server do
   use GenServer
-  alias AcqdatIot.DataDump.Worker.Manager
+  alias AcqdatCore.IotManager.DataDump.Worker.Manager
   require Logger
 
   def start_link(args) do
