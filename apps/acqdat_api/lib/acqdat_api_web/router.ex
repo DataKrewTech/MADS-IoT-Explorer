@@ -82,6 +82,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/gateways", GatewayController, except: [:new, :edit]
       post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
       get("/hierarchy", GatewayController, :hierarchy)
+      get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
     end
 
     scope "/projects/:project_id", EntityManagement do

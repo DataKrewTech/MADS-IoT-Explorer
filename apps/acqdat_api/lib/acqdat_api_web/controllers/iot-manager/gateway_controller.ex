@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.ImageDeletion
+  alias AcqdatCore.Model.IotManager.GatewayDataDump
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.IotManager.Gateway
 
@@ -191,6 +192,24 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       {:error, _message} ->
         conn
         |> put_status(404)
+    end
+  end
+
+  def data_dump_index(conn, params) do
+    changeset = verify_index_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, data_dump} = {:list, GatewayDataDump.get_all(data, [:org, :project])}
+
+        conn
+        |> put_status(200)
+        |> render("data_dump_index.json", data_dump)
+
+      404 ->
+        conn
+        |> send_error(403, "Unauthorized")
     end
   end
 end

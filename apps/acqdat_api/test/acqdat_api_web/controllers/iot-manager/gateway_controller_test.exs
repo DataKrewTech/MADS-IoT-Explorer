@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
+  alias AcqdatCore.Test.Support.DataDump
   import AcqdatCore.Support.Factory
 
   describe "create/2" do
@@ -180,7 +181,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
     setup :setup_conn
 
     setup do
-      gateway = insert(:asset)
+      gateway = insert(:gateway)
       [gateway: gateway]
     end
 
@@ -211,6 +212,94 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
 
       conn =
         get(conn, Routes.gateway_path(conn, :index, gateway.org_id, gateway.project_id, params))
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
+  describe "data dump index/2" do
+    setup :setup_conn
+
+    setup do
+      gateway = insert(:gateway)
+      [gateway: gateway]
+    end
+
+    test "list data of a particular gateway", %{conn: conn, gateway: gateway} do
+      params = %{
+        "page_size" => 1,
+        "page_number" => 1
+      }
+
+      DataDump.insert_multiple_datadumps(gateway)
+
+      conn =
+        get(
+          conn,
+          Routes.gateway_path(
+            conn,
+            :data_dump_index,
+            gateway.org.id,
+            gateway.project.id,
+            gateway.id,
+            params
+          )
+        )
+
+      response = conn |> json_response(200)
+      [data_dump] = response["data_dumps"]
+
+      assert response ==
+               %{
+                 "data_dumps" => [
+                   %{
+                     "data" => %{
+                       "axis_object" => %{
+                         "lambda" => %{"alpha" => 24, "beta" => 25},
+                         "x_axis" => 20,
+                         "z_axis" => [22, 23]
+                       },
+                       "y_axis" => 21
+                     },
+                     "gateway_id" => gateway.id,
+                     "inserted_timestamp" => data_dump["inserted_timestamp"]
+                   }
+                 ],
+                 "page_number" => params["page_number"],
+                 "page_size" => params["page_size"],
+                 "total_entries" => response["total_entries"],
+                 "total_pages" => response["total_pages"]
+               }
+    end
+
+    test "fails if invalid token in authorization header", %{
+      conn: conn,
+      gateway: gateway
+    } do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.gateway_path(
+            conn,
+            :data_dump_index,
+            gateway.org.id,
+            gateway.project.id,
+            gateway.id,
+            params
+          )
+        )
 
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
