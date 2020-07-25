@@ -24,12 +24,14 @@ defmodule AcqdatCore.DataCruncher.Schema.TempOutput do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(source_id data workflow_id)a
+  @required_params ~w(data workflow_id)a
+  @optional_params ~w(source_id)a
+  @permitted @required_params ++ @optional_params
 
   def changeset(%__MODULE__{} = temp_output, params) do
     temp_output
-    |> cast(params, @required)
-    |> validate_required(@required)
+    |> cast(params, @permitted)
+    |> validate_required(@required_params)
     |> assoc_constraint(:workflow)
   end
 end
