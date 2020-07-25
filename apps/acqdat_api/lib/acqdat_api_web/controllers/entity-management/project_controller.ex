@@ -100,7 +100,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
         case Project.delete(project) do
           {:ok, project} ->
             project = Map.put(project, :image_url, project.avatar)
-            ImageDeletion.delete_operation(project, "project")
+
+            if project.avatar != nil do
+              ImageDeletion.delete_operation(project, "project")
+            end
 
             conn
             |> put_status(200)
