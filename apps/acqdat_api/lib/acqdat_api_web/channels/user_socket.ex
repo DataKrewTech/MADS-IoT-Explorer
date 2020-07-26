@@ -24,14 +24,13 @@ defmodule AcqdatApiWeb.UserSocket do
            token,
            max_age: 86_400
          ) do
-      {:ok, org_user_id} ->
-        [org_id, user_id] = String.split(org_user_id, "_")
-
+      {:ok, %{user_id: user_id, org_id: org_id, project_id: project_id}} ->
         socket =
           socket
           |> assign(:user_token, token)
           |> assign(:org_id, org_id)
-          |> assign(:current_user, user_id)
+          |> assign(:user_id, user_id)
+          |> assign(:project_id, project_id)
 
         {:ok, socket}
 

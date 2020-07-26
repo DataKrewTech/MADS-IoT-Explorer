@@ -58,7 +58,6 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
-    get("/projects/:project_id/hierarchy", DataCruncher.EntityController, :fetch_hierarchy)
 
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
       resources "/tasks", DataCruncher.TasksController, only: [:create, :index, :show]
@@ -138,6 +137,8 @@ defmodule AcqdatApiWeb.Router do
         DashboardManagement.WidgetInstanceController,
         :update,
         as: :update_widget_instances
+
+        post("/projects/:project_id/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
 
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets

@@ -1,20 +1,9 @@
 defmodule AcqdatApiWeb.DataCruncher.TasksChannel do
   use Phoenix.Channel
 
-  def join("room:lobby", _message, socket) do
-    {:ok, socket}
-  end
-
-  # def join("room:" <> _private_room_id, _params, _socket) do
-  #   {:error, %{reason: "unauthorized"}}
-  # end
   def join("tasks:" <> task_id, _params, socket) do
-    # task = fetch_task(task_id)
-    # send(self, {:after_join, task})
-    require IEx
-    IEx.pry()
-    socket = assign(socket, :task, "task")
-    response = %{task: "task"}
+    socket = assign(socket, :task, task_id)
+    response = %{message: "Channel Joined Successfully"}
     {:ok, response, socket}
   end
 
