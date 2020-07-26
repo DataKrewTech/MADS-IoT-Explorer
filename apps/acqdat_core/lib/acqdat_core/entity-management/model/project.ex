@@ -82,7 +82,8 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   end
 
   def delete(project) do
-    case Repo.delete(project) do
+    changeset = Project.delete_changeset(project)
+    case Repo.delete(changeset) do
       {:ok, project} ->
         project = project |> Repo.preload([:leads, :users])
         {:ok, project}
