@@ -77,8 +77,14 @@ defmodule AcqdatCore.Schema.EntityManagement.Project do
   def delete_changeset(%__MODULE__{} = project) do
     project
     |> cast(%{}, [])
-    |> foreign_key_constraint(:asset_types, name: :acqdat_asset_types_project_id_fkey, message: "asset_types are attached to this project")
-    |> foreign_key_constraint(:sensor_types, name: :acqdat_sensor_types_project_id_fkey, message: "sensor_types are attached to this project")
+    |> foreign_key_constraint(:asset_types,
+      name: :acqdat_asset_types_project_id_fkey,
+      message: "asset_types are attached to this project"
+    )
+    |> foreign_key_constraint(:sensor_types,
+      name: :acqdat_sensor_types_project_id_fkey,
+      message: "sensor_types are attached to this project"
+    )
   end
 
   def common_changeset(changeset) do
