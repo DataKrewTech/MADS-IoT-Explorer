@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Repo.Migrations.AddMqttBorkerCredsTable do
+defmodule AcqdatCore.Repo.Migrations.AddMqttBrokerCredsTable do
   use Ecto.Migration
 
   def change do
