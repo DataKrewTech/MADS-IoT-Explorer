@@ -85,6 +85,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
           Task.start(fn ->
             start_project_client(gateway, gateway.project, data)
           end)
+
           {:ok, gateway}
         else
           {:ok, data.gateway}
@@ -277,7 +278,8 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   defp update_channel(gateway = %{channel: channel}, previous_channel)
-    when channel == previous_channel, do: {:ok, %{gateway: gateway}}
+       when channel == previous_channel,
+       do: {:ok, %{gateway: gateway}}
 
   defp update_channel(gateway, "mqtt") do
     BrokerCredentials.delete(gateway.uuid)
@@ -287,5 +289,4 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   defp update_channel(gateway, "http") do
     start_broker_if_needed(gateway)
   end
-
 end

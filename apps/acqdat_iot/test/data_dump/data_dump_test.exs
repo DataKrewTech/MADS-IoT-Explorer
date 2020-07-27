@@ -16,9 +16,13 @@ defmodule AcqdatIotWeb.DataDump do
 
     test "data dump create", %{conn: conn, gateway: gateway, data_dump: data_dump} do
       params = data_dump
+
       conn =
-        post(conn, Routes.data_dump_path(conn, :create, gateway.org_id,
-          gateway.project_id, gateway.id), params)
+        post(
+          conn,
+          Routes.data_dump_path(conn, :create, gateway.org_id, gateway.project_id, gateway.id),
+          params
+        )
 
       # TODO: have added a small time out so worker processes release db
       # connection, else the test exits and db connection is removed.
@@ -38,8 +42,11 @@ defmodule AcqdatIotWeb.DataDump do
       data = %{}
 
       conn =
-        post(conn, Routes.data_dump_path(conn, :create, gateway.org_id,
-            gateway.project_id, gateway.id), data)
+        post(
+          conn,
+          Routes.data_dump_path(conn, :create, gateway.org_id, gateway.project_id, gateway.id),
+          data
+        )
 
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}

@@ -7,7 +7,7 @@ defmodule AcqdatCore.Model.IotManager.MQTT.Handler do
     {:ok, args}
   end
 
-  #TODO mqtt broker status updates need to be logged carefully
+  # TODO mqtt broker status updates need to be logged carefully
   def connection(status, state) do
     # `status` will be either `:up` or `:down`; you can use this to
     # inform the rest of your system if the connection is currently
