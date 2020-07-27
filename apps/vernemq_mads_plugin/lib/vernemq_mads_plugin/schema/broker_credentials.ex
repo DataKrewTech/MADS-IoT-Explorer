@@ -12,5 +12,4 @@ defmodule VernemqMadsPlugin.BrokerCredentials do
 
     timestamps(type: :utc_datetime)
   end
-
 end

@@ -22,21 +22,24 @@ defmodule AcqdatCore.Schema.IotManager.BrokerCredentialsTest do
 
     test "returns a valid changeset", context do
       %{project: project} = context
-      params = %{entity_uuid: project.uuid, access_token: "avcd1234",
-        entity_type: "Project"}
+      params = %{entity_uuid: project.uuid, access_token: "avcd1234", entity_type: "Project"}
       %{valid?: validity} = BrokerCredentials.changeset(%BrokerCredentials{}, params)
       assert validity
     end
 
     test "returns invalid if unique constraint invalidated", context do
       %{project: project} = context
+
       topics = [
-        %{
-          topic: "/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+",
-          qos: 0}
-        ]
-      params = %{entity_uuid: project.uuid, access_token: "avcd1234",
-        entity_type: "Project", subscriptions: topics}
+        %{topic: "/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", qos: 0}
+      ]
+
+      params = %{
+        entity_uuid: project.uuid,
+        access_token: "avcd1234",
+        entity_type: "Project",
+        subscriptions: topics
+      }
 
       changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
       assert {:ok, _creds} = Repo.insert(changeset)

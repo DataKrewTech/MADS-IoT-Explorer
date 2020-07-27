@@ -16,19 +16,33 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
 
     test "create a gateway with http channel", context do
       %{project: project, org: org} = context
-      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
-        channel: "http", parent_id: project.id, parent_type: "Project",
+
+      params = %{
+        name: "Gateway1",
+        org_id: org.id,
+        project_id: project.id,
+        channel: "http",
+        parent_id: project.id,
+        parent_type: "Project",
         access_token: "abcd1234"
       }
+
       {:ok, gateway} = Gateway.create(params)
       assert gateway.name == params.name
     end
 
     test "returns invalid changeset if any error", context do
       %{project: project, org: org} = context
-      params = %{name: "Gateway1", org_id: org.id, project_id: project.id,
-        channel: "http", parent_id: project.id, parent_type: "Project"
+
+      params = %{
+        name: "Gateway1",
+        org_id: org.id,
+        project_id: project.id,
+        channel: "http",
+        parent_id: project.id,
+        parent_type: "Project"
       }
+
       {:error, changeset} = Gateway.create(params)
       assert %{access_token: ["can't be blank"]} == errors_on(changeset)
     end
@@ -78,5 +92,4 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert child2.id == sensor2.id
     end
   end
-
 end

@@ -30,7 +30,7 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
         {String.to_existing_atom(key), value}
       end)
 
-    Logger.warn("Error logging iot data dump", error)
+    Logger.error("Error logging iot data dump", error)
     {:ok, ""}
   end
 
@@ -41,5 +41,4 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
       end)
     end)
   end
-
 end

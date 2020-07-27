@@ -31,6 +31,8 @@ defmodule AcqdatCore.IotManager.DataParser do
     end)
   end
 
+  # TODO: inserted_timestamp needs to come from data dump it's being set here.
+
   defp data_manifest(:gateway_data, data, org_id, project_id) do
     gateway_data =
       Enum.reduce(data, [], fn {key, parameters}, acc ->
@@ -51,6 +53,7 @@ defmodule AcqdatCore.IotManager.DataParser do
     Repo.insert_all(GDSchema, gateway_data)
   end
 
+  # TODO: inserted_timestamp needs to come from data dump it's being set here.
   defp data_manifest(:sensor_data, data, org_id, project_id) do
     sensor_data =
       Enum.reduce(data, [], fn {key, parameters}, acc ->

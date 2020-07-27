@@ -228,7 +228,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     |> repo.all
   end
 
-  #fetch_asset_descendants_map" function will return all the sensors of the leaf
+  # fetch_asset_descendants_map" function will return all the sensors of the leaf
   # asset.
   defp fetch_asset_descendants_map(nil, _entities, asset) do
     sensors = SensorModel.child_sensors(asset)

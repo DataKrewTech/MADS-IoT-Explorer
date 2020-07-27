@@ -6,12 +6,17 @@ defmodule AcqdatApi.IotManager.Gateway do
 
   defdelegate get_all(data, preloads), to: Gateway
   defdelegate delete(gateway), to: Gateway
-  defdelegate update(gateway, params), to: Gateway
 
   def create(params) do
     params = params_extraction(params)
     Gateway.create(params) |> verify_gateway()
   end
+
+  def update(gateway, params) do
+    gateway |> Gateway.update(params) |> verify_gateway()
+  end
+
+  ############################# private functions ###############3
 
   defp verify_gateway({:ok, gateway}) do
     gateway = gateway |> Repo.preload([:org, :project])

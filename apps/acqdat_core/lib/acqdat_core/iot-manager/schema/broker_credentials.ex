@@ -28,5 +28,4 @@ defmodule AcqdatCore.Schema.IotManager.BrokerCredentials do
     |> validate_inclusion(:entity_type, @entity_type)
     |> unique_constraint(:entity_uuid, name: :broker_uuid_unique_constraint)
   end
-
 end

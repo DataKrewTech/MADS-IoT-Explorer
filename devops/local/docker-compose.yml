@@ -29,7 +29,26 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports: 
       - 9200:9200
-
+  
+  mqtt_broker:
+    build:
+      context: ../../
+      dockerfile: ./devops/local/mqtt/Dockerfile
+      args:
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+    restart: always
+    ports:
+      - 1882:1883
+    volumes:
+      - vernemqdata:/vernemq/data
+      - vernemqlogs:/vernemq/logs
+      - vernemqetc:/vernemq/etc
+    depends_on:
+      - database
+  
   web:
     build: 
       context: ../../
@@ -46,14 +65,21 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
       SENDGRID_KEY: ${SENDGRID_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       GUARDIAN_API_KEY: ${GUARDIAN_API_KEY}
       GUARDIAN_IOT_KEY: ${GUARDIAN_IOT_KEY}
+      MQTT_HOST: ${MQTT_HOST}
+      MQTT_PORT: ${MQTT_PORT}
     depends_on:
       - database
       - elastic_search
+      - mqtt_broker
 
 volumes: 
   esdata:
   pgdata:
+  vernemqdata:
+  vernemqlogs:
+  vernemqetc:

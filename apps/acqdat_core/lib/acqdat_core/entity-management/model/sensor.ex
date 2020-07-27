@@ -143,5 +143,4 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
     Repo.exists?(query)
   end
-
 end

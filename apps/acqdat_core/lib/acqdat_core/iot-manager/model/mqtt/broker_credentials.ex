@@ -4,11 +4,13 @@ defmodule AcqdatCore.Model.IotManager.MQTT.BrokerCredentials do
   alias AcqdatCore.Repo
 
   def broker_clients() do
-    query = from(
-      data in BrokerCredentials,
-      where: data.entity_type == "Project",
-      select: data
-    )
+    query =
+      from(
+        data in BrokerCredentials,
+        where: data.entity_type == "Project",
+        select: data
+      )
+
     run_and_parse(query)
   end
 
@@ -19,6 +21,7 @@ defmodule AcqdatCore.Model.IotManager.MQTT.BrokerCredentials do
       clients,
       fn client ->
         subscriptions = format_subscriptions(client.subscriptions)
+
         client
         |> Map.from_struct()
         |> Map.put(:subscriptions, subscriptions)
@@ -33,16 +36,17 @@ defmodule AcqdatCore.Model.IotManager.MQTT.BrokerCredentials do
   end
 
   def subscription_present?(project_uuid) do
-    query = from(
-      data in BrokerCredentials,
-      where: data.entity_uuid == ^project_uuid and data.entity_type == "Project"
-    )
+    query =
+      from(
+        data in BrokerCredentials,
+        where: data.entity_uuid == ^project_uuid and data.entity_type == "Project"
+      )
+
     Repo.exists?(query)
   end
 
   def create(gateway, access_token, entity_type = "Gateway") do
-    params = %{entity_uuid: gateway.uuid, entity_type: entity_type,
-      access_token: access_token}
+    params = %{entity_uuid: gateway.uuid, entity_type: entity_type, access_token: access_token}
     changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
     Repo.insert(changeset)
   end
@@ -55,19 +59,19 @@ defmodule AcqdatCore.Model.IotManager.MQTT.BrokerCredentials do
       }
     ]
 
-    params =  %{
+    params = %{
       entity_uuid: project.uuid,
       access_token: access_token,
       entity_type: entity_type,
       subscriptions: topics
     }
+
     changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
     Repo.insert(changeset)
   end
 
   def delete(entity_uuid) do
-    {:ok, entity} = Repo.get_by(BrokerCredentials, entity_uuid: entity_uuid)
-    Repo.delete(BrokerCredentials, entity)
+    entity = Repo.get_by(BrokerCredentials, entity_uuid: entity_uuid)
+    Repo.delete(entity)
   end
-
 end

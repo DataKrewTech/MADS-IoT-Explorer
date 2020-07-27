@@ -26,11 +26,14 @@ defmodule AcqdatCore.Model.IotManager.BrokerCredentialsTest do
   def create_broker_credentials(entity, type, subscriptions \\ []) do
     access_token = "abce123"
     time = DateTime.utc_now() |> DateTime.truncate(:second)
+
     %{
-      entity_uuid: entity.uuid, entity_type: type, access_token: access_token,
-      subscriptions: subscriptions, inserted_at: time,
+      entity_uuid: entity.uuid,
+      entity_type: type,
+      access_token: access_token,
+      subscriptions: subscriptions,
+      inserted_at: time,
       updated_at: time
     }
   end
-
 end

@@ -28,6 +28,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
 
   def render("show.json", %{gateway: gateway}) do
     %{
+      uuid: gateway.uuid,
       type: "Gateway",
       id: gateway.id,
       name: gateway.name,
@@ -40,6 +41,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       description: gateway.description,
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
       streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      mapped_parameters: gateway.mapped_parameters,
       current_location: gateway.current_location,
       org_id: gateway.org_id,
       image_url: gateway.image_url,
@@ -51,6 +53,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
   def render("delete.json", %{gateway: gateway}) do
     %{
       type: "Gateway",
+      uuid: gateway.uuid,
       id: gateway.id,
       name: gateway.name,
       access_token: gateway.access_token,
@@ -63,6 +66,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
       streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
       current_location: gateway.current_location,
+      mapped_parameters: gateway.mapped_parameters,
       org_id: gateway.org_id,
       image_url: gateway.image_url
     }
@@ -80,6 +84,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
     %{
       type: "Gateway",
       id: gateway.id,
+      uuid: gateway.uuid,
       name: gateway.name,
       access_token: gateway.access_token,
       serializer: gateway.serializer,
@@ -90,6 +95,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       description: gateway.description,
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
       streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      mapped_parameters: gateway.mapped_parameters,
       current_location: gateway.current_location,
       org_id: gateway.org_id,
       image_url: gateway.image_url,

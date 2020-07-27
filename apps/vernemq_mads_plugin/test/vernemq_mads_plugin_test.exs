@@ -9,8 +9,13 @@ defmodule VernemqMadsPluginTest do
 
   test "authenticate a gateway client if correct uuid and password" do
     gateway = insert(:gateway)
-    params = %{entity_uuid: gateway.uuid, access_token: gateway.access_token,
-      entity_type: "Gateway"}
+
+    params = %{
+      entity_uuid: gateway.uuid,
+      access_token: gateway.access_token,
+      entity_type: "Gateway"
+    }
+
     changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
     Repo.insert!(changeset)
 
@@ -25,8 +30,13 @@ defmodule VernemqMadsPluginTest do
 
   test "authenticate fails if credentials are wrong" do
     gateway = insert(:gateway)
-    params = %{entity_uuid: gateway.uuid, access_token: gateway.access_token,
-      entity_type: "Gateway"}
+
+    params = %{
+      entity_uuid: gateway.uuid,
+      access_token: gateway.access_token,
+      entity_type: "Gateway"
+    }
+
     changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
     Repo.insert!(changeset)
 
@@ -37,13 +47,11 @@ defmodule VernemqMadsPluginTest do
   test "authenticate for a project" do
     project = insert(:project)
     access_token = "abc1234"
-    params = %{entity_uuid: project.uuid, access_token: access_token,
-      entity_type: "Gateway"}
+    params = %{entity_uuid: project.uuid, access_token: access_token, entity_type: "Gateway"}
     changeset = BrokerCredentials.changeset(%BrokerCredentials{}, params)
     Repo.insert!(changeset)
 
     result = Account.is_authenticated(project.uuid, access_token)
     assert result == :ok
   end
-
 end

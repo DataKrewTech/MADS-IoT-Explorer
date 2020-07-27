@@ -70,10 +70,6 @@ config :acqdat_core, AcqdatCore.Repo,
   hostname: "localhost",
   pool_size: 10
 
-config :vernemq_mads_plugin, VernemqMadsPlugin.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "acqdat_core_dev",
-  hostname: "localhost",
-  pool_size: 10
+config :acqdat_core, :mqtt_broker,
+  host: System.get_env("MQTT_HOST", "localhost"),
+  port: System.get_env("MQTT_PORT", "1883")

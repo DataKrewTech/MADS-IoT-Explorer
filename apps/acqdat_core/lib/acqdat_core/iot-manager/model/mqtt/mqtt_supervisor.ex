@@ -1,5 +1,4 @@
 defmodule AcqdatCore.MQTT.Supervisor do
-
   use DynamicSupervisor
 
   @doc """

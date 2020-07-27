@@ -7,6 +7,9 @@ app_hostname = System.fetch_env!("APP_HOSTNAME")
 db_user = System.fetch_env!("DB_USER")
 db_password = System.fetch_env!("DB_PASSWORD")
 db_host = System.fetch_env!("DB_HOST")
+db_port = System.fetch_env!("DB_PORT")
+mqtt_host = System.fetch_env!("MQTT_HOST")
+mqtt_port = System.fetch_env!("MQTT_PORT")
 
 config :acqdat_iot, AcqdatIotWeb.Endpoint,
   http: [:inet6, port: String.to_integer(app_iot_port)],
@@ -44,4 +47,9 @@ config :acqdat_core, AcqdatCore.Repo,
   password: db_password,
   database: "acqdat_core_dev",
   hostname: db_host,
-  pool_size: 100
+  port: db_port,
+  pool_size: 40
+
+config :acqdat_core, :mqtt_broker,
+  host: mqtt_host,
+  port: mqtt_port

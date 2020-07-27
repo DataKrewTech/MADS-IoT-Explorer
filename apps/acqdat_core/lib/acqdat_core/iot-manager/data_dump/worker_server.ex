@@ -8,13 +8,7 @@ defmodule AcqdatCore.IotManager.DataDump.Worker.Server do
   end
 
   def create(params) do
-    params = params_extraction(params)
     GenServer.cast(__MODULE__, {:data_dump, params})
-  end
-
-  defp params_extraction(params) do
-    Map.from_struct(params)
-    |> Map.drop([:_id, :__meta__])
   end
 
   def init(params) do

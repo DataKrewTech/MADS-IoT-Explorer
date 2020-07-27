@@ -10,6 +10,15 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   alias AcqdatCore.Repo
   alias Ecto.Multi
 
+  @doc """
+  Creates a gateway with the supplied params.
+
+  The gateway can send data over two different channels `http` and `mqtt`.
+  The two channels need different kinds of setup. For mqtt a subscription would
+  be started per project in case it's not already present. Also, we need to
+  setup broker credentials for gateway, so the authentication flow can be performed
+  by broker before allowing any communication to happen.
+  """
   def create(params) do
     Multi.new()
     |> Multi.run(:insert_gateway, fn _, _changes ->
@@ -25,12 +34,16 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
       {:ok, %{setup_mqtt_if_needed: data}} ->
         if Map.has_key?(data, :access_token) do
           gateway = data.gateway
+
           Task.start(fn ->
             start_project_client(gateway, gateway.project, data)
           end)
+
+          {:ok, gateway}
         else
           {:ok, data.gateway}
         end
+
       {:error, _failed_operation, failed_value, _} ->
         {:error, failed_value}
     end
@@ -51,16 +64,34 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end
   end
 
-  def update(%Gateway{} = project, params) do
-    changeset = Gateway.changeset(project, params)
+  def update(%Gateway{} = gateway, params) do
+    gateway_channel = gateway.channel
 
-    case Repo.update(changeset) do
-      {:ok, gateway} ->
-        gateway = gateway |> Repo.preload([:org, :project])
-        {:ok, gateway}
+    Multi.new()
+    |> Multi.run(:update_gateway, fn _, _changes ->
+      changeset = Gateway.update_changeset(gateway, params)
+      Repo.update(changeset)
+    end)
+    |> Multi.run(:setup_mqtt_if_needed, fn _, changes ->
+      %{update_gateway: gateway} = changes
+      update_channel(gateway, gateway_channel)
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{setup_mqtt_if_needed: data}} ->
+        if Map.has_key?(data, :access_token) do
+          gateway = data.gateway
 
-      {:error, gateway} ->
-        {:error, gateway}
+          Task.start(fn ->
+            start_project_client(gateway, gateway.project, data)
+          end)
+          {:ok, gateway}
+        else
+          {:ok, data.gateway}
+        end
+
+      {:error, _failed_operation, failed_value, _} ->
+        {:error, failed_value}
     end
   end
 
@@ -97,6 +128,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
 
   def delete(%{channel: "mqtt"} = gateway) do
     BrokerCredentials.delete(gateway.uuid)
+
     case Repo.delete(gateway) do
       {:ok, gateway} ->
         {:ok, gateway}
@@ -155,7 +187,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   def send_mqtt_command(gateway, payload) do
-    gateway = Repo.preload(gateway, [project: :org])
+    gateway = Repo.preload(gateway, project: :org)
     project = gateway.project
     org = gateway.project.org
     topic = "/org/#{org.uuid}/project/#{project.uuid}/gateway/#{gateway.uuid}/config"
@@ -169,16 +201,22 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   defp initiation_for_channel(gateway, "http"), do: {:ok, %{gateway: gateway}}
+
   defp initiation_for_channel(gateway, "mqtt") do
-    gateway = Repo.preload(gateway, [project: :org])
+    gateway = Repo.preload(gateway, project: :org)
     project = gateway.project
 
     if BrokerCredentials.subscription_present?(project.uuid) do
-      validate_gateway_creds_results(gateway,
-        BrokerCredentials.create(gateway, gateway.access_token, "Gateway"))
+      validate_gateway_creds_results(
+        gateway,
+        BrokerCredentials.create(gateway, gateway.access_token, "Gateway")
+      )
     else
-      validate_project_create_results(project, gateway,
-        BrokerCredentials.create(gateway, gateway.access_token, "Gateway"))
+      validate_project_create_results(
+        project,
+        gateway,
+        BrokerCredentials.create(gateway, gateway.access_token, "Gateway")
+      )
     end
   end
 
@@ -186,6 +224,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   defp validate_gateway_creds_results(gateway, {:ok, _creds}) do
     {:ok, %{gateway: gateway}}
   end
+
   defp validate_gateway_creds_results(_gateway, {:error, changeset}) do
     {:error, changeset}
   end
@@ -194,37 +233,59 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   defp validate_project_create_results(_project, _gateway, {:error, changeset}) do
     {:error, changeset}
   end
+
   defp validate_project_create_results(project, gateway, {:ok, _creds}) do
     access_token = UUID.uuid1(:hex)
-    validate_project_credentials(project, gateway, BrokerCredentials.create(
+
+    validate_project_credentials(
       project,
-      access_token,
-      "Project"
-    ))
+      gateway,
+      BrokerCredentials.create(
+        project,
+        access_token,
+        "Project"
+      )
+    )
   end
 
   defp validate_project_credentials(_project, _gateway, {:error, changeset}) do
     {:error, changeset}
   end
+
   defp validate_project_credentials(_project, gateway, {:ok, credentials}) do
-    {:ok , %{gateway: gateway, access_token: credentials.access_token}}
+    {:ok, %{gateway: gateway, access_token: credentials.access_token}}
   end
 
   defp start_project_client(_gateway = %{channel: "mqtt"}, project, credentials) do
     topics = [
       {"/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0}
     ]
+
     MQTTBroker.start_project_client(
       project.uuid,
       topics,
       credentials.access_token
-      )
-    end
-    defp start_project_client(_gateway, _project, _credentials), do: :ok
+    )
+  end
+
+  defp start_project_client(_gateway, _project, _credentials), do: :ok
 
   defp fetch_gateway_ids(gateways) do
     Enum.reduce(gateways, [], fn gateway, acc ->
       acc ++ [gateway.id]
     end)
   end
+
+  defp update_channel(gateway = %{channel: channel}, previous_channel)
+    when channel == previous_channel, do: {:ok, %{gateway: gateway}}
+
+  defp update_channel(gateway, "mqtt") do
+    BrokerCredentials.delete(gateway.uuid)
+    {:ok, %{gateway: gateway}}
+  end
+
+  defp update_channel(gateway, "http") do
+    start_broker_if_needed(gateway)
+  end
+
 end

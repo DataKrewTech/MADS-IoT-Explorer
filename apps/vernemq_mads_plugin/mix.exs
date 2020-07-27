@@ -51,6 +51,7 @@ defmodule VernemqMadsPlugin.MixProject do
       {VernemqMadsPlugin, :on_deliver, 4, []},
       {VernemqMadsPlugin, :on_offline_message, 5, []}
     ]
+
     {:vmq_plugin_hooks, hooks}
   end
 
@@ -63,6 +64,7 @@ defmodule VernemqMadsPlugin.MixProject do
         password: System.get_env("DB_PASSWORD", "postgres"),
         database: "acqdat_core_dev",
         hostname: System.get_env("DB_HOST", "localhost"),
+        port: System.get_env("DB_PORT", "5432"),
         pool_size: 10
       ]
     }

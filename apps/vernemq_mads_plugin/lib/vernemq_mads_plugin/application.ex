@@ -7,6 +7,7 @@ defmodule VernemqMadsPlugin.Application do
 
   def start(_type, _args) do
     IO.puts("Starting mads plugin")
+
     children = [
       # Starts a worker by calling: VernemqMadsPlugin.Worker.start_link(arg)
       # {VernemqMadsPlugin.Worker, arg}
