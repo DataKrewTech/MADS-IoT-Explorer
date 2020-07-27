@@ -200,6 +200,39 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       assert response["id"] == project.id
     end
 
+    test "fails if project has associated asset_types", %{conn: conn} do
+      asset_type = insert(:asset_type)
+
+      conn =
+        delete(conn, Routes.project_path(conn, :delete, asset_type.org_id, asset_type.project_id))
+
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "errors" => %{
+                 "message" => %{"asset_types" => ["asset_types are attached to this project"]}
+               }
+             }
+    end
+
+    test "fails if project has associated sensor_types", %{conn: conn} do
+      sensor_type = insert(:sensor_type)
+
+      conn =
+        delete(
+          conn,
+          Routes.project_path(conn, :delete, sensor_type.org_id, sensor_type.project_id)
+        )
+
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "errors" => %{
+                 "message" => %{"sensor_types" => ["sensor_types are attached to this project"]}
+               }
+             }
+    end
+
     test "fails if invalid token in authorization header", %{conn: conn} do
       project = insert(:project)
       bad_access_token = "qwerty1234567qwerty"

@@ -50,4 +50,34 @@ defmodule AcqdatCore.Model.EntityManagement.ProjectTest do
       assert length(result) != 0
     end
   end
+
+  describe "delete/1" do
+    test "deletes a particular project" do
+      project = insert(:project)
+
+      {:ok, result} = Project.delete(project)
+
+      assert not is_nil(result)
+      assert result.id == project.id
+    end
+
+    test "will raise error if project have associated asset_types" do
+      asset_type = insert(:asset_type)
+
+      {:ok, project} = Project.get_by_id(asset_type.project_id)
+      {:error, changeset} = Project.delete(project)
+
+      assert %{asset_types: ["asset_types are attached to this project"]} == errors_on(changeset)
+    end
+
+    test "will raise error if project have associated sensor_types" do
+      sensor_type = insert(:sensor_type)
+
+      {:ok, project} = Project.get_by_id(sensor_type.project_id)
+      {:error, changeset} = Project.delete(project)
+
+      assert %{sensor_types: ["sensor_types are attached to this project"]} ==
+               errors_on(changeset)
+    end
+  end
 end
