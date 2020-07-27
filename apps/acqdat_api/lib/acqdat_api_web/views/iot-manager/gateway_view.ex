@@ -40,7 +40,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       slug: gateway.slug,
       description: gateway.description,
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
-      streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      streaming_data: render_many(gateway.streaming_data, GatewayView, "streaming_data.json"),
       mapped_parameters: gateway.mapped_parameters,
       current_location: gateway.current_location,
       org_id: gateway.org_id,
@@ -64,7 +64,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       slug: gateway.slug,
       description: gateway.description,
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
-      streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      streaming_data: render_many(gateway.streaming_data, GatewayView, "streaming_data.json"),
       current_location: gateway.current_location,
       mapped_parameters: gateway.mapped_parameters,
       org_id: gateway.org_id,
@@ -94,7 +94,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       slug: gateway.slug,
       description: gateway.description,
       static_data: render_many(gateway.static_data, GatewayView, "data.json"),
-      streaming_data: render_many(gateway.streaming_data, GatewayView, "data.json"),
+      streaming_data: render_many(gateway.streaming_data, GatewayView, "streaming_data.json"),
       mapped_parameters: gateway.mapped_parameters,
       current_location: gateway.current_location,
       org_id: gateway.org_id,
@@ -130,6 +130,15 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       data: data_dump.data,
       gateway_id: data_dump.gateway_id,
       inserted_timestamp: data_dump.inserted_timestamp
+    }
+  end
+
+  def render("streaming_data.json", %{gateway: streaming_data}) do
+    %{
+      data_type: streaming_data.data_type,
+      name: streaming_data.name,
+      unit: streaming_data.unit,
+      uuid: streaming_data.uuid
     }
   end
 end
