@@ -16,6 +16,10 @@ defmodule AcqdatApi.IotManager.Gateway do
     gateway |> Gateway.update(params) |> verify_gateway()
   end
 
+  def load_associations(gateway) do
+    Repo.preload(gateway, [:org, :project])
+  end
+
   ############################# private functions ###############3
 
   defp verify_gateway({:ok, gateway}) do
