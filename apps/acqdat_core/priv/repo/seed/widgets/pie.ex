@@ -21,7 +21,7 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
-            color: %{data_type: :color, value: %{}, properties: %{}},
+            color: %{data_type: :colorByPoint, value: %{}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}}
           }
         },
@@ -56,36 +56,8 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
         series: [%{
           name: "Brands",
           colorByPoint: true,
-          data: [%{
-              name: "Chrome",
-              y: 61.41,
-              sliced: true,
-              selected: true
-          }, %{
-              name: "Internet Explorer",
-              y: 11.84
-          }, %{
-              name: "Firefox",
-              y: 10.85
-          }, %{
-              name: "Edge",
-              y: 4.67
-          }, %{
-              name: "Safari",
-              y: 4.18
-          }, %{
-              name: "Sogou Explorer",
-              y: 1.64
-          }, %{
-              name: "Opera",
-              y: 1.6
-          }, %{
-              name: "QQ",
-              y: 1.2
-          }, %{
-              name: "Other",
-              y: 2.61
-          }]
+          data: [["Chrome", 61.41], ["Internet Explorer", 11.84],
+        ["Firefox", 10.85], ["Edge", 4.67], ["Safari", 4.18], ["Sogou Explorer", 1.64], ["Opera", 1.6], ["QQ", 1.2], ["Other", 2.61]]
       }]
      }
     }

@@ -58,19 +58,19 @@ defmodule AcqdatCore.Seed.Widgets.Bar do
         series: [
           %{
           name: "Year 1800",
-          data: [107, 31, 635, 203, 2]
+          data: [["Africa", 107], ["America", 31], ["Asia", 635], ["Europe", 203], ["Oceania", 2]]
       },
       %{
           name: "Year 1900",
-          data: [133, 156, 947, 408, 6]
+          data: [["Africa", 133], ["America", 156], ["Asia", 947], ["Europe", 408], ["Oceania", 6]]
       },
       %{
           name: "Year 2000",
-          data: [814, 841, 3714, 727, 31]
+          data: [["Africa", 814], ["America", 841], ["Asia", 3714], ["Europe", 727], ["Oceania", 31]]
       },
       %{
           name: "Year 2016",
-          data: [1216, 1001, 4436, 738, 40]
+          data: [["Africa", 1216], ["America", 1001], ["Asia", 4436], ["Europe", 738], ["Oceania", 40]]
       }]
      }
     }
