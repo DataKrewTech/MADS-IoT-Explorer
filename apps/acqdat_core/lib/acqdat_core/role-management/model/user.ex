@@ -3,9 +3,10 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   Exposes APIs for handling user related fields.
   """
 
-  alias AcqdatCore.Schema.EntityManagement.Asset
+  alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
   alias AcqdatCore.Schema.RoleManagement.{User, App}
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
   @doc """
@@ -45,6 +46,29 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   end
 
   @doc """
+  Returns the list of user for the index api
+  """
+
+  def get_all(%{page_size: page_size, page_number: page_number}) do
+    User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  end
+
+  def get_all(%{page_size: page_size, page_number: page_number, org_id: org_id}, preloads) do
+    query =
+      from(user in User,
+        join: org in Organisation,
+        on: user.org_id == ^org_id and org.id == ^org_id
+      )
+
+    paginated_user_data =
+      query |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+
+    user_data_with_preloads = paginated_user_data.entries |> Repo.preload(preloads)
+
+    ModelHelper.paginated_response(user_data_with_preloads, paginated_user_data)
+  end
+
+  @doc """
   Deletes a User.
 
   Expects `user_id` as the argument.
@@ -62,7 +86,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     changeset = User.update_changeset(user, params)
 
     case Repo.update(changeset) do
-      {:ok, user} -> {:ok, user |> Repo.preload(:role)}
+      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
       {:error, message} -> {:error, message}
     end
   end

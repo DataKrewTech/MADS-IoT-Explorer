@@ -30,18 +30,17 @@ defmodule AcqdatApi.ElasticSearch do
     retry(update_function)
   end
 
-  def update_users(type, params) do
+  def update_users(type, params, org) do
     update = fn ->
-      post("#{type}/_update/#{params.id}",
-        doc: [
-          id: params.id,
-          email: params.email,
-          first_name: params.first_name,
-          last_name: params.last_name,
-          org_id: params.org_id,
-          is_invited: params.is_invited,
-          role_id: params.role_id
-        ]
+      put("#{type}/_doc/#{params.id}?routing=#{org.id}",
+        id: params.id,
+        email: params.email,
+        first_name: params.first_name,
+        last_name: params.last_name,
+        org_id: params.org_id,
+        is_invited: params.is_invited,
+        role_id: params.role_id,
+        join_field: %{name: "user", parent: org.id}
       )
     end
 
@@ -113,7 +112,7 @@ defmodule AcqdatApi.ElasticSearch do
   def user_indexing(page) do
     page_size = String.to_integer(page)
 
-    case get("/users/_search", size: page_size) do
+    case get("/user/_search", size: page_size) do
       {:ok, _return_code, hits} -> {:ok, hits.hits}
       :error -> {:error, "elasticsearch is not running"}
     end

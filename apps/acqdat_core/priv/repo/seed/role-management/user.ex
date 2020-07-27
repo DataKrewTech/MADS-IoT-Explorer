@@ -8,11 +8,11 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
     [org] = Repo.all(Organisation)
     role = Repo.get(Role, 1)
     params = %{
-      first_name: "Chandu",
-      last_name: "Developer",
-      email: "chandu@stack-avenue.com",
-      password: "datakrew",
-      password_confirmation: "datakrew",
+      first_name: "Datakrew",
+      last_name: "Admin",
+      email: "admin@datakrew.com",
+      password: "mads#1234",
+      password_confirmation: "mads#1234",
       org_id: org.id,
       role_id: role.id,
       is_invited: false
