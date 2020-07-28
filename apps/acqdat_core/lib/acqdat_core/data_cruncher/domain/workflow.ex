@@ -39,19 +39,15 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     workflow
     |> generate_graph_data()
     |> execute(workflow_uuid)
-    |> persist_output_to_temp_table(workflow)
+    |> update_temp_table()
   end
 
-  defp persist_output_to_temp_table({_request_id, output_data}, %{id: workflow_id} = workflow) do
-    #bulk_data = workflow_id |> generate_temp_output_bulk_data(output_data)
-    workflow_id |> generate_temp_output_bulk_data(output_data)
-  end
-
-  defp generate_temp_output_bulk_data(workflow_id, output_data) do
-    #TODO: Need to refactor this code to bulk update
+  defp update_temp_table({_request_id, output_data}) do
+    # TODO: Need to refactor this code to bulk update
     Enum.each(output_data, fn {key, val} ->
       params = %{source_id: Atom.to_string(key)}
       temp_output = Repo.get(TempOutput, val)
+
       if temp_output do
         TempOutputModel.update(temp_output, params)
       end
@@ -103,7 +99,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     })
   end
 
-   defp gen_node(module, %{"id" => id} = graph_node) do
+  defp gen_node(module, %{"id" => id} = graph_node) do
     %Node{module: module, id: id}
   end
 

@@ -1,5 +1,5 @@
 defmodule AcqdatCore.DataCruncher.Functions.Print do
- alias AcqdatCore.DataCruncher.Model.TempOutput
+  alias AcqdatCore.DataCruncher.Model.TempOutput
   @inports [:ts_datasource]
   @outports [:tsprint]
   @display_name "Print Output"
@@ -19,16 +19,17 @@ defmodule AcqdatCore.DataCruncher.Functions.Print do
     {request_id, :reply, %{tsprint: result.id}}
   end
 
-
   defp process_data(request_id, data_source) do
     params = %{
       workflow_id: request_id,
       data: %{value: data_source}
     }
+
     {:ok, value} =
       Repo.transaction(fn ->
         {:ok, value} = TempOutput.create(params)
       end)
+
     value
   end
 
