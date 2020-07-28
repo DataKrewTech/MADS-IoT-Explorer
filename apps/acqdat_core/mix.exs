@@ -97,7 +97,7 @@ defmodule AcqdatCore.MixProject do
       {:nimble_csv, "~> 0.7"},
 
       # MQTT
-      {:tortoise, "~> 0.9"}
+      {:tortoise, "~> 0.9"},
 
       # flow based programming
       {:virta, in_umbrella: true}
