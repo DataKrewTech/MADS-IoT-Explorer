@@ -140,8 +140,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
-  # TODO
-  # INDEX API FOR USER CONTROLLER should be done from elastic search hits.
+  # TODO: INDEX API FOR USER CONTROLLER should be done from elastic search hits.
   # def index(conn, %{"page_size" => page_size}) do
   #   case conn.status do
   #     nil ->
