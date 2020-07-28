@@ -2,7 +2,7 @@ defmodule AcqdatCore.Mailer.UserInvitationEmail do
   use Bamboo.Phoenix, view: AcqdatCore.EmailView
   import Bamboo.Email
 
-  @subject "DataKew Invitation"
+  @subject "DataKrew Invitation"
 
   def email(current_user, invitation_details) do
     {:ok, to_address} = Map.fetch(invitation_details, "email")
