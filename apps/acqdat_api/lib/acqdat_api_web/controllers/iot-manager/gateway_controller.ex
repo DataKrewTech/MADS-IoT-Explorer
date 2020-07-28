@@ -87,9 +87,11 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       nil ->
         gateway = conn.assigns.gateway
         gateway = Gateway.load_associations(gateway)
+
         conn
         |> put_status(200)
         |> render("show.json", %{gateway: gateway})
+
       404 ->
         conn
         |> send_error(404, "Resource not found")

@@ -220,22 +220,25 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
 
   describe "show/2" do
     setup :setup_conn
+
     setup do
       gateway = insert(:gateway)
       [gateway: gateway]
     end
 
     test "returns a gateway", %{conn: conn, gateway: gateway} do
-      conn = get(conn, Routes.gateway_path(conn, :show, gateway.org_id,
-        gateway.project_id, gateway.id))
+      conn =
+        get(
+          conn,
+          Routes.gateway_path(conn, :show, gateway.org_id, gateway.project_id, gateway.id)
+        )
 
       result = conn |> json_response(200)
       assert result["id"] == gateway.id
     end
 
     test "returns not found for invalid id", %{conn: conn, gateway: gateway} do
-      conn = get(conn, Routes.gateway_path(conn, :show, gateway.org_id,
-        gateway.project_id, -1))
+      conn = get(conn, Routes.gateway_path(conn, :show, gateway.org_id, gateway.project_id, -1))
 
       result = conn |> json_response(404)
       assert %{"errors" => %{"message" => "Resource not found"}} == result
