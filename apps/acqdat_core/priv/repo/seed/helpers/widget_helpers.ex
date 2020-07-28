@@ -1,6 +1,8 @@
 defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
   alias AcqdatCore.Repo
+  alias AcqdatCore.Widgets.Schema.Widget
   alias AcqdatCore.Widgets.Schema.WidgetType
+  alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
   alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
   alias AcqdatCore.Widgets.Schema.Widget.DataSettings
@@ -103,12 +105,19 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     end
   end
 
+  def seed_in_elastic() do
+    Enum.each(Repo.all(Widget), fn widget ->
+      WidgetHelpers.create("widgets", widget)
+    end)
+  end
+
   def create(type, params) do
-        post("#{type}/_doc/#{params.id}",
-          id: params.id,
-          label: params.label,
-          uuid: params.uuid,
-          properties: params.properties,
-          category: params.category)
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      label: params.label,
+      uuid: params.uuid,
+      properties: params.properties,
+      category: params.category
+    )
   end
 end

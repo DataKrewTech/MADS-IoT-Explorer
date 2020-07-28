@@ -138,7 +138,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
         |> json(%{
           "success" => false,
           "error" => true,
-          "message:" => message
+          "message" => message
         })
     end
   end
@@ -149,7 +149,10 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
         case WidgetModel.delete(conn.assigns.widget) do
           {:ok, widget} ->
             ElasticSearch.delete("widgets", widget.id)
-            Task.async(ImageDeletion.delete_operation(widget, "widget"))
+
+            Task.async(fn ->
+              ImageDeletion.delete_operation(widget, "widget")
+            end)
 
             conn
             |> put_status(200)

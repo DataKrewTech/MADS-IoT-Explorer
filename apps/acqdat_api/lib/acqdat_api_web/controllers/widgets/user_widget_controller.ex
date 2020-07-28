@@ -23,7 +23,7 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
           |> json(%{
             "success" => true,
             "error" => false,
-            "message:" => "Widget Added Successfully"
+            "message" => "Widget Added Successfully"
           })
         else
           {:extract, {:error, _error}} ->
@@ -32,7 +32,7 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
             |> json(%{
               "success" => false,
               "error" => true,
-              "message:" => "Widget could not be Added"
+              "message" => "Widget could not be Added"
             })
 
           {:create, {:error, _message}} ->
@@ -41,7 +41,7 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
             |> json(%{
               "success" => false,
               "error" => true,
-              "message:" => "Widget could not be Added"
+              "message" => "Widget could not be Added"
             })
         end
 

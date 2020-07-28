@@ -19,7 +19,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
       assert response == %{
                "error" => false,
-               "message:" => "Widget Added Successfully",
+               "message" => "Widget Added Successfully",
                "success" => true
              }
     end
@@ -51,7 +51,7 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
       assert response == %{
                "error" => true,
-               "message:" => "Widget could not be Added",
+               "message" => "Widget could not be Added",
                "success" => false
              }
     end

@@ -6,6 +6,7 @@ defmodule AcqdatCore.Seed.Widget do
   alias AcqdatCore.Seed.Widgets.Area
   alias AcqdatCore.Seed.Widgets.Pie
   alias AcqdatCore.Seed.Widgets.Bar
+  alias AcqdatCore.Seed.Helpers.WidgetHelpers
 
   def seed() do
     #Don't change the sequence it is important that widgets seeds this way.
@@ -13,5 +14,6 @@ defmodule AcqdatCore.Seed.Widget do
     Area.seed()
     Pie.seed()
     Bar.seed()
+    WidgetHelpers.seed_in_elastic()
   end
 end

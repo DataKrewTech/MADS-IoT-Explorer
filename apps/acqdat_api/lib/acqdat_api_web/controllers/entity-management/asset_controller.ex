@@ -116,7 +116,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
             |> json(%{
               "success" => false,
               "error" => true,
-              "message:" => message
+              "message" => message
             })
         end
 

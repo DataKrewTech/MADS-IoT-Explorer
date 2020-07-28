@@ -101,7 +101,6 @@ defmodule AcqdatCore.Seed.Widgets.Area do
     end)
     |> Enum.each(fn data ->
       Repo.insert!(data)
-      WidgetHelpers.create("widgets", data)
     end)
   end
 

@@ -78,7 +78,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             |> json(%{
               "success" => false,
               "error" => true,
-              "message:" => message
+              "message" => message
             })
         end
 
@@ -153,7 +153,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   #           |> json(%{
   #             "success" => false,
   #             "error" => true,
-  #             "message:" => "elasticsearch is not running"
+  #             "message" => "elasticsearch is not running"
   #           })
   #       end
 

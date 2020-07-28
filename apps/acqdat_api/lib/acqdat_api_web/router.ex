@@ -38,13 +38,13 @@ defmodule AcqdatApiWeb.Router do
     get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
 
     # NOTE: Kept widgets resources out of organisation_scope currently
+    get "/widgets/search", Widgets.WidgetController, :search_widget
+
     resources "/widgets", Widgets.WidgetController,
       only: [:create, :update, :delete, :index, :show]
 
     resources "/widget-type", Widgets.WidgetTypeController,
       only: [:create, :update, :delete, :index, :show]
-
-    get "/widgets/search", Widgets.WidgetController, :search_widget
 
     resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
