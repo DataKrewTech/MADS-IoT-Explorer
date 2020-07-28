@@ -1,31 +1,32 @@
 name,description,category,vendor,vendor_url,app_store_price,compatibility,copyright,icon_id
-AppStore,"Explore, know and download other apps",Core,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-app-store
-Settings,Control user settings and configuration,Core,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-settings
-Support,See docs & seek help for MADS platform,Core,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-support
-HeyMADS!,Invoke voice assistant for MADS tasks,Core,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-voice-assistant
-Dashboards,Make drag-n-drop no-code dashboards,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-dashboard
-Digital Twin,Interact with the digital twin of a real assets,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-digital-twin
-Task Organiser,Assign and followup task tickets in an org,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-task-organiser
-Report Wizard,Make/automate drag-and-drop reports,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-report-wizard
-Alerts Reminder,Set alerts triggered by time or event,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-alerts-reminders
-Madsbook,"Socialise with people, assets & processes",Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-book
-VR Simulator,Enter into a VR experience of real assets,Productivity,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-vr-simulator
-File Manager,"Store and share data, dashboards, reports",Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-file-manager
-IoT Manager,Control IoT firmware and connectivity,Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-iot-manager
-Role Manager,Assign roles to users for access control,Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-role-manager
-Entity Manager,"Add, assign, see assets hierarchy in an org",Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-entity-manager
-Tool Manager,Track whereabouts of hand tools in a site,Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-tool-manager
-Widget Manager,"Download and use pie, bar, line charts, etc",Management,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-widget-manager
-Data Cruncher,Create RPA tasks with data and functions ,Analytics,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-data-cruncher
-Data Insights,Fing trends on aggregated data patterns,Analytics,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-data-insights
-AI Studio,Train and deploy AI models for data analytics,Analytics,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-ai-studio
-Activity Analyser,Track org's user behavious around app usage,Analytics,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-activity-analyser
-MADS Secure,Anti-malware and firewall around MADS OS,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-secure
-Login Tracker,Track org's user logins patterns into MADS,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-login-tracker
-Network Analyser,Monitor and analyse data traffic in org's network,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-network-analyser
-Share Secure,Securely share files and data in/outside MADS ,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-secure-share
-App Locker,Lock critical apps with 2FA login requirements,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-app-locker
-Key Chain,Encrypt and store MADS secret credentials,Security,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-password-manager
-Calendar,Set appointments and invite members to join,General,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-calendar
-Calculator,Perform simple mathematical computations,General,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-calculator
-Chat App,"Chat, tag, share with users in private or groups",General,Datakrew,https://datakrew.com,0.00,1.00,Datakrew,mads-chat-app
+AppStore,"Explore, know and download other apps",Core,Datakrew,https://datakrew.com,0,1,Datakrew,mads-app-store
+Settings,Control user settings and configuration,Core,Datakrew,https://datakrew.com,0,1,Datakrew,mads-settings
+Support,See docs & seek help for MADS platform,Core,Datakrew,https://datakrew.com,0,1,Datakrew,mads-support
+HeyMADS!,Invoke voice assistant for MADS tasks,Core,Datakrew,https://datakrew.com,0,1,Datakrew,mads-voice-assistant
+Dashboards,Make drag-n-drop no-code dashboards,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-dashboard
+Digital Twin,Interact with the digital twin of a real assets,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-digital-twin
+Task Organiser,Assign and followup task tickets in an org,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-task-organiser
+Report Wizard,Make/automate drag-and-drop reports,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-report-wizard
+Alerts,Set alerts triggered by time or event,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-alerts-reminders
+Madsbook,"Socialise with people, assets & processes",Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-book
+AR/VR Simulator,Enter into a VR experience of real assets,Productivity,Datakrew,https://datakrew.com,0,1,Datakrew,mads-vr-simulator
+Tenant Manager,"App to on-board tenants, allocate apps as per project needs and requirements",Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-tenant-manager
+File Manager,"Store and share data, dashboards, reports",Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-file-manager
+IoT Manager,Control IoT firmware and connectivity,Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-iot-manager
+Role Manager,Assign roles to users for access control,Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-role-manager
+Entity Manager,"Add, assign, see assets hierarchy in an org",Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-entity-manager
+Tool Manager,Track whereabouts of hand tools in a site,Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-tool-manager
+Widget Manager,"Download and use pie, bar, line charts, etc",Management,Datakrew,https://datakrew.com,0,1,Datakrew,mads-widget-manager
+Data Cruncher,Create RPA tasks with data and functions,Analytics,Datakrew,https://datakrew.com,0,1,Datakrew,mads-data-cruncher
+Data Insights,Fing trends on aggregated data patterns,Analytics,Datakrew,https://datakrew.com,0,1,Datakrew,mads-data-insights
+AI Studio,Train and deploy AI models for data analytics,Analytics,Datakrew,https://datakrew.com,0,1,Datakrew,mads-ai-studio
+Behaviours,Track org's user behavious around app usage,Analytics,Datakrew,https://datakrew.com,0,1,Datakrew,mads-activity-analyser
+MADS Secure,Anti-malware and firewall around MADS OS,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-secure
+Login Tracker,Track org's user logins patterns into MADS,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-login-tracker
+Network Analyser,Monitor and analyse data traffic in org's network,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-network-analyser
+Share Secure,Securely share files and data in/outside MADS,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-secure-share
+App Locker,Lock critical apps with 2FA login requirements,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-app-locker
+Keychain,Encrypt and store MADS secret credentials,Security,Datakrew,https://datakrew.com,0,1,Datakrew,mads-password-manager
+Calendar,Set appointments and invite members to join,General,Datakrew,https://datakrew.com,0,1,Datakrew,mads-calendar
+Calculator,Perform simple mathematical computations,General,Datakrew,https://datakrew.com,0,1,Datakrew,mads-calculator
+MADS Chat,"Chat, tag, share with users in private or groups",General,Datakrew,https://datakrew.com,0,1,Datakrew,mads-chat-app

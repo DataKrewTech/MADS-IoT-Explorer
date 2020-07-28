@@ -19,6 +19,7 @@ defmodule AcqdatCore.Seed.RoleManagement.App do
   end
 
   def generate_app_data(name, description, icon_id, category, vendor, vendor_url, app_store_price, compatibility, copyright) do
+    {float_price, _} = Float.parse(app_store_price)
     [
       name: name,
       description: description,
@@ -26,7 +27,7 @@ defmodule AcqdatCore.Seed.RoleManagement.App do
       category: category,
       vendor: vendor,
       vendor_url: vendor_url,
-      app_store_price: String.to_float(app_store_price),
+      app_store_price: float_price,
       compatibility: compatibility,
       copyright: copyright,
       uuid: UUID.uuid1(:hex),
@@ -37,9 +38,8 @@ defmodule AcqdatCore.Seed.RoleManagement.App do
   end
 
   defp generate_app_key(app_name) do
-    app_name
-    |> String.split(" ")
-    |> Enum.join("_")
-    |> Macro.camelize
+    [ head | tail ] = app_name |> String.split(" ")
+    head = head |> String.downcase()
+    [head | tail] |> Enum.join("")
   end
 end
