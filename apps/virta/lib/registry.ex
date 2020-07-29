@@ -18,7 +18,7 @@ defmodule Virta.Registry do
 
   @doc false
   def get(name) do
-    GenServer.call(__MODULE__, { :get, name })
+    GenServer.call(__MODULE__, {:get, name})
   end
 
   @doc """
@@ -46,7 +46,7 @@ defmodule Virta.Registry do
   ```
   """
   def register(name, graph) do
-    GenServer.call(__MODULE__, { :register, name, graph })
+    GenServer.call(__MODULE__, {:register, name, graph})
   end
 
   @doc """
@@ -57,39 +57,41 @@ defmodule Virta.Registry do
   ```
   """
   def unregister(name) do
-    GenServer.call(__MODULE__, { :unregister, name })
+    GenServer.call(__MODULE__, {:unregister, name})
   end
 
   # ------------------------------------------------------------------------- Server Callbacks -----
 
   @doc false
   def init(_opts) do
-    { :ok, %{} }
+    {:ok, %{}}
   end
 
-  def handle_call({ :get, name }, _req, state) do
+  def handle_call({:get, name}, _req, state) do
     if Map.has_key?(state, name) do
-      { :reply, Map.get(state, name), state }
+      {:reply, Map.get(state, name), state}
     else
-      { :reply, nil, state }
+      {:reply, nil, state}
     end
   end
 
-  def handle_call({ :register, name, graph }, _req, state) do
+  def handle_call({:register, name, graph}, _req, state) do
     if Map.has_key?(state, name) do
-      { :reply, { :error, "already_exists" }, state }
+      {:reply, {:error, "already_exists"}, state}
     else
-      { :ok, pid } = DynamicSupervisor.start_child(InstanceSupervisor, { Pool, %{ name: name, graph: graph } })
-      { :reply, { :ok, "registered" }, Map.put(state, name, pid) }
+      {:ok, pid} =
+        DynamicSupervisor.start_child(InstanceSupervisor, {Pool, %{name: name, graph: graph}})
+
+      {:reply, {:ok, "registered"}, Map.put(state, name, pid)}
     end
   end
 
-  def handle_call({ :unregister, name }, _req, state) do
+  def handle_call({:unregister, name}, _req, state) do
     if Map.has_key?(state, name) do
       DynamicSupervisor.terminate_child(InstanceSupervisor, Map.get(state, name))
-      { :reply, { :ok, "unregistered" }, Map.delete(state, name) }
+      {:reply, {:ok, "unregistered"}, Map.delete(state, name)}
     else
-      { :reply, { :error, "not_found" }, state }
+      {:reply, {:error, "not_found"}, state}
     end
   end
 end

@@ -10,7 +10,7 @@ defmodule Virta.Supervisor do
   def init(:ok) do
     children = [
       Virta.Registry,
-      { DynamicSupervisor, name: Virta.InstanceSupervisor, strategy: :one_for_one }
+      {DynamicSupervisor, name: Virta.InstanceSupervisor, strategy: :one_for_one}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

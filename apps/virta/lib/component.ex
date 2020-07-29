@@ -182,7 +182,7 @@ defmodule Virta.Component do
   end
   ```
   """
-  @callback run(any, %{}, %{}, pid) :: { any, :noreply } | { any, :reply, any }
+  @callback run(any, %{}, %{}, pid) :: {any, :noreply} | {any, :reply, any}
 
   @doc """
   Returns info about the component.
@@ -253,11 +253,13 @@ defmodule Virta.Component do
       @impl true
       def loop(inport_args, outport_args, instance_pid) do
         receive do
-          { request_id, port, value } when port in @inports ->
+          {request_id, port, value} when port in @inports ->
             inport_args = Map.put(inport_args, port, value)
-            if(@inports |> Enum.all?(&(Map.has_key?(inport_args, &1)))) do
+
+            if(@inports |> Enum.all?(&Map.has_key?(inport_args, &1))) do
               run(request_id, inport_args, outport_args, instance_pid)
               |> dispatch(outport_args)
+
               loop(%{}, outport_args, instance_pid)
             else
               loop(inport_args, outport_args, instance_pid)
@@ -266,17 +268,17 @@ defmodule Virta.Component do
       end
 
       @impl true
-      def dispatch({ request_id, :noreply }, outport_args) do
+      def dispatch({request_id, :noreply}, outport_args) do
         unless length(outport_args) == 0 do
           raise ":reply expected"
         end
       end
 
       @impl true
-      def dispatch({ request_id, :reply, args }, outport_args) do
-        Enum.map(outport_args, fn(outport_arg) ->
-          %{ pid: pid, to: to, from: from } = outport_arg
-          send(pid, { request_id, to, Map.get(args, from) })
+      def dispatch({request_id, :reply, args}, outport_args) do
+        Enum.map(outport_args, fn outport_arg ->
+          %{pid: pid, to: to, from: from} = outport_arg
+          send(pid, {request_id, to, Map.get(args, from)})
         end)
       end
 

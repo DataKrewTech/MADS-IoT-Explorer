@@ -10,16 +10,16 @@ defmodule Virta.MixProject do
       elixir: "~> 1.6",
       package: package(),
       description: description(),
-      build_embedded: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: { Virta, [] },
+      mod: {Virta, []},
       extra_applications: [:logger]
     ]
   end
@@ -38,7 +38,7 @@ defmodule Virta.MixProject do
       main: "Virta",
       extras: ["README.md"],
       groups_for_modules: [
-        "Components": [Virta.Core.In, Virta.Core.Out, Virta.Core.Workflow],
+        Components: [Virta.Core.In, Virta.Core.Out, Virta.Core.Workflow]
       ]
     ]
   end
@@ -55,6 +55,6 @@ defmodule Virta.MixProject do
     "Flow based programming for elixir"
   end
 
-  defp elixirc_paths(:test), do: ["lib","test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 end
