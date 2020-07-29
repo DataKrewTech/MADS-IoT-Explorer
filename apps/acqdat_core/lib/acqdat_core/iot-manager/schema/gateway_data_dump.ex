@@ -10,6 +10,7 @@ defmodule AcqdatCore.Schema.IotManager.GatewayDataDump do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
   alias AcqdatCore.Schema.IotManager.Gateway
+  alias AcqdatCore.Schema.IotManager.EctoType.UnixTimestamp
 
   @typedoc """
   `inserted_timestamp`: The timestamp sent by device sending the gateway data.
@@ -19,7 +20,7 @@ defmodule AcqdatCore.Schema.IotManager.GatewayDataDump do
 
   @primary_key false
   schema("acqdat_gateway_data_dump") do
-    field(:inserted_timestamp, :utc_datetime, primary_key: true)
+    field(:inserted_timestamp, UnixTimestamp, primary_key: true)
 
     field(:data, :map, null: false)
 

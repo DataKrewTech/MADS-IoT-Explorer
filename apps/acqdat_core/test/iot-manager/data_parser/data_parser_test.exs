@@ -2,7 +2,7 @@ defmodule AcqdatIotWeb.DataParserTest do
   # Tests are being run with async false as it leads to deadlock
   # situtation. Check server logs after setting async: true.
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   use AcqdatCore.DataCase
   alias AcqdatCore.IotManager.DataParser
   alias AcqdatCore.Schema.EntityManagement.SensorsData

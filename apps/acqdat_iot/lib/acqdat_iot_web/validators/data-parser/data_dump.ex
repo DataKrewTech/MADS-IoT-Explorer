@@ -1,5 +1,6 @@
 defmodule AcqdatIoTWeb.Validators.DataParser.DataDump do
   use Params
+  alias AcqdatCore.Schema.IotManager.EctoType.UnixTimestamp
 
   defparams(
     verify_dumping_data(%{
@@ -7,7 +8,7 @@ defmodule AcqdatIoTWeb.Validators.DataParser.DataDump do
       gateway_id!: :integer,
       org_id!: :integer,
       project_id!: :integer,
-      inserted_timestamp!: :utc_datetime
+      inserted_timestamp!: UnixTimestamp
     })
   )
 

@@ -92,6 +92,8 @@ defmodule AcqdatCore.IotManager.DataParser do
     GModel.return_mapped_parameter(gateway_id)
   end
 
+  defp parse_data(nil, _value, acc), do: acc
+
   defp parse_data(mapped_parameters, value, acc) when is_list(value) do
     mapped_parameters
     |> Enum.zip(value)

@@ -107,10 +107,12 @@ defmodule AcqdatCore.Test.Support.DataDump do
           "z_axis" => [22, 23],
           "lambda" => %{"alpha" => 24, "beta" => 25}
         },
-        "y_axis" => 21
+        "y_axis" => 21,
+        "project_id" => 1,
+        "xyz" => %{}
       },
       inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-      inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second)
+      inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second) |> DateTime.to_unix()
     }
   end
 
