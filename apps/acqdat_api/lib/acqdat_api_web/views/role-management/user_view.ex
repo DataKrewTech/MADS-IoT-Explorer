@@ -100,7 +100,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("source.json", %{user: hits}) do
+  def render("source.json", %{user: %{_source: hits}}) do
     %{
       id: hits.id,
       first_name: hits.first_name,
@@ -108,10 +108,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       email: hits.email,
       org_id: hits.org_id,
       role_id: hits.role_id,
-      role: render_one(hits.role, RoleView, "role.json"),
+      role: render_one(preload_role(hits.role_id), RoleView, "role.json"),
       org:
         render_one(
-          hits.org,
+          preload_org(hits.org_id),
           OrganisationView,
           "org.json"
         )

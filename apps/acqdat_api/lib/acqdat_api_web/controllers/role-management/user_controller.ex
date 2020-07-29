@@ -170,6 +170,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
         {:list, user} = {:list, User.get_all(data, [:org, :role, :user_setting])}
+
         conn
         |> put_status(200)
         |> render("index.json", user)
