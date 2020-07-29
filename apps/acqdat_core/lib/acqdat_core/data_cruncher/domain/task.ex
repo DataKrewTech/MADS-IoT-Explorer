@@ -6,6 +6,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   alias AcqdatCore.DataCruncher.Model.Dataloader
   alias AcqdatCore.DataCruncher.Schema.TempOutput
   alias AcqdatCore.DataCruncher.Token
+  alias AcqdatCore.DataCruncher.Model.TempOutput, as: TempOutputModel
 
   def register_workflows(task) do
     task = task |> Repo.preload([:workflows])
@@ -25,87 +26,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
   def get_workflows_in_mem() do
   end
 
-  def execute_workflows(task) do
-    Repo.transaction(fn ->
-      Enum.each(task.workflows, fn workflow ->
-        workflow
-        |> execute_workflow()
-        |> persist_output_to_temp_table(workflow)
-      end)
-    end)
-  end
-
   ############################# private functions ###########################
-
-  defp persist_output_to_temp_table({_request_id, output_data}, %{id: workflow_id} = workflow) do
-    bulk_data = workflow_id |> generate_temp_output_bulk_data(output_data)
-    Repo.insert_all(TempOutput, bulk_data)
-  end
-
-  defp generate_temp_output_bulk_data(workflow_id, output_data) do
-    Enum.reduce(output_data, [], fn {key, val}, acc ->
-      ele = [
-        workflow_id: workflow_id,
-        data: %{value: val},
-        source_id: Atom.to_string(key),
-        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
-        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
-      ]
-
-      acc ++ [ele]
-    end)
-  end
-
-  defp execute_workflow(%{input_data: input_data, uuid: worflow_uuid} = workflow) do
-    input_data
-    |> generate_graph_data()
-    |> Workflow.execute(worflow_uuid)
-  end
-
-  defp generate_graph_data(input_data) do
-    # TODO: Needs to refactor and test it out for multiple input data and nodes
-    nodes =
-      Enum.reduce(input_data, %{}, fn data, acc ->
-        stream_data = %Token{data: fetch_data_stream(data), data_type: :query_stream}
-
-        int_nodes =
-          Enum.reduce(data["nodes"], %{}, fn node, acc1 ->
-            module = node |> fetch_function_module()
-            node_from = module |> gen_node(node)
-
-            res = [
-              {
-                UUID.uuid1(:hex),
-                String.to_atom(node["inports"]),
-                stream_data
-              }
-            ]
-
-            Map.put(acc1, node_from, res)
-          end)
-
-        Map.merge(acc, int_nodes)
-      end)
-  end
-
-  defp fetch_data_stream(
-         %{
-           "sensor_id" => sensor_id,
-           "parameter_id" => parameter_id,
-           "start_date" => start_date,
-           "end_date" => end_date
-         } = data
-       ) do
-    date_to = parse_date(end_date)
-    date_from = parse_date(start_date)
-
-    Dataloader.load_stream(:pds, %{
-      sensor_id: sensor_id,
-      param_uuid: parameter_id,
-      date_from: date_from,
-      date_to: date_to
-    })
-  end
 
   defp create_graph(%{graph: graph} = workflow) do
     edge_list =
@@ -171,10 +92,5 @@ defmodule AcqdatCore.DataCruncher.Domain.Task do
 
   defp fetch_function_module(%{"module" => module}) do
     Module.concat([module])
-  end
-
-  defp parse_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
   end
 end

@@ -26,20 +26,6 @@ defmodule AcqdatApi.DataCruncher.Task do
     |> run_transaction()
   end
 
-  # defp validate_task_workflows({:ok, _data}, task) do
-  #   {:ok, task |> Repo.preload(workflows: :temp_output)}
-  # end
-
-  # defp validate_task_workflows({:error, _data}, _task) do
-  #   {:error, "something went wrong!"}
-  # end
-
-  # defp verify_task({:ok, task}, %{"action" => action}) when action == "execute" do
-  #   task
-  #   |> Task.execute_workflows()
-  #   |> validate_task_workflows(task)
-  # end
-
   defp validate_res(:ok, task) do
     {:ok, task |> Repo.preload(workflows: :temp_output)}
   end

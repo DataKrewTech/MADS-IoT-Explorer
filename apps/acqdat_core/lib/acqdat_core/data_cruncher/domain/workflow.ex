@@ -9,6 +9,9 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
   alias Virta.Node
   alias AcqdatCore.DataCruncher.Token
   alias AcqdatCore.DataCruncher.Model.Dataloader
+  alias AcqdatCore.Repo
+  alias AcqdatCore.DataCruncher.Schema.TempOutput
+  alias AcqdatCore.DataCruncher.Model.TempOutput, as: TempOutputModel
 
   @doc """
   Registers a workflow.
@@ -41,6 +44,8 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     |> execute(workflow_uuid)
     |> update_temp_table()
   end
+
+  ############################# private functions ###########################
 
   defp update_temp_table({_request_id, output_data}) do
     # TODO: Need to refactor this code to bulk update

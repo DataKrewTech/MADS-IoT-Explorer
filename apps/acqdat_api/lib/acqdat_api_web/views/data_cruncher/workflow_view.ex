@@ -7,8 +7,8 @@ defmodule AcqdatApiWeb.DataCruncher.WorkflowView do
       id: workflow.id,
       uuid: workflow.uuid,
       graph: workflow.graph,
-      input_data: workflow.input_data
-      # temp_output: render_many(workflow.temp_output, TempOutputView, "output.json")
+      input_data: workflow.input_data,
+      temp_output: render_many(workflow.temp_output, TempOutputView, "output.json")
     }
   end
 end
