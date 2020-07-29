@@ -11,7 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias AcqdatCore.Seed.RoleManagement.{User, Role, App}
-alias AcqdatCore.Seed.EntityManagement.{Sensor, Organisation, Asset, Project}
+alias AcqdatCore.Seed.EntityManagement.{Sensor, Organisation, Asset, Project, SensorsData}
 alias AcqdatCore.Seed.Widget
 
 # The order here is important, don't modify it.
@@ -24,3 +24,4 @@ Asset.seed_asset!()
 Sensor.seed_sensors()
 Widget.seed()
 App.seed()
+SensorsData.seed!()
