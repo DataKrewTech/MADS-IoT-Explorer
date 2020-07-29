@@ -146,7 +146,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   def store_commands(conn, params) do
     case conn.status do
       nil ->
-        gateway = conn.asssigns.gateway
+        gateway = conn.assigns.gateway
         channel = conn.assigns.gateway.channel
         Gateway.setup_command(gateway, channel, params)
 
