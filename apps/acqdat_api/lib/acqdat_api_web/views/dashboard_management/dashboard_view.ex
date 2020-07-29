@@ -37,6 +37,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       uuid: dashboard.uuid,
       project_id: dashboard.project_id,
       settings: dashboard.settings,
+      widget_layouts: dashboard.widget_layouts,
       widgets: render_many(dashboard.widgets, WidgetInstanceView, "show.json")
     }
   end

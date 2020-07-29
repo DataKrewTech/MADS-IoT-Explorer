@@ -357,7 +357,12 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
       res = axis |> validate_data_source(filter_month, start_date, end_date)
-      q = (res || []) |> Enum.map(fn [a, b] -> {a, b} end) |> Map.new()
+      # NOTE: {a: unix_timestamp, b: converted string to integer}
+      q =
+        (res || [])
+        |> Enum.map(fn [a, b] -> {DateTime.to_unix(a), String.to_integer(b)} end)
+        |> Map.new()
+
       Map.put(acc, axis.name, q)
     end)
   end
