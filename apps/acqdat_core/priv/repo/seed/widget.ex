@@ -6,6 +6,8 @@ defmodule AcqdatCore.Seed.Widget do
   alias AcqdatCore.Seed.Widgets.Area
   alias AcqdatCore.Seed.Widgets.Pie
   alias AcqdatCore.Seed.Widgets.Bar
+  alias AcqdatCore.Seed.Widgets.LineTimeseries
+  alias AcqdatCore.Seed.Widgets.AreaTimeseries
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
 
   def seed() do
@@ -14,6 +16,8 @@ defmodule AcqdatCore.Seed.Widget do
     Area.seed()
     Pie.seed()
     Bar.seed()
+    LineTimeseries.seed()
+    AreaTimeseries.seed()
     WidgetHelpers.seed_in_elastic()
   end
 end
