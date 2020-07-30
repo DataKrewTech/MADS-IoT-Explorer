@@ -44,7 +44,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
         data in SensorsData,
         where:
           data.sensor_id == ^entity_id and data.inserted_timestamp >= ^date_from and
-            data.inserted_timestamp <= ^date_to
+            data.inserted_timestamp <= ^date_to,
+        order_by: [asc: data.inserted_timestamp]
       )
 
     query =
