@@ -14,6 +14,7 @@ defmodule AcqdatCore.Seed.Widgets.Area do
         caption: [text: %{}, align: %{}],
         subtitle: [text: %{}, align: %{}],
         yAxis: [title: [text: %{}]],
+        credits: [enabled: %{value: false}],
       },
       data: %{
         series: %{
@@ -21,7 +22,7 @@ defmodule AcqdatCore.Seed.Widgets.Area do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
-            color: %{data_type: :color, value: %{}, properties: %{}},
+            color: %{data_type: :color, value: %{data: "#000000"}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: true}, properties: %{}}
           }
         },

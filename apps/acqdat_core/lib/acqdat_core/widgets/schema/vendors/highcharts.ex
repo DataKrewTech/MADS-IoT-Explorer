@@ -19,7 +19,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 borderColor: %{data_type: :color, default_value: "#335cad", user_controlled: true},
                 plotBackgroundColor: %{
                   data_type: :color,
-                  default_value: "",
+                  default_value: "#ffffff",
                   user_controlled: true
                 },
                 height: %{data_type: :string, default_value: "", user_controlled: false},
@@ -360,7 +360,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
       # NOTE: {a: unix_timestamp, b: converted string to integer}
       q =
         (res || [])
-        |> Enum.map(fn [a, b] -> {DateTime.to_unix(a), String.to_integer(b)} end)
+        |> Enum.map(fn [a, b] -> {DateTime.to_unix(a) * 1000, String.to_integer(b)} end)
         |> Map.new()
 
       Map.put(acc, axis.name, q)
