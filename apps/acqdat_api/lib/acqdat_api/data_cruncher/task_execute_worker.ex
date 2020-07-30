@@ -16,8 +16,6 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
   end
 
   def handle_cast({:register, task}, _status) do
-    IO.puts("before executing all workflows")
-
     tasks =
       Enum.map(task.workflows, fn workflow ->
         workflow
@@ -25,9 +23,8 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
       end)
 
     tasks |> Enum.map(fn task -> Task.await(task) end)
-
-    IO.puts("after executing all workflows")
     task = task |> Repo.preload(workflows: :temp_output)
+
     AcqdatApiWeb.Endpoint.broadcast("tasks:#{task.id}", "out_put_res", %{data: task})
     {:noreply, task}
   end
@@ -35,7 +32,6 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
   defp execute_workflow(workflow) do
     Task.async(fn ->
       Workflow.gen_and_exec(workflow)
-      IO.puts("executing workflow: #{workflow.id}")
     end)
   end
 end

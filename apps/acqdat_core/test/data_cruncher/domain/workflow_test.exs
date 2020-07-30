@@ -12,6 +12,9 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
   alias AcqdatCore.DataCruncher.Domain.Workflow
   alias AcqdatCore.DataCruncher.Model.Dataloader
   alias AcqdatCore.DataCruncher.Token
+  alias AcqdatCore.Repo
+  alias AcqdatCore.DataCruncher.Schema.Tasks, as: TasksSchema
+  alias AcqdatCore.DataCruncher.Schema.Workflow, as: WorkflowSchema
 
   describe "register/2" do
     test "registers a workflow" do
@@ -36,6 +39,7 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
       %{sensor: sensor} = context
       node_from = %Node{module: TSMax, id: UUID.uuid1(:hex)}
       node_to = %Node{module: Out, id: UUID.uuid1(:hex)}
+      workflow = insert(:workflow)
       [param | _] = sensor.sensor_type.parameters
 
       edge_list = [
@@ -57,22 +61,28 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
         Graph.new(type: :directed)
         |> Graph.add_edges(edge_list)
 
+      workflow_id = UUID.uuid1(:hex)
+
       graph_data =
         prepare_graph_data(
           sensor,
           param,
           %Node{module: AcqdatCore.DataCruncher.Functions.TSMax, id: "tamshh"},
-          %Node{module: TSMin, id: "miniden"}
+          %Node{module: TSMin, id: "miniden"},
+          workflow.id
         )
 
-      workflow_id = UUID.uuid1(:hex)
       {:ok, _message} = Workflow.register(workflow_id, graph)
-      {_request_id, output} = Workflow.execute(graph_data, workflow_id)
+      {request_id, output} = Workflow.execute(graph_data, workflow_id)
+
+      assert request_id == workflow.id
+      assert Map.has_key?(output, :email_bhgb)
       assert Map.has_key?(output, :print43454)
+      assert Map.has_key?(output, :print6555)
     end
   end
 
-  defp prepare_graph_data(sensor, param, node1, node2) do
+  defp prepare_graph_data(sensor, param, node1, node2, workflow_id) do
     date_to = Timex.shift(Timex.now(), hours: 1) |> DateTime.truncate(:second)
     date_from = Timex.shift(Timex.now(), hours: -1) |> DateTime.truncate(:second)
 
@@ -87,14 +97,14 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     %{
       node1 => [
         {
-          UUID.uuid1(:hex),
+          workflow_id,
           :ts_datasource,
           %Token{data: data, data_type: :query_stream}
         }
       ],
       node2 => [
         {
-          UUID.uuid1(:hex),
+          workflow_id,
           :ts_datasource,
           %Token{data: data, data_type: :query_stream}
         }

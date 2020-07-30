@@ -12,12 +12,12 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
-
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
     WidgetInstance,
     CommandWidget
   }
+  alias AcqdatCore.DataCruncher.Schema.{Tasks, Workflow}
 
   alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
@@ -162,6 +162,35 @@ defmodule AcqdatCore.Support.Factory do
   def digital_twin_factory() do
     %DigitalTwin{
       name: sequence(:digital_twin, &"digital_twin#{&1}")
+    }
+  end
+
+  def tasks_factory() do
+    %Tasks{
+      name: sequence(:tasks, &"tasks#{&1}"),
+      slug: sequence(:tasks, &"tasks#{&1}"),
+      uuid: UUID.uuid1(:hex),
+      user: build(:user),
+      org: build(:organisation)
+    }
+  end
+
+  def workflow_factory() do
+    %Workflow{
+      uuid: UUID.uuid1(:hex),
+      task: build(:tasks),
+      graph: %{
+        name: sequence(:Graph, &"Graph#{&1}"),
+        data_type: sequence(:Graph, &"Graph#{&1}"),
+        unit: sequence(:Graph, &"Graph#{&1}")
+      },
+      input_data: [
+        %{
+          name: sequence(:input_data, &"input_data#{&1}"),
+          data_type: sequence(:input_data, &"input_data#{&1}"),
+          unit: sequence(:input_data, &"input_data#{&1}")
+        }
+      ]
     }
   end
 
