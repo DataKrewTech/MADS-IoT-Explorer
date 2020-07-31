@@ -7,6 +7,7 @@ defenum(DataCruncherComponentEnum,
   "Elixir.AcqdatCore.DataCruncher.Functions.TSMean": 3,
   "Elixir.AcqdatCore.DataCruncher.Functions.TSVariance": 4,
   "Elixir.AcqdatCore.DataCruncher.Functions.TSStandardDeviation": 5,
-  "Elixir.AcqdatCore.DataCruncher.Functions.Print": 6,
-  "Elixir.AcqdatCore.DataCruncher.Functions.Email": 7
+  "Elixir.AcqdatCore.DataCruncher.Functions.TSNorm": 6,
+  "Elixir.AcqdatCore.DataCruncher.Functions.Print": 7,
+  "Elixir.AcqdatCore.DataCruncher.Functions.Email": 8
 )

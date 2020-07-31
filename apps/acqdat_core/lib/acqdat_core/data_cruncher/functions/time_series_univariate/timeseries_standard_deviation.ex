@@ -19,7 +19,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSStandardDeviation do
   def run(request_id, inport_args, _outport_args, _instance_pid) do
     data_source = Map.get(inport_args, :ts_datasource)
     result = process_data(data_source)
-    {request_id, :reply, %{tsvariance: result}}
+    {request_id, :reply, %{tsstandartdeviation: result}}
   end
 
   defp process_data(%{data_type: :query_stream, data: data}) do
