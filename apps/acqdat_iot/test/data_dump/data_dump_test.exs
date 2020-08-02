@@ -56,6 +56,8 @@ defmodule AcqdatIotWeb.DataDump do
   def setup_gateway(%{conn: conn}) do
     [data_dump, _sensor1, _sensor2, gateway] = DataDump.setup_gateway()
 
+    data_dump = data_dump.data
+
     conn =
       conn
       |> put_req_header("accept", "application/json")

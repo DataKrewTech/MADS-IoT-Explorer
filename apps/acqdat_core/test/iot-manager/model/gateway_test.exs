@@ -1,9 +1,7 @@
 defmodule AcqdatCore.Model.IotManager.GatewayTest do
   use ExUnit.Case, async: true
   use AcqdatCore.DataCase
-
   import AcqdatCore.Support.Factory
-
   alias AcqdatCore.Model.IotManager.Gateway
   alias AcqdatCore.Schema.IotManager.BrokerCredentials
 
@@ -92,4 +90,32 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert child2.id == sensor2.id
     end
   end
+
+  describe "get/1 " do
+    setup  do
+      gateway = insert(:gateway)
+      [gateway: gateway]
+    end
+
+    test "returns a gateway with id", context do
+      %{gateway: gateway} = context
+      {:ok, result} = Gateway.get(gateway.id)
+      assert result.id == gateway.id
+      assert result.uuid == gateway.uuid
+    end
+
+    test "returns a gateway with uuid", context do
+      %{gateway: gateway} = context
+      {:ok, result} = Gateway.get(%{uuid: gateway.uuid})
+      assert result.id == gateway.id
+      assert result.uuid == gateway.uuid
+    end
+
+    test "not found if invalid uuid", context do
+      %{gateway: gateway} = context
+      {:error, result} = Gateway.get(%{uuid: "x"})
+      assert result == "Gateway not found"
+    end
+  end
+
 end

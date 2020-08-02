@@ -128,7 +128,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
   def render("data_dump_show.json", %{gateway: data_dump}) do
     %{
       data: data_dump.data,
-      gateway_id: data_dump.gateway_id,
+      gateway_uuid: data_dump.gateway_uuid,
       inserted_timestamp: data_dump.inserted_timestamp
     }
   end

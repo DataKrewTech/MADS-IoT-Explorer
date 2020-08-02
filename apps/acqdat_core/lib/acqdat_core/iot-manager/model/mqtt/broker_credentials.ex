@@ -54,7 +54,11 @@ defmodule AcqdatCore.Model.IotManager.MQTT.BrokerCredentials do
   def create(project, access_token, entity_type = "Project") do
     topics = [
       %{
-        topic: "/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+",
+        topic: "org/#{project.org.uuid}/project/#{project.uuid}/gateway/+",
+        qos: 0
+      },
+      %{
+        topic: "org/#{project.org.uuid}/project/#{project.uuid}/gateway/+/request-config",
         qos: 0
       }
     ]

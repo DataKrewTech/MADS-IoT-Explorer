@@ -1,12 +1,8 @@
-defmodule AcqdatCore.Test.Support.DataDump do
-  # alias AcqdatCore.Schema.EntityManagement.SensorsData
-  alias AcqdatCore.Schema.IotManager.Gateway
+defmodule AcqdatCore.Test.Support.DataDumpTest do
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Schema.IotManager.GatewayDataDump
   alias AcqdatCore.Test.Support.DataDump
   alias AcqdatCore.Repo
-  # alias AcqdatCore.Schema.IotManager.GatewayDataDump, as: GDD
-  # alias AcqdatCore.Model.IotManager.GatewayDataDump
   import AcqdatCore.Support.Factory
 
   @parameter_list1 [
@@ -74,7 +70,7 @@ defmodule AcqdatCore.Test.Support.DataDump do
       project_id: project.id,
       parent_id: asset.id,
       parent_type: "Asset",
-      channel: "http",
+      channel: "mqtt",
       streaming_data: [
         %{
           name: "Gateway Parameter 1",
@@ -92,8 +88,8 @@ defmodule AcqdatCore.Test.Support.DataDump do
       static_data: []
     }
 
-    changeset = Gateway.changeset(%Gateway{}, params)
-    Repo.insert!(changeset)
+    {:ok,gateway} = GModel.create(params)
+    gateway
   end
 
   def dump_iot_data(gateway) do

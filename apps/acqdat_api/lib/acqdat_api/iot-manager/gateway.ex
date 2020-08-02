@@ -2,7 +2,7 @@ defmodule AcqdatApi.IotManager.Gateway do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.IotManager.Gateway
-  alias AcqdatApi.IotManager.HTTPCommandHandler
+  alias AcqdatCore.IotManager.CommandHandler
 
   defdelegate get_all(data, preloads), to: Gateway
   defdelegate delete(gateway), to: Gateway
@@ -20,7 +20,18 @@ defmodule AcqdatApi.IotManager.Gateway do
     Repo.preload(gateway, [:org, :project])
   end
 
-  ############################# private functions ###############3
+  def setup_config(gateway, _channel = "http", params) do
+    %{"commands" => command} = params
+    CommandHandler.put(gateway.uuid, command)
+  end
+
+  def setup_config(gateway, _channel = "mqtt", params) do
+    %{"commands" => command} = params
+    CommandHandler.put(gateway.uuid, command)
+    Gateway.send_mqtt_config(gateway, command)
+  end
+
+  ############################# private functions ###############
 
   defp verify_gateway({:ok, gateway}) do
     gateway = gateway |> Repo.preload([:org, :project])
@@ -36,13 +47,4 @@ defmodule AcqdatApi.IotManager.Gateway do
     |> Map.drop([:_id, :__meta__])
   end
 
-  def setup_command(gateway, _channel = "http", params) do
-    %{"commands" => command} = params
-    HTTPCommandHandler.put(String.to_integer(gateway.id), command)
-  end
-
-  def setup_command(gateway, _channel = "mqtt", params) do
-    %{"commands" => command} = params
-    Gateway.send_mqtt_command(gateway, command)
-  end
 end

@@ -64,6 +64,26 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end
   end
 
+  def get(id) when is_integer(id) do
+    case Repo.get(Gateway, id) do
+      nil ->
+        {:error, "Gateway not found"}
+
+      gateway ->
+        {:ok, gateway}
+    end
+  end
+
+  def get(data) when is_map(data) do
+    case Repo.get_by(Gateway, data) do
+      nil ->
+        {:error, "Gateway not found"}
+
+      gateway ->
+        {:ok, Repo.preload(gateway, [:org, :project])}
+    end
+  end
+
   def update(%Gateway{} = gateway, params) do
     gateway_channel = gateway.channel
 
@@ -187,11 +207,22 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     Map.put(gateway, :childs, child_sensors)
   end
 
+  def send_mqtt_config(gateway, payload) do
+    time = DateTime.utc_now() |> DateTime.to_unix()
+    payload = Map.put(payload, :current_timestamp, time)
+    gateway = Repo.preload(gateway, project: :org)
+    project = gateway.project
+    org = gateway.project.org
+    topic = "org/#{org.uuid}/project/#{project.uuid}/gateway/#{gateway.uuid}/config"
+
+    MQTTBroker.publish(project.uuid, topic, Jason.encode!(payload))
+  end
+
   def send_mqtt_command(gateway, payload) do
     gateway = Repo.preload(gateway, project: :org)
     project = gateway.project
     org = gateway.project.org
-    topic = "/org/#{org.uuid}/project/#{project.uuid}/gateway/#{gateway.uuid}/config"
+    topic = "org/#{org.uuid}/project/#{project.uuid}/gateway/#{gateway.uuid}/command"
     MQTTBroker.publish(project.uuid, topic, Jason.encode!(payload))
   end
 
@@ -259,7 +290,8 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
 
   defp start_project_client(_gateway = %{channel: "mqtt"}, project, credentials) do
     topics = [
-      {"/org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0}
+      {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0},
+      {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+/request-config", 0},
     ]
 
     MQTTBroker.start_project_client(

@@ -1,4 +1,4 @@
-defmodule AcqdatApi.IotManager.HTTPCommandHandler do
+defmodule AcqdatCore.IotManager.CommandHandler do
   @moduledoc """
   Module to handle commands sent for gateways with channel HTTP.
 

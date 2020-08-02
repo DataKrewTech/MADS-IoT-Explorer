@@ -5,6 +5,24 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
   alias AcqdatCore.Schema.RoleManagement.App
   alias AcqdatCore.Repo
 
+  def get(id) when is_integer(id) do
+    case Repo.get(Organisation, id) do
+      nil ->
+        {:error, "organisation not found"}
+      org ->
+      {:ok, org}
+    end
+  end
+
+  def get(params) when is_map(params) do
+    case Repo.get_by(Organisation, params) do
+      nil ->
+        {:error, "organisation not found"}
+      org ->
+      {:ok, org}
+    end
+  end
+
   def get(id, project_id) when is_integer(id) do
     case Repo.get(Organisation, id) do
       nil ->

@@ -11,7 +11,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadGateway when action in [:update, :delete, :show, :store_commands]
+  plug AcqdatApiWeb.Plug.LoadGateway
+    when action in [:update, :delete, :show, :store_commands, :data_dump_index]
   plug :load_hierarchy_tree when action in [:hierarchy]
 
   def index(conn, params) do
@@ -148,7 +149,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       nil ->
         gateway = conn.assigns.gateway
         channel = conn.assigns.gateway.channel
-        Gateway.setup_command(gateway, channel, params)
+        Gateway.setup_config(gateway, channel, params)
 
         conn
         |> put_status(200)
@@ -219,6 +220,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        data = add_meta(conn, data)
         {:list, data_dump} = {:list, GatewayDataDump.get_all(data, [:org, :project])}
 
         conn
@@ -229,5 +231,12 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         conn
         |> send_error(403, "Unauthorized")
     end
+  end
+
+  defp add_meta(conn, data) do
+    data
+    |> Map.put(:org_uuid, conn.assigns.org.uuid)
+    |> Map.put(:project_uuid, conn.assigns.project.uuid)
+    |> Map.put(:gateway_uuid, conn.assigns.gateway.uuid)
   end
 end

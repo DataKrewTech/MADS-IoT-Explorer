@@ -10,6 +10,7 @@ defmodule AcqdatCore.Application do
     children = [
       # Start the Ecto repository
       AcqdatCore.Repo,
+      AcqdatCore.IotManager.CommandHandler,
       AcqdatCore.IotManager.DataParser.Supervisor,
       AcqdatCore.IotManager.DataDump.Supervisor,
       {AcqdatCore.MQTT.Supervisor, strategy: :one_for_one},

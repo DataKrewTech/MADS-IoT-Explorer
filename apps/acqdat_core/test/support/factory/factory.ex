@@ -241,6 +241,7 @@ defmodule AcqdatCore.Support.Factory do
       parent_type: "Asset",
       channel: "http",
       mapped_parameters: %{},
+      timestamp_mapping: nil,
       streaming_data: [],
       static_data: []
     }

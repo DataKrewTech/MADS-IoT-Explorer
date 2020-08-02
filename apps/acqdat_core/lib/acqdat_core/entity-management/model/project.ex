@@ -72,6 +72,24 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     ModelHelper.paginated_response(project_data_with_preloads, paginated_project_data)
   end
 
+  def get(id) when is_integer(id) do
+    case Repo.get(Project, id) do
+      nil ->
+        {:error, "Project not found"}
+      project ->
+      {:ok, project}
+    end
+  end
+
+  def get(params) when is_map(params) do
+    case Repo.get_by(Project, params) do
+      nil ->
+        {:error, "Project not found"}
+      project ->
+      {:ok, project}
+    end
+  end
+
   def check_adminship(user_id) do
     user_details = Repo.get!(User, user_id) |> Repo.preload([:role])
 

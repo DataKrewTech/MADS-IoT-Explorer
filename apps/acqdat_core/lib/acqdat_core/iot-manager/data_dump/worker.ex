@@ -23,22 +23,9 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
   end
 
   defp verify_data_dump({:error, data}) do
-    error =
-      data
-      |> extract_changeset_error()
-      |> Enum.map(fn {key, value} ->
-        {String.to_existing_atom(key), value}
-      end)
-
+    error = Map.from_struct(data) |> Map.to_list()
     Logger.error("Error logging iot data dump", error)
     {:ok, ""}
   end
 
-  defp extract_changeset_error(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Enum.reduce(opts, msg, fn {key, value}, acc ->
-        String.replace(acc, "%{#{key}}", to_string(value))
-      end)
-    end)
-  end
 end
