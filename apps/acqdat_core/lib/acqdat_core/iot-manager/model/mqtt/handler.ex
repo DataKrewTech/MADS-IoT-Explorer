@@ -24,23 +24,28 @@ defmodule AcqdatCore.Model.IotManager.MQTT.Handler do
     {:ok, state}
   end
 
-  def handle_message([_org, org_uuid, _project, project_uuid, _gateway,
-    gateway_uuid, "request-config"], _payload, state) do
-      time = DateTime.utc_now() |> DateTime.to_unix()
-      data = CommandHandler.get(gateway_uuid)
-      data = if data do
+  def handle_message(
+        [_org, org_uuid, _project, project_uuid, _gateway, gateway_uuid, "request-config"],
+        _payload,
+        state
+      ) do
+    time = DateTime.utc_now() |> DateTime.to_unix()
+    data = CommandHandler.get(gateway_uuid)
+
+    data =
+      if data do
         Map.put(data, :current_timestamp, time)
       else
         Map.put(%{}, :current_timestamp, time)
       end
+
     topic = "org/#{org_uuid}/project/#{project_uuid}/gateway/#{gateway_uuid}/config"
     MQTTBroker.publish(project_uuid, topic, Jason.encode!(data))
 
     {:ok, state}
   end
 
-  def handle_message([_org, org_id, _project, project_id, _gateway,
-    gateway_uuid], payload, state) do
+  def handle_message([_org, org_id, _project, project_id, _gateway, gateway_uuid], payload, state) do
     meta = %{org_uuid: org_id, project_uuid: project_id, gateway_uuid: gateway_uuid}
     log_data_if_valid(Jason.decode(payload), meta)
     {:ok, state}

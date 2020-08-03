@@ -76,8 +76,9 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     case Repo.get(Project, id) do
       nil ->
         {:error, "Project not found"}
+
       project ->
-      {:ok, project}
+        {:ok, project}
     end
   end
 
@@ -85,8 +86,9 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     case Repo.get_by(Project, params) do
       nil ->
         {:error, "Project not found"}
+
       project ->
-      {:ok, project}
+        {:ok, project}
     end
   end
 

@@ -3,7 +3,6 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
   alias AcqdatCore.IotManager.DataDump.Worker.Server
   import AcqdatIoTWeb.Helpers
 
-
   plug AcqdatIoTWeb.Plug.LoadProject
   plug AcqdatIoTWeb.Plug.LoadOrg
   plug AcqdatIoTWeb.Plug.LoadGateway
@@ -22,9 +21,11 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
       nil ->
         params = add_metadata(conn.assigns, params)
         Server.create(params)
+
         conn
         |> put_status(202)
         |> json(%{"data inserted" => true})
+
       404 ->
         conn
         |> send_error(404, "Unauthorized")

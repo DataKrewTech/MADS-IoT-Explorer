@@ -11,8 +11,10 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
+
   plug AcqdatApiWeb.Plug.LoadGateway
-    when action in [:update, :delete, :show, :store_commands, :data_dump_index]
+       when action in [:update, :delete, :show, :store_commands, :data_dump_index]
+
   plug :load_hierarchy_tree when action in [:hierarchy]
 
   def index(conn, params) do

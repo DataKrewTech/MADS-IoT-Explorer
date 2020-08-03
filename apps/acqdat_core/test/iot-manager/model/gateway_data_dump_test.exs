@@ -8,6 +8,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
     setup do
       org = insert(:organisation)
       project = insert(:project, org: org)
+
       data = %{
         "axis_object" => %{
           "x_axis" => 20,
@@ -17,7 +18,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
         "y_axis" => 21,
         "project_id" => 1,
         "xyz" => %{},
-        "timestamp" => 1596115581
+        "timestamp" => 1_596_115_581
       }
 
       [org: org, project: project, dump_data: data]
@@ -25,10 +26,14 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
 
     test "create when timestamp mapping set for gateway", context do
       %{org: org, project: project, dump_data: data_dump} = context
-      gateway = insert(:gateway, org: org, project: project,
-        timestamp_mapping: "timestamp")
-      params = %{org_uuid: org.uuid, project_uuid: project.uuid,
-        gateway_uuid: gateway.uuid, data: data_dump}
+      gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
+
+      params = %{
+        org_uuid: org.uuid,
+        project_uuid: project.uuid,
+        gateway_uuid: gateway.uuid,
+        data: data_dump
+      }
 
       assert {:ok, result} = GatewayDataDump.create(params)
       assert result.inserted_timestamp == data_dump["timestamp"]
@@ -37,16 +42,26 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
     test "create when timestamp mapping not set", context do
       %{org: org, project: project, dump_data: data_dump} = context
       gateway = insert(:gateway, org: org, project: project)
-      params = %{org_uuid: org.uuid, project_uuid: project.uuid,
-        gateway_uuid: gateway.uuid, data: data_dump}
+
+      params = %{
+        org_uuid: org.uuid,
+        project_uuid: project.uuid,
+        gateway_uuid: gateway.uuid,
+        data: data_dump
+      }
 
       assert {:ok, result} = GatewayDataDump.create(params)
     end
 
     test "error when gateway uuid invalid", context do
       %{org: org, project: project, dump_data: data_dump} = context
-      params = %{org_uuid: org.uuid, project_uuid: project.uuid,
-        gateway_uuid: "ab", data: data_dump}
+
+      params = %{
+        org_uuid: org.uuid,
+        project_uuid: project.uuid,
+        gateway_uuid: "ab",
+        data: data_dump
+      }
 
       {:error, result} = GatewayDataDump.create(params)
       assert result == "Gateway not found"

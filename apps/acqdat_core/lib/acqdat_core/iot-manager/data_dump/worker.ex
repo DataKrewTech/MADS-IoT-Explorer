@@ -27,5 +27,4 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
     Logger.error("Error logging iot data dump", error)
     {:ok, ""}
   end
-
 end

@@ -278,29 +278,29 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       [data_dump] = response["data_dumps"]
 
       assert response ==
-              %{
-                "data_dumps" => [
-                  %{
-                    "data" => %{
-                      "axis_object" => %{
-                        "lambda" => %{"alpha" => 24, "beta" => 25},
-                        "x_axis" => 20,
-                        "z_axis" => [22, 23]
-                      },
-                      "y_axis" => 21,
-                      "project_id" => 1,
-                      "timestamp" => 1596115581,
-                      "xyz" => %{}
-                    },
-                    "gateway_uuid" => gateway.uuid,
-                    "inserted_timestamp" => data_dump["inserted_timestamp"]
-                  }
-                ],
-                "page_number" => params["page_number"],
-                "page_size" => params["page_size"],
-                "total_entries" => response["total_entries"],
-                "total_pages" => response["total_pages"]
-              }
+               %{
+                 "data_dumps" => [
+                   %{
+                     "data" => %{
+                       "axis_object" => %{
+                         "lambda" => %{"alpha" => 24, "beta" => 25},
+                         "x_axis" => 20,
+                         "z_axis" => [22, 23]
+                       },
+                       "y_axis" => 21,
+                       "project_id" => 1,
+                       "timestamp" => 1_596_115_581,
+                       "xyz" => %{}
+                     },
+                     "gateway_uuid" => gateway.uuid,
+                     "inserted_timestamp" => data_dump["inserted_timestamp"]
+                   }
+                 ],
+                 "page_number" => params["page_number"],
+                 "page_size" => params["page_size"],
+                 "total_entries" => response["total_entries"],
+                 "total_pages" => response["total_pages"]
+               }
     end
 
     test "fails if invalid token in authorization header", %{

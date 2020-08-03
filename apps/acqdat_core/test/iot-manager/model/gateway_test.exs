@@ -92,7 +92,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
   end
 
   describe "get/1 " do
-    setup  do
+    setup do
       gateway = insert(:gateway)
       [gateway: gateway]
     end
@@ -117,5 +117,4 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert result == "Gateway not found"
     end
   end
-
 end

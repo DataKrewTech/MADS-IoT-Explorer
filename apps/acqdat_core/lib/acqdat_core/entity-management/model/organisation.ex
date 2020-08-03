@@ -9,8 +9,9 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     case Repo.get(Organisation, id) do
       nil ->
         {:error, "organisation not found"}
+
       org ->
-      {:ok, org}
+        {:ok, org}
     end
   end
 
@@ -18,8 +19,9 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     case Repo.get_by(Organisation, params) do
       nil ->
         {:error, "organisation not found"}
+
       org ->
-      {:ok, org}
+        {:ok, org}
     end
   end
 

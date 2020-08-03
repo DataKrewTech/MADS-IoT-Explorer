@@ -14,14 +14,20 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
   end
 
   def get_all(
-        %{page_size: page_size, page_number: page_number, org_uuid: org_uuid,
-        project_uuid: project_uuid, gateway_uuid: gateway_uuid},
+        %{
+          page_size: page_size,
+          page_number: page_number,
+          org_uuid: org_uuid,
+          project_uuid: project_uuid,
+          gateway_uuid: gateway_uuid
+        },
         preloads
       ) do
     query =
       from(data_dump in GatewayDataDump,
-        where: data_dump.project_uuid == ^project_uuid
-          and data_dump.org_uuid == ^org_uuid and data_dump.gateway_uuid == ^gateway_uuid
+        where:
+          data_dump.project_uuid == ^project_uuid and
+            data_dump.org_uuid == ^org_uuid and data_dump.gateway_uuid == ^gateway_uuid
       )
 
     paginated_data_dump =

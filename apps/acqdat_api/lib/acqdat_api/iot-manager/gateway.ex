@@ -46,5 +46,4 @@ defmodule AcqdatApi.IotManager.Gateway do
     Map.from_struct(params)
     |> Map.drop([:_id, :__meta__])
   end
-
 end

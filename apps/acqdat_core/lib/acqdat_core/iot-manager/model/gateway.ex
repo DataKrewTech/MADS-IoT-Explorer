@@ -291,7 +291,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   defp start_project_client(_gateway = %{channel: "mqtt"}, project, credentials) do
     topics = [
       {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0},
-      {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+/request-config", 0},
+      {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+/request-config", 0}
     ]
 
     MQTTBroker.start_project_client(

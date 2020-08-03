@@ -88,7 +88,7 @@ defmodule AcqdatCore.Test.Support.DataDumpTest do
       static_data: []
     }
 
-    {:ok,gateway} = GModel.create(params)
+    {:ok, gateway} = GModel.create(params)
     gateway
   end
 
@@ -108,7 +108,7 @@ defmodule AcqdatCore.Test.Support.DataDumpTest do
         "project_id" => 1,
         "xyz" => %{},
         # timestamp so it would be picked from here
-        "timestamp" => 1596115581
+        "timestamp" => 1_596_115_581
       },
       inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
       inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second) |> DateTime.to_unix()
@@ -181,11 +181,12 @@ defmodule AcqdatCore.Test.Support.DataDumpTest do
 
     timestamp_mapping = "timestamp"
 
-    {:ok, gateway} = GModel.update(gateway, %{
-      mapped_parameters: mapped_parameters,
-      timestamp_mapping: timestamp_mapping
-      }
-    )
+    {:ok, gateway} =
+      GModel.update(gateway, %{
+        mapped_parameters: mapped_parameters,
+        timestamp_mapping: timestamp_mapping
+      })
+
     gateway |> Repo.preload([:org, :project])
   end
 end
