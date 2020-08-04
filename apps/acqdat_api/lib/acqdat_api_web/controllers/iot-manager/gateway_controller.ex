@@ -132,8 +132,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
           {:ok, gateway} ->
             gateway = Map.put(gateway, :image_url, gateway.image_url)
 
-            if gateway.image_url do
-              ImageDeletion.delete_operation(gateway, "gateway")
+            if gateway.image_url != nil do
+              ImageDeletion.delete_operation(gateway.image_url, "gateway")
             end
 
             conn
@@ -214,7 +214,10 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         params
 
       false ->
-        ImageDeletion.delete_operation(gateway, "gateway")
+        if gateway.image_url != nil do
+          ImageDeletion.delete_operation(gateway.image_url, "gateway")
+        end
+
         add_image_url(conn, params)
     end
   end

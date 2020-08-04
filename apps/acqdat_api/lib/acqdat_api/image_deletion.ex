@@ -1,7 +1,7 @@
 defmodule AcqdatApi.ImageDeletion do
-  def delete_operation(instance, params) do
+  def delete_operation(image_url, params) do
     Task.Supervisor.async(Datakrew.TaskSupervisor, fn ->
-      delete_file(instance.image_url, params)
+      delete_file(image_url, params)
     end)
   end
 

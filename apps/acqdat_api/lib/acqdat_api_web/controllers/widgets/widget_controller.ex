@@ -160,7 +160,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
             ElasticSearch.delete("widgets", widget.id)
 
             Task.async(fn ->
-              ImageDeletion.delete_operation(widget, "widget")
+              ImageDeletion.delete_operation(widget.image_url, "widget")
             end)
 
             conn

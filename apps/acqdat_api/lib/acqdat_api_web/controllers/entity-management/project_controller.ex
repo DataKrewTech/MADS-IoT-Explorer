@@ -44,7 +44,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     case conn.status do
       nil ->
         %{assigns: %{project: project}} = conn
-        params = Map.put(params, "image_url", project.avatar)
+        params = Map.put(params, "avatar", project.avatar)
 
         params = extract_image(conn, project, params)
 
@@ -99,10 +99,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
         case Project.delete(project) do
           {:ok, project} ->
-            project = Map.put(project, :image_url, project.avatar)
-
             if project.avatar != nil do
-              ImageDeletion.delete_operation(project, "project")
+              ImageDeletion.delete_operation(project.avatar, "project")
             end
 
             conn
@@ -140,7 +138,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
         params
 
       false ->
-        ImageDeletion.delete_operation(project, "project")
+        if project.avatar != nil do
+          ImageDeletion.delete_operation(project.avatar, "project")
+        end
+
         add_image_url(conn, params)
     end
   end
