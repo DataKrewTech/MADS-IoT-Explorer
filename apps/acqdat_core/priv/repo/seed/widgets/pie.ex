@@ -85,6 +85,7 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
       label: to_string(key),
       properties: %{},
       uuid: UUID.uuid1(:hex),
+      classification: "standard",
       image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/pie-basic-default.png",
       category: ["chart", "pie"],
       policies: %{},

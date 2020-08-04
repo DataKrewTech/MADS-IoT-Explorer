@@ -36,6 +36,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
   `data_settings`: holds data related settings for a widget
   """
 
+  @classifications ~w(timeseries latest standard)s
   @type t :: %__MODULE__{}
 
   schema("acqdat_widgets") do
@@ -46,6 +47,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
     field(:default_values, :map)
     field(:category, {:array, :string})
     field(:policies, :map)
+    field(:classification, :string, default: "timeseries")
 
     # embedded associations
     embeds_many(:visual_settings, VisualSettings)
@@ -58,7 +60,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
   end
 
   @required ~w(label default_values widget_type_id)a
-  @optional ~w(properties image_url policies category)a
+  @optional ~w(properties image_url policies category classification)a
   @permitted @required ++ @optional
 
   @spec changeset(
@@ -72,6 +74,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
     |> cast_embed(:visual_settings, with: &VisualSettings.changeset/2)
     |> cast_embed(:data_settings, with: &DataSettings.changeset/2)
     |> validate_required(@required)
+    |> validate_inclusion(:classification, @classifications)
   end
 
   @spec update_changeset(

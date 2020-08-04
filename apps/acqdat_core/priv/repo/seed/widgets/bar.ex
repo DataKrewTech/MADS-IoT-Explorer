@@ -98,6 +98,7 @@ defmodule AcqdatCore.Seed.Widgets.Bar do
       label: to_string(key),
       properties: %{},
       uuid: UUID.uuid1(:hex),
+      classification: "standard",
       image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/bar-basic-default.png",
       category: ["chart", "bar"],
       policies: %{},

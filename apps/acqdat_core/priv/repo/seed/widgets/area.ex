@@ -108,6 +108,7 @@ defmodule AcqdatCore.Seed.Widgets.Area do
       label: to_string(key),
       properties: %{},
       uuid: UUID.uuid1(:hex),
+      classification: "standard",
       image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/area-basic-default.png",
       category: ["chart", "area"],
       policies: %{},
