@@ -1,5 +1,6 @@
 defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   import AcqdatApiWeb.Helpers
+  alias AcqdatCore.Repo
   alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
@@ -41,6 +42,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   end
 
   defp verify_widget({:ok, widget}) do
+    widget = widget |> Repo.preload([:widget])
     updated_widget = widget |> HighCharts.fetch_highchart_details()
 
     {:ok, updated_widget}
