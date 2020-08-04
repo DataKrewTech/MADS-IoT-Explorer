@@ -39,8 +39,8 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSetting do
     belongs_to(:user, User)
 
     # embedded associations
-    embeds_one(:visual_settings, VisualSettings)
-    embeds_one(:data_settings, DataSettings)
+    embeds_one(:visual_settings, VisualSettings, on_replace: :delete)
+    embeds_one(:data_settings, DataSettings, on_replace: :delete)
 
     timestamps()
   end
