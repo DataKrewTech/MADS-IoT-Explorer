@@ -26,7 +26,11 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
 
   def get_all_by_dashboard_id(dashboard_id) do
     widget_instances =
-      WidgetInstance |> where([widget], widget.dashboard_id == ^dashboard_id) |> Repo.all()
+      from(widget_instance in WidgetInstance,
+        preload: [:widget],
+        where: widget_instance.dashboard_id == ^dashboard_id
+      )
+      |> Repo.all()
 
     Enum.reduce(widget_instances, [], fn widget, acc ->
       widget = widget |> HighCharts.fetch_highchart_details()
@@ -43,6 +47,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
       widget_instance ->
         widget_instance =
           widget_instance
+          |> Repo.preload([:widget])
           |> HighCharts.fetch_highchart_details(filter_month, start_date, end_date)
 
         {:ok, widget_instance}
