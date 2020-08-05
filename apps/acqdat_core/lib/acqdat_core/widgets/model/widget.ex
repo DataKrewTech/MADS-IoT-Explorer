@@ -42,4 +42,17 @@ defmodule AcqdatCore.Model.Widgets.Widget do
 
     ModelHelper.paginated_response(widget_data_with_preloads, paginated_widget_data)
   end
+
+  def get_all_by_classification(%{}) do
+    query =
+      Widget
+      |> group_by([widget], widget.classification)
+      |> select([widget], %{
+        classification: widget.classification,
+        count: count(widget.id),
+        widgets: fragment("JSON_AGG(?)", widget)
+      })
+
+    query |> Repo.all()
+  end
 end

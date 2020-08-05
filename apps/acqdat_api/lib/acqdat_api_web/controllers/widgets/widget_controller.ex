@@ -31,6 +31,24 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     end
   end
 
+  def fetch_all(conn, params) do
+    changeset = verify_index_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, widgets} = {:list, WidgetModel.get_all_by_classification(data)}
+
+        conn
+        |> put_status(200)
+        |> render("fetch_all.json", %{data: widgets})
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
   def create(conn, params) do
     case conn.status do
       nil ->
