@@ -90,8 +90,9 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     }
   end
 
-  def set_default_or_given_value(_key, value, metadata) do
-    if metadata.data_type not in @non_value_types do
+  def set_default_or_given_value(key, value, metadata) do
+    #TODO: Need to remove key workaround from here
+    if metadata.data_type not in @non_value_types ||  key == :center do
       %{
         data:
         if Map.has_key?(value, :value) do

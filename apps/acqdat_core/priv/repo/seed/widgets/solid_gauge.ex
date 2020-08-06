@@ -11,17 +11,17 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
       visual: %{
         chart: [type: %{value: "solidgauge"}, backgroundColor: %{}, plotBackgroundColor: %{}],
         title: [text: %{}, align: %{}],
-        yAxis: [title: [text: %{}], min: %{data_type: :integer, value: 0, properties: %{}},
+        yAxis: [title: [text: %{},  y: %{data_type: :integer, value: -70, properties: %{}}], min: %{data_type: :integer, value: 0, properties: %{}},
                 max: %{data_type: :integer, value: 200, properties: %{}}],
         credits: [enabled: %{value: false}],
-        pane: [startAngle: %{data_type: :integer, value: 0, properties: %{}},
-               endAngle: %{data_type: :integer, value: 0, properties: %{}},
+        pane: [startAngle: %{data_type: :integer, value: -90, properties: %{}},
+               endAngle: %{data_type: :integer, value: 90, properties: %{}},
                size: %{data_type: :string, value: "140%", properties: %{}},
                center: %{data_type: :list, value: ["50%", "85%"], properties: %{}},
                background: [
                 backgroundColor: %{data_type: :color, value: "#EEE", properties: %{}},
-                innerRadius: %{data_type: :string, value: "0", properties: %{}},
-                outerRadius: %{data_type: :string, value: "", properties: %{}},
+                innerRadius: %{data_type: :string, value: "60%", properties: %{}},
+                outerRadius: %{data_type: :string, value: "100%", properties: %{}},
                 shape: %{data_type: :string, value: "arc", properties: %{}}
               ]
              ]
@@ -53,7 +53,8 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
       visual_setting_values: %{
         yAxis: %{
           title: %{
-            text: "RPM"
+            text: "RPM",
+            y: -70,
           },
           min: 0,
           max: 5
