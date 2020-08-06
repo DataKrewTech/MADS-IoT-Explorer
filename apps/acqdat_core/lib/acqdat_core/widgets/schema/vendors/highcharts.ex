@@ -416,7 +416,14 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   defp fetch_latest_axes_spec_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
       res = axis |> validate_data_source(filter_month, start_date, end_date)
-      res = res |> List.last() |> List.last() |> String.to_integer()
+      res = (res || [[]]) |> List.last() |> List.last()
+
+      res =
+        if is_nil(res) do
+          0
+        else
+          Float.parse(to_string(res)) |> elem(0)
+        end
 
       Map.put(acc, axis.name, res)
     end)
@@ -428,7 +435,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
       # NOTE: {a: unix_timestamp, b: converted string to integer}
       q =
         (res || [])
-        |> Enum.map(fn [a, b] -> {DateTime.to_unix(a) * 1000, String.to_integer(b)} end)
+        |> Enum.map(fn [a, b] ->
+          {DateTime.to_unix(a) * 1000, Float.parse(to_string(b)) |> elem(0)}
+        end)
         |> Map.new()
 
       Map.put(acc, axis.name, q)
