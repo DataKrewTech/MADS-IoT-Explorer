@@ -107,10 +107,10 @@ defmodule AcqdatCore.Seed.Widgets.AreaTimeseries do
 
   def set_widget_data(key, widget_settings, data, widget_type) do
     %WidgetSchema{
-      label: to_string(key),
+      label: "Area Range",
       properties: %{},
       uuid: UUID.uuid1(:hex),
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/area-basic-default.png",
+      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/arearange-default.png",
       category: ["chart", "area"],
       policies: %{},
       widget_type_id: widget_type.id,

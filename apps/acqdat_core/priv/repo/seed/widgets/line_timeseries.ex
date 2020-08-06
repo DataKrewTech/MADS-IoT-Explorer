@@ -99,10 +99,10 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
 
   def set_widget_data(key, widget_settings, data, widget_type) do
     %WidgetSchema{
-      label: to_string(key),
+      label: "Line Timeseries",
       properties: %{},
       uuid: UUID.uuid1(:hex),
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/line-basic-default.png",
+      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/line-time-series-default.png",
       category: ["chart", "line"],
       policies: %{},
       widget_type_id: widget_type.id,
