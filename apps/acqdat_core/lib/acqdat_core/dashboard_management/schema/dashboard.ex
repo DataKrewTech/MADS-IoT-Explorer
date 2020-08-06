@@ -10,7 +10,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   """
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.Organisation
-  alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
+  alias AcqdatCore.DashboardManagement.Schema.{WidgetInstance, CommandWidget}
 
   @typedoc """
   `name`: Name of the dashboard, which will be unique with respective to org.
@@ -29,6 +29,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
     has_many(:widget_instances, WidgetInstance, on_replace: :delete)
+    has_many(:command_widgets, CommandWidget)
 
     timestamps(type: :utc_datetime)
   end

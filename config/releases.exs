@@ -29,6 +29,18 @@ config :acqdat_iot, AcqdatIotWeb.Guardian,
   issuer: "acqdat_iot",
   secret_key: System.get_env("GUARDIAN_IOT_KEY")
 
+# AWS configuration for Image storage.
+config :arc,
+  asset_host: "https://datakrew-image.s3.ap-south-1.amazonaws.com",
+  storage: Arc.Storage.S3,
+  bucket: {:system, "AWS_S3_BUCKET"}
+
+# virtual_host: true
+config :ex_aws,
+  access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+  secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
+  region: "ap-south-1"
+
 config :acqdat_iot,
   app_port: app_iot_port
 
