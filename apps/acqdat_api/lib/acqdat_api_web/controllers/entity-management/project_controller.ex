@@ -122,7 +122,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     end
   end
 
-  def fetch_project_users(conn, params) do
+  def fetch_project_users(conn, _params) do
     case conn.status do
       nil ->
         %{assigns: %{project: project}} = conn
