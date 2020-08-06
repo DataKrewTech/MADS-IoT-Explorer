@@ -21,13 +21,29 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
     end
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}) do
-    SensorType |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  def get_all(%{
+        page_size: page_size,
+        page_number: page_number,
+        project_id: project_id,
+        org_id: org_id
+      }) do
+    SensorType
+    |> where([sensor_type], sensor_type.project_id == ^project_id)
+    |> where([sensor_type], sensor_type.org_id == ^org_id)
+    |> order_by(:id)
+    |> Repo.paginate(page: page_number, page_size: page_size)
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
+  def get_all(
+        %{page_size: page_size, page_number: page_number, project_id: project_id, org_id: org_id},
+        preloads
+      ) do
     paginated_sensor_data =
-      SensorType |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+      SensorType
+      |> where([sensor_type], sensor_type.project_id == ^project_id)
+      |> where([sensor_type], sensor_type.org_id == ^org_id)
+      |> order_by(:id)
+      |> Repo.paginate(page: page_number, page_size: page_size)
 
     sensor_data_with_preloads = paginated_sensor_data.entries |> Repo.preload(preloads)
 

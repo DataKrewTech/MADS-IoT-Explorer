@@ -309,13 +309,29 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}) do
-    Asset |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  def get_all(%{
+        page_size: page_size,
+        page_number: page_number,
+        project_id: project_id,
+        org_id: org_id
+      }) do
+    Asset
+    |> where([asset], asset.project_id == ^project_id)
+    |> where([asset], asset.org_id == ^org_id)
+    |> order_by(:id)
+    |> Repo.paginate(page: page_number, page_size: page_size)
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
+  def get_all(
+        %{page_size: page_size, page_number: page_number, project_id: project_id, org_id: org_id},
+        preloads
+      ) do
     paginated_asset_data =
-      Asset |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+      Asset
+      |> where([asset], asset.project_id == ^project_id)
+      |> where([asset], asset.org_id == ^org_id)
+      |> order_by(:id)
+      |> Repo.paginate(page: page_number, page_size: page_size)
 
     asset_data_with_preloads = paginated_asset_data.entries |> Repo.preload(preloads)
 
