@@ -422,7 +422,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
         if is_nil(res) do
           0
         else
-          Float.parse(to_string(res)) |> elem(0)
+          Float.parse(res) |> elem(0)
         end
 
       Map.put(acc, axis.name, res)
@@ -436,7 +436,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
       q =
         (res || [])
         |> Enum.map(fn [a, b] ->
-          {DateTime.to_unix(a) * 1000, Float.parse(to_string(b)) |> elem(0)}
+          {DateTime.to_unix(a) * 1000, Float.parse(b) |> elem(0)}
         end)
         |> Map.new()
 
