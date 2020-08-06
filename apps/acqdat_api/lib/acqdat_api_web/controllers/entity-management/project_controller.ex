@@ -7,7 +7,9 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   import AcqdatApiWeb.Validators.EntityManagement.Project
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadProject when action in [:update, :delete, :show]
+
+  plug AcqdatApiWeb.Plug.LoadProject
+       when action in [:update, :delete, :show, :fetch_project_users]
 
   @doc """
   This piece of code will be useful when we will implement Project role based listing
@@ -113,6 +115,23 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
             conn
             |> send_error(400, error)
         end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def fetch_project_users(conn, params) do
+    case conn.status do
+      nil ->
+        %{assigns: %{project: project}} = conn
+
+        {:list, users} = {:list, Project.get_all_users(project)}
+
+        conn
+        |> put_status(200)
+        |> render("user_list.json", %{users: users})
 
       404 ->
         conn

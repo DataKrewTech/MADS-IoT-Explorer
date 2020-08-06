@@ -20,6 +20,12 @@ defmodule AcqdatApi.EntityManagement.Project do
     )
   end
 
+  def get_all_users(project) do
+    project = project |> Repo.preload([:creator, :leads, :users])
+    user_list = project.leads ++ project.users ++ [project.creator]
+    user_list |> Enum.uniq()
+  end
+
   defp project_create_attrs(
          %{
            lead_ids: lead_ids,
