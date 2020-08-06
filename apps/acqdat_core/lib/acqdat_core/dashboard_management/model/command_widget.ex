@@ -13,7 +13,7 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
   def update(command_widget, %{"data_settings" => _data_settings} = params) do
     changeset = CommandWidget.changeset(command_widget, params)
     {:ok, command_widget} = Repo.update(changeset)
-    command_widget.module.handle_command(command_widget.data_settings)
+    command_widget.module.handle_command(command_widget)
     command_widget
   end
 

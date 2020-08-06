@@ -17,7 +17,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
         value: nil
       },
       w_mode: %{
-        html_type: "select",
+        html_tag: "select",
         source: %{"off" => 0, "breathing" => 1, "solid" => 2},
         default: 2,
         value: nil
@@ -33,7 +33,9 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   ]
 
   @impl true
-  def handle_command(_params) do
+  def handle_command(params) do
+    require IEx
+    IEx.pry
     {:ok, ""}
   end
 
