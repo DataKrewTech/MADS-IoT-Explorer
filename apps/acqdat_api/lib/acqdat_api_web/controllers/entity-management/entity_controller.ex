@@ -48,6 +48,28 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
     end
   end
 
+  def fetch_all_hierarchy(conn, %{"org_id" => org_id}) do
+    case conn.status do
+      nil ->
+        {org_id, _} = Integer.parse(org_id)
+
+        case OrgModel.fetch_hierarchy_by_all_projects(org_id) do
+          {:ok, org} ->
+            conn
+            |> put_status(200)
+            |> render("organisation_tree.json", %{org: org})
+
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
   defp load_hierarchy_tree(
          %{params: %{"org_id" => org_id, "project_id" => project_id}} = conn,
          _params

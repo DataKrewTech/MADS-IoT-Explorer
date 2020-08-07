@@ -37,6 +37,24 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     end
   end
 
+  def fetch_hierarchy_by_all_projects(id) when is_integer(id) do
+    case Repo.get(Organisation, id) |> Repo.preload([:projects]) do
+      nil ->
+        {:error, "organisation not found"}
+
+      org ->
+        project_data =
+          Enum.reduce(org.projects, [], fn project, acc ->
+            entities = ProjectModel.hierarchy_data(org.id, project.id)
+            acc ++ entities
+          end)
+
+        org = Map.delete(org, :projects)
+        org = Map.put_new(org, :project_data, project_data)
+        {:ok, org}
+    end
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Organisation, id) do
       nil ->
