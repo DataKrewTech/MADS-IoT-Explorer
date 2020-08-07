@@ -38,7 +38,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     Repo.insert(changeset)
   end
 
-  def get_all_by_parameters(entity_id, param_name, date_from, date_to) do
+  def get_all_by_parameters(entity_id, param_uuid, date_from, date_to) do
     subquery =
       from(
         data in SensorsData,
@@ -52,7 +52,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       from(
         data in subquery,
         cross_join: c in fragment("unnest(?)", data.parameters),
-        where: fragment("?->>'name'=?", c, ^param_name),
+        where: fragment("?->>'uuid'=?", c, ^param_uuid),
         select: [
           data.inserted_timestamp,
           fragment("?->>'value'", c)
