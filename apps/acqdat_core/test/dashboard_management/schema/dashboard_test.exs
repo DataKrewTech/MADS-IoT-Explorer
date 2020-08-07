@@ -7,17 +7,15 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
   describe "changeset/2" do
     setup do
       organisation = insert(:organisation)
-      project = insert(:project)
-      [organisation: organisation, project: project]
+      [organisation: organisation]
     end
 
     test "returns a valid changeset", context do
-      %{organisation: organisation, project: project} = context
+      %{organisation: organisation} = context
 
       params = %{
         name: "Demo Dashboard",
-        org_id: organisation.id,
-        project_id: project.id
+        org_id: organisation.id
       }
 
       %{valid?: validity} = Dashboard.changeset(%Dashboard{}, params)
@@ -30,18 +28,15 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
 
       assert %{
                org_id: ["can't be blank"],
-               name: ["can't be blank"],
-               project_id: ["can't be blank"]
+               name: ["can't be blank"]
              } = errors_on(changeset)
     end
 
     test "returns error if dashboard name is not presenet", %{
-      project: project,
       organisation: organisation
     } do
       params = %{
-        org_id: organisation.id,
-        project_id: project.id
+        org_id: organisation.id
       }
 
       changeset = Dashboard.changeset(%Dashboard{}, params)
@@ -50,11 +45,10 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
       assert %{name: ["can't be blank"]} == errors_on(result_changeset)
     end
 
-    test "returns error if organisation assoc constraint not satisfied", %{project: project} do
+    test "returns error if organisation assoc constraint not satisfied" do
       params = %{
         name: "Demo Dashboard",
-        org_id: -1,
-        project_id: project.id
+        org_id: -1
       }
 
       changeset = Dashboard.changeset(%Dashboard{}, params)
@@ -63,29 +57,12 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
       assert %{org: ["does not exist"]} == errors_on(result_changeset)
     end
 
-    test "returns error if project assoc constraint not satisfied", %{organisation: organisation} do
-      params = %{
-        uuid: UUID.uuid1(:hex),
-        name: "Temperature",
-        org_id: organisation.id
-      }
-
-      changeset = Dashboard.changeset(%Dashboard{}, params)
-
-      {:error, result_changeset} = Repo.insert(changeset)
-
-      assert %{project_id: ["can't be blank"]} ==
-               errors_on(result_changeset)
-    end
-
     test "returns error if unique name constraint not satisified", %{
-      project: project,
       organisation: organisation
     } do
       params = %{
         name: "Demo Dashboard",
-        org_id: organisation.id,
-        project_id: project.id
+        org_id: organisation.id
       }
 
       changeset = Dashboard.changeset(%Dashboard{}, params)
@@ -94,7 +71,7 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
 
       new_changeset = Dashboard.changeset(%Dashboard{}, params)
       {:error, result_changeset} = Repo.insert(new_changeset)
-      assert %{name: ["unique name under project"]} == errors_on(result_changeset)
+      assert %{name: ["unique name under org"]} == errors_on(result_changeset)
     end
   end
 end

@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         id: 3
       }
 
-      conn = get(conn, Routes.dashboard_path(conn, :show, 1, 1, params.id))
+      conn = get(conn, Routes.dashboard_path(conn, :show, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :show, dashboard.org_id, dashboard.project_id, params.id)
+          Routes.dashboard_path(conn, :show, dashboard.org_id, params.id)
         )
 
       result = conn |> json_response(400)
@@ -48,7 +48,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :show, dashboard.org_id, dashboard.project_id, dashboard.id)
+          Routes.dashboard_path(conn, :show, dashboard.org_id, dashboard.id)
         )
 
       result = conn |> json_response(200)
@@ -81,7 +81,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
             conn,
             :update,
             dashboard.org_id,
-            dashboard.project_id,
             dashboard.id
           ),
           data
@@ -105,7 +104,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         id: 3
       }
 
-      conn = put(conn, Routes.dashboard_path(conn, :update, 1, 1, params.id))
+      conn = put(conn, Routes.dashboard_path(conn, :update, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -118,7 +117,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         put(
           conn,
-          Routes.dashboard_path(conn, :update, dashboard.org_id, dashboard.project_id, params.id)
+          Routes.dashboard_path(conn, :update, dashboard.org_id, params.id)
         )
 
       result = conn |> json_response(404)
@@ -143,7 +142,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
             conn,
             :delete,
             dashboard.org_id,
-            dashboard.project_id,
             dashboard.id
           )
         )
@@ -165,7 +163,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         id: 3
       }
 
-      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, 1, params.id))
+      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
@@ -175,7 +173,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         id: -1
       }
 
-      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, 1, params.id))
+      conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, params.id))
 
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
@@ -187,13 +185,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
     test "dashboard type create", %{conn: conn} do
       dashboard_manifest = build(:dashboard)
-      project = insert(:project)
+      org = insert(:organisation)
 
       data = %{
         name: dashboard_manifest.name
       }
 
-      conn = post(conn, Routes.dashboard_path(conn, :create, project.org_id, project.id), data)
+      conn = post(conn, Routes.dashboard_path(conn, :create, org.id), data)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "name")
       assert Map.has_key?(response, "id")
@@ -201,24 +199,24 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       bad_access_token = "qwerty1234567uiop"
-      project = insert(:project)
+      org = insert(:organisation)
 
       conn =
         conn
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       data = %{}
-      conn = post(conn, Routes.dashboard_path(conn, :create, project.org_id, project.id), data)
+      conn = post(conn, Routes.dashboard_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "fails if required params are missing", %{conn: conn} do
-      project = insert(:project)
+      org = insert(:organisation)
 
       data = %{}
 
-      conn = post(conn, Routes.dashboard_path(conn, :create, project.org_id, project.id), data)
+      conn = post(conn, Routes.dashboard_path(conn, :create, org.id), data)
 
       response = conn |> json_response(400)
 
@@ -246,7 +244,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :index, dashboard.org_id, dashboard.project_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       response = conn |> json_response(200)
@@ -263,7 +261,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :index, dashboard.org_id, dashboard.project_id, %{})
+          Routes.dashboard_path(conn, :index, dashboard.org_id, %{})
         )
 
       response = conn |> json_response(200)
@@ -282,7 +280,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :index, dashboard.org_id, dashboard.project_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       page1_response = conn |> json_response(200)
@@ -307,7 +305,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.dashboard_path(conn, :index, dashboard.org_id, dashboard.project_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       result = conn |> json_response(403)
