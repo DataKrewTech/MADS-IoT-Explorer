@@ -2,6 +2,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   import Ecto.Query
   alias AcqdatCore.DashboardManagement.Schema.Dashboard
   alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
+  alias AcqdatCore.Model.DashboardManagement.CommandWidget
   alias AcqdatCore.Repo
 
   def create(params) do
@@ -35,7 +36,11 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
 
       dashboard ->
         widgets = WidgetInstanceModel.get_all_by_dashboard_id(dashboard.id)
-        dashboard = Map.put(dashboard, :widgets, widgets)
+        command_widgets = CommandWidget.get_all_by_dashboard_id(dashboard.id)
+        dashboard =
+          dashboard
+          |> Map.put(:widgets, widgets)
+          |> Map.put(:command_widgets, command_widgets)
         {:ok, dashboard}
     end
   end

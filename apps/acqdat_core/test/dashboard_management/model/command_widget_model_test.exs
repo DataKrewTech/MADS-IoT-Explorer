@@ -51,6 +51,7 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
       refute updated_command_widget.label == command_widget.label
     end
 
+    # TODO add mock for mqtt
     test "update with data settings", context do
       %{gateway: gateway, dashboard: dasbhoard} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
@@ -65,9 +66,59 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
       data = setup_data()
       update_params = %{"label" => "LED Panel", "data_settings" => data}
       {:ok, updated_command_widget} = CommandWidget.update(command_widget, update_params)
-
+      assert updated_command_widget.id == command_widget.id
+      assert updated_command_widget.label != command_widget.label
     end
   end
+
+  describe "get/1 " do
+    setup  do
+      dashboard = insert(:dashboard)
+      command_widgets = insert_list(3, :command_widget, dashboard: dashboard)
+      [command_widgets: command_widgets]
+    end
+
+    test "command widget by id", context do
+      %{command_widgets: [cw1, _cw_2, _cw_3]} = context
+      {:ok, widget} = CommandWidget.get(cw1.id)
+      assert widget.id == cw1.id
+    end
+
+    test "command widget by uuid", context do
+      %{command_widgets: [cw1, _cw_2, _cw_3]} = context
+      {:ok, widget} = CommandWidget.get(%{uuid: cw1.uuid})
+      assert widget.id == cw1.id
+    end
+  end
+
+  describe "get_all_by_dashboard_id/1 " do
+    setup  do
+      dashboard = insert(:dashboard)
+      command_widgets = insert_list(3, :command_widget, dashboard: dashboard)
+      [command_widgets: command_widgets]
+    end
+
+    test "returns command widget with id", context do
+      %{command_widgets: [cw1, _cw_2, _cw_3]} = context
+      widgets = CommandWidget.get_all_by_dashboard_id(cw1.dashboard_id)
+      assert length(widgets) == 3
+    end
+
+    test "returns empty if none found", context do
+      dashboard = insert(:dashboard)
+      widgets = CommandWidget.get_all_by_dashboard_id(dashboard.id)
+      assert widgets == []
+    end
+  end
+
+  describe "delete/1" do
+    test "deletes a command widget" do
+      command_widget = insert(:command_widget)
+      assert {:ok, _result} = CommandWidget.delete(command_widget)
+      assert {:error, "Command Widget not found"} == CommandWidget.get(command_widget.id)
+    end
+  end
+
 
   defp setup_data() do
     %{

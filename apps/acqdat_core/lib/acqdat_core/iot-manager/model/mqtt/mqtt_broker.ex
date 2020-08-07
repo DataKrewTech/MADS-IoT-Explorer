@@ -7,6 +7,7 @@ defmodule AcqdatCore.Model.IotManager.MQTTBroker do
   alias AcqdatCore.Model.IotManager.MQTT.BrokerCredentials
 
   # TODO log error if client dosen't start for some reason
+  # TODO Add mox to handle all mqtt broker related mocks.
   def start_project_client(project_uuid, subscription_topics, password) do
     [host: host, port: port] = Application.get_env(:acqdat_core, :mqtt_broker)
 

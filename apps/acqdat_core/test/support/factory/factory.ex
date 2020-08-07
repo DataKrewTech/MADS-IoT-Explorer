@@ -12,7 +12,11 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
-  alias AcqdatCore.DashboardManagement.Schema.{Dashboard, WidgetInstance}
+  alias AcqdatCore.DashboardManagement.Schema.{
+    Dashboard,
+    WidgetInstance,
+    CommandWidget
+  }
 
   alias AcqdatCore.Schema.EntityManagement.{
     Sensor,
@@ -100,6 +104,20 @@ defmodule AcqdatCore.Support.Factory do
       name: sequence(:dashboard_name, &"Dashboard#{&1}"),
       slug: sequence(:dashboard_name, &"Dashboard#{&1}"),
       org: build(:organisation)
+    }
+  end
+
+  def command_widget_factory() do
+    %CommandWidget{
+      uuid: UUID.uuid1(:hex),
+      label: "LED Control",
+      properties: %{},
+      module: "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl",
+      command_widget_type: "html",
+      gateway: build(:gateway),
+      dashboard: build(:dashboard),
+      data_settings: %{},
+      visual_settings: %{}
     }
   end
 

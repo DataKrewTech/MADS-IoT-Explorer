@@ -218,6 +218,8 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     MQTTBroker.publish(project.uuid, topic, Jason.encode!(payload))
   end
 
+  @spec send_mqtt_command(Gateway.t(), map()) ::
+          :ok | {:error, :unknown_connection} | {:ok, reference}
   def send_mqtt_command(gateway, payload) do
     gateway = Repo.preload(gateway, project: :org)
     project = gateway.project

@@ -3,6 +3,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   Adds schema and controls for LEDControl Widget.
   """
   use AcqdatCore.Schema
+  alias AcqdatCore.Model.IotManager.Gateway
   @behaviour AcqdatCore.DashboardManagement.Schema.CommandWidget
   @widget_type "html"
   @widget_name "LED Control"
@@ -33,10 +34,19 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   ]
 
   @impl true
-  def handle_command(params) do
-    require IEx
-    IEx.pry
-    {:ok, ""}
+  #TODO: Handles only mqtt need to handle http
+  def handle_command(command_widget, _options \\ []) do
+    data = command_widget.data_settings
+    |> Enum.reduce(%{}, fn
+      {:rgb_color, value}, acc ->
+        acc
+        |> Map.put(:red, Enum.at(value.value, 0))
+        |> Map.put(:green, Enum.at(value.value, 1))
+        |> Map.put(:blue, Enum.at(value.value, 2))
+      {key, value}, acc ->
+        Map.put(acc, key, value.value)
+    end)
+    prepare_payload_and_send(command_widget, data)
   end
 
   @impl true
@@ -52,5 +62,19 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   @impl true
   def widget_name() do
     @widget_name
+  end
+
+  defp prepare_payload_and_send(command_widget, data) do
+    actuator_payload = Map.put(%{}, :actuator, data)
+    current_timestamp = DateTime.utc_now() |> DateTime.truncate(:second) |> DateTime.to_unix()
+    data_payload = %{}
+      |> Map.put(:data, actuator_payload)
+      |> Map.put(:timestamp, current_timestamp)
+      |> Map.put(:gateway_id, command_widget.gateway_id)
+      |> Map.put(:project_id, command_widget.gateway.project_id)
+      |> Map.put(:org_id, command_widget.gateway.org_id)
+
+    Gateway.send_mqtt_command(command_widget.gateway, data_payload)
+    {:ok, "Command Sent"}
   end
 end
