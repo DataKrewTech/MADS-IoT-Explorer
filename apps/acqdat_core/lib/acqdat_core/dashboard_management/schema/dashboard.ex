@@ -4,16 +4,16 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
 
   Dashboard are used for visually representing collection of widgets to user.
 
-  Any particular project can have multiple dashboards.
+  Any particular org can have multiple dashboards.
 
   A dashboard consists of multiple widgets.
   """
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
+  alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
 
   @typedoc """
-  `name`: Name of the dashboard, which will be unique with respective to project.
+  `name`: Name of the dashboard, which will be unique with respective to org.
   `uuid`: A universally unique id to identify the Dashboard.
   `settings`: All the settings of dashboard
   """
@@ -28,13 +28,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
-    belongs_to(:project, Project, on_replace: :delete)
     has_many(:widget_instances, WidgetInstance, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug name org_id project_id)a
+  @required_params ~w(uuid slug name org_id)a
   @optional_params ~w(settings description widget_layouts)a
   @permitted @optional_params ++ @required_params
 
@@ -58,10 +57,9 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   def common_changeset(changeset) do
     changeset
     |> assoc_constraint(:org)
-    |> assoc_constraint(:project)
     |> unique_constraint(:name,
-      name: :unique_dashboard_name_per_project,
-      message: "unique name under project"
+      name: :unique_dashboard_name_per_org,
+      message: "unique name under org"
     )
   end
 

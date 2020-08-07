@@ -102,9 +102,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end
 
-    scope "/projects/:project_id", DashboardManagement do
-      resources "/dashboards", DashboardController, except: [:new, :edit]
-    end
+    resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
 
     post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances",
          DashboardManagement.WidgetInstanceController,

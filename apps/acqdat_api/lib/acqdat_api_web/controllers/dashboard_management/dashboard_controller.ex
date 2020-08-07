@@ -5,7 +5,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   alias AcqdatApi.DashboardManagement.Dashboard
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadProject
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:update, :delete]
 
   def index(conn, params) do

@@ -11,7 +11,6 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     %{
       name: name,
       description: description,
-      project_id: project_id,
       org_id: org_id,
       settings: settings,
       widget_layouts: widget_layouts
@@ -20,7 +19,6 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     dashboard_params = %{
       name: name,
       description: description,
-      project_id: project_id,
       org_id: org_id,
       settings: settings,
       widget_layouts: widget_layouts

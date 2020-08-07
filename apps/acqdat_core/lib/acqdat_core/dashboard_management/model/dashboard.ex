@@ -43,12 +43,11 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   def get_all(%{
         page_size: page_size,
         page_number: page_number,
-        org_id: org_id,
-        project_id: project_id
+        org_id: org_id
       }) do
     query =
       from(dashboard in Dashboard,
-        where: dashboard.org_id == ^org_id and dashboard.project_id == ^project_id,
+        where: dashboard.org_id == ^org_id,
         order_by: dashboard.name
       )
 
