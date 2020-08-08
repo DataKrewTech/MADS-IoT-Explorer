@@ -83,6 +83,6 @@ defmodule VirtaTest do
 
     {request_id, output} = Virta.Executor.call(name, data)
     assert request_id == 1
-    assert output == %{output: 9}
+    assert output == %{sum: 3}
   end
 end
