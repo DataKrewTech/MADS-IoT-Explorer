@@ -12,6 +12,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
   @callback widget_parameters() :: map
   @callback widget_type() :: String.t()
   @callback widget_name() :: String.t()
+  @callback image_url() :: String.t()
 
   @type t :: %__MODULE__{}
 

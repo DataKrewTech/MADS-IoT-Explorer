@@ -55,7 +55,9 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
       %{
         name: module.widget_name,
         module: module,
-        widget_parameters: module.widget_parameters
+        widget_parameters: module.widget_parameters,
+        image_url: module.image_url,
+        widget_type: module.widget_type
       }
     end)
   end

@@ -38,14 +38,15 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   def handle_command(command_widget, _options \\ []) do
     data = command_widget.data_settings
     |> Enum.reduce(%{}, fn
-      {:rgb_color, value}, acc ->
+      {"rgb_color", value}, acc ->
         acc
-        |> Map.put(:red, Enum.at(value.value, 0))
-        |> Map.put(:green, Enum.at(value.value, 1))
-        |> Map.put(:blue, Enum.at(value.value, 2))
+        |> Map.put(:red, Enum.at(value["value"], 0))
+        |> Map.put(:green, Enum.at(value["value"], 1))
+        |> Map.put(:blue, Enum.at(value["value"], 2))
       {key, value}, acc ->
-        Map.put(acc, key, value.value)
+        Map.put(acc, key, value["value"])
     end)
+
     prepare_payload_and_send(command_widget, data)
   end
 
@@ -62,6 +63,11 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
   @impl true
   def widget_name() do
     @widget_name
+  end
+
+  @impl true
+  def image_url() do
+    ""
   end
 
   defp prepare_payload_and_send(command_widget, data) do
