@@ -37,10 +37,12 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
       dashboard ->
         widgets = WidgetInstanceModel.get_all_by_dashboard_id(dashboard.id)
         command_widgets = CommandWidget.get_all_by_dashboard_id(dashboard.id)
+
         dashboard =
           dashboard
           |> Map.put(:widgets, widgets)
           |> Map.put(:command_widgets, command_widgets)
+
         {:ok, dashboard}
     end
   end

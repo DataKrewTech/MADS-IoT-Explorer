@@ -1,11 +1,10 @@
 defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetView do
   use AcqdatApiWeb, :view
 
-
   def render("command_widget_types.json", %{command_widget_types: command_widget_types}) do
     %{
-      command_widget_types: render_many(command_widget_types, __MODULE__,
-        "command_widget_type.json")
+      command_widget_types:
+        render_many(command_widget_types, __MODULE__, "command_widget_type.json")
     }
   end
 

@@ -105,11 +105,12 @@ defmodule AcqdatApiWeb.Router do
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
-      resources "/command_widgets", CommandWidgetController,
-        except: [:new, :index, :edit]
-      end
-    get "/command_widget_types", DashboardManagement.CommandWidgetController,
-      :command_widget_types
+      resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
+    end
+
+    get "/command_widget_types",
+        DashboardManagement.CommandWidgetController,
+        :command_widget_types
 
     post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances",
          DashboardManagement.WidgetInstanceController,

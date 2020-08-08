@@ -6,8 +6,9 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.DashboardManagement.Schema.Dashboard
+
   @callback handle_command(data_setting_parameters :: map) ::
-    {:ok, String.t()} | {:error, String.t()}
+              {:ok, String.t()} | {:error, String.t()}
 
   @callback widget_parameters() :: map
   @callback widget_type() :: String.t()
@@ -37,7 +38,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
     visual_settings command_widget_type)a
   @permitted @required ++ @optional
 
-  def changeset(%__MODULE__{}=command_widget, params) do
+  def changeset(%__MODULE__{} = command_widget, params) do
     command_widget
     |> cast(params, @permitted)
     |> add_uuid()
@@ -55,10 +56,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
   defp add_command_widget_type(%Ecto.Changeset{valid?: true} = changeset) do
     module = get_field(changeset, :module)
     widget_type = module.widget_type
+
     changeset
     |> put_change(:command_widget_type, widget_type)
   end
 
   defp add_command_widget_type(changeset), do: changeset
-
 end

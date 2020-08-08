@@ -25,6 +25,7 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
     case Repo.get(CommandWidget, id) do
       nil ->
         {:error, "Command Widget not found"}
+
       command_widget ->
         {:ok, command_widget}
     end
@@ -34,21 +35,25 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
     case Repo.get_by(CommandWidget, params) do
       nil ->
         {:error, "Command Widget not found"}
+
       command_widget ->
         {:ok, command_widget}
     end
   end
 
   def get_all_by_dashboard_id(dashboard_id) do
-    query = from(
-      widget in CommandWidget,
-      where: widget.dashboard_id == ^dashboard_id
-    )
+    query =
+      from(
+        widget in CommandWidget,
+        where: widget.dashboard_id == ^dashboard_id
+      )
+
     Repo.all(query)
   end
 
   def get_command_widget_types() do
     values = CommandWidgetSchemaEnum.__valid_values__()
+
     values
     |> Stream.filter(fn value -> is_atom(value) end)
     |> Enum.map(fn module ->

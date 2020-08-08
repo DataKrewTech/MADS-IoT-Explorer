@@ -12,6 +12,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
+
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
     WidgetInstance,
