@@ -140,7 +140,7 @@ defmodule AcqdatApi.RoleManagement.User do
     {:error, %{error: resp_msg(:unable_to_mark_invitation_invalid)}}
   end
 
-  def user_create_es({:ok, params}) do
+  def user_create_es(params) do
     create_function = fn ->
       post("users/_doc/#{params.id}",
         id: params.id,
