@@ -26,6 +26,13 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 width: %{data_type: :string, default_value: "", user_controlled: false}
               }
             },
+            rangeSelector: %{
+              data_type: :object,
+              user_controlled: false,
+              properties: %{
+                selected: %{data_type: :integer, default_value: 1, user_controlled: true}
+              }
+            },
             caption: %{
               data_type: :object,
               user_controlled: false,
