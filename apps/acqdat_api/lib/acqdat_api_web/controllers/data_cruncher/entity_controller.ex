@@ -4,7 +4,6 @@ defmodule AcqdatApiWeb.DataCruncher.EntityController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadProject
 
   @secret_key_base Application.get_env(:acqdat_api, AcqdatApiWeb.Endpoint)[:secret_key_base]
 
@@ -14,8 +13,7 @@ defmodule AcqdatApiWeb.DataCruncher.EntityController do
         token =
           Phoenix.Token.sign(conn, @secret_key_base, %{
             user_id: conn.assigns.current_user.id,
-            org_id: conn.assigns.org.id,
-            project_id: conn.assigns.project.id
+            org_id: conn.assigns.org.id
           })
 
         conn

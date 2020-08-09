@@ -138,7 +138,7 @@ defmodule AcqdatApiWeb.Router do
         :update,
         as: :update_widget_instances
 
-    post("/projects/:project_id/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
+    post("data_cruncher_token", DataCruncher.EntityController, :fetch_token)
 
     get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
       as: :search_assets

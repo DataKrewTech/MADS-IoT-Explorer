@@ -24,13 +24,12 @@ defmodule AcqdatApiWeb.UserSocket do
            token,
            max_age: 86_400
          ) do
-      {:ok, %{user_id: user_id, org_id: org_id, project_id: project_id}} ->
+      {:ok, %{user_id: user_id, org_id: org_id}} ->
         socket =
           socket
           |> assign(:user_token, token)
           |> assign(:org_id, org_id)
           |> assign(:user_id, user_id)
-          |> assign(:project_id, project_id)
 
         {:ok, socket}
 
