@@ -6,7 +6,7 @@ defmodule AcqdatCore.DataCruncher.Functions.Email do
   @outports [:tsemail]
   @display_name "Send Email"
   @properties %{}
-  @category :async_output
+  @category :output
   @info """
   Function sends the email as output node
   """

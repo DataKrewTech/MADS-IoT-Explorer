@@ -4,7 +4,7 @@ defmodule AcqdatCore.DataCruncher.Functions.Print do
   @outports [:tsprint]
   @display_name "Print Output"
   @properties %{}
-  @category :sync_output
+  @category :output
   @info """
   Function Returns the print output value
   """
