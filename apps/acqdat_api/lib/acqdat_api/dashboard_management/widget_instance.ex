@@ -18,7 +18,8 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   end
 
   def update(widget_instance, attrs) do
-    verify_widget(WidgetInstanceModel.update(widget_instance, widget_create_attrs(attrs)))
+    WidgetInstanceModel.update(widget_instance, attrs)
+    |> verify_widget()
   end
 
   ############################# private functions ###########################
@@ -27,17 +28,17 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
          label: label,
          dashboard_id: dashboard_id,
          widget_id: widget_id,
-         series: series,
-         settings: settings,
-         visual_prop: visual_prop
+         series_data: series_data,
+         widget_settings: widget_settings,
+         visual_properties: visual_properties
        }) do
     %{
       label: label,
       dashboard_id: dashboard_id,
       widget_id: widget_id,
-      series_data: series,
-      widget_settings: settings,
-      visual_properties: visual_prop
+      series_data: series_data,
+      widget_settings: widget_settings,
+      visual_properties: visual_properties
     }
   end
 

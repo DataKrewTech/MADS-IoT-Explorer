@@ -36,19 +36,13 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
   def update(conn, params) do
     case conn.status do
       nil ->
-        changeset = verify_params(params)
+        case WidgetInstance.update(conn.assigns.widget_instance, params) do
+          {:ok, widget_inst} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{widget_instance: widget_inst})
 
-        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:update, {:ok, widget_inst}} <-
-               {:update, WidgetInstance.update(conn.assigns.widget_instance, data)} do
-          conn
-          |> put_status(200)
-          |> render("show.json", %{widget_instance: widget_inst})
-        else
-          {:extract, {:error, error}} ->
-            send_error(conn, 400, error)
-
-          {:update, {:error, message}} ->
+          {:error, message} ->
             send_error(conn, 400, message)
         end
 
