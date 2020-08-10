@@ -335,4 +335,25 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
   end
+
+  describe "all_gateways/2 " do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      project_1 = insert(:project, org: org)
+      project_2 = insert(:project, org: org)
+      insert(:gateway, project: project_1, org: org)
+      insert(:gateway, project: project_2, org: org)
+      [org: org]
+    end
+
+    test "returns a list of all gateways", context do
+      %{org: org, conn: conn} = context
+
+      result = get(conn, Routes.gateway_path(conn, :all_gateways, org.id)) |> json_response(200)
+      assert length(result["gateways"]) == 2
+    end
+
+  end
 end

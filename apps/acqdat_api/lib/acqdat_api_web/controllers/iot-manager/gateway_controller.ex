@@ -10,7 +10,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   import AcqdatApiWeb.Validators.IotManager.Gateway
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadProject
+  plug AcqdatApiWeb.Plug.LoadProject when action not in [:all_gateways]
 
   plug AcqdatApiWeb.Plug.LoadGateway
        when action in [
@@ -187,6 +187,20 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
             conn
             |> send_error(400, message)
         end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def all_gateways(conn, params) do
+    case conn.status do
+      nil ->
+        gateways = Gateway.get_by_org(params["org_id"])
+        conn
+        |> put_status(200)
+        |> render("all_gateways.json", gateways: gateways)
 
       404 ->
         conn

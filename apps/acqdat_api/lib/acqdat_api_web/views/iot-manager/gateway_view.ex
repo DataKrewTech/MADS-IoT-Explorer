@@ -16,6 +16,20 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
     }
   end
 
+  def render("all_gateways.json", %{gateways: gateways}) do
+    %{gateways: render_many(gateways, GatewayView, "gist.json")}
+  end
+
+  def render("gist.json", %{gateway: gateway}) do
+    %{
+      uuid: gateway.uuid,
+      id: gateway.id,
+      name: gateway.name,
+      project_id: gateway.project_id,
+      org_id: gateway.org_id
+    }
+  end
+
   def render("organisation_tree.json", %{org: org}) do
     %{
       type: "Organisation",

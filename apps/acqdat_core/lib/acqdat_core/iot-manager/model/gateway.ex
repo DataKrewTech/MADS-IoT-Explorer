@@ -137,6 +137,14 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     ModelHelper.paginated_response(project_data_with_preloads, paginated_project_data)
   end
 
+  def get_by_org(org_id) do
+    query = from(
+      gateway in Gateway,
+      where: gateway.org_id == ^org_id
+    )
+    Repo.all(query)
+  end
+
   def delete(%{channel: "http"} = gateway) do
     case Repo.delete(gateway) do
       {:ok, gateway} ->
