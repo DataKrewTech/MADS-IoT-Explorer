@@ -57,7 +57,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             send_error(conn, 400, error)
 
           {:create, {:error, error}} ->
-            send_error(conn, 400, error[:error])
+            send_error(conn, 400, error)
         end
 
       404 ->
