@@ -3,6 +3,7 @@ defmodule AcqdatApi.RoleManagement.User do
   alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
   alias AcqdatCore.Schema.RoleManagement.Invitation
   alias AcqdatCore.Repo
+  alias Ecto.Multi
   import AcqdatApiWeb.Helpers
   import Tirexs.HTTP
   import AcqdatApiWeb.ResMessages
@@ -124,12 +125,31 @@ defmodule AcqdatApi.RoleManagement.User do
     # 1) UserCreation from token
     # 3) Invitation Record Deletions
     verify_user(
-      Repo.transaction(fn ->
-        user = UserModel.create(user_details)
-        InvitationModel.delete(invitation)
-        user
+      Multi.new()
+      |> Multi.run(:create_user, fn _, _changes ->
+        UserModel.create(user_details)
       end)
+      |> Multi.run(:delete_invitation, fn _, _ ->
+        InvitationModel.delete(invitation)
+      end)
+      |> run_transaction()
     )
+  end
+
+  defp run_transaction(multi_query) do
+    result = Repo.transaction(multi_query)
+
+    case result do
+      {:ok, %{create_user: user, delete_invitation: _delete_invitation}} ->
+        {:ok, user}
+
+      {:error, failed_operation, failed_value, _changes_so_far} ->
+        {:error, failed_value}
+    end
+  end
+
+  defp verify_error_changeset({:error, changeset}) do
+    {:error, %{error: extract_changeset_error(changeset)}}
   end
 
   defp mark_invitation_token_as_invalid({:ok, _data}) do
@@ -158,11 +178,11 @@ defmodule AcqdatApi.RoleManagement.User do
 
   defp verify_user({:ok, user_data}) do
     user_create_es(user_data)
-    user_data
+    {:ok, user_data}
   end
 
-  defp verify_user({:error, user}) do
-    {:error, %{error: extract_changeset_error(user)}}
+  defp verify_user({:error, data}) do
+    {:error, %{error: extract_changeset_error(data)}}
   end
 
   defp retry(function) do
