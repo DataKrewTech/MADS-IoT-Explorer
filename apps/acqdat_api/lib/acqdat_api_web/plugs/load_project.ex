@@ -15,13 +15,18 @@ defmodule AcqdatApiWeb.Plug.LoadProject do
   end
 
   defp check_project(conn, project_id) do
-    {project_id, _} = Integer.parse(project_id)
+    case Integer.parse(project_id) do
+      {project_id, _} ->
+        case ProjectModel.get_by_id(project_id) do
+          {:ok, project} ->
+            assign(conn, :project, project)
 
-    case ProjectModel.get_by_id(project_id) do
-      {:ok, project} ->
-        assign(conn, :project, project)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

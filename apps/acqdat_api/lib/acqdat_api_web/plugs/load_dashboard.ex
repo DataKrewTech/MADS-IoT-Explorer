@@ -15,13 +15,18 @@ defmodule AcqdatApiWeb.Plug.LoadDashboard do
   end
 
   defp check_dashboard(conn, dashboard_id) do
-    {dashboard_id, _} = Integer.parse(dashboard_id)
+    case Integer.parse(dashboard_id) do
+      {dashboard_id, _} ->
+        case DashboardModel.get_by_id(dashboard_id) do
+          {:ok, dashboard} ->
+            assign(conn, :dashboard, dashboard)
 
-    case DashboardModel.get_by_id(dashboard_id) do
-      {:ok, dashboard} ->
-        assign(conn, :dashboard, dashboard)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

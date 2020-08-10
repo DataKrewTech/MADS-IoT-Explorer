@@ -9,13 +9,18 @@ defmodule AcqdatApiWeb.Plug.LoadSensorType do
   end
 
   def load_sensor_type(conn, id) do
-    {id, _} = Integer.parse(id)
+    case Integer.parse(id) do
+      {id, _} ->
+        case SensorTypeModel.get(id) do
+          {:ok, sensor_type} ->
+            assign(conn, :sensor_type, sensor_type)
 
-    case SensorTypeModel.get(id) do
-      {:ok, sensor_type} ->
-        assign(conn, :sensor_type, sensor_type)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

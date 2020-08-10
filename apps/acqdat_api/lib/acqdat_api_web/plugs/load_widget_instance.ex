@@ -15,13 +15,18 @@ defmodule AcqdatApiWeb.Plug.LoadWidgetInstance do
   end
 
   defp check_widget(conn, widget_id) do
-    {widget_id, _} = Integer.parse(widget_id)
+    case Integer.parse(widget_id) do
+      {widget_id, _} ->
+        case WidgetModel.get_by_id(widget_id) do
+          {:ok, widget} ->
+            assign(conn, :widget_instance, widget)
 
-    case WidgetModel.get_by_id(widget_id) do
-      {:ok, widget} ->
-        assign(conn, :widget_instance, widget)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

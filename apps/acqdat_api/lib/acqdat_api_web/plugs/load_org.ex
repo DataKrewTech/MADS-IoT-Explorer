@@ -11,13 +11,18 @@ defmodule AcqdatApiWeb.Plug.LoadOrg do
   end
 
   defp check_org(conn, org_id) do
-    {org_id, _} = Integer.parse(org_id)
+    case Integer.parse(org_id) do
+      {org_id, _} ->
+        case OrgModel.get_by_id(org_id) do
+          {:ok, org} ->
+            assign(conn, :org, org)
 
-    case OrgModel.get_by_id(org_id) do
-      {:ok, org} ->
-        assign(conn, :org, org)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

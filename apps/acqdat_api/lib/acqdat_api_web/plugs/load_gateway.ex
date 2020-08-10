@@ -15,13 +15,18 @@ defmodule AcqdatApiWeb.Plug.LoadGateway do
   end
 
   defp check_gateway(conn, gateway_id) do
-    {gateway_id, _} = Integer.parse(gateway_id)
+    case Integer.parse(gateway_id) do
+      {gateway_id, _} ->
+        case GModel.get_by_id(gateway_id) do
+          {:ok, gateway} ->
+            assign(conn, :gateway, gateway)
 
-    case GModel.get_by_id(gateway_id) do
-      {:ok, gateway} ->
-        assign(conn, :gateway, gateway)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end

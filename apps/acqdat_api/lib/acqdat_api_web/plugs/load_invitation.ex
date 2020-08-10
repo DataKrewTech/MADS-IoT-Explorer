@@ -7,13 +7,18 @@ defmodule AcqdatApiWeb.Plug.LoadInvitation do
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
   def call(%{params: %{"id" => id}} = conn, _params) do
-    {id, _} = Integer.parse(id)
+    case Integer.parse(id) do
+      {id, _} ->
+        case InvitationModel.get(id) do
+          {:ok, invitation} ->
+            assign(conn, :invitation, invitation)
 
-    case InvitationModel.get(id) do
-      {:ok, invitation} ->
-        assign(conn, :invitation, invitation)
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+        end
 
-      {:error, _message} ->
+      :error ->
         conn
         |> put_status(404)
     end
