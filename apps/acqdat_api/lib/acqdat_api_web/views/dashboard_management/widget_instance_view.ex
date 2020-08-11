@@ -11,7 +11,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       series_data: render_many(widget.series_data, WidgetInstanceView, "series_data.json"),
       visual_properties: widget.visual_properties,
       series: widget.series,
-      widget_settings: widget.widget_settings
+      widget_settings: widget.widget_settings,
+      widget_category: widget.widget.category
     }
   end
 
