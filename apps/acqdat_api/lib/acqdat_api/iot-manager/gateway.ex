@@ -5,7 +5,7 @@ defmodule AcqdatApi.IotManager.Gateway do
   alias AcqdatCore.IotManager.CommandHandler
 
   defdelegate get_all(data, preloads), to: Gateway
-  defdelegate  get_by_org(org_id), to: Gateway
+  defdelegate get_by_org(org_id), to: Gateway
   defdelegate delete(gateway), to: Gateway
   defdelegate associate_sensors(gateway, sensor_ids), to: Gateway
 

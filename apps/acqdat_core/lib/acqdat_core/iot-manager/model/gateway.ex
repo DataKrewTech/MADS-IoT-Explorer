@@ -138,10 +138,12 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   def get_by_org(org_id) do
-    query = from(
-      gateway in Gateway,
-      where: gateway.org_id == ^org_id
-    )
+    query =
+      from(
+        gateway in Gateway,
+        where: gateway.org_id == ^org_id
+      )
+
     Repo.all(query)
   end
 

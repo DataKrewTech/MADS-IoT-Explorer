@@ -198,6 +198,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     case conn.status do
       nil ->
         gateways = Gateway.get_by_org(params["org_id"])
+
         conn
         |> put_status(200)
         |> render("all_gateways.json", gateways: gateways)

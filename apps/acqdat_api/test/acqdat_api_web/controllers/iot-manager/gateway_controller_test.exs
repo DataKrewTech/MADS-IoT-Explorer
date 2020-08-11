@@ -354,6 +354,5 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       result = get(conn, Routes.gateway_path(conn, :all_gateways, org.id)) |> json_response(200)
       assert length(result["gateways"]) == 2
     end
-
   end
 end

@@ -38,8 +38,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       settings: dashboard.settings,
       widget_layouts: dashboard.widget_layouts,
       widgets: render_many(dashboard.widgets, WidgetInstanceView, "show.json"),
-      command_widgets: render_many(dashboard.command_widgets,
-        CommandWidgetView, "show.json")
+      command_widgets: render_many(dashboard.command_widgets, CommandWidgetView, "show.json")
     }
   end
 end
