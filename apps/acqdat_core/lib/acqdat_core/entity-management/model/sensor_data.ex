@@ -54,7 +54,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
         cross_join: c in fragment("unnest(?)", data.parameters),
         where: fragment("?->>'uuid'=?", c, ^param_uuid),
         select: [
-          data.inserted_timestamp,
+          fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
           fragment("?->>'value'", c)
         ]
       )
