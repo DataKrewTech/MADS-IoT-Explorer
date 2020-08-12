@@ -397,7 +397,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
     Enum.reduce(series_data, [], fn series, acc_data ->
       metadata = fetch_latest_axes_spec_data(series.axes, filter_month, start_date, end_date)
 
-      acc_data ++ [%{name: series.name, color: series.color, data: [metadata]}]
+      acc_data ++ [%{name: series.name, color: series.color, data: metadata}]
     end)
   end
 
@@ -412,42 +412,41 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
     Enum.reduce(series_data, [], fn series, acc_data ->
       metadata = fetch_axes_specific_data(series.axes, filter_month, start_date, end_date)
 
-      uniq_keys = metadata |> fetch_uniq_keys |> Stream.uniq()
-
-      parsed_data = uniq_keys |> parse_series_data(metadata)
-
-      acc_data ++ [%{name: series.name, color: series.color, data: parsed_data}]
+      acc_data ++ [%{name: series.name, color: series.color, data: metadata}]
     end)
   end
 
   defp fetch_latest_axes_spec_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
-      res = axis |> validate_data_source(filter_month, start_date, end_date)
-      res = (res || [[]]) |> List.last() |> List.last()
-
-      res =
-        if is_nil(res) do
-          0
-        else
-          Float.parse(res) |> elem(0)
-        end
-
-      Map.put(acc, axis.name, res)
+      axis |> validate_data_source(filter_month, start_date, end_date, "latest")
     end)
   end
 
+  # defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
+  #   Enum.reduce(axes, %{}, fn axis, acc ->
+  #     #if (axis.source_metadata["parameter"] != "inserted_timestamp") do
+  #       res = axis |> validate_data_source(filter_month, start_date, end_date)
+
+  #        require IEx
+  #       IEx.pry
+  #     # NOTE: {a: unix_timestamp, b: converted string to integer}
+  #       q =
+  #         (res || [])
+  #         |> Enum.map(fn [a, b] ->
+  #           {a, Float.parse(b) |> elem(0)}
+  #         end)
+  #         |> Map.new()
+
+  #       Map.put(acc, axis.name, q)
+  #     #end
+  #   end)
+  # end
+
   defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
-      res = axis |> validate_data_source(filter_month, start_date, end_date)
-      # NOTE: {a: unix_timestamp, b: converted string to integer}
-      q =
-        (res || [])
-        |> Enum.map(fn [a, b] ->
-          {a, Float.parse(b) |> elem(0)}
-        end)
-        |> Map.new()
-
-      Map.put(acc, axis.name, q)
+      if axis.source_metadata["parameter"] != "inserted_timestamp" do
+        axis |> validate_data_source(filter_month, start_date, end_date, "timseries")
+      end
     end)
   end
 
@@ -462,10 +461,19 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          },
          filter_month,
          start_date,
-         end_date
+         end_date,
+         type
        )
        when source_type == "pds" and parameter != "inserted_timestamp" do
-    fetch_from_data_source(entity_id, entity_type, parameter, filter_month, start_date, end_date)
+    fetch_from_data_source(
+      entity_id,
+      entity_type,
+      parameter,
+      filter_month,
+      start_date,
+      end_date,
+      type
+    )
   end
 
   defp validate_data_source(
@@ -475,7 +483,8 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          },
          _filter_month,
          _start_date,
-         _end_date
+         _end_date,
+         _
        )
        when source_type == "pds" and parameter == "inserted_timestamp" do
   end
@@ -486,14 +495,32 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          parameter,
          filter_month,
          start_date,
-         end_date
+         end_date,
+         type
        )
-       when entity_type == "sensor" do
+       when entity_type == "sensor" and type == "timseries" do
     {filter_month, _} = Integer.parse(filter_month)
     date_to = end_date |> validate_and_parse_end_date
     date_from = start_date |> validate_and_parse_start_date(filter_month)
 
     SensorData.get_all_by_parameters(entity_id, parameter, date_from, date_to)
+  end
+
+  defp fetch_from_data_source(
+         entity_id,
+         entity_type,
+         parameter,
+         filter_month,
+         start_date,
+         end_date,
+         type
+       )
+       when entity_type == "sensor" and type == "latest" do
+    {filter_month, _} = Integer.parse(filter_month)
+    date_to = end_date |> validate_and_parse_end_date
+    date_from = start_date |> validate_and_parse_start_date(filter_month)
+
+    SensorData.get_latest_by_parameters(entity_id, parameter, date_from, date_to)
   end
 
   defp validate_and_parse_end_date(date) do

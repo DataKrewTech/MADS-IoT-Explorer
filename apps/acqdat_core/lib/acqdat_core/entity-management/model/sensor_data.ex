@@ -38,6 +38,7 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     Repo.insert(changeset)
   end
 
+  # TODO: Needs to refactor code so that it will query on dynamic axes
   def get_all_by_parameters(entity_id, param_uuid, date_from, date_to) do
     subquery =
       from(
@@ -55,8 +56,32 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
         where: fragment("?->>'uuid'=?", c, ^param_uuid),
         select: [
           fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
-          fragment("?->>'value'", c)
+          fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
         ]
+      )
+
+    Repo.all(query)
+  end
+
+  def get_latest_by_parameters(entity_id, param_uuid, date_from, date_to) do
+    subquery =
+      from(
+        data in SensorsData,
+        where:
+          data.sensor_id == ^entity_id and data.inserted_timestamp >= ^date_from and
+            data.inserted_timestamp <= ^date_to,
+        order_by: [desc: data.inserted_timestamp],
+        limit: 1
+      )
+
+    query =
+      from(
+        data in subquery,
+        cross_join: c in fragment("unnest(?)", data.parameters),
+        where: fragment("?->>'uuid'=?", c, ^param_uuid),
+        select: %{
+          y: fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
+        }
       )
 
     Repo.all(query)
