@@ -422,26 +422,6 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
     end)
   end
 
-  # defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
-  #   Enum.reduce(axes, %{}, fn axis, acc ->
-  #     #if (axis.source_metadata["parameter"] != "inserted_timestamp") do
-  #       res = axis |> validate_data_source(filter_month, start_date, end_date)
-
-  #        require IEx
-  #       IEx.pry
-  #     # NOTE: {a: unix_timestamp, b: converted string to integer}
-  #       q =
-  #         (res || [])
-  #         |> Enum.map(fn [a, b] ->
-  #           {a, Float.parse(b) |> elem(0)}
-  #         end)
-  #         |> Map.new()
-
-  #       Map.put(acc, axis.name, q)
-  #     #end
-  #   end)
-  # end
-
   defp fetch_axes_specific_data(axes, filter_month, start_date, end_date) do
     Enum.reduce(axes, %{}, fn axis, acc ->
       if axis.source_metadata["parameter"] != "inserted_timestamp" do
