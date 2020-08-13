@@ -25,7 +25,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMin do
   defp process_data(%{data_type: :query_stream, data: data}) do
     {:ok, value} =
       Repo.transaction(fn ->
-        Enum.reduce(data, 0, fn data, acc ->
+        Enum.reduce(data, nil, fn data, acc ->
           [_, value, _, _] = data
           value = String.to_integer(value)
 
