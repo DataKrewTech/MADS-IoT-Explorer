@@ -12,11 +12,13 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
+
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
     WidgetInstance,
     CommandWidget
   }
+
   alias AcqdatCore.DataCruncher.Schema.{Tasks, Workflow}
 
   alias AcqdatCore.Schema.EntityManagement.{
