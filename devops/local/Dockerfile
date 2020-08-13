@@ -37,12 +37,14 @@ COPY rel ./rel
 RUN mkdir -p \
   apps/acqdat_api/ \
   apps/acqdat_core/ \
-  apps/acqdat_iot
+  apps/acqdat_iot/ \
+  apps/virta/
 
 # copy child directory artifacts to respective app directories
 COPY apps/acqdat_api/ apps/acqdat_api/
 COPY apps/acqdat_core/ apps/acqdat_core/
 COPY apps/acqdat_iot/ apps/acqdat_iot/
+COPY apps/virta/ apps/virta/
 
 # Fetch the application dependencies and build the application
 RUN mix deps.get
