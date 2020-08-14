@@ -27,7 +27,6 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMin do
       Repo.transaction(fn ->
         Enum.reduce(data, nil, fn data, acc ->
           [_, value, _, _] = data
-          value = String.to_integer(value)
 
           if acc < value do
             acc
@@ -37,7 +36,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMin do
         end)
       end)
 
-    value
+    value || 0
   end
 
   defp process_data(_) do

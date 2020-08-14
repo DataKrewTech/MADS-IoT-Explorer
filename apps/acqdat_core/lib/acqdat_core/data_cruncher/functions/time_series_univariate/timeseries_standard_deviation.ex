@@ -28,7 +28,6 @@ defmodule AcqdatCore.DataCruncher.Functions.TSStandardDeviation do
         sum =
           Enum.reduce(data, 0, fn data, acc ->
             [_, value, _, _] = data
-            value = String.to_integer(value)
             acc + value
           end)
 
@@ -49,7 +48,6 @@ defmodule AcqdatCore.DataCruncher.Functions.TSStandardDeviation do
   defp sum_powered_deviations(data, mean) do
     Enum.reduce(data, 0, fn data, acc ->
       [_, value, _, _] = data
-      value = String.to_integer(value)
       acc + :math.pow(value - mean, 2)
     end)
   end

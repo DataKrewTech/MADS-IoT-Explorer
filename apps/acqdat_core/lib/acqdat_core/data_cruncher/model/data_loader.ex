@@ -42,7 +42,7 @@ defmodule AcqdatCore.DataCruncher.Model.Dataloader do
         where: fragment("?->>'uuid'=?", c, ^param_uuid),
         select: [
           data.inserted_timestamp,
-          fragment("?->>'value'", c),
+          fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c),
           fragment("?->>'name'", c),
           fragment("?->>'uuid'", c)
         ]

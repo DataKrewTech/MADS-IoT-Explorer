@@ -27,7 +27,6 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMax do
       Repo.transaction(fn ->
         Enum.reduce(data, -1, fn data, acc ->
           [_, value, _, _] = data
-          value = String.to_integer(value)
 
           if acc > value do
             acc

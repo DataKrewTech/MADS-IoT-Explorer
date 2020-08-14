@@ -28,7 +28,6 @@ defmodule AcqdatCore.DataCruncher.Functions.TSNorm do
         sum =
           Enum.reduce(data, 0, fn data, acc ->
             [_, value, _, _] = data
-            value = String.to_integer(value)
             acc + :math.pow(value, 2)
           end)
 

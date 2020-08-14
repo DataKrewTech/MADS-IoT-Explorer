@@ -22,35 +22,12 @@ defmodule AcqdatCore.DataCruncher.Functions.TSMean do
     {request_id, :reply, %{tsmean: result}}
   end
 
-  # [
-  #   [~U[2020-07-31 07:31:51Z], "14", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:31:56Z], "10", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:01Z], "15", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:06Z], "21", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:11Z], "14", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:16Z], "15", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:21Z], "18", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:26Z], "7", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:31Z], "25", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"],
-  #   [~U[2020-07-31 07:32:36Z], "1", "x_axis_vel",
-  #    "e66c6a1ad2ff11eab52df218989b265a"]
-  # ]
   defp process_data(%{data_type: :query_stream, data: data}) do
     {:ok, {sum, size}} =
       Repo.transaction(fn ->
         sum =
           Enum.reduce(data, 0, fn data, acc ->
             [_, value, _, _] = data
-            value = String.to_integer(value)
             acc + value
           end)
 
