@@ -22,7 +22,8 @@ defmodule AcqdatCore.DataCrunche.Model.Task do
   def get_all(%{page_size: page_size, page_number: page_number, org_id: org_id, user_id: user_id}) do
     query =
       from(task in Tasks,
-        where: task.org_id == ^org_id and task.user_id == ^user_id
+        where: task.org_id == ^org_id and task.user_id == ^user_id,
+        preload: [:user]
       )
 
     query |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)

@@ -19,7 +19,9 @@ defmodule AcqdatApiWeb.DataCruncher.TasksView do
       name: task.name,
       uuid: task.uuid,
       type: task.type,
-      slug: task.slug
+      slug: task.slug,
+      created_at: task.inserted_at,
+      user: render_one(task.user, TasksView, "user_details.json")
     }
   end
 
@@ -31,6 +33,17 @@ defmodule AcqdatApiWeb.DataCruncher.TasksView do
       type: task.type,
       slug: task.slug,
       workflows: render_many(task.workflows, WorkflowView, "workflow.json")
+    }
+  end
+
+  def render("user_details.json", %{tasks: user_details}) do
+    %{
+      id: user_details.id,
+      email: user_details.email,
+      first_name: user_details.first_name,
+      last_name: user_details.last_name,
+      image: user_details.avatar,
+      role_id: user_details.role_id
     }
   end
 end
