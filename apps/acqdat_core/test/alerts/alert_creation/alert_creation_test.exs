@@ -2,7 +2,7 @@ defmodule AcqdatCore.Alerts.AlertCreationTest do
   @moduledoc """
   Alert creation logics will be tested here
   """
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   use AcqdatIotWeb.ConnCase
   alias AcqdatCore.Schema.IotManager.Gateway
@@ -15,11 +15,11 @@ defmodule AcqdatCore.Alerts.AlertCreationTest do
   import AcqdatCore.Support.Factory
 
   describe "create/1" do
-    setup %{} do
-      # Setting the shared mode so the internal processes share the same db
-      # conneciton.
-      Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
-    end
+    # setup %{} do
+    #   # Setting the shared mode so the internal processes share the same db
+    #   # conneciton.
+    #   Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
+    # end
 
     setup :setup_alert_rules
 
@@ -27,7 +27,6 @@ defmodule AcqdatCore.Alerts.AlertCreationTest do
     Here alert rule is created from sensor parameters so this parameters will be passed to gateway for mapping the parameters so that on
     data dump is done we can have a parameter uuid mapped to gateway to generate a alert.
     """
-    @tag timeout: :infinity
     test "create alert", %{alert_rule: alert_rules, sensor: sensor} do
       {:ok, alert_rules} = AlertRules.create(alert_rules)
       gateway = setup_gateway(sensor)
