@@ -1,21 +1,21 @@
 defmodule AcqdatCore.DashboardManagement.Schema.Panel do
   @moduledoc """
-  Models a Dashboard Entity.
+  Models a Dashboard's Panel Entity.
 
-  Dashboard are used for visually representing collection of widgets to user.
+  Panels are used for grouping collection of widgets and providing them with a identifier.
 
-  Any particular org can have multiple dashboards.
+  Any particular odashboard can have multiple panels.
 
-  A dashboard consists of multiple widgets.
+  A Panel consists of multiple widgets.
   """
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.DashboardManagement.Schema.{Dashboard, WidgetInstance, CommandWidget}
 
   @typedoc """
-  `name`: Name of the dashboard, which will be unique with respective to org.
-  `uuid`: A universally unique id to identify the Dashboard.
-  `settings`: All the settings of dashboard
+  `name`: Name of the panel, which will be unique with respective to dashboard.
+  `uuid`: A universally unique id to identify the panel.
+  `settings`: All the settings of panel
   """
   @type t :: %__MODULE__{}
   schema("acqdat_panel") do
