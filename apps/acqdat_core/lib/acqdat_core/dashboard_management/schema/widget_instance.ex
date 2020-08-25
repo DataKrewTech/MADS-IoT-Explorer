@@ -29,7 +29,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Widgets.Schema.Widget
-  alias AcqdatCore.DashboardManagement.Schema.Dashboard
+  alias AcqdatCore.DashboardManagement.Schema.{Panel, Dashboard}
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.SeriesData
 
   @typedoc """
@@ -54,11 +54,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     # associations
     belongs_to(:widget, Widget, on_replace: :delete)
     belongs_to(:dashboard, Dashboard, on_replace: :delete)
+    belongs_to(:panel, Panel, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(label widget_id dashboard_id slug uuid)a
+  @required ~w(label widget_id dashboard_id panel_id slug uuid)a
   @optional ~w(widget_settings visual_properties)a
   @permitted @required ++ @optional
 
@@ -89,9 +90,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     changeset
     |> assoc_constraint(:widget)
     |> assoc_constraint(:dashboard)
+    |> assoc_constraint(:panel)
     |> unique_constraint(:label,
-      name: :unique_widget_name_per_dashboard,
-      message: "unique widget label under dashboard"
+      name: :unique_widget_name_per_panel,
+      message: "unique widget label under dashboard's panel"
     )
   end
 
