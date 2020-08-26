@@ -4,6 +4,7 @@ defmodule AcqdatCore.Repo.Migrations.AlterWidgetInstance do
   def up do
     alter table("acqdat_widget_instance") do
       add(:panel_id, references("acqdat_panel", on_delete: :delete_all))
+      remove(:dashboard_id)
     end
     
     drop_if_exists index("acqdat_widget_instance", [:name], name: :unique_widget_name_per_dashboard)
@@ -12,10 +13,10 @@ defmodule AcqdatCore.Repo.Migrations.AlterWidgetInstance do
 
   def down do
     drop_if_exists index("acqdat_widget_instance", [:name], name: :unique_widget_name_per_panel)
-    create unique_index("acqdat_widget_instance", [:dashboard_id, :label], name: :unique_widget_name_per_dashboard)
-    
     alter table("acqdat_widget_instance") do
       remove(:panel_id)
+      add(:dashboard_id, references("acqdat_dashboard", on_delete: :delete_all))
     end
+    create unique_index("acqdat_widget_instance", [:dashboard_id, :label], name: :unique_widget_name_per_dashboard)
   end
 end
