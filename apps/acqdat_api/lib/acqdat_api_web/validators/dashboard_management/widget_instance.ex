@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.WidgetInstance do
       label!: :string,
       org_id!: :integer,
       widget_id!: :integer,
-      dashboard_id!: :integer,
+      panel_id!: :integer,
       widget_settings: :map,
       visual_properties: :map,
       series_data: [field: {:array, :map}, default: []]

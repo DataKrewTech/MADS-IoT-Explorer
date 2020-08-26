@@ -1,8 +1,7 @@
 defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.DashboardManagement.DashboardView
-  alias AcqdatApiWeb.DashboardManagement.WidgetInstanceView
-  alias AcqdatApiWeb.DashboardManagement.CommandWidgetView
+  alias AcqdatApiWeb.DashboardManagement.PanelView
 
   def render("dashboard.json", %{dashboard: dashboard}) do
     %{
@@ -36,9 +35,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       slug: dashboard.slug,
       uuid: dashboard.uuid,
       settings: dashboard.settings,
-      widget_layouts: dashboard.widget_layouts,
-      widgets: render_many(dashboard.widgets, WidgetInstanceView, "show.json"),
-      command_widgets: render_many(dashboard.command_widgets, CommandWidgetView, "show.json")
+      panels: render_many(dashboard.panels, PanelView, "panel.json")
     }
   end
 end

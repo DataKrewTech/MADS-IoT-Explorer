@@ -5,7 +5,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.IotManager.Gateway
-  alias AcqdatCore.DashboardManagement.Schema.Dashboard
+  alias AcqdatCore.DashboardManagement.Schema.Panel
 
   @callback handle_command(data_setting_parameters :: map) ::
               {:ok, String.t()} | {:error, String.t()}
@@ -28,12 +28,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
 
     # associations
     belongs_to(:gateway, Gateway, on_replace: :delete)
-    belongs_to(:dashboard, Dashboard, on_replace: :delete)
+    belongs_to(:panel, Panel, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(label module gateway_id dashboard_id)a
+  @required ~w(label module gateway_id panel_id)a
   @optional ~w(properties uuid data_settings
     visual_settings command_widget_type)a
   @permitted @required ++ @optional
@@ -45,7 +45,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
     |> validate_required(@required)
     |> add_command_widget_type()
     |> assoc_constraint(:gateway)
-    |> assoc_constraint(:dashboard)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do

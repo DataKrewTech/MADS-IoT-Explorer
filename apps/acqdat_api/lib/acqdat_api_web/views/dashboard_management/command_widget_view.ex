@@ -23,7 +23,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetView do
       id: command_widget.id,
       uuid: command_widget.uuid,
       gateway_id: command_widget.gateway_id,
-      dashboard_id: command_widget.dashboard_id,
+      panel_id: command_widget.panel_id,
       label: command_widget.label,
       data_settings: command_widget.data_settings,
       visual_settings: command_widget.visual_settings,

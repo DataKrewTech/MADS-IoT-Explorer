@@ -29,20 +29,12 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
     end
   end
 
-  def get_with_widgets(id) when is_integer(id) do
-    case Repo.get(Dashboard, id) do
+  def get_with_panels(id) when is_integer(id) do
+    case Repo.get(Dashboard, id) |> Repo.preload([:panels]) do
       nil ->
         {:error, "dashboard with this id not found"}
 
       dashboard ->
-        widgets = WidgetInstanceModel.get_all_by_dashboard_id(dashboard.id)
-        command_widgets = CommandWidget.get_all_by_dashboard_id(dashboard.id)
-
-        dashboard =
-          dashboard
-          |> Map.put(:widgets, widgets)
-          |> Map.put(:command_widgets, command_widgets)
-
         {:ok, dashboard}
     end
   end

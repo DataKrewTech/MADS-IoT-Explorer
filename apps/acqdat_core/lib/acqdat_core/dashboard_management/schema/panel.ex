@@ -39,8 +39,8 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel do
   @optional_params ~w(settings description widget_layouts)a
   @permitted @optional_params ++ @required_params
 
-  def changeset(%__MODULE__{} = dashboard, params) do
-    dashboard
+  def changeset(%__MODULE__{} = panel, params) do
+    panel
     |> cast(params, @permitted)
     |> add_slug()
     |> add_uuid()
@@ -48,8 +48,8 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel do
     |> common_changeset()
   end
 
-  def update_changeset(%__MODULE__{} = dashboard, params) do
-    dashboard
+  def update_changeset(%__MODULE__{} = panel, params) do
+    panel
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> common_changeset()

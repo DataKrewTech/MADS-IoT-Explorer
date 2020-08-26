@@ -3,7 +3,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   import AcqdatApiWeb.Helpers
 
   defdelegate get_all(data), to: DashboardModel
-  defdelegate get_with_widgets(dashboard_id), to: DashboardModel
+  defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
   defdelegate delete(dashboard), to: DashboardModel
 

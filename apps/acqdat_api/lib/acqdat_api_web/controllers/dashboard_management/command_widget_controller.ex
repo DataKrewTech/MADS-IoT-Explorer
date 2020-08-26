@@ -4,7 +4,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetController do
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardManagement.CommandWidget
 
-  plug AcqdatApiWeb.Plug.LoadDashboard when action not in [:command_widget_types]
+  plug AcqdatApiWeb.Plug.LoadPanel when action not in [:command_widget_types]
   plug AcqdatApiWeb.Plug.CommandWidget when action in [:update, :delete]
 
   def command_widget_types(conn, _params) do

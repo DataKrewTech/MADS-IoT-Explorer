@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
   alias AcqdatApi.DashboardManagement.Panel
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  # plug AcqdatApiWeb.Plug.LoadDashboard when action in [:update, :delete]
+  plug AcqdatApiWeb.Plug.LoadPanel when action in [:update]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -49,76 +49,68 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
     end
   end
 
-  # def show(conn, %{"id" => id}) do
-  #   case conn.status do
-  #     nil ->
-  #       {id, _} = Integer.parse(id)
+  def show(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        {id, _} = Integer.parse(id)
 
-  #       case Dashboard.get_with_widgets(id) do
-  #         {:error, message} ->
-  #           send_error(conn, 400, message)
+        case Panel.get_with_widgets(id) do
+          {:error, message} ->
+            send_error(conn, 400, message)
 
-  #         {:ok, dashboard} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("show.json", %{dashboard: dashboard})
-  #       end
+          {:ok, panel} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{panel: panel})
+        end
 
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
-  # def update(conn, params) do
-  #   case conn.status do
-  #     nil ->
-  #       case Dashboard.update(conn.assigns.dashboard, params) do
-  #         {:ok, dashboard} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("dashboard.json", %{dashboard: dashboard})
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        case Panel.update(conn.assigns.panel, params) do
+          {:ok, panel} ->
+            conn
+            |> put_status(200)
+            |> render("panel.json", %{panel: panel})
 
-  #         {:error, dashboard} ->
-  #           error =
-  #             case String.valid?(dashboard) do
-  #               false -> extract_changeset_error(dashboard)
-  #               true -> dashboard
-  #             end
+          {:error, panel} ->
+            error =
+              case String.valid?(panel) do
+                false -> extract_changeset_error(panel)
+                true -> panel
+              end
 
-  #           conn
-  #           |> send_error(400, error)
-  #       end
+            conn
+            |> send_error(400, error)
+        end
 
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
-  # def delete(conn, _params) do
-  #   case conn.status do
-  #     nil ->
-  #       case Dashboard.delete(conn.assigns.dashboard) do
-  #         {:ok, dashboard} ->
-  #           conn
-  #           |> put_status(200)
-  #           |> render("dashboard.json", %{dashboard: dashboard})
+  def delete(conn, %{"ids" => ids}) do
+    case conn.status do
+      nil ->
+        case Panel.delete_all(ids) do
+          {no_of_records, _} ->
+            conn
+            |> put_status(200)
+            |> render("delete_all.json",
+              message: "#{no_of_records} number of panels deleted successfully"
+            )
+        end
 
-  #         {:error, dashboard} ->
-  #           error =
-  #             case String.valid?(dashboard) do
-  #               false -> extract_changeset_error(dashboard)
-  #               true -> dashboard
-  #             end
-
-  #           conn
-  #           |> send_error(400, error)
-  #       end
-
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 end

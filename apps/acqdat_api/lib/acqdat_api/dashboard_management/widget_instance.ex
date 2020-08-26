@@ -26,7 +26,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
 
   defp widget_create_attrs(%{
          label: label,
-         dashboard_id: dashboard_id,
+         panel_id: panel_id,
          widget_id: widget_id,
          series_data: series_data,
          widget_settings: widget_settings,
@@ -34,7 +34,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
        }) do
     %{
       label: label,
-      dashboard_id: dashboard_id,
+      panel_id: panel_id,
       widget_id: widget_id,
       series_data: series_data,
       widget_settings: widget_settings,

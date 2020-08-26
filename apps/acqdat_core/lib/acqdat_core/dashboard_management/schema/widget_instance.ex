@@ -3,7 +3,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   WidgetInstance are instances of the class Widget, holding the same behaviour as that of widgets,
   but with different data-sources.
 
-  It is used to model associations between dashboard and widget
+  It is used to model associations between dashboard's panel and widget
 
   A widget_instance has four important properties along with others:
   - `visual_properties`
@@ -29,7 +29,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Widgets.Schema.Widget
-  alias AcqdatCore.DashboardManagement.Schema.{Panel, Dashboard}
+  alias AcqdatCore.DashboardManagement.Schema.Panel
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance.SeriesData
 
   @typedoc """
@@ -53,13 +53,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
 
     # associations
     belongs_to(:widget, Widget, on_replace: :delete)
-    belongs_to(:dashboard, Dashboard, on_replace: :delete)
     belongs_to(:panel, Panel, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(label widget_id dashboard_id panel_id slug uuid)a
+  @required ~w(label widget_id panel_id slug uuid)a
   @optional ~w(widget_settings visual_properties)a
   @permitted @required ++ @optional
 
@@ -89,7 +88,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   defp common_changeset(changeset) do
     changeset
     |> assoc_constraint(:widget)
-    |> assoc_constraint(:dashboard)
     |> assoc_constraint(:panel)
     |> unique_constraint(:label,
       name: :unique_widget_name_per_panel,

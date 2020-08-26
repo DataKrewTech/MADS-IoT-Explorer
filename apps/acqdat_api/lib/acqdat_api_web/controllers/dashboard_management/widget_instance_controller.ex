@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
   alias AcqdatApi.DashboardManagement.WidgetInstance
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadDashboard
+  plug AcqdatApiWeb.Plug.LoadPanel
   plug AcqdatApiWeb.Plug.LoadWidget
   plug AcqdatApiWeb.Plug.LoadWidgetInstance when action in [:update, :delete]
 

@@ -54,7 +54,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       nil ->
         {id, _} = Integer.parse(id)
 
-        case Dashboard.get_with_widgets(id) do
+        case Dashboard.get_with_panels(id) do
           {:error, message} ->
             send_error(conn, 400, message)
 

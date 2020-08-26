@@ -24,11 +24,11 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
     end
   end
 
-  def get_all_by_dashboard_id(dashboard_id) do
+  def get_all_by_panel_id(panel_id) do
     widget_instances =
       from(widget_instance in WidgetInstance,
         preload: [:widget],
-        where: widget_instance.dashboard_id == ^dashboard_id
+        where: widget_instance.panel_id == ^panel_id
       )
       |> Repo.all()
 

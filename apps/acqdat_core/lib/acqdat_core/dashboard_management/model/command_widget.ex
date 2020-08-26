@@ -41,11 +41,11 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
     end
   end
 
-  def get_all_by_dashboard_id(dashboard_id) do
+  def get_all_by_panel_id(panel_id) do
     query =
       from(
         widget in CommandWidget,
-        where: widget.dashboard_id == ^dashboard_id
+        where: widget.panel_id == ^panel_id
       )
 
     Repo.all(query)

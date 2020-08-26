@@ -117,30 +117,34 @@ defmodule AcqdatApiWeb.Router do
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
+      resources "/panels", PanelController, except: [:new, :edit, :delete]
+      delete "/panels", PanelController, :delete, as: :panel
+    end
+
+    scope "/panels/:panel_id", DashboardManagement do
       resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
-      resources "/panels", PanelController, except: [:new, :edit]
     end
 
     get "/command_widget_types",
         DashboardManagement.CommandWidgetController,
         :command_widget_types
 
-    post "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances",
+    post "/panels/:panel_id/widgets/:widget_id/widget_instances",
          DashboardManagement.WidgetInstanceController,
          :create,
          as: :create_widget_instances
 
-    get "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+    get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
         DashboardManagement.WidgetInstanceController,
         :show,
         as: :show_widget_instances
 
-    delete "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+    delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
            DashboardManagement.WidgetInstanceController,
            :delete,
            as: :delete_widget_instances
 
-    put "/dashboards/:dashboard_id/widgets/:widget_id/widget_instances/:id",
+    put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
         DashboardManagement.WidgetInstanceController,
         :update,
         as: :update_widget_instances

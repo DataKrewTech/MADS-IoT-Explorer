@@ -10,7 +10,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.CommandWidget do
       visual_settings: :map,
       properties: :map,
       gateway_id!: :integer,
-      dashboard_id!: :integer
+      panel_id!: :integer
     })
   )
 end
