@@ -29,20 +29,20 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
 
     setup do
       org = insert(:organisation)
-      dashboard = insert(:dashboard, org: org)
+      panel = insert(:panel, org: org)
       gateway = insert(:gateway, org: org)
 
-      [gateway: gateway, dashboard: dashboard, org: org]
+      [gateway: gateway, panel: panel, org: org]
     end
 
     test "creates a command widget", context do
-      %{gateway: gateway, dashboard: dashboard, conn: conn, org: org} = context
+      %{gateway: gateway, panel: panel, conn: conn, org: org} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()
 
       params = %{
         "gateway_id" => gateway.id,
-        "dashboard_id" => dashboard.id,
+        "panel_id" => panel.id,
         "module" => module,
         "data_settings" => data_settings,
         "visual_settings" => %{},
@@ -52,7 +52,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
       result =
         conn
         |> post(
-          Routes.command_widget_path(conn, :create, org.id, dashboard.id),
+          Routes.command_widget_path(conn, :create, org.id, panel.id),
           params
         )
         |> json_response(200)
@@ -62,13 +62,13 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
     end
 
     test "fails if error", context do
-      %{dashboard: dashboard, conn: conn, org: org} = context
+      %{panel: panel, conn: conn, org: org} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()
 
       params = %{
         "gateway_id" => -1,
-        "dashboard_id" => dashboard.id,
+        "panel_id" => panel.id,
         "module" => module,
         "data_settings" => data_settings,
         "visual_settings" => %{},
@@ -78,7 +78,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
       result =
         conn
         |> post(
-          Routes.command_widget_path(conn, :create, org.id, dashboard.id),
+          Routes.command_widget_path(conn, :create, org.id, panel.id),
           params
         )
         |> json_response(400)
@@ -92,14 +92,14 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
 
     setup do
       org = insert(:organisation)
-      dashboard = insert(:dashboard, org: org)
+      panel = insert(:panel, org: org)
       gateway = insert(:gateway, org: org)
 
-      [gateway: gateway, dashboard: dashboard, org: org]
+      [gateway: gateway, panel: panel, org: org]
     end
 
     test "update data settings", context do
-      %{dashboard: dashboard, conn: conn, org: org} = context
+      %{panel: panel, conn: conn, org: org} = context
       command_widget = insert(:command_widget)
       data_settings = setup_data()
       params = %{"data_settings" => data_settings}
@@ -107,7 +107,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
       result =
         put(
           conn,
-          Routes.command_widget_path(conn, :update, org.id, dashboard.id, command_widget.id),
+          Routes.command_widget_path(conn, :update, org.id, panel.id, command_widget.id),
           params
         )
         |> json_response(200)
@@ -121,18 +121,18 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
 
     setup do
       org = insert(:organisation)
-      dashboard = insert(:dashboard, org: org)
+      panel = insert(:panel, org: org)
 
-      [dashboard: dashboard, org: org]
+      [panel: panel, org: org]
     end
 
     test "deletes a command widget", context do
-      %{org: org, dashboard: dashboard, conn: conn} = context
+      %{org: org, panel: panel, conn: conn} = context
       command_widget = insert(:command_widget)
 
       delete(
         conn,
-        Routes.command_widget_path(conn, :delete, org.id, dashboard.id, command_widget.id)
+        Routes.command_widget_path(conn, :delete, org.id, panel.id, command_widget.id)
       )
       |> json_response(200)
 

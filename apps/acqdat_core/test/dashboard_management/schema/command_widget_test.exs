@@ -6,21 +6,21 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidgetTest do
 
   describe "changeset" do
     setup do
-      dashboard = insert(:dashboard)
+      panel = insert(:panel)
       gateway = insert(:gateway)
 
-      [gateway: gateway, dashboard: dashboard]
+      [gateway: gateway, panel: panel]
     end
 
     test "returns a valid changeset", context do
-      %{dashboard: dashboard, gateway: gateway} = context
+      %{panel: panel, gateway: gateway} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
 
       params = %{
         label: "LED CONTROL WIDGET",
         module: module,
         gateway_id: gateway.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       %{valid?: validity} = CommandWidget.changeset(%CommandWidget{}, params)
@@ -32,7 +32,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidgetTest do
       changeset = CommandWidget.changeset(%CommandWidget{}, params)
 
       assert errors_on(changeset) == %{
-               dashboard_id: ["can't be blank"],
+               panel_id: ["can't be blank"],
                gateway_id: ["can't be blank"],
                label: ["can't be blank"],
                module: ["can't be blank"]
@@ -40,14 +40,14 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidgetTest do
     end
 
     test "fails for invalid associations", context do
-      %{dashboard: dashboard, gateway: gateway} = context
+      %{panel: panel, gateway: gateway} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
 
       params = %{
         label: "LED CONTROL WIDGET",
         module: module,
         gateway_id: -1,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       changeset = CommandWidget.changeset(%CommandWidget{}, params)
@@ -59,13 +59,13 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidgetTest do
         label: "LED CONTROL WIDGET",
         module: module,
         gateway_id: gateway.id,
-        dashboard_id: -1
+        panel_id: -1
       }
 
       changeset = CommandWidget.changeset(%CommandWidget{}, params)
 
       {:error, changeset} = Repo.insert(changeset)
-      assert errors_on(changeset) == %{dashboard: ["does not exist"]}
+      assert errors_on(changeset) == %{panel: ["does not exist"]}
     end
   end
 end

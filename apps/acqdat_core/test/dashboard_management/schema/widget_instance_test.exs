@@ -7,17 +7,17 @@ defmodule AcqdatCore.Schema.DashboardManagement.WidgetInstanceTest do
   describe "changeset/2" do
     setup do
       widget = insert(:widget)
-      dashboard = insert(:dashboard)
-      [widget: widget, dashboard: dashboard]
+      panel = insert(:panel)
+      [widget: widget, panel: panel]
     end
 
     test "returns a valid changeset", context do
-      %{widget: widget, dashboard: dashboard} = context
+      %{widget: widget, panel: panel} = context
 
       params = %{
         label: "Demo WidgetInstance",
         widget_id: widget.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       %{valid?: validity} = WidgetInstance.changeset(%WidgetInstance{}, params)
@@ -29,16 +29,16 @@ defmodule AcqdatCore.Schema.DashboardManagement.WidgetInstanceTest do
       refute validity
 
       assert %{
-               dashboard_id: ["can't be blank"],
+               panel_id: ["can't be blank"],
                label: ["can't be blank"],
                widget_id: ["can't be blank"]
              } = errors_on(changeset)
     end
 
-    test "returns error if label is not presenet", %{widget: widget, dashboard: dashboard} do
+    test "returns error if label is not presenet", %{widget: widget, panel: panel} do
       params = %{
         widget_id: widget.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
@@ -47,11 +47,11 @@ defmodule AcqdatCore.Schema.DashboardManagement.WidgetInstanceTest do
       assert %{label: ["can't be blank"]} == errors_on(result_changeset)
     end
 
-    test "returns error if widget assoc constraint not satisfied", %{dashboard: dashboard} do
+    test "returns error if widget assoc constraint not satisfied", %{panel: panel} do
       params = %{
         label: "Demo WidgetInstance",
         widget_id: -1,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
@@ -60,27 +60,27 @@ defmodule AcqdatCore.Schema.DashboardManagement.WidgetInstanceTest do
       assert %{widget: ["does not exist"]} == errors_on(result_changeset)
     end
 
-    test "returns error if dashboard assoc constraint not satisfied", %{widget: widget} do
+    test "returns error if panel assoc constraint not satisfied", %{widget: widget} do
       params = %{
         label: "Demo WidgetInstance",
         widget_id: widget.id,
-        dashboard_id: -1
+        panel_id: -1
       }
 
       changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
 
       {:error, result_changeset} = Repo.insert(changeset)
-      assert %{dashboard: ["does not exist"]} == errors_on(result_changeset)
+      assert %{panel: ["does not exist"]} == errors_on(result_changeset)
     end
 
     test "returns error if unique label constraint not satisified", %{
       widget: widget,
-      dashboard: dashboard
+      panel: panel
     } do
       params = %{
         label: "Demo WidgetInstance",
         widget_id: widget.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
@@ -89,7 +89,9 @@ defmodule AcqdatCore.Schema.DashboardManagement.WidgetInstanceTest do
 
       new_changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
       {:error, result_changeset} = Repo.insert(new_changeset)
-      assert %{label: ["unique widget label under dashboard"]} == errors_on(result_changeset)
+
+      assert %{label: ["unique widget label under dashboard's panel"]} ==
+               errors_on(result_changeset)
     end
   end
 end

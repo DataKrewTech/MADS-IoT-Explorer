@@ -4,7 +4,6 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
-  alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
   alias AcqdatCore.Model.EntityManagement.SensorData, as: SensorDataModel
 
   describe "get_by_filter" do
@@ -74,10 +73,10 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
     end
   end
 
-  describe "get_all_by_dashboard_id" do
-    test "returns all widget_instances of respective dashboard" do
+  describe "get_all_by_panel_id" do
+    test "returns all widget_instances of respective panel" do
       widget = insert(:widget_instance)
-      result = WidgetInstanceModel.get_all_by_dashboard_id(widget.dashboard_id)
+      result = WidgetInstanceModel.get_all_by_panel_id(widget.panel_id)
 
       assert not is_nil(result)
       assert length(result) == 1
@@ -86,24 +85,24 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
 
   describe "create/1" do
     setup do
-      dashboard = insert(:dashboard)
+      panel = insert(:panel)
       widget = insert(:widget)
-      [dashboard: dashboard, widget: widget]
+      [panel: panel, widget: widget]
     end
 
     test "creates a widget_instance with supplied params", context do
-      %{dashboard: dashboard, widget: widget} = context
+      %{panel: panel, widget: widget} = context
 
       params = %{
         label: "Demo WidgetInstance",
         widget_id: widget.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       assert {:ok, _widget_instance} = WidgetInstanceModel.create(params)
     end
 
-    test "fails if dashboard_id is not present", context do
+    test "fails if panel_id is not present", context do
       %{widget: widget} = context
 
       params = %{
@@ -112,15 +111,15 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
       }
 
       assert {:error, changeset} = WidgetInstanceModel.create(params)
-      assert %{dashboard_id: ["can't be blank"]} == errors_on(changeset)
+      assert %{panel_id: ["can't be blank"]} == errors_on(changeset)
     end
 
     test "fails if label is not present", context do
-      %{dashboard: dashboard, widget: widget} = context
+      %{panel: panel, widget: widget} = context
 
       params = %{
         widget_id: widget.id,
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       assert {:error, changeset} = WidgetInstanceModel.create(params)
@@ -128,11 +127,11 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
     end
 
     test "fails if widget is not present", context do
-      %{dashboard: dashboard} = context
+      %{panel: panel} = context
 
       params = %{
         label: "Demo WidgetInstance",
-        dashboard_id: dashboard.id
+        panel_id: panel.id
       }
 
       assert {:error, changeset} = WidgetInstanceModel.create(params)

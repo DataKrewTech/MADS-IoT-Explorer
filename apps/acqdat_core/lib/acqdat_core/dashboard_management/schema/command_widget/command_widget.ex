@@ -45,6 +45,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
     |> validate_required(@required)
     |> add_command_widget_type()
     |> assoc_constraint(:gateway)
+    |> assoc_constraint(:panel)
   end
 
   defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do

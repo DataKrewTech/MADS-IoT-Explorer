@@ -32,7 +32,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
             conn,
             :show,
             org.id,
-            widget_instance.dashboard_id,
+            widget_instance.panel_id,
             widget_instance.widget_id,
             3
           )
@@ -58,7 +58,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
             conn,
             :show,
             org.id,
-            widget_instance.dashboard_id,
+            widget_instance.panel_id,
             widget_instance.widget_id,
             params.id
           )
@@ -80,7 +80,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
             conn,
             :show,
             org.id,
-            widget_instance.dashboard_id,
+            widget_instance.panel_id,
             widget_instance.widget_id,
             widget_instance.id
           )
@@ -100,16 +100,16 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
 
     setup do
       org = insert(:organisation)
-      dashboard = insert(:dashboard)
+      panel = insert(:panel)
       widget = insert(:widget)
 
-      [org: org, dashboard: dashboard, widget: widget]
+      [org: org, panel: panel, widget: widget]
     end
 
     test "widget_instance create successfully", %{
       conn: conn,
       org: org,
-      dashboard: dashboard,
+      panel: panel,
       widget: widget
     } do
       widget_instance_manifest = build(:widget_instance)
@@ -121,7 +121,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       conn =
         post(
           conn,
-          Routes.create_widget_instances_path(conn, :create, org.id, dashboard.id, widget.id),
+          Routes.create_widget_instances_path(conn, :create, org.id, panel.id, widget.id),
           data
         )
 
@@ -146,7 +146,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
     test "fails if required params are missing", %{
       conn: conn,
       org: org,
-      dashboard: dashboard,
+      panel: panel,
       widget: widget
     } do
       data = %{}
@@ -154,7 +154,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       conn =
         post(
           conn,
-          Routes.create_widget_instances_path(conn, :create, org.id, dashboard.id, widget.id),
+          Routes.create_widget_instances_path(conn, :create, org.id, panel.id, widget.id),
           data
         )
 

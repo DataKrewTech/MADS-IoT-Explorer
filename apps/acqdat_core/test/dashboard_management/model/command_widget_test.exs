@@ -6,20 +6,20 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
 
   describe "create/1 " do
     setup do
-      dashboard = insert(:dashboard)
+      panel = insert(:panel)
       gateway = insert(:gateway)
 
-      [gateway: gateway, dashboard: dashboard]
+      [gateway: gateway, panel: panel]
     end
 
     test "creates a command widget with supplied params", context do
-      %{gateway: gateway, dashboard: dashboard} = context
+      %{gateway: gateway, panel: panel} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()
 
       params = %{
         gateway_id: gateway.id,
-        dashboard_id: dashboard.id,
+        panel_id: panel.id,
         module: module,
         data_settings: data_settings,
         visual_settings: %{},
@@ -32,20 +32,20 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
 
   describe "update/2 " do
     setup do
-      dashboard = insert(:dashboard)
+      panel = insert(:panel)
       gateway = insert(:gateway)
 
-      [gateway: gateway, dashboard: dashboard]
+      [gateway: gateway, panel: panel]
     end
 
     test "update without data settings", context do
-      %{gateway: gateway, dashboard: dasbhoard} = context
+      %{gateway: gateway, panel: panel} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()
 
       params = %{
         "gateway_id" => gateway.id,
-        "dashboard_id" => dasbhoard.id,
+        "panel_id" => panel.id,
         "module" => module,
         "data_settings" => data_settings,
         "visual_settings" => %{},
@@ -62,13 +62,13 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
 
     # TODO add mock for mqtt
     test "update with data settings", context do
-      %{gateway: gateway, dashboard: dasbhoard} = context
+      %{gateway: gateway, panel: panel} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()
 
       params = %{
         "gateway_id" => gateway.id,
-        "dashboard_id" => dasbhoard.id,
+        "panel_id" => panel.id,
         "module" => module,
         "data_settings" => data_settings,
         "visual_settings" => %{},
@@ -87,8 +87,8 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
 
   describe "get/1 " do
     setup do
-      dashboard = insert(:dashboard)
-      command_widgets = insert_list(3, :command_widget, dashboard: dashboard)
+      panel = insert(:panel)
+      command_widgets = insert_list(3, :command_widget, panel: panel)
       [command_widgets: command_widgets]
     end
 
@@ -105,22 +105,22 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidgetTest do
     end
   end
 
-  describe "get_all_by_dashboard_id/1 " do
+  describe "get_all_by_panel_id/1 " do
     setup do
-      dashboard = insert(:dashboard)
-      command_widgets = insert_list(3, :command_widget, dashboard: dashboard)
+      panel = insert(:panel)
+      command_widgets = insert_list(3, :command_widget, panel: panel)
       [command_widgets: command_widgets]
     end
 
     test "returns command widget with id", context do
       %{command_widgets: [cw1, _cw_2, _cw_3]} = context
-      widgets = CommandWidget.get_all_by_dashboard_id(cw1.dashboard_id)
+      widgets = CommandWidget.get_all_by_panel_id(cw1.panel_id)
       assert length(widgets) == 3
     end
 
     test "returns empty if none found" do
-      dashboard = insert(:dashboard)
-      widgets = CommandWidget.get_all_by_dashboard_id(dashboard.id)
+      panel = insert(:panel)
+      widgets = CommandWidget.get_all_by_panel_id(panel.id)
       assert widgets == []
     end
   end
