@@ -3,6 +3,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DashboardManagement.Dashboard
   alias AcqdatApi.DashboardManagement.Dashboard
+  alias AcqdatApi.Image
+  alias AcqdatApi.ImageDeletion
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:update, :delete]
@@ -28,6 +30,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   def create(conn, params) do
     case conn.status do
       nil ->
+        params = add_avatar_to_params(conn, params)
         changeset = verify_create(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
@@ -73,7 +76,11 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   def update(conn, params) do
     case conn.status do
       nil ->
-        case Dashboard.update(conn.assigns.dashboard, params) do
+        dashboard = conn.assigns.dashboard
+        params = Map.put(params, "avatar", dashboard.avatar)
+        params = extract_image(conn, dashboard, params)
+
+        case Dashboard.update(dashboard, params) do
           {:ok, dashboard} ->
             conn
             |> put_status(200)
@@ -101,6 +108,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       nil ->
         case Dashboard.delete(conn.assigns.dashboard) do
           {:ok, dashboard} ->
+            if dashboard.avatar != nil do
+              ImageDeletion.delete_operation(dashboard.avatar, "dashboard")
+            end
+
             conn
             |> put_status(200)
             |> render("dashboard.json", %{dashboard: dashboard})
@@ -119,6 +130,42 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  ############################# private functions ###########################
+
+  defp add_avatar_to_params(conn, params) do
+    params = Map.put(params, "avatar", "")
+
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        add_image_url(conn, params)
+    end
+  end
+
+  defp extract_image(conn, dashboard, params) do
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        if dashboard.avatar != nil do
+          ImageDeletion.delete_operation(dashboard.avatar, "dashboard")
+        end
+
+        add_image_url(conn, params)
+    end
+  end
+
+  defp add_image_url(conn, %{"image" => image} = params) do
+    with {:ok, image_name} <- Image.store({image, "dashboard"}) do
+      Map.replace!(params, "avatar", Image.url({image_name, "dashboard"}))
+    else
+      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end

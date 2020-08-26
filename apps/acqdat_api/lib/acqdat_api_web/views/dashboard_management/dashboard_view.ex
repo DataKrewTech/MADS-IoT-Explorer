@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       slug: dashboard.slug,
       uuid: dashboard.uuid,
       settings: dashboard.settings,
-      widget_layouts: dashboard.widget_layouts
+      avatar: dashboard.avatar
     }
   end
 
@@ -35,6 +35,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       slug: dashboard.slug,
       uuid: dashboard.uuid,
       settings: dashboard.settings,
+      avatar: dashboard.avatar,
       panels: render_many(dashboard.panels, PanelView, "panel.json")
     }
   end

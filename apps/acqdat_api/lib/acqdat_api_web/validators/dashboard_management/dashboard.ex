@@ -13,6 +13,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.Dashboard do
     verify_create(%{
       org_id!: :integer,
       name!: :string,
+      avatar: :string,
       description: :string,
       settings: :map,
       widget_layouts: :map
