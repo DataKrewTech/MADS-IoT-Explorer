@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
              {:create, {:ok, dashboard}} <- {:create, Dashboard.create(data)} do
           conn
           |> put_status(200)
-          |> render("dashboard.json", %{dashboard: dashboard})
+          |> render("show.json", %{dashboard: dashboard})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
