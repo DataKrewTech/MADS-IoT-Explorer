@@ -24,7 +24,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       description: description,
       org_id: org_id,
       avatar: avatar,
-      settings: settings
+      settings: settings || %{}
     }
 
     create_dashboard(dashboard_params)

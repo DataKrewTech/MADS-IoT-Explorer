@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       org_id: dashboard.org_id,
       slug: dashboard.slug,
       uuid: dashboard.uuid,
-      settings: dashboard.settings,
+      settings: render_one(dashboard.settings, DashboardView, "settings.json"),
       avatar: dashboard.avatar
     }
   end
@@ -34,9 +34,18 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       org_id: dashboard.org_id,
       slug: dashboard.slug,
       uuid: dashboard.uuid,
-      settings: dashboard.settings,
+      settings: render_one(dashboard.settings, DashboardView, "settings.json"),
       avatar: dashboard.avatar,
       panels: render_many(dashboard.panels, PanelView, "panel.json")
+    }
+  end
+
+  def render("settings.json", %{dashboard: settings}) do
+    %{
+      id: settings.id,
+      background_color: settings.background_color,
+      client_name: settings.client_name,
+      sidebar_color: settings.sidebar_color
     }
   end
 end
