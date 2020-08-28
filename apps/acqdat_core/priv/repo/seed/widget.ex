@@ -2,7 +2,7 @@ defmodule AcqdatCore.Seed.Widget do
   @moduledoc """
   Holds seeds for initial widgets.
   """
-  alias AcqdatCore.Seed.Widgets.{Line, Area, Pie, Bar, LineTimeseries, AreaTimeseries, GaugeSeries, SolidGauge, StockSingleLine}
+  alias AcqdatCore.Seed.Widgets.{Line, Area, Pie, Bar, LineTimeseries, AreaTimeseries, GaugeSeries, SolidGauge, StockSingleLine, DynamicCard, ImageCard, StaticCard}
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
 
   def seed() do
@@ -16,6 +16,9 @@ defmodule AcqdatCore.Seed.Widget do
     GaugeSeries.seed()
     SolidGauge.seed()
     StockSingleLine.seed()
+    DynamicCard.seed()
+    ImageCard.seed()
+    StaticCard.seed()
     WidgetHelpers.seed_in_elastic()
   end
 end

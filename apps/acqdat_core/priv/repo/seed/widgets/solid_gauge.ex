@@ -5,6 +5,7 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
+  alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   @highchart_key_widget_settings %{
     solidgauge: %{
@@ -84,7 +85,7 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
   }
 
   def seed() do
-    widget_type = WidgetHelpers.seed_widget_type()
+    widget_type = WidgetHelpers.find_or_create_widget_type("HighCharts")
     seed_widgets(widget_type)
   end
 
@@ -109,8 +110,8 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
       category: ["chart", "solid gauge"],
       policies: %{},
       widget_type_id: widget_type.id,
-      visual_settings: WidgetHelpers.do_settings(widget_settings, :visual),
-      data_settings: WidgetHelpers.do_settings(widget_settings, :data),
+      visual_settings: WidgetHelpers.do_settings(widget_settings, :visual, %HighCharts{}),
+      data_settings: WidgetHelpers.do_settings(widget_settings, :data, %HighCharts{}),
       default_values: data
     }
   end

@@ -3,43 +3,34 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
   alias AcqdatCore.Widgets.Schema.Widget
   alias AcqdatCore.Widgets.Schema.WidgetType
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
-  alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
   alias AcqdatCore.Widgets.Schema.Widget.VisualSettings
   alias AcqdatCore.Widgets.Schema.Widget.DataSettings
   import Tirexs.HTTP
   import Ecto.Query
 
-  @highchart_struct %HighCharts{}
   @non_value_types ~w(object list)a
 
-  def seed_widget_type() do
-    params = %{
-      name: "Highcharts",
-      vendor: "Highcharts",
-      module: "Elixir.AcqdatCore.Widgets.Schema.Vendors.HighCharts",
-      vendor_metadata: %{}
-    }
-
-    changeset = WidgetType.changeset(%WidgetType{}, params)
-    {:ok, widget_type} = Repo.insert(changeset)
-    widget_type
-  end
-
-  def return_widget_type() do
+  def find_or_create_widget_type(widget_name) do
     query = from(widget_type in WidgetType,
-      where: widget_type.name == "Highcharts",
+      where: widget_type.name == ^widget_name,
       select: widget_type
       )
-      List.first(Repo.all(query))
+
+    case Repo.all(query) do
+      [] ->
+        create_widget_type(widget_name)
+      data ->
+        List.first(data)
+    end
   end
 
-  def do_settings(%{visual: settings}, :visual) do
+  def do_settings(%{visual: settings}, :visual, vendor_struct) do
     Enum.map(settings, fn {key, value} ->
-      set_keys_from_vendor(key, value, Map.get(@highchart_struct, key))
+      set_keys_from_vendor(key, value, Map.get(vendor_struct, key))
     end)
   end
 
-  def do_settings(%{data: settings}, :data) do
+  def do_settings(%{data: settings}, :data, _vendor_struct) do
     Enum.map(settings, fn {key, value} ->
       set_data_keys(key, value)
     end)
@@ -120,5 +111,18 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
       properties: params.properties,
       category: params.category
     )
+  end
+
+  defp create_widget_type(name) do
+     params = %{
+      name: name,
+      vendor: name,
+      module: "Elixir.AcqdatCore.Widgets.Schema.Vendors.#{name}",
+      vendor_metadata: %{}
+    }
+
+    changeset = WidgetType.changeset(%WidgetType{}, params)
+    {:ok, widget_type} = Repo.insert(changeset)
+    widget_type
   end
 end
