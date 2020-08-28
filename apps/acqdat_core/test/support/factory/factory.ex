@@ -149,7 +149,7 @@ defmodule AcqdatCore.Support.Factory do
   def widget_type_factory() do
     %WidgetType{
       name: sequence(:name, &"Widget_Type-#{&1}"),
-      vendor: "Highcharts",
+      vendor: "HighCharts",
       module: "Elixir.AcqdatCore.Widgets.Schema.Vendors.HighCharts",
       vendor_metadata: %{}
     }
