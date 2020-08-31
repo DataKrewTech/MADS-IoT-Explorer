@@ -14,6 +14,7 @@ defmodule AcqdatApi.RoleManagement.User do
   defdelegate update_user(user, params), to: UserModel
   defdelegate get_all(data, preloads), to: UserModel
   defdelegate get(user_id), to: UserModel
+  defdelegate delete(user), to: UserModel
 
   def set_asset(user, %{assets: assets}) do
     verify_user_assets(UserModel.set_asset(user, assets))
@@ -121,6 +122,37 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:role_id, role_id)
       |> Map.put(:is_invited, true)
 
+    # case to check if the invited user exist in our database and is being deleted previously
+    case UserModel.get(user_details.email) do
+      nil -> non_existing_user(user_details, invitation)
+      user -> existing_user(user.is_deleted, user, user_details, invitation)
+    end
+  end
+
+  defp existing_user(true, user, user_details, invitation) do
+    user_details = Map.put(user_details, :is_deleted, false)
+
+    verify_user(
+      Multi.new()
+      |> Multi.run(:update_user, fn _, _changes ->
+        UserModel.update_user(user, user_details)
+      end)
+      |> Multi.run(:delete_invitation, fn _, _ ->
+        InvitationModel.delete(invitation)
+      end)
+      |> run_transaction()
+    )
+  end
+
+  defp existing_user(false, _user, _user_details, invitation) do
+    Multi.new()
+    |> Multi.run(:delete_invitation, fn _, _ ->
+      InvitationModel.delete(invitation)
+    end)
+    |> run_transaction()
+  end
+
+  defp non_existing_user(user_details, invitation) do
     # NOTE: Following two things are happeing inside this transaction:
     # 1) UserCreation from token
     # 3) Invitation Record Deletions
@@ -143,7 +175,13 @@ defmodule AcqdatApi.RoleManagement.User do
       {:ok, %{create_user: user, delete_invitation: _delete_invitation}} ->
         {:ok, user}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:ok, %{update_user: user, delete_invitation: _delete_invitation}} ->
+        {:ok, user}
+
+      {:ok, %{delete_invitation: _delete_invitation}} ->
+        {:error, %{error: "User already exists"}}
+
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
     end
   end

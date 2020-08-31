@@ -57,7 +57,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     query =
       from(user in User,
         join: org in Organisation,
-        on: user.org_id == ^org_id and org.id == ^org_id
+        on: user.org_id == ^org_id and org.id == ^org_id and user.is_deleted == false
       )
 
     paginated_user_data =
@@ -71,10 +71,15 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   @doc """
   Deletes a User.
 
-  Expects `user_id` as the argument.
+  Expects `user` as the argument.
   """
   def delete(user) do
-    user |> Repo.delete()
+    changeset = User.update_changeset(user, %{is_deleted: true})
+
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
+      {:error, message} -> {:error, message}
+    end
   end
 
   @doc """
@@ -83,6 +88,13 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   Expects `user` and update parameters as the arguments
   """
   def update_user(%User{} = user, params) do
+    changeset = User.update_changeset(user, params)
+
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
+      {:error, message} -> {:error, message}
+    end
+
     changeset = User.update_changeset(user, params)
 
     case Repo.update(changeset) do
@@ -124,18 +136,18 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     |> Repo.update()
   end
 
-  def get_all(%{page_size: page_size, page_number: page_number}) do
-    User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
-  end
+  # def get_all(%{page_size: page_size, page_number: page_number}) do
+  #   User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  # end
 
-  def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
-    paginated_user_data =
-      User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+  # def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
+  #   paginated_user_data =
+  #     User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
 
-    user_data_with_preloads = paginated_user_data.entries |> Repo.preload(preloads)
+  #   user_data_with_preloads = paginated_user_data.entries |> Repo.preload(preloads)
 
-    ModelHelper.paginated_response(user_data_with_preloads, paginated_user_data)
-  end
+  #   ModelHelper.paginated_response(user_data_with_preloads, paginated_user_data)
+  # end
 
   @doc """
   Extract out the email of given user

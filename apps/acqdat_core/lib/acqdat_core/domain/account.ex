@@ -29,7 +29,14 @@ defmodule AcqdatCore.Domain.Account do
   end
 
   defp verify_email(user, password) do
-    verify_password(user, Argon2.checkpw(password, user.password_hash))
+    case user.is_deleted do
+      false ->
+        verify_password(user, Argon2.checkpw(password, user.password_hash))
+
+      true ->
+        Argon2.dummy_checkpw()
+        {:error, :not_found}
+    end
   end
 
   defp verify_password(user, true = _password_matches), do: {:ok, user}

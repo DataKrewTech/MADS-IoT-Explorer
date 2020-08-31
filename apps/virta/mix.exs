@@ -29,7 +29,7 @@ defmodule Virta.MixProject do
     [
       {:libgraph, "~> 0.7"},
       {:poolboy, "~> 1.5.1"},
-      {:ex_doc, "~> 0.18.0", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.19.0", only: :dev, runtime: false}
     ]
   end
 

@@ -9,7 +9,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
 
   plug AcqdatApiWeb.Plug.LoadUser
-       when action in [:show, :update, :assets, :apps]
+       when action in [:show, :update, :assets, :apps, :delete]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -196,6 +196,28 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
           {:error, user} ->
             error = extract_changeset_error(user)
+
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def delete(conn, _params) do
+    case conn.status do
+      nil ->
+        case User.delete(conn.assigns.user) do
+          {:ok, user} ->
+            conn
+            |> put_status(200)
+            |> render("user_details.json", %{user_details: user})
+
+          {:error, message} ->
+            error = extract_changeset_error(message)
 
             conn
             |> send_error(400, error)

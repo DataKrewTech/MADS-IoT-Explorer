@@ -58,8 +58,9 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
+    post "/export/:dashboard_id", DashboardExport.DashboardExportController, :create
 
-    resources "/users", RoleManagement.UserController, only: [:show, :update, :index] do
+    resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
       resources "/tasks", DataCruncher.TasksController, only: [:create, :index, :show]
 
       resources "/settings", RoleManagement.UserSettingController,
