@@ -19,6 +19,15 @@ defmodule AcqdatApiWeb.Router do
     plug(:accepts, ["json", "json-api"])
   end
 
+  pipeline :export_auth do
+    plug(AcqdatApiWeb.DashboardExportAuth)
+  end
+
+  scope "/", AcqdatApiWeb do
+    pipe_through(:export_auth)
+    get("/:dashboard_uuid", DashboardExport.DashboardExportController, :export)
+  end
+
   scope "/", AcqdatApiWeb do
     pipe_through(:api)
 
