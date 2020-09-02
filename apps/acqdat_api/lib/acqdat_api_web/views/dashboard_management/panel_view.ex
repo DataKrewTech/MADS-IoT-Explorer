@@ -20,7 +20,8 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelView do
       slug: panel.slug,
       uuid: panel.uuid,
       settings: panel.settings,
-      widget_layouts: panel.widget_layouts
+      widget_layouts: panel.widget_layouts,
+      filter_metadata: render_one(panel.filter_metadata, PanelView, "filter_metadata.json")
     }
   end
 
@@ -46,7 +47,18 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelView do
       settings: panel.settings,
       widget_layouts: panel.widget_layouts,
       widgets: render_many(panel.widgets, WidgetInstanceView, "show.json"),
-      command_widgets: render_many(panel.command_widgets, CommandWidgetView, "show.json")
+      command_widgets: render_many(panel.command_widgets, CommandWidgetView, "show.json"),
+      filter_metadata: render_one(panel.filter_metadata, PanelView, "filter_metadata.json")
+    }
+  end
+
+  def render("filter_metadata.json", %{panel: metadata}) do
+    %{
+      id: metadata.id,
+      from_date: metadata.from_date,
+      to_date: metadata.to_date,
+      aggregate_func: metadata.aggregate_func,
+      group_interval: metadata.group_interval
     }
   end
 end

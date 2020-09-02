@@ -17,7 +17,8 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.Panel do
       name!: :string,
       description: :string,
       settings: :map,
-      widget_layouts: :map
+      widget_layouts: :map,
+      filter_metadata: :map
     })
   )
 end
