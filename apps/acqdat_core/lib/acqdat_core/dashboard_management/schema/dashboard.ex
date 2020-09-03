@@ -93,8 +93,8 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard.Settings do
   use AcqdatCore.Schema
 
   embedded_schema do
-    field(:background_color, :string, default: "#FFFFFF")
-    field(:sidebar_color, :string, default: "#000000")
+    field(:background_color, :string, default: "#f2f2f2")
+    field(:sidebar_color, :string, default: "#1e3664")
     field(:client_name, :string)
   end
 

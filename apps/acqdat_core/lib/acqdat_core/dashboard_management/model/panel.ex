@@ -58,6 +58,10 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     end
   end
 
+  def delete(panel) do
+    Repo.delete(panel)
+  end
+
   def delete_all(ids) when is_list(ids) do
     from(panel in Panel, where: panel.id in ^ids)
     |> Repo.delete_all()

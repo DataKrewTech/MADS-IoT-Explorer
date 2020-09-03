@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
   alias AcqdatApi.DashboardManagement.Panel
 
   plug AcqdatApiWeb.Plug.LoadOrg
-  plug AcqdatApiWeb.Plug.LoadPanel when action in [:update]
+  plug AcqdatApiWeb.Plug.LoadPanel when action in [:update, :delete]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -96,16 +96,24 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
     end
   end
 
-  def delete(conn, %{"ids" => ids}) do
+  def delete(conn, _params) do
     case conn.status do
       nil ->
-        case Panel.delete_all(ids) do
-          {no_of_records, _} ->
+        case Panel.delete(conn.assigns.panel) do
+          {:ok, panel} ->
             conn
             |> put_status(200)
-            |> render("delete_all.json",
-              message: "#{no_of_records} number of panels deleted successfully"
-            )
+            |> render("panel.json", %{panel: panel})
+
+          {:error, panel} ->
+            error =
+              case String.valid?(panel) do
+                false -> extract_changeset_error(panel)
+                true -> panel
+              end
+
+            conn
+            |> send_error(400, error)
         end
 
       404 ->

@@ -135,8 +135,7 @@ defmodule AcqdatApiWeb.Router do
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
-      resources "/panels", PanelController, except: [:new, :edit, :delete]
-      delete "/panels", PanelController, :delete, as: :panel
+      resources "/panels", PanelController, except: [:new, :edit]
     end
 
     scope "/panels/:panel_id", DashboardManagement do

@@ -3,7 +3,7 @@ defmodule AcqdatApi.DashboardManagement.Panel do
   import AcqdatApiWeb.Helpers
 
   defdelegate get_all(data), to: PanelModel
-  defdelegate delete_all(ids), to: PanelModel
+  defdelegate delete(panel), to: PanelModel
   defdelegate get_with_widgets(panel_id), to: PanelModel
 
   def create(attrs) do
