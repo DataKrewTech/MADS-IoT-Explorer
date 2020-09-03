@@ -368,6 +368,18 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   def fetch_highchart_details(widget_inst) do
     filter_metadata = widget_inst.panel.filter_metadata
 
+    filter_metadata =
+      if is_nil(filter_metadata) do
+        %{
+          from_date: Timex.shift(Timex.now(), months: -1) |> DateTime.truncate(:second),
+          to_date: Timex.now() |> DateTime.truncate(:second),
+          aggregate_func: "max",
+          group_interval: "hour"
+        }
+      else
+        widget_inst.panel.filter_metadata
+      end
+
     series_data =
       widget_inst.series_data
       |> arrange_series_structure(widget_inst.widget, filter_metadata)
@@ -469,7 +481,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          type
        )
        when entity_type == "sensor" and type == "timseries" do
-    SensorData.get_latest_by_parameters(entity_id, parameter, filter_metadata)
+    SensorData.get_all_by_parameters(entity_id, parameter, filter_metadata)
   end
 
   defp fetch_from_data_source(

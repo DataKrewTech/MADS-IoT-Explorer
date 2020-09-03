@@ -137,7 +137,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
 
     test "panel delete", %{conn: conn, panel: panel} do
       params = %{
-        ids: [panel.id]
+        id: panel.id
       }
 
       conn =
@@ -148,13 +148,14 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
             :delete,
             panel.org_id,
             panel.dashboard_id,
-            params
+            params.id
           )
         )
 
       response = conn |> json_response(200)
 
-      assert response == %{"status" => "1 number of panels deleted successfully"}
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
     end
 
     test "fails if invalid token in authorization header", %{conn: conn} do
@@ -165,20 +166,20 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       params = %{
-        ids: [1]
+        id: 1
       }
 
-      conn = delete(conn, Routes.panel_path(conn, :delete, 1, 1, params))
+      conn = delete(conn, Routes.panel_path(conn, :delete, 1, 1, params.id))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
     test "panel with invalid panel id", %{conn: conn, panel: panel} do
       params = %{
-        ids: [-1]
+        id: -1
       }
 
-      conn = delete(conn, Routes.panel_path(conn, :delete, 1, panel.dashboard_id, params))
+      conn = delete(conn, Routes.panel_path(conn, :delete, 1, panel.dashboard_id, params.id))
 
       result = conn |> json_response(404)
       assert result == %{"errors" => %{"message" => "Resource Not Found"}}
