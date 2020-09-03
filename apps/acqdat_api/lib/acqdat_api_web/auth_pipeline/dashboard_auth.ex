@@ -6,8 +6,21 @@ defmodule AcqdatApiWeb.DashboardExportAuth do
   @spec init(any) :: any
   def init(default), do: default
 
-  @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(%{params: %{"dashboard_uuid" => dashboard_uuid, "token" => token}} = conn, _params) do
+  def call(%{params: %{"dashboard_uuid" => dashboard_uuid}} = conn, _params) do
+    token =
+      case Map.has_key?(conn.params, "token") do
+        true ->
+          %{params: %{"token" => token}} = conn
+          token
+
+        false ->
+          [token] =
+            conn
+            |> get_req_header("authorization")
+
+          token |> String.trim("Bearer") |> String.trim(" ")
+      end
+
     case DEModel.verify_uuid_and_token(dashboard_uuid, token) do
       {:error, message} ->
         conn

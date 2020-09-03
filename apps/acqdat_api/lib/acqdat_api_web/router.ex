@@ -25,7 +25,13 @@ defmodule AcqdatApiWeb.Router do
 
   scope "/", AcqdatApiWeb do
     pipe_through(:export_auth)
-    get("/:dashboard_uuid", DashboardExport.DashboardExportController, :export)
+    get("/dashboards/:dashboard_uuid", DashboardExport.DashboardExportController, :export)
+
+    get(
+      "/dashboards/:dashboard_uuid/verify",
+      DashboardManagement.DashboardController,
+      :exported_dashboard
+    )
   end
 
   scope "/", AcqdatApiWeb do
@@ -65,7 +71,7 @@ defmodule AcqdatApiWeb.Router do
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-
+    post("/dashboards/:dashboard_id/export", DashboardExport.DashboardExportController, :create)
     resources "/components", DataCruncher.ComponentsController, only: [:index]
     post "/export/:dashboard_id", DashboardExport.DashboardExportController, :create
 

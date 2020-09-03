@@ -29,6 +29,21 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
     end
   end
 
+  def get_by_uuid(uuid) when is_binary(uuid) do
+    query =
+      from(dashboard in Dashboard,
+        where: dashboard.uuid == ^uuid
+      )
+
+    case List.first(Repo.all(query)) do
+      nil ->
+        {:error, "dashboard with this uuid not found"}
+
+      dashboard ->
+        {:ok, dashboard}
+    end
+  end
+
   def get_with_panels(id) when is_integer(id) do
     case Repo.get(Dashboard, id) |> Repo.preload([:panels]) do
       nil ->

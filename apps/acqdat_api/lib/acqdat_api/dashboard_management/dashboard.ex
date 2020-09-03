@@ -9,6 +9,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
   defdelegate delete(dashboard), to: DashboardModel
+  defdelegate get_by_uuid(uuid), to: DashboardModel
 
   def create(attrs) do
     %{

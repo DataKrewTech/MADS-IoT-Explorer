@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
 
-  plug AcqdatApiWeb.Plug.LoadOrg
+  plug AcqdatApiWeb.Plug.LoadOrg when not (action in [:exported_dashboard])
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:update, :delete]
 
   def index(conn, params) do
@@ -133,7 +133,55 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     end
   end
 
+  def exported_dashboard(conn, params) do
+    case conn.status do
+      nil ->
+        exported_dashboard = conn.assigns.exported_dashboard
+
+        dashboard =
+          case exported_dashboard.is_secure do
+            false ->
+              Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+
+            true ->
+              case check_password(params["password"], exported_dashboard.password) do
+                false ->
+                  nil
+
+                true ->
+                  Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+              end
+          end
+
+        case dashboard do
+          {:ok, dashboard} ->
+            conn
+            |> put_status(200)
+            |> render("dashboard.json", %{dashboard: dashboard})
+
+          {:error, message} ->
+            send_error(conn, 400, message)
+
+          nil ->
+            conn
+            |> send_error(401, "Unauthorized link")
+        end
+
+      401 ->
+        conn
+        |> send_error(401, "Unauthorized link")
+    end
+  end
+
   ############################# private functions ###########################
+
+  defp check_password(password, db_password) do
+    if password == db_password do
+      true
+    else
+      false
+    end
+  end
 
   defp add_avatar_to_params(conn, params) do
     params = Map.put(params, "avatar", "")
