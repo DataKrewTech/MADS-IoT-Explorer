@@ -5,9 +5,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   defdelegate delete(widget_instance), to: WidgetInstanceModel
-
-  defdelegate get_by_filter(widget_id, filter_month, start_date, end_date),
-    to: WidgetInstanceModel
+  defdelegate get_by_filter(widget_id), to: WidgetInstanceModel
 
   def create(attrs, conn) do
     verify_widget(
@@ -43,7 +41,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   end
 
   defp verify_widget({:ok, widget}) do
-    widget = widget |> Repo.preload([:widget])
+    widget = widget |> Repo.preload([:widget, :panel])
     updated_widget = widget |> HighCharts.fetch_highchart_details()
 
     {:ok, updated_widget}

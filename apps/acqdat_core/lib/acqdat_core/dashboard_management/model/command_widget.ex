@@ -45,6 +45,7 @@ defmodule AcqdatCore.Model.DashboardManagement.CommandWidget do
     query =
       from(
         widget in CommandWidget,
+        preload: [:panel],
         where: widget.panel_id == ^panel_id
       )
 

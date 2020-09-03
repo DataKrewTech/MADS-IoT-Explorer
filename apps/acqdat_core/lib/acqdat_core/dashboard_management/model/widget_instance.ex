@@ -27,7 +27,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
   def get_all_by_panel_id(panel_id) do
     widget_instances =
       from(widget_instance in WidgetInstance,
-        preload: [:widget],
+        preload: [:widget, :panel],
         where: widget_instance.panel_id == ^panel_id
       )
       |> Repo.all()
@@ -38,8 +38,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
     end)
   end
 
-  def get_by_filter(id, filter_month \\ "1", start_date \\ "", end_date \\ "")
-      when is_integer(id) do
+  def get_by_filter(id) when is_integer(id) do
     case Repo.get(WidgetInstance, id) do
       nil ->
         {:error, "widget instance with this id not found"}
@@ -47,8 +46,8 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
       widget_instance ->
         widget_instance =
           widget_instance
-          |> Repo.preload([:widget])
-          |> HighCharts.fetch_highchart_details(filter_month, start_date, end_date)
+          |> Repo.preload([:widget, :panel])
+          |> HighCharts.fetch_highchart_details()
 
         {:ok, widget_instance}
     end

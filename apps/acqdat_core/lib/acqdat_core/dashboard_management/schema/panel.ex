@@ -102,7 +102,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel.FilterMetadata do
     field(:type, :string, default: "historical")
   end
 
-  @permitted ~w(from_date to_date aggregate_func group_interval)a
+  @permitted ~w(from_date to_date aggregate_func group_interval type)a
 
   def changeset(%__MODULE__{} = settings, params) do
     settings
