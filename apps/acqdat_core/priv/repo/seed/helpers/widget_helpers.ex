@@ -56,6 +56,20 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     }
   end
 
+  def set_keys_from_vendor(key, value, metadata) when is_tuple(value) do
+    %VisualSettings{
+      key: key,
+      data_type: metadata.data_type,
+      user_controlled: metadata.user_controlled,
+      value: set_default_or_given_value(key, value, metadata),
+      source: %{},
+      properties: Enum.map(value,
+        fn {child_key, child_value} ->
+          set_keys_from_vendor(child_key, child_value, metadata.properties[child_key])
+      end)
+    }
+  end
+
   def set_keys_from_vendor(key, value, metadata) when is_list(value) do
     %VisualSettings{
       key: key,
@@ -77,19 +91,33 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
       user_controlled: metadata.user_controlled,
       source: %{},
       value: set_default_or_given_value(key, value, metadata),
-      properties: []
+      properties: properties_parsing(value, metadata)
     }
+  end
+
+  def properties_parsing(prop, metadata) do
+    if Map.has_key?(prop, :properties) do
+      Enum.map(prop.properties,
+        fn {child_key, child_value} ->
+          set_keys_from_vendor(child_key, child_value, metadata.properties[child_key])
+      end)
+    else
+      []
+    end
   end
 
   def set_default_or_given_value(key, value, metadata) do
     #TODO: Need to remove key workaround from here
-    if metadata.data_type not in @non_value_types ||  key == :center do
+    if !is_list(value) ||  key == :center do
       %{
         data:
-        if Map.has_key?(value, :value) do
-          value.value
-        else
-          metadata.default_value
+        cond do
+          Map.has_key?(value, :value) ->
+            value.value
+          Map.has_key?(metadata, :default_value) ->
+           metadata.default_value
+          true ->
+          %{}
         end
       }
     else

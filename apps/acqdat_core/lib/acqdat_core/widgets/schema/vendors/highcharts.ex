@@ -389,11 +389,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
   def parse_properties(properties) do
     Enum.reduce(properties, %{}, fn setting, acc ->
-      if setting.properties != [] do
+      if (Map.has_key?(setting, :value) && setting.value != %{}) || setting.properties == [] do
+        Map.put(acc, setting.key, setting.value["data"])
+      else
         value = parse_properties(setting.properties)
         Map.put(acc, setting.key, value)
-      else
-        Map.put(acc, setting.key, setting.value["data"])
       end
     end)
   end

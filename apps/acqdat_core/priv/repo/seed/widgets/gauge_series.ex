@@ -17,11 +17,27 @@ defmodule AcqdatCore.Seed.Widgets.GaugeSeries do
                 tickPixelInterval: %{data_type: :integer, value: 30, properties: %{}},
                 labels: [step: %{data_type: :integer, value: 2, properties: %{}},
                 rotation: %{data_type: :string, value: "auto", properties: %{}}],
-                plotBands: [
+                plotBands: %{
+                  data_type: :list,
+                  value: [%{
+                      color: "#55BF3B",
+                      from: 0,
+                      to: 120
+                    }, %{
+                      color: "#DDDF0D",
+                      from: 120,
+                      to: 160
+                    }, %{
+                      color: "#DF5353",
+                      from: 160,
+                      to: 200
+                  }],
+                  properties: %{
                     color: %{data_type: :color, value: "#55BF3B", properties: %{}},
                     from: %{data_type: :integer, value: 0, properties: %{}},
                     to: %{data_type: :integer, value: 120, properties: %{}}
-                ]
+                  }
+                }
               ],
         credits: [enabled: %{value: false}],
         pane: [startAngle: %{data_type: :integer, value: -150, properties: %{}},
