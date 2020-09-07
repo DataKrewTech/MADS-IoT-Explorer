@@ -52,29 +52,13 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
 
   def get_latest_by_parameters(entity_id, param_uuid, %{
         from_date: date_from,
-        to_date: date_to
+        to_date: date_to,
+        aggregate_func: aggregate_func,
+        group_interval: group_interval
       }) do
-    subquery =
-      from(
-        data in SensorsData,
-        where:
-          data.sensor_id == ^entity_id and data.inserted_timestamp >= ^date_from and
-            data.inserted_timestamp <= ^date_to,
-        order_by: [desc: data.inserted_timestamp],
-        limit: 1
-      )
-
-    query =
-      from(
-        data in subquery,
-        cross_join: c in fragment("unnest(?)", data.parameters),
-        where: fragment("?->>'uuid'=?", c, ^param_uuid),
-        select: %{
-          y: fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
-        }
-      )
-
-    Repo.all(query)
+    subquery = filter_by_date_query(entity_id, param_uuid, date_from, date_to)
+    query = latest_group_by_date_query(subquery, param_uuid, aggregate_func, group_interval)
+    Repo.one(query)
   end
 
   defp filter_by_date_query(entity_id, param_uuid, date_from, date_to) do
@@ -83,6 +67,111 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       where:
         data.sensor_id == ^entity_id and data.inserted_timestamp >= ^date_from and
           data.inserted_timestamp <= ^date_to
+    )
+  end
+
+  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+       when aggregator == "sum" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      group_by: fragment("date_filt"),
+      order_by: ^[desc: dynamic([d], fragment("date_filt"))],
+      limit: 1,
+      select: %{
+        x:
+          fragment(
+            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
+            ^grp_interval,
+            data.inserted_timestamp
+          ),
+        y: fragment("sum(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
+    )
+  end
+
+  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+       when aggregator == "max" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      group_by: fragment("date_filt"),
+      order_by: ^[desc: dynamic([d], fragment("date_filt"))],
+      limit: 1,
+      select: %{
+        x:
+          fragment(
+            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
+            ^grp_interval,
+            data.inserted_timestamp
+          ),
+        y: fragment("max(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
+    )
+  end
+
+  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+       when aggregator == "min" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      group_by: fragment("date_filt"),
+      order_by: ^[desc: dynamic([d], fragment("date_filt"))],
+      limit: 1,
+      select: %{
+        x:
+          fragment(
+            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
+            ^grp_interval,
+            data.inserted_timestamp
+          ),
+        y: fragment("min(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
+    )
+  end
+
+  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+       when aggregator == "count" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      group_by: fragment("date_filt"),
+      order_by: ^[desc: dynamic([d], fragment("date_filt"))],
+      limit: 1,
+      select: %{
+        x:
+          fragment(
+            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
+            ^grp_interval,
+            data.inserted_timestamp
+          ),
+        y: fragment("count(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
+    )
+  end
+
+  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+       when aggregator == "average" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      group_by: fragment("date_filt"),
+      order_by: ^[desc: dynamic([d], fragment("date_filt"))],
+      limit: 1,
+      select: %{
+        x:
+          fragment(
+            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
+            ^grp_interval,
+            data.inserted_timestamp
+          ),
+        y: fragment("avg(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
     )
   end
 

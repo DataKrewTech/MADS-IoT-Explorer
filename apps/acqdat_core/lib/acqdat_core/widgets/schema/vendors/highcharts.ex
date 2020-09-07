@@ -492,7 +492,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          type
        )
        when entity_type == "sensor" and type == "latest" do
-    SensorData.get_latest_by_parameters(entity_id, parameter, filter_metadata)
+    data = SensorData.get_latest_by_parameters(entity_id, parameter, filter_metadata)
+    data = data |> Map.delete(:x)
+    [data]
   end
 
   defp validate_and_parse_end_date(date) do
