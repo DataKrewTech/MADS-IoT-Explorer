@@ -380,11 +380,13 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
         widget_inst.panel.filter_metadata
       end
 
-    series_data =
-      widget_inst.series_data
-      |> arrange_series_structure(widget_inst.widget, filter_metadata)
+    gen_series_data(widget_inst, filter_metadata)
+  end
 
-    Map.put(widget_inst, :series, series_data)
+  def fetch_highchart_details(widget_inst, params) do
+    parsed_filter_metadata = widget_inst |> parse_filter_metadata(params)
+
+    gen_series_data(widget_inst, parsed_filter_metadata)
   end
 
   def parse_properties(properties) do
@@ -400,12 +402,44 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
   ############################# private functions ###########################
 
-  def arrange_series_structure(
-        series_data,
-        %{classification: classification},
-        filter_metadata
-      )
-      when classification == "latest" do
+  defp parse_filter_metadata(widget_inst, params) do
+    filter_metadata = widget_inst.panel.filter_metadata
+
+    from_date = if params["from_date"], do: params["from_date"], else: filter_metadata.from_date
+    to_date = if params["to_date"], do: params["to_date"], else: filter_metadata.to_date
+
+    aggregate_func =
+      if params["aggregate_func"],
+        do: params["aggregate_func"],
+        else: filter_metadata.aggregate_func
+
+    group_interval =
+      if params["group_interval"],
+        do: params["group_interval"],
+        else: filter_metadata.group_interval
+
+    %{
+      from_date: from_date,
+      to_date: to_date,
+      aggregate_func: aggregate_func,
+      group_interval: group_interval
+    }
+  end
+
+  defp gen_series_data(widget_inst, filter_metadata) do
+    series_data =
+      widget_inst.series_data
+      |> arrange_series_structure(widget_inst.widget, filter_metadata)
+
+    Map.put(widget_inst, :series, series_data)
+  end
+
+  defp arrange_series_structure(
+         series_data,
+         %{classification: classification},
+         filter_metadata
+       )
+       when classification == "latest" do
     Enum.reduce(series_data, [], fn series, acc_data ->
       nil
       metadata = fetch_latest_axes_spec_data(series.axes, filter_metadata)
@@ -414,12 +448,12 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
     end)
   end
 
-  def arrange_series_structure(
-        series_data,
-        %{classification: classification},
-        filter_metadata
-      )
-      when classification != "latest" do
+  defp arrange_series_structure(
+         series_data,
+         %{classification: classification},
+         filter_metadata
+       )
+       when classification != "latest" do
     Enum.reduce(series_data, [], fn series, acc_data ->
       metadata = fetch_axes_specific_data(series.axes, filter_metadata)
       acc_data ++ [%{name: series.name, color: series.color, data: metadata}]

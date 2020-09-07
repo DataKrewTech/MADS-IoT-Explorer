@@ -5,7 +5,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   defdelegate delete(widget_instance), to: WidgetInstanceModel
-  defdelegate get_by_filter(widget_id), to: WidgetInstanceModel
+  defdelegate get_by_filter(widget_id, params), to: WidgetInstanceModel
 
   def create(attrs, conn) do
     verify_widget(

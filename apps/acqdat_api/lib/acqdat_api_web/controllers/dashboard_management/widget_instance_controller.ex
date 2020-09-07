@@ -56,9 +56,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
     case conn.status do
       nil ->
         {id, _} = Integer.parse(id)
-        filter_month = params["filter_month"] || "1"
 
-        case WidgetInstance.get_by_filter(id) do
+        case WidgetInstance.get_by_filter(id, params) do
           {:error, message} ->
             send_error(conn, 400, message)
 

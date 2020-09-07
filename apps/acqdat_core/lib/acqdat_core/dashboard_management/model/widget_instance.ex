@@ -38,7 +38,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
     end)
   end
 
-  def get_by_filter(id) when is_integer(id) do
+  def get_by_filter(id, params) when is_integer(id) do
     case Repo.get(WidgetInstance, id) do
       nil ->
         {:error, "widget instance with this id not found"}
@@ -47,7 +47,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
         widget_instance =
           widget_instance
           |> Repo.preload([:widget, :panel])
-          |> HighCharts.fetch_highchart_details()
+          |> HighCharts.fetch_highchart_details(params)
 
         {:ok, widget_instance}
     end
