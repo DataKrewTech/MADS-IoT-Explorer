@@ -122,7 +122,33 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
             },
             plotOptions: %{
               data_type: :object,
-              user_controlled: false
+              user_controlled: false,
+              properties: %{
+                column: %{
+                  data_type: :object,
+                  user_controlled: false,
+                  default_value: %{},
+                  properties: %{
+                    stacking: %{
+                      data_type: :string,
+                      default_value: "normal",
+                      user_controlled: true
+                    },
+                    dataLabels: %{
+                      data_type: :object,
+                      default_value: %{},
+                      user_controlled: false,
+                      properties: %{
+                        enabled: %{
+                          data_type: :boolean,
+                          default_value: false,
+                          user_controlled: true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             },
             responsive: %{
               user_controlled: false,
@@ -233,6 +259,14 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                   properties: %{
                     text: %{data_type: :string, default_value: "", user_controlled: true},
                     y: %{data_type: :integer, default_value: 2, user_controlled: true}
+                  }
+                },
+                stackLabels: %{
+                  data_type: :object,
+                  default_value: %{},
+                  user_controlled: false,
+                  properties: %{
+                    enabled: %{data_type: :boolean, default_value: false, user_controlled: true}
                   }
                 },
                 visible: %{data_type: :boolean, default_value: true, user_controlled: false},

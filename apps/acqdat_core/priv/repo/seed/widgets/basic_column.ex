@@ -1,6 +1,6 @@
-defmodule AcqdatCore.Seed.Widgets.Pie do
+defmodule AcqdatCore.Seed.Widgets.BasicColumn do
   @moduledoc """
-  Holds seeds for Pie widgets.
+  Holds seeds for Basic Column widgets.
   """
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
@@ -8,11 +8,10 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   @highchart_key_widget_settings %{
-    pie: %{
+    column: %{
       visual: %{
-        chart: [type: %{value: "pie"}, backgroundColor: %{}, plotBackgroundColor: %{}],
+        chart: [type: %{value: "column"}, backgroundColor: %{}, plotBackgroundColor: %{}],
         title: [text: %{}, align: %{}],
-        caption: [text: %{}, align: %{}],
         subtitle: [text: %{}, align: %{}],
         yAxis: [title: [text: %{}]],
         credits: [enabled: %{value: false}],
@@ -41,26 +40,31 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
   }
 
   @high_chart_value_settings %{
-    pie: %{
+    column: %{
       visual_setting_values: %{
-        title: %{text: "Browser market shares in January, 2018"},
-        caption: %{
-           text: "Market Share of different browsers"
-        },
+        title: %{text: "Monthly Average Rainfall"},
         subtitle: %{
+          text: "Source: WorldClimate.com"
         },
         yAxis: %{
           title: %{
+            text: "Rainfall (mm)"
           }
         }
       },
       data_settings_values: %{
-        series: [%{
-          name: "Brands",
-          colorByPoint: true,
-          data: [["Chrome", 61.41], ["Internet Explorer", 11.84],
-        ["Firefox", 10.85], ["Edge", 4.67], ["Safari", 4.18], ["Sogou Explorer", 1.64], ["Opera", 1.6], ["QQ", 1.2], ["Other", 2.61]]
-      }]
+        series: [
+          %{
+            name: "Tokyo",
+            data: [["Jan", 49.9], ["Feb", 71.5], ["March", 106.4], ["April", 129.2], ["May", 144.0], ["June", 176.0], ["July", 135.6], ["Aug", 148.5], ["Sep", 216.4], ["Oct", 194.1], ["Nov", 95.6], ["Dec", 54.4]]
+          }, %{
+            name: "New York",
+            data: [["Jan", 70], ["Feb", 50.5], ["March", 126.4], ["April", 29.2], ["May", 190.0], ["June", 16.0], ["July", 15.6], ["Aug", 198.5], ["Sep", 116.4], ["Oct", 294.1], ["Nov", 195.6], ["Dec", 154.4]]
+          }, %{
+            name: "London",
+            data: [["Jan", 149.9], ["Feb", 171.5], ["March", 26.4], ["April", 229.2], ["May", 44.0], ["June", 76.0], ["July", 35.6], ["Aug", 48.5], ["Sep", 26.4], ["Oct", 94.1], ["Nov", 152.6], ["Dec", 140.4]]
+          }
+        ]
      }
     }
   }
@@ -83,12 +87,12 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
 
   def set_widget_data(key, widget_settings, data, widget_type) do
     %WidgetSchema{
-      label: to_string(key),
+      label: "Basic Column",
       properties: %{},
       uuid: UUID.uuid1(:hex),
-      classification: "latest",
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/pie-basic-default.png",
-      category: ["chart", "pie"],
+      classification: "standard",
+      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/column-basic-default.png",
+      category: ["chart", "column"],
       policies: %{},
       widget_type_id: widget_type.id,
       visual_settings: WidgetHelpers.do_settings(widget_settings, :visual, %HighCharts{}),

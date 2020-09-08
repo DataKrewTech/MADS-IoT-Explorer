@@ -1,6 +1,6 @@
-defmodule AcqdatCore.Seed.Widgets.Pie do
+defmodule AcqdatCore.Seed.Widgets.StackedColumn do
   @moduledoc """
-  Holds seeds for Pie widgets.
+  Holds seeds for Stacked Column widgets.
   """
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
@@ -8,13 +8,13 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   @highchart_key_widget_settings %{
-    pie: %{
+    column: %{
       visual: %{
-        chart: [type: %{value: "pie"}, backgroundColor: %{}, plotBackgroundColor: %{}],
+        chart: [type: %{value: "column"}, backgroundColor: %{}, plotBackgroundColor: %{}],
         title: [text: %{}, align: %{}],
-        caption: [text: %{}, align: %{}],
         subtitle: [text: %{}, align: %{}],
         yAxis: [title: [text: %{}]],
+        plotOptions: [column: [stacking: %{value: "normal"}, dataLabels: [enabled: %{value: true}]]],
         credits: [enabled: %{value: false}],
       },
       data: %{
@@ -41,26 +41,34 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
   }
 
   @high_chart_value_settings %{
-    pie: %{
+    column: %{
       visual_setting_values: %{
-        title: %{text: "Browser market shares in January, 2018"},
-        caption: %{
-           text: "Market Share of different browsers"
-        },
-        subtitle: %{
-        },
+        title: %{text: "Stacked column chart"},
         yAxis: %{
           title: %{
+            text: "Total fruit consumption"
+          }
+        },
+        plotOptions: %{
+          column: %{
+            stacking: "normal",
+            dataLabels: %{
+              enabled: true
+            }
           }
         }
       },
       data_settings_values: %{
-        series: [%{
-          name: "Brands",
-          colorByPoint: true,
-          data: [["Chrome", 61.41], ["Internet Explorer", 11.84],
-        ["Firefox", 10.85], ["Edge", 4.67], ["Safari", 4.18], ["Sogou Explorer", 1.64], ["Opera", 1.6], ["QQ", 1.2], ["Other", 2.61]]
-      }]
+       series: [%{
+          name: 'John',
+          data: [["Apples", 5], ["Oranges",3], ["Pears", 4], ["Grapes", 7], ["Bananas",2]]
+        }, %{
+            name: 'Jane',
+            data: [["Apples", 2], ["Oranges",2], ["Pears",3], ["Grapes",2], ["Bananas",1]]
+        }, %{
+            name: 'Joe',
+            data: [["Apples", 3], ["Oranges",4], ["Pears",4], ["Grapes",2], ["Bananas",5]]
+        }]
      }
     }
   }
@@ -83,12 +91,12 @@ defmodule AcqdatCore.Seed.Widgets.Pie do
 
   def set_widget_data(key, widget_settings, data, widget_type) do
     %WidgetSchema{
-      label: to_string(key),
+      label: "Stacked Column",
       properties: %{},
       uuid: UUID.uuid1(:hex),
-      classification: "latest",
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/pie-basic-default.png",
-      category: ["chart", "pie"],
+      classification: "standard",
+      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/column-stacked-default.png",
+      category: ["chart", "column"],
       policies: %{},
       widget_type_id: widget_type.id,
       visual_settings: WidgetHelpers.do_settings(widget_settings, :visual, %HighCharts{}),
