@@ -35,7 +35,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
 
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:user, User, on_replace: :raise)
-    has_many(:workflows, Workflow, foreign_key: :task_id)
+    has_many(:workflows, Workflow, foreign_key: :task_id, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
@@ -57,6 +57,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     |> cast(params, @required)
     |> assoc_constraint(:org)
     |> assoc_constraint(:user)
+    |> validate_required(@required)
     |> validate_inclusion(:type, @task_types)
     |> add_slug()
     |> add_uuid()

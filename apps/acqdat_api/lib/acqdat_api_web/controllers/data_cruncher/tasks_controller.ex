@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadOrg
+  plug AcqdatApiWeb.Plug.LoadTask when action in [:delete]
 
   def create(conn, params) do
     case conn.status do
@@ -57,6 +58,32 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
             conn
             |> put_status(200)
             |> render("task.json", %{task: task})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def delete(conn, _params) do
+    case conn.status do
+      nil ->
+        case Task.delete(conn.assigns.task) do
+          {:ok, task} ->
+            conn
+            |> put_status(200)
+            |> render("task.json", %{task: task})
+
+          {:error, task} ->
+            error =
+              case String.valid?(task) do
+                false -> extract_changeset_error(task)
+                true -> task
+              end
+
+            conn
+            |> send_error(400, error)
         end
 
       404 ->

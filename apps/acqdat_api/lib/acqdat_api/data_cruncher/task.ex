@@ -7,6 +7,7 @@ defmodule AcqdatApi.DataCruncher.Task do
 
   defdelegate get_all(data), to: TaskModel
   defdelegate get(id), to: TaskModel
+  defdelegate delete(task), to: TaskModel
 
   def create(%{"id" => id, "action" => action} = params)
       when action == "execute" or action == "register" do
