@@ -136,19 +136,6 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     |> Repo.update()
   end
 
-  # def get_all(%{page_size: page_size, page_number: page_number}) do
-  #   User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
-  # end
-
-  # def get_all(%{page_size: page_size, page_number: page_number}, preloads) do
-  #   paginated_user_data =
-  #     User |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
-
-  #   user_data_with_preloads = paginated_user_data.entries |> Repo.preload(preloads)
-
-  #   ModelHelper.paginated_response(user_data_with_preloads, paginated_user_data)
-  # end
-
   @doc """
   Extract out the email of given user
   """
