@@ -16,19 +16,17 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
     end
 
     test "create exported url publicly", %{conn: conn, org: org, dashboard: dashboard} do
-      data = %{}
+      data = %{is_secure: false}
       conn = post(conn, Routes.dashboard_export_path(conn, :create, org.id, dashboard.id), data)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "url")
     end
 
     test "create exported url privately", %{conn: conn, org: org, dashboard: dashboard} do
-      data = %{is_secure: true}
+      data = %{is_secure: true, password: "mads@1234"}
       conn = post(conn, Routes.dashboard_export_path(conn, :create, org.id, dashboard.id), data)
       response = conn |> json_response(200)
       assert Map.has_key?(response, "url")
-      require IEx
-      IEx.pry()
     end
   end
 end

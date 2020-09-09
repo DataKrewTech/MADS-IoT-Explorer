@@ -139,19 +139,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
         exported_dashboard = conn.assigns.exported_dashboard
 
         dashboard =
-          case exported_dashboard.is_secure do
-            false ->
-              Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
-
-            true ->
-              case check_password(params["password"], exported_dashboard.password) do
-                false ->
-                  nil
-
-                true ->
-                  Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
-              end
-          end
+          check_exported_dashboard(exported_dashboard.is_secure, params, exported_dashboard)
 
         case dashboard do
           {:ok, dashboard} ->
@@ -174,6 +162,20 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   end
 
   ############################# private functions ###########################
+
+  defp check_exported_dashboard(true, params, exported_dashboard) do
+    case check_password(params["password"], exported_dashboard.password) do
+      false ->
+        nil
+
+      true ->
+        Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+    end
+  end
+
+  defp check_exported_dashboard(false, params, exported_dashboard) do
+    Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+  end
 
   defp check_password(password, db_password) do
     if password == db_password do

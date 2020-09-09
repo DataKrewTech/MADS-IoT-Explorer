@@ -7,6 +7,7 @@ defmodule AcqdatApi.DashboardExport.DashboardExport do
   import AcqdatApiWeb.Helpers
 
   @url "https://mads.netlify.app/dashboards/"
+  # @url System.get_env("DASHBOARD_URL")
 
   def create(params, dashboard) do
     token = DashboardExport.generate_token(dashboard.uuid)
@@ -16,14 +17,11 @@ defmodule AcqdatApi.DashboardExport.DashboardExport do
       |> Map.put_new(:dashboard_uuid, dashboard.uuid)
       |> Map.put_new(:token, token)
 
-    if params.is_secure == true and params.password != nil do
+    if (params.is_secure == true and params.password != nil) or
+         (params.is_secure == false and params.password == nil) do
       verify_dashboard_export(DashboardExport.create(params))
     else
-      if params.is_secure == false and params.password == nil do
-        verify_dashboard_export(DashboardExport.create(params))
-      else
-        {:error, %{error: "wrong information provided"}}
-      end
+      {:error, %{error: "wrong information provided"}}
     end
   end
 

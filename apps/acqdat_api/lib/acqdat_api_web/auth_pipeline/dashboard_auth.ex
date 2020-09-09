@@ -21,13 +21,15 @@ defmodule AcqdatApiWeb.DashboardExportAuth do
           token |> String.trim("Bearer") |> String.trim(" ")
       end
 
-    case DEModel.verify_uuid_and_token(dashboard_uuid, token) do
-      {:error, message} ->
-        conn
-        |> put_status(401)
+    verify_dashboard(conn, DEModel.verify_uuid_and_token(dashboard_uuid, token))
+  end
 
-      {:ok, exported_dashboard} ->
-        assign(conn, :exported_dashboard, exported_dashboard)
-    end
+  defp verify_dashboard(conn, {:error, message}) do
+    conn
+    |> put_status(401)
+  end
+
+  defp verify_dashboard(conn, {:ok, exported_dashboard}) do
+    assign(conn, :exported_dashboard, exported_dashboard)
   end
 end
