@@ -145,7 +145,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
           {:ok, dashboard} ->
             conn
             |> put_status(200)
-            |> render("dashboard.json", %{dashboard: dashboard})
+            |> render("show.json", %{dashboard: dashboard})
 
           {:error, message} ->
             send_error(conn, 400, message)

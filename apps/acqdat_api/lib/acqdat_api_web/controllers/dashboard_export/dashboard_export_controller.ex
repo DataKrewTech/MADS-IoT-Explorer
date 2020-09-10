@@ -2,9 +2,12 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
+  alias AcqdatApi.DashboardManagement.Panel
   import AcqdatApiWeb.Validators.DashboardExport.DashboardExport
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
+  plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
+  plug AcqdatApiWeb.Plug.LoadPanel when action in [:show]
 
   def create(conn, params) do
     case conn.status do
@@ -43,6 +46,31 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportController do
       401 ->
         conn
         |> send_error(401, "Unauthorized link")
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        {id, _} = Integer.parse(id)
+
+        case Panel.get_with_widgets(id) do
+          {:error, message} ->
+            send_error(conn, 400, message)
+
+          {:ok, panel} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{panel: panel})
+        end
+
+      401 ->
+        conn
+        |> send_error(401, "Unauthorized link")
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
     end
   end
 end
