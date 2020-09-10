@@ -399,28 +399,8 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   #   }
   # ]
 
-  def fetch_highchart_details(widget_inst) do
-    filter_metadata = widget_inst.panel.filter_metadata
-
-    filter_metadata =
-      if is_nil(filter_metadata) do
-        %{
-          from_date: Timex.shift(Timex.now(), months: -1) |> DateTime.truncate(:second),
-          to_date: Timex.now() |> DateTime.truncate(:second),
-          aggregate_func: "max",
-          group_interval: "hour"
-        }
-      else
-        widget_inst.panel.filter_metadata
-      end
-
-    gen_series_data(widget_inst, filter_metadata)
-  end
-
-  def fetch_highchart_details(widget_inst, params) do
-    parsed_filter_metadata = widget_inst |> parse_filter_metadata(params)
-
-    gen_series_data(widget_inst, parsed_filter_metadata)
+  def fetch_highchart_details(widget_inst, filter_params) do
+    widget_inst |> gen_series_data(filter_params)
   end
 
   def parse_properties(properties) do
@@ -435,30 +415,6 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   end
 
   ############################# private functions ###########################
-
-  defp parse_filter_metadata(widget_inst, params) do
-    filter_metadata = widget_inst.panel.filter_metadata
-
-    from_date = if params["from_date"], do: params["from_date"], else: filter_metadata.from_date
-    to_date = if params["to_date"], do: params["to_date"], else: filter_metadata.to_date
-
-    aggregate_func =
-      if params["aggregate_func"],
-        do: params["aggregate_func"],
-        else: filter_metadata.aggregate_func
-
-    group_interval =
-      if params["group_interval"],
-        do: params["group_interval"],
-        else: filter_metadata.group_interval
-
-    %{
-      from_date: from_date,
-      to_date: to_date,
-      aggregate_func: aggregate_func,
-      group_interval: group_interval
-    }
-  end
 
   defp gen_series_data(widget_inst, filter_metadata) do
     series_data =

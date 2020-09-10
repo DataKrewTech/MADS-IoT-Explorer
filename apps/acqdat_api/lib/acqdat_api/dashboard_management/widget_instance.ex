@@ -42,12 +42,48 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
 
   defp verify_widget({:ok, widget}) do
     widget = widget |> Repo.preload([:widget, :panel])
-    updated_widget = widget |> HighCharts.fetch_highchart_details()
+    filtered_params = widget |> parse_filtered_params
+    updated_widget = widget |> HighCharts.fetch_highchart_details(filtered_params)
 
     {:ok, updated_widget}
   end
 
   defp verify_widget({:error, widget}) do
     {:error, %{error: extract_changeset_error(widget)}}
+  end
+
+  defp parse_filtered_params(%{
+         panel: %{
+           filter_metadata: %{
+             from_date: from_date,
+             to_date: to_date,
+             aggregate_func: aggr_fun,
+             group_interval: grp_intv,
+             group_interval_type: grp_intv_type
+           }
+         }
+       }) do
+    %{
+      from_date: from_unix(from_date),
+      to_date: from_unix(to_date),
+      aggregate_func: aggr_fun,
+      group_interval: grp_intv,
+      group_interval_type: grp_intv_type
+    }
+  end
+
+  defp parse_filtered_params(%{panel: panel}) do
+    %{
+      from_date: Timex.shift(Timex.now(), months: -1),
+      to_date: Timex.now(),
+      aggregate_func: "max",
+      group_interval: 1,
+      group_interval_type: "hour"
+    }
+  end
+
+  defp from_unix(datetime) do
+    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
+    res
   end
 end

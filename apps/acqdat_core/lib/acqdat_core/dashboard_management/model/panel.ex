@@ -46,7 +46,8 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
         {:error, "panel with this id not found"}
 
       panel ->
-        widgets = WidgetInstanceModel.get_all_by_panel_id(panel.id)
+        filter_params = panel |> parse_filtered_params
+        widgets = WidgetInstanceModel.get_all_by_panel_id(panel.id, filter_params)
         command_widgets = CommandWidget.get_all_by_panel_id(panel.id)
 
         panel =
@@ -65,5 +66,38 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
   def delete_all(ids) when is_list(ids) do
     from(panel in Panel, where: panel.id in ^ids)
     |> Repo.delete_all()
+  end
+
+  defp parse_filtered_params(%{
+         filter_metadata: %{
+           from_date: from_date,
+           to_date: to_date,
+           aggregate_func: aggr_fun,
+           group_interval: grp_intv,
+           group_interval_type: grp_intv_type
+         }
+       }) do
+    %{
+      from_date: from_unix(from_date),
+      to_date: from_unix(to_date),
+      aggregate_func: aggr_fun,
+      group_interval: grp_intv,
+      group_interval_type: grp_intv_type
+    }
+  end
+
+  defp parse_filtered_params() do
+    %{
+      from_date: Timex.shift(Timex.now(), months: -1),
+      to_date: Timex.now(),
+      aggregate_func: "max",
+      group_interval: 1,
+      group_interval_type: "hour"
+    }
+  end
+
+  defp from_unix(datetime) do
+    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
+    res
   end
 end

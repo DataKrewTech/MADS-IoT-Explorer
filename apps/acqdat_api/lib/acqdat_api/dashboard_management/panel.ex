@@ -17,13 +17,6 @@ defmodule AcqdatApi.DashboardManagement.Panel do
       widget_layouts: widget_layouts
     } = attrs
 
-    filter_metadata =
-      unless filter_metadata == nil do
-        filter_metadata
-        |> Map.put("from_date", parse_date(filter_metadata["from_date"]))
-        |> Map.put("to_date", parse_date(filter_metadata["to_date"]))
-      end
-
     panel_params = %{
       name: name,
       description: description,
@@ -40,13 +33,6 @@ defmodule AcqdatApi.DashboardManagement.Panel do
   def update(panel, data) do
     filter_metadata = data["filter_metadata"] || %{}
 
-    filter_metadata =
-      unless filter_metadata == %{} do
-        filter_metadata
-        |> Map.put("from_date", parse_date(filter_metadata["from_date"]))
-        |> Map.put("to_date", parse_date(filter_metadata["to_date"]))
-      end
-
     data = data |> Map.put("filter_metadata", filter_metadata)
     PanelModel.update(panel, data)
   end
@@ -57,10 +43,5 @@ defmodule AcqdatApi.DashboardManagement.Panel do
 
   defp verify_panel({:error, panel}) do
     {:error, %{error: extract_changeset_error(panel)}}
-  end
-
-  defp parse_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
   end
 end

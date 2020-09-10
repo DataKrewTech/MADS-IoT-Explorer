@@ -39,14 +39,25 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
   end
 
   # TODO: Needs to refactor code so that it will query on dynamic axes
+  # NOTE: group_interval supported formats: second, minute, hour, day, week
   def get_all_by_parameters(entity_id, param_uuid, %{
         from_date: date_from,
         to_date: date_to,
         aggregate_func: aggregate_func,
-        group_interval: group_interval
+        group_interval: group_interval,
+        group_interval_type: group_interval_type
       }) do
-    subquery = filter_by_date_query(entity_id, param_uuid, date_from, date_to)
-    query = group_by_date_query(subquery, param_uuid, aggregate_func, group_interval)
+    subquery = filter_by_date_query(entity_id, date_from, date_to)
+
+    query =
+      group_by_date_query(
+        subquery,
+        param_uuid,
+        aggregate_func,
+        group_interval,
+        group_interval_type
+      )
+
     Repo.all(query)
   end
 
@@ -54,14 +65,24 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
         from_date: date_from,
         to_date: date_to,
         aggregate_func: aggregate_func,
-        group_interval: group_interval
+        group_interval: group_interval,
+        group_interval_type: group_interval_type
       }) do
-    subquery = filter_by_date_query(entity_id, param_uuid, date_from, date_to)
-    query = latest_group_by_date_query(subquery, param_uuid, aggregate_func, group_interval)
+    subquery = filter_by_date_query(entity_id, date_from, date_to)
+
+    query =
+      latest_group_by_date_query(
+        subquery,
+        param_uuid,
+        aggregate_func,
+        group_interval,
+        group_interval_type
+      )
+
     Repo.one(query)
   end
 
-  defp filter_by_date_query(entity_id, param_uuid, date_from, date_to) do
+  defp filter_by_date_query(entity_id, date_from, date_to) do
     from(
       data in SensorsData,
       where:
@@ -70,8 +91,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp latest_group_by_date_query(
+         subquery,
+         param_uuid,
+         aggregator,
+         grp_interval,
+         group_interval_type
+       )
        when aggregator == "sum" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -82,8 +111,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       select: %{
         x:
           fragment(
-            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-            ^grp_interval,
+            "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+            ^grp_int,
             data.inserted_timestamp
           ),
         y: fragment("sum(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -91,8 +120,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp latest_group_by_date_query(
+         subquery,
+         param_uuid,
+         aggregator,
+         grp_interval,
+         group_interval_type
+       )
        when aggregator == "max" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -103,8 +140,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       select: %{
         x:
           fragment(
-            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-            ^grp_interval,
+            "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+            ^grp_int,
             data.inserted_timestamp
           ),
         y: fragment("max(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -112,8 +149,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp latest_group_by_date_query(
+         subquery,
+         param_uuid,
+         aggregator,
+         grp_interval,
+         group_interval_type
+       )
        when aggregator == "min" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -124,8 +169,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       select: %{
         x:
           fragment(
-            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-            ^grp_interval,
+            "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+            ^grp_int,
             data.inserted_timestamp
           ),
         y: fragment("min(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -133,8 +178,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp latest_group_by_date_query(
+         subquery,
+         param_uuid,
+         aggregator,
+         grp_interval,
+         group_interval_type
+       )
        when aggregator == "count" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -145,8 +198,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       select: %{
         x:
           fragment(
-            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-            ^grp_interval,
+            "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+            ^grp_int,
             data.inserted_timestamp
           ),
         y: fragment("count(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -154,8 +207,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp latest_group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp latest_group_by_date_query(
+         subquery,
+         param_uuid,
+         aggregator,
+         grp_interval,
+         group_interval_type
+       )
        when aggregator == "average" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -166,8 +227,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       select: %{
         x:
           fragment(
-            "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-            ^grp_interval,
+            "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+            ^grp_int,
             data.inserted_timestamp
           ),
         y: fragment("avg(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -175,8 +236,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
        when aggregator == "min" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -185,8 +248,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       order_by: fragment("date_filt"),
       select: [
         fragment(
-          "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-          ^grp_interval,
+          "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+          ^grp_int,
           data.inserted_timestamp
         ),
         fragment("min(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -194,8 +257,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
        when aggregator == "max" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -204,8 +269,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       order_by: fragment("date_filt"),
       select: [
         fragment(
-          "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-          ^grp_interval,
+          "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+          ^grp_int,
           data.inserted_timestamp
         ),
         fragment("max(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -213,8 +278,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
        when aggregator == "sum" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -223,8 +290,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       order_by: fragment("date_filt"),
       select: [
         fragment(
-          "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-          ^grp_interval,
+          "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+          ^grp_int,
           data.inserted_timestamp
         ),
         fragment("sum(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -232,8 +299,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
        when aggregator == "count" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -242,8 +311,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       order_by: fragment("date_filt"),
       select: [
         fragment(
-          "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-          ^grp_interval,
+          "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+          ^grp_int,
           data.inserted_timestamp
         ),
         fragment("count(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
@@ -251,8 +320,10 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
     )
   end
 
-  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval)
+  defp group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
        when aggregator == "average" do
+    grp_int = grp_interval |> compute_grp_interval(group_interval_type)
+
     from(
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
@@ -261,12 +332,20 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       order_by: fragment("date_filt"),
       select: [
         fragment(
-          "EXTRACT(EPOCH FROM (date_trunc(?, ?)))*1000 as date_filt",
-          ^grp_interval,
+          "EXTRACT(EPOCH FROM (time_bucket(?::VARCHAR::INTERVAL, ?)))*1000 as date_filt",
+          ^grp_int,
           data.inserted_timestamp
         ),
         fragment("avg(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
       ]
     )
+  end
+
+  defp compute_grp_interval(grp_interval, group_interval_type) do
+    if group_interval_type == "month" do
+      "#{4 * String.to_integer(grp_interval)} week"
+    else
+      "#{grp_interval} #{group_interval_type}"
+    end
   end
 end

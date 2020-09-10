@@ -59,6 +59,8 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelView do
       to_date: metadata.to_date,
       aggregate_func: metadata.aggregate_func,
       group_interval: metadata.group_interval,
+      group_interval_type: metadata.group_interval_type,
+      last: metadata.last,
       type: metadata.type
     }
   end
