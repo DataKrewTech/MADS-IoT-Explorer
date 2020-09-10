@@ -95,14 +95,12 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel.FilterMetadata do
   use AcqdatCore.Schema
 
   embedded_schema do
-    # field(:from_date, :integer, default: Timex.shift(Date.utc_today(), months: -1))
-    # field(:to_date, :integer, default: Date.utc_today())
-    field(:from_date, :integer)
-    field(:to_date, :integer)
+    field(:from_date, :integer, default: DateTime.to_unix(DateTime.utc_now(), :millisecond))
+    field(:to_date, :integer, default: DateTime.to_unix(DateTime.utc_now(), :millisecond))
     field(:aggregate_func, :string, default: "max")
     field(:group_interval, :integer, default: 1)
     field(:group_interval_type, :string, default: "hour")
-    field(:last, :string)
+    field(:last, :string, default: "1 month")
     field(:type, :string, default: "historical")
   end
 

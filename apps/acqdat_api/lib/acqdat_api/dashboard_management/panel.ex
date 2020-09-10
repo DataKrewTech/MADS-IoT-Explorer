@@ -23,7 +23,7 @@ defmodule AcqdatApi.DashboardManagement.Panel do
       org_id: org_id,
       dashboard_id: dashboard_id,
       settings: settings,
-      filter_metadata: filter_metadata || %{},
+      filter_metadata: filter_metadata || %{from_date: from_date},
       widget_layouts: widget_layouts
     }
 
@@ -43,5 +43,9 @@ defmodule AcqdatApi.DashboardManagement.Panel do
 
   defp verify_panel({:error, panel}) do
     {:error, %{error: extract_changeset_error(panel)}}
+  end
+
+  defp from_date do
+    DateTime.to_unix(Timex.shift(DateTime.utc_now(), months: -1), :millisecond)
   end
 end

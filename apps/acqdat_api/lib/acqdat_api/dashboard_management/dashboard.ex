@@ -39,7 +39,12 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       DashboardModel.create(params)
     end)
     |> Multi.run(:create_home_panel, fn _, %{create_dashboard: dashboard} ->
-      PanelModel.create(%{name: "Home", org_id: dashboard.org_id, dashboard_id: dashboard.id})
+      PanelModel.create(%{
+        name: "Home",
+        org_id: dashboard.org_id,
+        dashboard_id: dashboard.id,
+        filter_metadata: %{from_date: from_date}
+      })
     end)
     |> run_transaction()
   end
@@ -70,5 +75,9 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
 
   defp verify_error_changeset({:error, changeset}) do
     {:error, %{error: extract_changeset_error(changeset)}}
+  end
+
+  defp from_date do
+    DateTime.to_unix(Timex.shift(DateTime.utc_now(), months: -1), :millisecond)
   end
 end
