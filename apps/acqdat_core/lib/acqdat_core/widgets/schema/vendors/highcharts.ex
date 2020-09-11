@@ -426,6 +426,34 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
 
   defp arrange_series_structure(
          series_data,
+         %{classification: classification, label: label},
+         filter_metadata
+       )
+       when classification == "latest" and label == "pie" do
+    series = List.first(series_data)
+
+    axes =
+      Enum.reduce(series_data, [], fn series, acc_data ->
+        acc_data ++ series.axes
+      end)
+
+    filter_axes = axes |> Enum.filter(fn axis -> axis.name == "y" end)
+    axes_len = length(filter_axes)
+
+    entity_ids = filter_axes |> fetch_ids_from_axes("entity_id")
+    param_ids = filter_axes |> fetch_ids_from_axes("parameter")
+
+    sen_dets = entity_ids |> fetch_sensor_data()
+
+    res =
+      SensorData.get_latest_by_multi_parameters(entity_ids, param_ids, axes_len, filter_metadata)
+
+    metadata = map_sensor_data(res, sen_dets)
+    [%{name: series.name, color: series.color, data: metadata}]
+  end
+
+  defp arrange_series_structure(
+         series_data,
          %{classification: classification},
          filter_metadata
        )
@@ -521,48 +549,26 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
     [data]
   end
 
-  defp validate_and_parse_end_date(date) do
-    if is_nil(date) || date == "" do
-      Timex.now() |> DateTime.truncate(:second)
-    else
-      parse_date(date)
-    end
-  end
-
-  defp validate_and_parse_start_date(date, filter_month) do
-    if is_nil(date) || date == "" do
-      Timex.shift(Timex.now(), months: -filter_month) |> DateTime.truncate(:second)
-    else
-      parse_date(date)
-    end
-  end
-
-  defp fetch_uniq_keys(metadata) do
-    Enum.reduce(Map.keys(metadata), [], fn x, acc ->
-      acc ++ Map.keys(metadata[x])
+  defp map_sensor_data(res, sen_data) do
+    Enum.reduce(res || [], [], fn data, acc ->
+      name = sen_data[data.id]
+      acc ++ [[name, data.value]]
     end)
   end
 
-  defp parse_series_data(uniq_keys, metadata) do
-    Stream.map(uniq_keys, fn key ->
-      Enum.reduce(Map.keys(metadata), %{}, fn x, acc ->
-        value = metadata[x] |> axes_params_value(key)
-        Map.put(acc, x, value)
-      end)
+  defp fetch_ids_from_axes(filter_axes, type) do
+    Enum.map(filter_axes, fn axis ->
+      if axis.name == "y" do
+        axis.source_metadata["#{type}"]
+      end
     end)
-    |> Enum.into([])
   end
 
-  defp axes_params_value(axes, key) when axes == %{} do
-    key
-  end
+  defp fetch_sensor_data(entity_ids) do
+    sen_dets = SensorData.fetch_sensor_details(entity_ids)
 
-  defp axes_params_value(axes, key) when axes != %{} do
-    axes[key] || "0"
-  end
-
-  defp parse_date(date) do
-    date
-    |> Timex.parse!("{YYYY}-{0M}-{0D}")
+    sen_dets
+    |> Enum.map(fn data -> {data.id, data.name} end)
+    |> Map.new()
   end
 end

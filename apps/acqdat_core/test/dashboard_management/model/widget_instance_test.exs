@@ -21,18 +21,30 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
       }
 
       SensorDataModel.create(params)
-      [sensor: sensor]
+
+      filter_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "max",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      [sensor: sensor, filter_params: filter_params]
     end
 
-    test "returns a particular widget_instance" do
+    test "returns a particular widget_instance", %{filter_params: filter_params} do
       widget_instance = insert(:widget_instance)
-      {:ok, result} = WidgetInstanceModel.get_by_filter(widget_instance.id)
+      {:ok, result} = WidgetInstanceModel.get_by_filter(widget_instance.id, filter_params)
 
       assert not is_nil(result)
       assert result.id == widget_instance.id
     end
 
-    test "returns respective widget by filtered data", %{sensor: sensor} do
+    test "returns respective widget by filtered data", %{
+      sensor: sensor,
+      filter_params: filter_params
+    } do
       series_data = [
         %{
           name: "jane",
@@ -62,21 +74,35 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstanceTest do
 
       widget_instance = build(:widget_instance, series_data: series_data)
       {:ok, res} = Repo.insert(widget_instance)
-      {:ok, result} = WidgetInstanceModel.get_by_filter(res.id)
+      {:ok, result} = WidgetInstanceModel.get_by_filter(res.id, filter_params)
       assert not is_nil(result)
       assert not is_nil(length(result.series))
     end
 
-    test "returns error not found, if widget_instance is not present" do
-      {:error, result} = WidgetInstanceModel.get_by_filter(-1)
+    test "returns error not found, if widget_instance is not present", %{
+      filter_params: filter_params
+    } do
+      {:error, result} = WidgetInstanceModel.get_by_filter(-1, filter_params)
       assert result == "widget instance with this id not found"
     end
   end
 
   describe "get_all_by_panel_id" do
-    test "returns all widget_instances of respective panel" do
+    setup do
+      filter_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "max",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      [filter_params: filter_params]
+    end
+
+    test "returns all widget_instances of respective panel", %{filter_params: filter_params} do
       widget = insert(:widget_instance)
-      result = WidgetInstanceModel.get_all_by_panel_id(widget.panel_id)
+      result = WidgetInstanceModel.get_all_by_panel_id(widget.panel_id, filter_params)
 
       assert not is_nil(result)
       assert length(result) == 1

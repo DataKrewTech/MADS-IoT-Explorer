@@ -4,6 +4,8 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
   data.
   """
 
+  import Ecto.Query
+  alias AcqdatCore.Schema.EntityManagement.Sensor
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Domain.EntityManagement.SensorData, as: SensorDataDomain
   alias AcqdatCore.Repo
@@ -81,5 +83,34 @@ defmodule AcqdatCore.Model.EntityManagement.SensorData do
       )
 
     Repo.one(query)
+  end
+
+  def get_latest_by_multi_parameters(entity_ids, param_uuids, limit_elem, %{
+        from_date: date_from,
+        to_date: date_to,
+        aggregate_func: aggregate_func,
+        group_interval: group_interval,
+        group_interval_type: group_interval_type
+      }) do
+    subquery = SensorDataDomain.filter_by_date_query(entity_ids, date_from, date_to)
+
+    query =
+      SensorDataDomain.latest_group_by_date_query(
+        subquery,
+        param_uuids,
+        aggregate_func,
+        group_interval,
+        group_interval_type,
+        limit_elem
+      )
+
+    Repo.all(query)
+  end
+
+  def fetch_sensor_details(entity_ids) do
+    query =
+      from(data in Sensor, where: data.id in ^entity_ids, select: %{id: data.id, name: data.name})
+
+    Repo.all(query)
   end
 end

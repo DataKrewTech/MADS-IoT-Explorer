@@ -86,7 +86,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     }
   end
 
-  defp parse_filtered_params() do
+  defp parse_filtered_params(_panel) do
     %{
       from_date: Timex.shift(Timex.now(), months: -1),
       to_date: Timex.now(),
