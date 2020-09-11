@@ -100,7 +100,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel.FilterMetadata do
     field(:aggregate_func, :string, default: "max")
     field(:group_interval, :integer, default: 1)
     field(:group_interval_type, :string, default: "hour")
-    field(:last, :string, default: "1 month")
+    field(:last, :string, default: "30_day")
     field(:type, :string, default: "historical")
   end
 
