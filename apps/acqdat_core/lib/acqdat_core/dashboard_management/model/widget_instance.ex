@@ -66,8 +66,12 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
          }
        }) do
     %{
-      from_date: if(params["from_date"], do: params["from_date"], else: from_unix(from_date)),
-      to_date: if(params["to_date"], do: params["to_date"], else: from_unix(to_date)),
+      from_date:
+        from_unix(
+          if(params["from_date"], do: String.to_integer(params["from_date"]), else: from_date)
+        ),
+      to_date:
+        from_unix(if(params["to_date"], do: String.to_integer(params["to_date"]), else: to_date)),
       aggregate_func: if(params["aggregate_func"], do: params["aggregate_func"], else: aggr_fun),
       group_interval: if(params["group_interval"], do: params["group_interval"], else: grp_intv),
       group_interval_type:
