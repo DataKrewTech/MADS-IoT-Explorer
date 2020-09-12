@@ -1,8 +1,11 @@
 defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
   import Ecto.Query
+  import AcqdatApiWeb.Helpers
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
+  alias AcqdatCore.Model.DashboardManagement.Panel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
   alias AcqdatCore.Repo
+  alias Ecto.Multi
 
   def create(params) do
     changeset = WidgetInstance.changeset(%WidgetInstance{}, params)
@@ -53,7 +56,37 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
   end
 
   def delete(widget_instance) do
-    Repo.delete(widget_instance)
+    widget_instance = widget_instance |> Repo.preload([:panel])
+
+    Multi.new()
+    |> Multi.run(:delete_widget_instance, fn _, _changes ->
+      Repo.delete(widget_instance)
+    end)
+    |> Multi.run(:rmv_frm_layouts, fn _, %{delete_widget_instance: widget_instance} ->
+      layout = widget_instance.panel.widget_layouts
+      layout = Map.delete(layout || %{}, "#{widget_instance.id}")
+      Panel.update(widget_instance.panel, %{widget_layouts: layout})
+    end)
+    |> run_transaction()
+  end
+
+  defp run_transaction(multi_query) do
+    result = Repo.transaction(multi_query)
+
+    case result do
+      {:ok, %{delete_widget_instance: widget_instance, rmv_frm_layouts: _panel}} ->
+        {:ok, widget_instance}
+
+      {:error, failed_operation, failed_value, _changes_so_far} ->
+        case failed_operation do
+          :delete_widget_instance -> verify_error_changeset({:error, failed_value})
+          :rmv_frm_layouts -> verify_error_changeset({:error, failed_value})
+        end
+    end
+  end
+
+  defp verify_error_changeset({:error, changeset}) do
+    {:error, %{error: extract_changeset_error(changeset)}}
   end
 
   defp parse_filtered_params(params, %{

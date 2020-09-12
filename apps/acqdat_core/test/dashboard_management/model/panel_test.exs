@@ -124,7 +124,7 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
     end
   end
 
-  describe "delete/1" do
+  describe "delete_all/1" do
     test "deletes a particular panel and its associated widgets" do
       panel = insert(:panel)
       widget = insert(:widget)
@@ -141,6 +141,28 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
       widget_instance = Repo.get(WidgetInstance, widget_inst.id)
 
       assert no_of_deleted_records == 1
+      assert is_nil(widget_instance)
+    end
+  end
+
+  describe "delete/1" do
+    test "deletes a particular panel and its associated widgets" do
+      panel = insert(:panel)
+      widget = insert(:widget)
+
+      {:ok, widget_inst} =
+        WidgetInstanceModel.create(%{
+          label: "widget_instance",
+          panel_id: panel.id,
+          widget_id: widget.id
+        })
+
+      {:ok, result} = PanelModel.delete(panel)
+      assert not is_nil(result)
+      assert result.id == panel.id
+
+      widget_instance = Repo.get(WidgetInstance, widget_inst.id)
+
       assert is_nil(widget_instance)
     end
   end
