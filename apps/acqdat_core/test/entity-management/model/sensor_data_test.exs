@@ -4,6 +4,57 @@ defmodule AcqdatCore.Model.EntityManagement.SensorDataTest do
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.EntityManagement.SensorData
 
+  describe "create/1" do
+    test "creates sensor data successfully" do
+      sensor = insert(:sensor)
+
+      params = %{
+        parameters: [
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "456",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          },
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "459",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          }
+        ],
+        inserted_timestamp: DateTime.utc_now(),
+        sensor_id: sensor.id,
+        project_id: sensor.project.id,
+        org_id: sensor.org_id
+      }
+
+      assert {:ok, _sen_data} = SensorData.create(params)
+    end
+
+    test "fails in case of invalid params" do
+      params = %{
+        parameters: [
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "456",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          },
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "459",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          }
+        ],
+        inserted_timestamp: DateTime.utc_now()
+      }
+
+      assert {:error, _sen_data} = SensorData.create(params)
+    end
+  end
+
   describe "get_all_by_parameters/3" do
     setup do
       sensor = insert(:sensor)
