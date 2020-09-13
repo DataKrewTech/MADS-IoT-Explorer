@@ -1,6 +1,5 @@
 defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
   import Ecto.Query
-  import AcqdatApiWeb.Helpers
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
   alias AcqdatCore.Model.DashboardManagement.Panel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
@@ -78,15 +77,8 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
         {:ok, widget_instance}
 
       {:error, failed_operation, failed_value, _changes_so_far} ->
-        case failed_operation do
-          :delete_widget_instance -> verify_error_changeset({:error, failed_value})
-          :rmv_frm_layouts -> verify_error_changeset({:error, failed_value})
-        end
+        {:error, failed_value}
     end
-  end
-
-  defp verify_error_changeset({:error, changeset}) do
-    {:error, %{error: extract_changeset_error(changeset)}}
   end
 
   defp parse_filtered_params(params, %{
