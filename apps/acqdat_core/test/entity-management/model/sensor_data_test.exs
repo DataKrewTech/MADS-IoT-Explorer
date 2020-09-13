@@ -1,43 +1,167 @@
-# defmodule AcqdatCore.Model.EntityManagement.SensorDataTest do
-#   use ExUnit.Case, async: true
-#   use AcqdatCore.DataCase
-#   import AcqdatCore.Support.Factory
-#   alias AcqdatCore.Model.EntityManagement.{SensorData, Sensor}
-#   alias AcqdatCore.Repo
+defmodule AcqdatCore.Model.EntityManagement.SensorDataTest do
+  use ExUnit.Case, async: true
+  use AcqdatCore.DataCase
+  import AcqdatCore.Support.Factory
+  alias AcqdatCore.Model.EntityManagement.SensorData
 
-#   describe "get_by_time_range/2" do
-#     test "returns data in the given time stamp" do
-#       sensor = insert(:sensor)
+  describe "get_all_by_parameters/3" do
+    setup do
+      sensor = insert(:sensor)
 
-#       Enum.map(1..4, fn i ->
-#         params = %{"temp" => 23 + i, "humid" => 10 + i}
-#         Sensor.insert_data(sensor, params)
-#       end)
+      params = %{
+        parameters: [
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "456",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          },
+          %{
+            data_type: "string",
+            name: "Voltage",
+            value: "459",
+            uuid: "ee65c502c66811eabca598460aa1c6de"
+          }
+        ],
+        inserted_timestamp: DateTime.utc_now(),
+        sensor_id: sensor.id,
+        project_id: sensor.project.id,
+        org_id: sensor.org_id
+      }
 
-#       start_time = Timex.shift(DateTime.utc_now(), minutes: -1)
-#       end_time = DateTime.utc_now()
+      {:ok, sen_data} = SensorData.create(params)
+      [sen_data: sen_data]
+    end
 
-#       query = SensorData.get_by_time_range(start_time, end_time)
-#       result = Repo.all(query)
+    test "returns maximum value as per aggregator specified in filtered data", %{
+      sen_data: sen_data
+    } do
+      filer_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "max",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
 
-#       assert length(result) == 4
-#     end
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de",
+          filer_params
+        )
 
-#     test "returns empty, if no data in the given time stamp" do
-#       sensor = insert(:sensor)
+      assert not is_nil(data)
+      assert data != []
+      assert List.last(List.first(data)) == 459.0
+    end
 
-#       Enum.map(1..4, fn i ->
-#         params = %{"temp" => 23 + i, "humid" => 10 + i}
-#         Sensor.insert_data(sensor, params)
-#       end)
+    test "returns minimum value as per aggregator specified in filtered data", %{
+      sen_data: sen_data
+    } do
+      filer_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "min",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
 
-#       start_time = Timex.shift(DateTime.utc_now(), minutes: -4)
-#       end_time = Timex.shift(DateTime.utc_now(), minutes: -2)
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de",
+          filer_params
+        )
 
-#       query = SensorData.get_by_time_range(start_time, end_time)
-#       result = Repo.all(query)
+      assert not is_nil(data)
+      assert data != []
+      assert List.last(List.first(data)) == 456.0
+    end
 
-#       assert result == []
-#     end
-#   end
-# end
+    test "returns count value as per aggregator specified in filtered data", %{sen_data: sen_data} do
+      filer_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "count",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de",
+          filer_params
+        )
+
+      assert not is_nil(data)
+      assert data != []
+      assert List.last(List.first(data)) == 2
+    end
+
+    test "returns sum value as per aggregator specified in filtered data", %{sen_data: sen_data} do
+      filer_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "sum",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de",
+          filer_params
+        )
+
+      assert not is_nil(data)
+      assert data != []
+      assert List.last(List.first(data)) == 915.0
+    end
+
+    test "returns average value as per aggregator specified in filtered data", %{
+      sen_data: sen_data
+    } do
+      filer_params = %{
+        from_date: Timex.shift(Timex.now(), months: -1),
+        to_date: Timex.now(),
+        aggregate_func: "average",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de",
+          filer_params
+        )
+
+      assert not is_nil(data)
+      assert data != []
+      assert List.last(List.first(data)) == 457.5
+    end
+
+    test "returns empty data if filtered params are not valid", %{sen_data: sen_data} do
+      filer_params = %{
+        from_date: Timex.now(),
+        to_date: Timex.now(),
+        aggregate_func: "max",
+        group_interval: 1,
+        group_interval_type: "hour"
+      }
+
+      data =
+        SensorData.get_all_by_parameters(
+          sen_data.sensor_id,
+          "ee65c502c66811eabca598460aa1c6de1",
+          filer_params
+        )
+
+      assert not is_nil(data)
+      assert data == []
+    end
+  end
+end
