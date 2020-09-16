@@ -40,7 +40,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
         {:error, "dashboard with this uuid not found"}
 
       dashboard ->
-        {:ok, dashboard |> Repo.preload([:panels])}
+        {:ok, dashboard |> Repo.preload([:panels, :dashboard_export])}
     end
   end
 

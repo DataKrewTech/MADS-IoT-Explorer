@@ -60,7 +60,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   end
 
   defp verify_dashboard({:ok, dashboard}) do
-    dashboard = Repo.preload(dashboard, [:panels])
+    dashboard = Repo.preload(dashboard, [:panels, :dashboard_export])
     {:ok, dashboard}
   end
 
