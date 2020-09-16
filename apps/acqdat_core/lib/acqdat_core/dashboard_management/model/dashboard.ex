@@ -45,7 +45,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   end
 
   def get_with_panels(id) when is_integer(id) do
-    case Repo.get(Dashboard, id) |> Repo.preload([:panels]) do
+    case Repo.get(Dashboard, id) |> Repo.preload([:panels, :dashboard_export]) do
       nil ->
         {:error, "dashboard with this id not found"}
 

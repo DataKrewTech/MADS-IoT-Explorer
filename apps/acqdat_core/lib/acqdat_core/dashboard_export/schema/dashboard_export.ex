@@ -15,6 +15,7 @@ defmodule AcqdatCore.DashboardExport.Schema.DashboardExport do
   """
 
   use AcqdatCore.Schema
+  alias AcqdatCore.DashboardManagement.Schema.Dashboard
 
   @typedoc """
   `dashboard_uuid`: dashboard uuid
@@ -27,14 +28,15 @@ defmodule AcqdatCore.DashboardExport.Schema.DashboardExport do
 
   schema("acqdat_dashboard_export") do
     field(:token, :string)
+    field(:url, :string)
     field(:dashboard_uuid, :string, null: false)
     field(:is_secure, :boolean, null: false, default: false)
     field(:password, :string)
-
+    belongs_to(:dashboard, Dashboard)
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(token dashboard_uuid is_secure)a
+  @required ~w(token dashboard_uuid dashboard_id url is_secure)a
   @optional ~w(password)a
   @permitted @required ++ @optional
 

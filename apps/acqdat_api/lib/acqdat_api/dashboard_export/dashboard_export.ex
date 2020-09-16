@@ -10,11 +10,14 @@ defmodule AcqdatApi.DashboardExport.DashboardExport do
 
   def create(params, dashboard) do
     token = DashboardExport.generate_token(dashboard.uuid)
+    url = generate_url(dashboard, token)
 
     params =
       params_extraction(params)
       |> Map.put_new(:dashboard_uuid, dashboard.uuid)
       |> Map.put_new(:token, token)
+      |> Map.put_new(:dashboard_id, dashboard.id)
+      |> Map.put_new(:url, url)
 
     if (params.is_secure == true and params.password != nil) or
          (params.is_secure == false and params.password == nil) do
@@ -37,13 +40,8 @@ defmodule AcqdatApi.DashboardExport.DashboardExport do
     |> Map.drop([:_id, :__meta__])
   end
 
-  def generate_url(dashboard_export) do
-    trailing_part =
-      case dashboard_export.token do
-        nil -> dashboard_export.dashboard_uuid
-        _ -> dashboard_export.dashboard_uuid <> "?token=#{dashboard_export.token}"
-      end
-
+  defp generate_url(dashboard, token) do
+    trailing_part = dashboard.uuid <> "?token=#{token}"
     @url <> trailing_part
   end
 end

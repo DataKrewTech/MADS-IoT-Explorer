@@ -10,7 +10,8 @@ defmodule AcqdatCore.Repo.Migrations.AddAcqdatDashboardExport do
       add(:is_secure, :boolean, null: false, default: false)
       add(:password, :string)
       add(:dashboard_uuid, :string, null: false)
-
+      add(:dashboard_id, references("acqdat_dashboard", on_delete: :delete_all))
+      add(:url, :text)
       timestamps(type: :timestamptz)
     end
 

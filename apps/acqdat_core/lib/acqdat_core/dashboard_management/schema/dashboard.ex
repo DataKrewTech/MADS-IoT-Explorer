@@ -11,6 +11,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.DashboardManagement.Schema.Panel
+  alias AcqdatCore.DashboardExport.Schema.DashboardExport
   alias AcqdatCore.DashboardManagement.Schema.Dashboard.Settings
 
   @typedoc """
@@ -32,6 +33,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
 
     # embedded associations
     embeds_one(:settings, Settings, on_replace: :delete)
+    has_one(:dashboard_export, DashboardExport)
 
     timestamps(type: :utc_datetime)
   end

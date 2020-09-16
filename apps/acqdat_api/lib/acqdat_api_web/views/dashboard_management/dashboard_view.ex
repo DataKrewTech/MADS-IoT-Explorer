@@ -36,7 +36,15 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       uuid: dashboard.uuid,
       settings: render_one(dashboard.settings, DashboardView, "settings.json"),
       avatar: dashboard.avatar,
-      panels: render_many(dashboard.panels, PanelView, "panel.json")
+      panels: render_many(dashboard.panels, PanelView, "panel.json"),
+      exported_url:
+        render_one(dashboard.dashboard_export, DashboardView, "exported_dashboard.json")
+    }
+  end
+
+  def render("exported_dashboard.json", %{dashboard: export_details}) do
+    %{
+      url: export_details.url
     }
   end
 
