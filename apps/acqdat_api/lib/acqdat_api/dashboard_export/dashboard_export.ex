@@ -6,8 +6,8 @@ defmodule AcqdatApi.DashboardExport.DashboardExport do
   alias AcqdatCore.Model.DashboardExport.DashboardExport
   import AcqdatApiWeb.Helpers
 
-  # @url System.get_env("DASHBOARD_URL")
-  @url "https://mads.netlify.app/dashboards/"
+  @url Application.get_env(:acqdat_api, :frontend_url)
+  # @url "https://mads.netlify.app/dashboards/"
 
   def create(params, dashboard) do
     token = DashboardExport.generate_token(dashboard.uuid)

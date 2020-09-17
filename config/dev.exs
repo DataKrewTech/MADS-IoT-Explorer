@@ -73,3 +73,15 @@ config :acqdat_core, AcqdatCore.Repo,
 config :acqdat_core, :mqtt_broker,
   host: System.get_env("MQTT_HOST", "localhost"),
   port: System.get_env("MQTT_PORT", "1883")
+
+config :acqdat_api,
+       :frontend_url,
+       System.get_env("DASHBOARD_URL", "https://mads.netlify.app/dashboards/")
+
+# salt
+config :acqdat_core,
+       :secret_salt,
+       System.get_env(
+         "SECRET_KEY_BASE",
+         "i6gwFKNscK4NSgptoHjMsYjmbUgFLKzehE6EBUMOkZpWF5h7Ac+J+IT9z5XVtK/d"
+       )

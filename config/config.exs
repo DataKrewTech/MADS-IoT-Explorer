@@ -91,3 +91,15 @@ config :ex_aws,
 
 config :google_maps,
   api_key: System.get_env("GOOGLE_SECRET_KEY")
+
+config :acqdat_api,
+       :frontend_url,
+       System.get_env("DASHBOARD_URL", "https://mads.netlify.app/dashboards/")
+
+# salt
+config :acqdat_core,
+       :secret_salt,
+       System.get_env(
+         "SECRET_KEY_BASE",
+         "i6gwFKNscK4NSgptoHjMsYjmbUgFLKzehE6EBUMOkZpWF5h7Ac+J+IT9z5XVtK/d"
+       )

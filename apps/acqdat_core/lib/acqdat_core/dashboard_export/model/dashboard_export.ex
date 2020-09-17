@@ -6,17 +6,19 @@ defmodule AcqdatCore.Model.DashboardExport.DashboardExport do
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
   alias AcqdatCore.Repo
 
+  @secret_salt Application.get_env(:acqdat_core, :secret_salt)
+
   def create(params) do
     changeset = DashboardExport.changeset(%DashboardExport{}, params)
     Repo.insert(changeset)
   end
 
   def generate_token(dashboard_uuid) do
-    Phoenix.Token.sign(AcqdatApiWeb.Endpoint, "dashboard_uuid", dashboard_uuid)
+    Phoenix.Token.sign(AcqdatApiWeb.Endpoint, @secret_salt, dashboard_uuid)
   end
 
   def verify_token(token) do
-    Phoenix.Token.verify(AcqdatApiWeb.Endpoint, "dashboard_uuid", token)
+    Phoenix.Token.verify(AcqdatApiWeb.Endpoint, @secret_salt, token)
   end
 
   def verify_uuid_and_token(uuid, token) do
