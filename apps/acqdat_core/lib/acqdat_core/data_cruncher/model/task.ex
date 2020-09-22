@@ -11,7 +11,6 @@ defmodule AcqdatCore.DataCruncher.Model.Task do
 
   def delete(task) do
     Repo.delete(task)
-    {:error, "sdfrf"}
   end
 
   def get(id) when is_integer(id) do
