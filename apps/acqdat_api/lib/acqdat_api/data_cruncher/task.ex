@@ -1,7 +1,7 @@
 defmodule AcqdatApi.DataCruncher.Task do
   alias Ecto.Multi
   alias AcqdatCore.Repo
-  alias AcqdatCore.DataCrunche.Model.Task, as: TaskModel
+  alias AcqdatCore.DataCruncher.Model.Task, as: TaskModel
   alias AcqdatCore.DataCruncher.Domain.Task
   alias AcqdatApi.DataCruncher.TaskExecuteWorker
 
