@@ -1,4 +1,4 @@
-defmodule AcqdatCore.DataCrunche.Model.Task do
+defmodule AcqdatCore.DataCruncher.Model.Task do
   import Ecto.Query
   alias AcqdatCore.Repo
   alias AcqdatCore.DataCruncher.Schema.Tasks
@@ -11,6 +11,7 @@ defmodule AcqdatCore.DataCrunche.Model.Task do
 
   def delete(task) do
     Repo.delete(task)
+    {:error, "sdfrf"}
   end
 
   def get(id) when is_integer(id) do

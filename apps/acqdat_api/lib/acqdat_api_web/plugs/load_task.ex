@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.Plug.LoadTask do
   import Plug.Conn
-  alias AcqdatCore.DataCrunche.Model.Task, as: TaskModel
+  alias AcqdatCore.DataCruncher.Model.Task, as: TaskModel
 
   @spec init(any) :: any
   def init(default), do: default
