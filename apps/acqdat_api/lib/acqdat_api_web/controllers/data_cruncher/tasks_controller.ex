@@ -75,13 +75,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
             |> put_status(200)
             |> render("task.json", %{task: task})
 
-          {:error, task} ->
-            error =
-              case String.valid?(task) do
-                false -> extract_changeset_error(task)
-                true -> task
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end

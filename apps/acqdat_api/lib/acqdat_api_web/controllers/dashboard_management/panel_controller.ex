@@ -105,13 +105,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
             |> put_status(200)
             |> render("panel.json", %{panel: panel})
 
-          {:error, panel} ->
-            error =
-              case String.valid?(panel) do
-                false -> extract_changeset_error(panel)
-                true -> panel
-              end
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
             conn
             |> send_error(400, error)
         end
