@@ -34,6 +34,16 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end)
   end
 
+  def gen_topology(org_id, project_id) do
+    hire_data = hierarchy_data(org_id, project_id)
+
+    Enum.reduce(hire_data, [], fn project, acc ->
+      assets = if Map.has_key?(project, :assets), do: [group_by_asset_type(project)], else: []
+      sensors = if Map.has_key?(project, :sensors), do: [group_by_senor_type(project)], else: []
+      acc ++ assets ++ sensors
+    end)
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(Project, id) do
       nil ->
@@ -72,15 +82,6 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
       end
 
     Repo.update(changeset)
-  end
-
-  defp fetch_projects(org_id, project_id) do
-    query =
-      from(project in Project,
-        where: project.org_id == ^org_id and project.id == ^project_id
-      )
-
-    Repo.all(query)
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do
@@ -158,5 +159,36 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
       {:error, project} ->
         {:error, project}
     end
+  end
+
+  ################# private functions ###############
+
+  defp fetch_projects(org_id, project_id) do
+    query =
+      from(project in Project,
+        where: project.org_id == ^org_id and project.id == ^project_id
+      )
+
+    Repo.all(query)
+  end
+
+  defp group_by_asset_type(entity) do
+    Enum.group_by(entity.assets, fn x -> x.asset_type end, fn asset ->
+      assets =
+        if Map.has_key?(asset, :assets) do
+          group_by_asset_type(asset)
+        end
+
+      sensors =
+        if Map.has_key?(asset, :sensors) do
+          group_by_senor_type(asset)
+        end
+
+      if assets != nil && sensors != nil, do: Map.merge(assets, sensors), else: assets || sensors
+    end)
+  end
+
+  defp group_by_senor_type(entity) do
+    Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
   end
 end
