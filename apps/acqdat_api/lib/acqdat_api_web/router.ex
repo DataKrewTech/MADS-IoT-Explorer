@@ -192,6 +192,10 @@ defmodule AcqdatApiWeb.Router do
       resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
     end
 
+    scope "/projects/:project_id", DataInsights do
+      resources "/topology", TopologyController, only: [:index]
+    end
+
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
     get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
 
