@@ -5,6 +5,7 @@ defmodule AcqdatApi.DashboardManagement.Panel do
   defdelegate get_all(data), to: PanelModel
   defdelegate delete(panel), to: PanelModel
   defdelegate get_with_widgets(panel_id), to: PanelModel
+  defdelegate update(panel, data), to: PanelModel
 
   def create(attrs) do
     %{
@@ -28,13 +29,6 @@ defmodule AcqdatApi.DashboardManagement.Panel do
     }
 
     verify_panel(PanelModel.create(panel_params))
-  end
-
-  def update(panel, data) do
-    filter_metadata = data["filter_metadata"] || %{}
-
-    data = data |> Map.put("filter_metadata", filter_metadata)
-    PanelModel.update(panel, data)
   end
 
   defp verify_panel({:ok, panel}) do
