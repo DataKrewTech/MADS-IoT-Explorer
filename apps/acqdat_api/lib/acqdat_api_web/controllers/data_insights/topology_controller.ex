@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.DataInsights.TopologyController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
-  alias AcqdatCore.Model.EntityManagement.Project
+  alias AcqdatApiWeb.DataInsights.Topology
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadOrg
@@ -11,10 +11,29 @@ defmodule AcqdatApiWeb.DataInsights.TopologyController do
     case conn.status do
       nil ->
         with {:index, topology} <-
-               {:index, Project.gen_topology(org_id, project_id)} do
+               {:index, Topology.gen_topology(org_id, project_id)} do
           conn
           |> put_status(200)
           |> render("index.json", topology: topology)
+        else
+          {:create, {:error, error}} ->
+            send_error(conn, 400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def entities(conn, %{"org_id" => org_id, "project_id" => project_id}) do
+    case conn.status do
+      nil ->
+        with {:index, topology} <-
+               {:index, Topology.entities(%{org_id: org_id, project_id: project_id})} do
+          conn
+          |> put_status(200)
+          |> render("details.json", topology)
         else
           {:create, {:error, error}} ->
             send_error(conn, 400, error)

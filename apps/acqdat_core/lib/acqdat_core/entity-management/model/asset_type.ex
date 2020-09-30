@@ -20,6 +20,16 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
+  def get_all(%{org_id: org_id, project_id: project_id}) do
+    query =
+      from(asset_type in AssetType,
+        where: asset_type.org_id == ^org_id and asset_type.project_id == ^project_id,
+        order_by: asset_type.id
+      )
+
+    query |> Repo.all()
+  end
+
   def get_all(%{
         page_size: page_size,
         page_number: page_number,
