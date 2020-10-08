@@ -68,6 +68,8 @@ defmodule AcqdatApiWeb.Router do
     resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
     )
+
+    resources "/uploads", ImageUploadController, only: [:create]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
