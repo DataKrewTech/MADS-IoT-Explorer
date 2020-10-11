@@ -3,9 +3,9 @@ defmodule AcqdatApiWeb.ImageUploadController do
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.Image
 
-  def create(conn, %{"image" => image}) do
-    with {:ok, image_name} <- Image.store({image, "dashboard"}) do
-      image_url = Image.url({image_name, "dashboard"})
+  def create(conn, %{"image" => image, "path" => path}) do
+    with {:ok, image_name} <- Image.store({image, path}) do
+      image_url = Image.url({image_name, path})
 
       conn
       |> put_status(200)

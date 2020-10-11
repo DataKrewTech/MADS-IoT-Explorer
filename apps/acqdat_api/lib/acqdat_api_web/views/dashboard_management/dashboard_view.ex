@@ -59,7 +59,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       id: settings.id,
       background_color: settings.background_color,
       client_name: settings.client_name,
-      sidebar_color: settings.sidebar_color
+      sidebar_color: settings.sidebar_color,
+      thumbnail_url: settings.thumbnail_url
     }
   end
 end
