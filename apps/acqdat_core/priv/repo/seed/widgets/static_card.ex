@@ -48,7 +48,7 @@ defmodule AcqdatCore.Seed.Widgets.StaticCard do
       properties: %{},
       uuid: UUID.uuid1(:hex),
       classification: "standard",
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/line-basic-default.png",
+      image_url: "https://i.imgur.com/KfHsf0S.png",
       category: ["card", "static_card"],
       policies: %{},
       widget_type_id: widget_type.id,

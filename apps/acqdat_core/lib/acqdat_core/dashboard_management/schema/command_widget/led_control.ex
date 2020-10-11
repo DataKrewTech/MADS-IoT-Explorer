@@ -78,7 +78,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl do
 
   @impl true
   def image_url() do
-    ""
+    "https://i.imgur.com/tq6fzip.png"
   end
 
   defp prepare_payload_and_send(command_widget, data) do

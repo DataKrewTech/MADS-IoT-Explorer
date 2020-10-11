@@ -74,7 +74,7 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
       properties: %{},
       uuid: UUID.uuid1(:hex),
       classification: "latest",
-      image_url: "https://assets.highcharts.com/images/demo-thumbnails/highcharts/line-basic-default.png",
+      image_url: "https://i.imgur.com/ix0Agv4.png",
       category: ["card", "dynamic_card"],
       policies: %{},
       widget_type_id: widget_type.id,
