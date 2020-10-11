@@ -11,14 +11,21 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        with {:create, {:ok, task}} <-
-               {:create, Task.create(params)} do
-          conn
-          |> put_status(200)
-          |> render("task.json", %{task: task})
-        else
-          {:create, {:error, error}} ->
-            send_error(conn, 400, error)
+        case Task.create(params) do
+          {:ok, task} ->
+            conn
+            |> put_status(200)
+            |> render("task.json", %{task: task})
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
+
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
+            conn
+            |> send_error(400, error)
         end
 
       404 ->

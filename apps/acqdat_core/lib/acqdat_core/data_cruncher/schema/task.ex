@@ -57,10 +57,10 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     |> cast(params, @required)
     |> assoc_constraint(:org)
     |> assoc_constraint(:user)
-    |> validate_required(@required)
-    |> validate_inclusion(:type, @task_types)
     |> add_slug()
     |> add_uuid()
+    |> validate_required(@required)
+    |> validate_inclusion(:type, @task_types)
     |> cast_assoc(:workflows, with: &Workflow.changeset/2)
   end
 end
