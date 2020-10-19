@@ -26,6 +26,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
     field(:avatar, :string)
+    field(:archived, :boolean, default: false)
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
@@ -39,7 +40,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   end
 
   @required_params ~w(uuid slug name org_id)a
-  @optional_params ~w(description avatar)a
+  @optional_params ~w(description avatar archived)a
   @permitted @optional_params ++ @required_params
 
   def changeset(%__MODULE__{} = dashboard, params) do
