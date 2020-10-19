@@ -6,6 +6,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   alias AcqdatCore.Model.DashboardManagement.Panel, as: PanelModel
 
   defdelegate get_all(data), to: DashboardModel
+  defdelegate get_all_archived(data), to: DashboardModel
   defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
   defdelegate delete(dashboard), to: DashboardModel

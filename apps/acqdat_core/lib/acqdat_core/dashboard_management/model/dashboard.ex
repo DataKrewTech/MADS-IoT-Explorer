@@ -62,7 +62,21 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
       }) do
     query =
       from(dashboard in Dashboard,
-        where: dashboard.org_id == ^org_id,
+        where: dashboard.org_id == ^org_id and dashboard.archived == false,
+        order_by: dashboard.name
+      )
+
+    query |> Repo.paginate(page: page_number, page_size: page_size)
+  end
+
+  def get_all_archived(%{
+        page_size: page_size,
+        page_number: page_number,
+        org_id: org_id
+      }) do
+    query =
+      from(dashboard in Dashboard,
+        where: dashboard.org_id == ^org_id and dashboard.archived == true,
         order_by: dashboard.name
       )
 
