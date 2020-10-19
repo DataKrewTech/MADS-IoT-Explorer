@@ -312,4 +312,88 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
   end
+
+  describe "archived/2" do
+    setup :setup_conn
+
+    test "fetch all archived dashboards", %{conn: conn} do
+      insert_list(3, :dashboard)
+      dashboard = insert(:dashboard, archived: true)
+
+      params = %{
+        "page_size" => 100,
+        "page_number" => 1
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+        )
+
+      response = conn |> json_response(200)
+
+      assert length(response["dashboards"]) == 1
+      assertion_dashboard = List.first(response["dashboards"])
+      assert assertion_dashboard["id"] == dashboard.id
+      assert assertion_dashboard["name"] == dashboard.name
+    end
+
+    test "if params are missing", %{conn: conn} do
+      dashboard = insert(:dashboard, archived: true)
+
+      conn =
+        get(
+          conn,
+          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, %{})
+        )
+
+      response = conn |> json_response(200)
+      assert response["total_pages"] == 1
+      assert length(response["dashboards"]) == response["total_entries"]
+    end
+
+    test "Pagination", %{conn: conn} do
+      dashboard = insert(:dashboard, archived: true)
+
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+        )
+
+      page1_response = conn |> json_response(200)
+      assert page1_response["page_number"] == params["page_number"]
+      assert page1_response["page_size"] == params["page_size"]
+      assert page1_response["total_pages"] == 1
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn} do
+      bad_access_token = "qwerty1234567qwerty12"
+      dashboard = insert(:dashboard, archived: true)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+        )
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
 end
