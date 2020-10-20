@@ -13,6 +13,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
+  alias AcqdatCore.DashboardExport.Schema.DashboardExport
 
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
@@ -109,6 +110,16 @@ defmodule AcqdatCore.Support.Factory do
       name: sequence(:dashboard_name, &"Dashboard#{&1}"),
       slug: sequence(:dashboard_name, &"Dashboard#{&1}"),
       org: build(:organisation)
+    }
+  end
+
+  def dashboard_export_factory() do
+    %DashboardExport{
+      dashboard_uuid: UUID.uuid1(:hex),
+      token: UUID.uuid1(:hex),
+      url: UUID.uuid1(:hex),
+      is_secure: false,
+      dashboard: build(:dashboard)
     }
   end
 
