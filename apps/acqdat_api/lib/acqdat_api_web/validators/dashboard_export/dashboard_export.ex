@@ -8,4 +8,11 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
       password: :string
     })
   )
+
+  defparams(
+    verify_update_params(%{
+      is_secure!: [field: :boolean, default: false],
+      password: :string
+    })
+  )
 end

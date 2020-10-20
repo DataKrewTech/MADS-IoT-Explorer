@@ -13,6 +13,26 @@ defmodule AcqdatCore.Model.DashboardExport.DashboardExport do
     Repo.insert(changeset)
   end
 
+  def update(dashboard_export, params) do
+    changeset = DashboardExport.update_changeset(dashboard_export, params)
+    Repo.update(changeset)
+  end
+
+  def get_by_uuid(uuid) when is_binary(uuid) do
+    query =
+      from(dashboard_export in DashboardExport,
+        where: dashboard_export.dashboard_uuid == ^uuid
+      )
+
+    case List.first(Repo.all(query)) do
+      nil ->
+        {:error, "dashboard_export with this uuid not found"}
+
+      dashboard ->
+        {:ok, dashboard}
+    end
+  end
+
   def generate_token(dashboard_uuid) do
     Phoenix.Token.sign(AcqdatApiWeb.Endpoint, @secret_salt, dashboard_uuid)
   end

@@ -76,6 +76,7 @@ defmodule AcqdatApiWeb.Router do
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
     post("/dashboards/:dashboard_id/export", DashboardExport.DashboardExportController, :create)
+    put("/dashboards_export/:dashboard_uuid", DashboardExport.DashboardExportController, :update)
     resources "/components", DataCruncher.ComponentsController, only: [:index]
     post "/export/:dashboard_id", DashboardExport.DashboardExportController, :create
 

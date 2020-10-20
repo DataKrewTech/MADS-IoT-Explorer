@@ -53,4 +53,10 @@ defmodule AcqdatCore.DashboardExport.Schema.DashboardExport do
       message: "Dashboard has already been exported previously."
     )
   end
+
+  def update_changeset(%__MODULE__{} = dashboard_export, params) do
+    dashboard_export
+    |> cast(params, @permitted)
+    |> validate_required(@required)
+  end
 end
