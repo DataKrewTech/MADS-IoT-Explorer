@@ -41,10 +41,18 @@ defmodule AcqdatApiWeb.ErrorView do
   defp handle_assign_error(default_message, assigns) do
     case has_assign_error_key?(assigns) do
       {:ok, errors} ->
-        %{errors: %{message: errors}}
+        %{
+          status_code: assigns.conn.status,
+          title: default_message,
+          detail: errors
+        }
 
       _ ->
-        %{errors: %{message: default_message}}
+        %{
+          status_code: assigns.conn.status,
+          title: default_message,
+          detail: default_message
+        }
     end
   end
 
