@@ -95,7 +95,15 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   defp do_widget_search(type, params) do
-    query = create_query("label", params, type)
+    query =
+    case Map.has_key?(params, "page_size") do
+      true ->
+        %{"label" => label, "page_size" => page_size, "from" => from} = params
+        create_query("label", label, type, page_size, from)
+      false ->
+        %{"label" => label} = params
+        create_query("label", label, type)
+    end
     Tirexs.Query.create_resource(query)
   end
 
@@ -124,6 +132,10 @@ defmodule AcqdatApi.ElasticSearch do
 
   defp create_query(field, value, index) do
     [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]]], index: "#{index}"]
+  end
+
+  defp create_query(field, value, index, size, from) do
+    [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]], size: size, from: from], index: "#{index}"]
   end
 
   defp create_user_search_query(org_id, label) do
