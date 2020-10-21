@@ -35,8 +35,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       type: "Organisation",
       id: org.id,
       name: org.name,
-      entities: render_many(org.project_data, ProjectView, "project_including_gateway.json")
-      # gateways: render_many(org.gateway_data, GatewayView, "gateway.json")
+      entities: render_many(org.project_data, ProjectView, "project_including_gateway.json"),
+      gateways: render_many(org.gateway_data, GatewayView, "gateway.json")
     }
   end
 
