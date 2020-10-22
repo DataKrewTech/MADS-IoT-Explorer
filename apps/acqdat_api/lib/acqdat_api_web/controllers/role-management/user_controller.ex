@@ -66,19 +66,19 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
-  def search_users(conn, %{"label" => label, "org_id" => org_id}) do
+  def search_users(conn, params) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_user(org_id, label) do
+        with {:ok, hits} <- ElasticSearch.search_user(params) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
           {:error, message} ->
             conn
             |> put_status(404)
             |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => message
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
             })
         end
 

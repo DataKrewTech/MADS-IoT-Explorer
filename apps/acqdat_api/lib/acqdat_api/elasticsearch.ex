@@ -68,8 +68,8 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
-  def search_user(org_id, params) do
-    case do_user_search(org_id, params) do
+  def search_user(%{"org_id" => org_id, "label" => label} = params) do
+    case do_user_search(org_id, label, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
@@ -96,19 +96,30 @@ defmodule AcqdatApi.ElasticSearch do
 
   defp do_widget_search(type, params) do
     query =
-    case Map.has_key?(params, "page_size") do
-      true ->
-        %{"label" => label, "page_size" => page_size, "from" => from} = params
-        create_query("label", label, type, page_size, from)
-      false ->
-        %{"label" => label} = params
-        create_query("label", label, type)
-    end
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"label" => label, "page_size" => page_size, "from" => from} = params
+          create_query("label", label, type, page_size, from)
+
+        false ->
+          %{"label" => label} = params
+          create_query("label", label, type)
+      end
+
     Tirexs.Query.create_resource(query)
   end
 
-  defp do_user_search(org_id, params) do
-    query = create_user_search_query(org_id, params)
+  defp do_user_search(org_id, label, params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from} = params
+          create_user_search_query(org_id, label, page_size, from)
+
+        false ->
+          create_user_search_query(org_id, label)
+      end
+
     Tirexs.Query.create_resource(query)
   end
 
@@ -135,7 +146,14 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   defp create_query(field, value, index, size, from) do
-    [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]], size: size, from: from], index: "#{index}"]
+    [
+      search: [
+        query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]],
+        size: size,
+        from: from
+      ],
+      index: "#{index}"
+    ]
   end
 
   defp create_user_search_query(org_id, label) do
@@ -147,6 +165,22 @@ defmodule AcqdatApi.ElasticSearch do
             filter: [term: ["first_name.keyword": "#{label}"]]
           ]
         ]
+      ],
+      index: "organisation"
+    ]
+  end
+
+  defp create_user_search_query(org_id, label, page_size, from) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "user", id: org_id]]],
+            filter: [term: ["first_name.keyword": "#{label}"]]
+          ]
+        ],
+        size: page_size,
+        from: from
       ],
       index: "organisation"
     ]
