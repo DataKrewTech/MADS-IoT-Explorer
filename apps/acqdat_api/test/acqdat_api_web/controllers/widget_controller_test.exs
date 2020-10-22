@@ -121,57 +121,72 @@ defmodule AcqdatApiWeb.WidgetControllerTest do
     end
   end
 
-  # describe "search_widgets/2" do
-  #   setup :setup_conn
+  describe "search_widgets/2" do
+    setup :setup_conn
 
-  #   test "fails if authorization header not found", %{conn: conn} do
-  #     bad_access_token = "avcbd123489u"
+    test "fails if authorization header not found", %{conn: conn} do
+      bad_access_token = "avcbd123489u"
 
-  #     conn =
-  #       conn
-  #       |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #     conn =
-  #       get(conn, Routes.widget_path(conn, :search_widget, %{
-  #         "label" => "line"
-  #       }))
+      conn =
+        get(
+          conn,
+          Routes.widget_path(conn, :search_widget, %{
+            "label" => "line"
+          })
+        )
 
-  #     result = conn |> json_response(403)
-  #     assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #   end
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
 
-  # test "search with valid params", %{conn: conn} do
-  #   conn =
-  #     get(conn, Routes.widget_path(conn, :search_widget, %{
-  #       "label" => "line"
-  #     }))
+    test "search with valid params", %{conn: conn} do
+      conn =
+        get(
+          conn,
+          Routes.widget_path(conn, :search_widget, %{
+            "label" => "line"
+          })
+        )
 
-  #   result = conn |> json_response(200)   
-  #   assert result = %{
-  #            "widgets" => [
-  #             "category" => [
-  #               "chart",
-  #               "line"
-  #           ],
-  #           "id" => null,
-  #           "label" =>  "line",
-  #           "properties" =>  {},
-  #           "uuid" => "7a9dc8dc854e11ea964f98460aa1c6de"
-  #            ]
-  #          }
-  # end
+      result = conn |> json_response(200)
 
-  #   test "search with no hits ", %{conn: conn} do
-  #     conn =
-  #       get(conn, Routes.widget_path(conn, :search_widget, %{
-  #         "label" => "Datakrew"
-  #       }))
+      assert Map.has_key?(result, "widgets") == true
+    end
 
-  #     result = conn |> json_response(200)
+    test "search with valid params and indexing", %{conn: conn} do
+      conn =
+        get(
+          conn,
+          Routes.widget_path(conn, :search_widget, %{
+            "label" => "line",
+            "page_size" => 1,
+            "from" => 0
+          })
+        )
 
-  #     assert result = %{
-  #              "widgets" => []
-  #            }
-  #   end
-  # end
+      result = conn |> json_response(200)
+
+      assert Map.has_key?(result, "widgets") == true
+    end
+
+    test "search with no hits ", %{conn: conn} do
+      conn =
+        get(
+          conn,
+          Routes.widget_path(conn, :search_widget, %{
+            "label" => "Datakrew"
+          })
+        )
+
+      result = conn |> json_response(200)
+
+      assert result = %{
+               "widgets" => []
+             }
+    end
+  end
 end
