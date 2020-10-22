@@ -145,6 +145,7 @@ defmodule AcqdatApiWeb.Router do
 
     scope "/projects/:project_id", EntityManagement do
       resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
+      get "/assets/search", AssetController, :search_assets, as: :search_assets
 
       resources "/assets", AssetController,
         only: [:create, :show, :update, :delete, :index],
@@ -189,9 +190,6 @@ defmodule AcqdatApiWeb.Router do
         as: :update_widget_instances
 
     post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
-
-    get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
-      as: :search_assets
   end
 
   # TODO: Need to remove this scope later, and clean test-cases also

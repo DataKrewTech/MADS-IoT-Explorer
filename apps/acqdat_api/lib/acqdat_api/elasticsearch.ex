@@ -81,8 +81,8 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
-  def search_assets(type, params) do
-    case do_asset_search(type, params) do
+  def search_assets(type, %{"label" => label} = params) do
+    case do_asset_search(type, label, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
@@ -123,8 +123,17 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  defp do_asset_search(type, params) do
-    query = create_query("name", params, type)
+  defp do_asset_search(type, label, params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from} = params
+          create_query("name", label, type, page_size, from)
+
+        false ->
+          create_query("name", label, type)
+      end
+
     Tirexs.Query.create_resource(query)
   end
 

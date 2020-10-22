@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
   plug AcqdatApiWeb.Plug.LoadProject
   plug :load_asset when action in [:show, :update, :delete]
-  plug :check_org_and_asset_type when action in [:search_assets, :create]
+  plug :check_org_and_asset_type when action in [:create]
 
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
@@ -104,19 +104,19 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     end
   end
 
-  def search_assets(conn, %{"label" => label}) do
+  def search_assets(conn, params) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_assets("assets", label) do
+        with {:ok, hits} <- ElasticSearch.search_assets("assets", params) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
           {:error, message} ->
             conn
             |> put_status(404)
             |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => message
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
             })
         end
 
