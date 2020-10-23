@@ -146,7 +146,7 @@ defmodule AcqdatCore.Alerts.AlertCreation do
             |> String.trim_trailing(" ")
 
           alert = Map.put_new(alert, :alert_app_name, app)
-          Notifications.send_notifications(alert, alert_rule, :twilio)
+          Notifications.send_notifications(alert, alert_rule, "twilio")
 
         {:error, _error} ->
           {:error, :noreply}

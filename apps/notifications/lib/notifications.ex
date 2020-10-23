@@ -13,6 +13,7 @@ defmodule Notifications do
       case medium do
         "e-mail" -> send_alert(alert)
         "sms" -> send_sms(alert, alert_rule, vendor)
+        "whatsapp" -> send_message(alert, alert_rule, vendor)
         "in-app" -> nil
       end
     end)
@@ -40,6 +41,25 @@ defmodule Notifications do
       _ ->
         Enum.each(contacts, fn contact ->
           Vendors.module(Vendors.services(vendor)).send_sms(message, contact, "+12059646511")
+        end)
+    end
+  end
+
+  defp send_message(alert, alert_rule, vendor) do
+    contacts = create_contact_list(alert_rule)
+    message = create_message(alert)
+
+    case List.first(contacts) do
+      nil ->
+        nil
+
+      _ ->
+        Enum.each(contacts, fn contact ->
+          Vendors.module(Vendors.services(vendor)).send_message(
+            message,
+            "whatsapp:#{contact}",
+            "whatsapp:+14155238886"
+          )
         end)
     end
   end
