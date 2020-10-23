@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Validators.Widgets.WidgetType do
       vendor!: :string,
       name!: :string,
       module!: :string,
-      vendor_metadata!: :map
+      vendor_metadata: :map
     })
   )
 
