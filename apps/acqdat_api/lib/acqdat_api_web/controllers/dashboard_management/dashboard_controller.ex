@@ -27,24 +27,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     end
   end
 
-  def archived(conn, params) do
-    changeset = verify_index_params(params)
-
-    case conn.status do
-      nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, dashboards} = {:list, Dashboard.get_all_archived(data)}
-
-        conn
-        |> put_status(200)
-        |> render("index.json", dashboards)
-
-      404 ->
-        conn
-        |> send_error(404, "Resource Not Found")
-    end
-  end
-
   def create(conn, params) do
     case conn.status do
       nil ->

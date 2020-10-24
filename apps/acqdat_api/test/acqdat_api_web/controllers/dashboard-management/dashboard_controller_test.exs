@@ -322,13 +322,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       params = %{
         "page_size" => 100,
-        "page_number" => 1
+        "page_number" => 1,
+        "type" => "archived"
       }
 
       conn =
         get(
           conn,
-          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       response = conn |> json_response(200)
@@ -345,7 +346,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn =
         get(
           conn,
-          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, %{})
+          Routes.dashboard_path(conn, :index, dashboard.org_id, %{})
         )
 
       response = conn |> json_response(200)
@@ -358,13 +359,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       params = %{
         "page_size" => 2,
-        "page_number" => 1
+        "page_number" => 1,
+        "type" => "archived"
       }
 
       conn =
         get(
           conn,
-          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       page1_response = conn |> json_response(200)
@@ -383,13 +385,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       params = %{
         "page_size" => 2,
-        "page_number" => 1
+        "page_number" => 1,
+        "type" => "archived"
       }
 
       conn =
         get(
           conn,
-          Routes.archived_dashboards_path(conn, :archived, dashboard.org_id, params)
+          Routes.dashboard_path(conn, :index, dashboard.org_id, params)
         )
 
       result = conn |> json_response(403)

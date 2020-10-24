@@ -148,10 +148,6 @@ defmodule AcqdatApiWeb.Router do
       resources "/panels", PanelController, except: [:new, :edit]
     end
 
-    get("/archived_dashboards", DashboardManagement.DashboardController, :archived,
-      as: :archived_dashboards
-    )
-
     scope "/panels/:panel_id", DashboardManagement do
       resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
     end

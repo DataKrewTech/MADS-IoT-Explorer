@@ -5,12 +5,18 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   alias AcqdatCore.Model.DashboardManagement.Dashboard, as: DashboardModel
   alias AcqdatCore.Model.DashboardManagement.Panel, as: PanelModel
 
-  defdelegate get_all(data), to: DashboardModel
-  defdelegate get_all_archived(data), to: DashboardModel
   defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
   defdelegate delete(dashboard), to: DashboardModel
   defdelegate get_by_uuid(uuid), to: DashboardModel
+
+  def get_all(%{type: "archived"} = data) do
+    DashboardModel.get_all_archived(data)
+  end
+
+  def get_all(data) do
+    DashboardModel.get_all(data)
+  end
 
   def create(attrs) do
     %{
