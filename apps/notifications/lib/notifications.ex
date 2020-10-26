@@ -57,8 +57,8 @@ defmodule Notifications do
         Enum.each(contacts, fn contact ->
           Vendors.module(Vendors.services(vendor)).send_message(
             message,
-            "whatsapp:#{contact}",
-            "whatsapp:+14155238886"
+            contact,
+            "+14155238886"
           )
         end)
     end
