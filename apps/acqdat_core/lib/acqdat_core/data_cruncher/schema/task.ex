@@ -32,6 +32,7 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     field(:type, :string, default: "one_time")
     field(:uuid, :string, null: false)
     field(:slug, :string, null: false)
+    field(:graph_json, :map)
 
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:user, User, on_replace: :raise)
@@ -40,7 +41,9 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(uuid slug name org_id user_id)a
+  @required_params ~w(uuid slug name org_id user_id)a
+  @optional_params ~w(graph_json)a
+  @permitted @optional_params ++ @required_params
 
   @doc """
   Returns a changeset for performing `create` and `update` operations.
@@ -54,12 +57,12 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
   """
   def changeset(%__MODULE__{} = task, params) do
     task
-    |> cast(params, @required)
+    |> cast(params, @permitted)
     |> assoc_constraint(:org)
     |> assoc_constraint(:user)
     |> add_slug()
     |> add_uuid()
-    |> validate_required(@required)
+    |> validate_required(@required_params)
     |> validate_inclusion(:type, @task_types)
     |> cast_assoc(:workflows, with: &Workflow.changeset/2)
   end

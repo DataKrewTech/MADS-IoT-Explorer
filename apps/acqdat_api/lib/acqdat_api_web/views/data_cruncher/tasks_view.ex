@@ -20,6 +20,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksView do
       uuid: task.uuid,
       type: task.type,
       slug: task.slug,
+      graph_json: task.graph_json,
       created_at: task.inserted_at,
       user: render_one(task.user, TasksView, "user_details.json")
     }
@@ -32,6 +33,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksView do
       uuid: task.uuid,
       type: task.type,
       slug: task.slug,
+      graph_json: task.graph_json,
       workflows: render_many(task.workflows, WorkflowView, "workflow.json")
     }
   end
