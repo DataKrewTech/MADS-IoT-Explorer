@@ -137,10 +137,19 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  def user_indexing(page) do
-    page_size = String.to_integer(page)
+  def user_indexing(params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
+          user_indexing_query(org_id, from, page_size)
 
-    case get("/user/_search", size: page_size) do
+        false ->
+          %{"org_id" => org_id} = params
+          user_indexing_query(org_id)
+      end
+
+    case Tirexs.Query.create_resource(query) do
       {:ok, _return_code, hits} -> {:ok, hits.hits}
       :error -> {:error, "elasticsearch is not running"}
     end
@@ -172,6 +181,34 @@ defmodule AcqdatApi.ElasticSearch do
           bool: [
             must: [[parent_id: [type: "user", id: org_id]]],
             filter: [term: ["first_name.keyword": "#{label}"]]
+          ]
+        ]
+      ],
+      index: "organisation"
+    ]
+  end
+
+  defp user_indexing_query(org_id, from, size) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "user", id: org_id]]]
+          ]
+        ],
+        size: size,
+        from: from
+      ],
+      index: "organisation"
+    ]
+  end
+
+  defp user_indexing_query(org_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "user", id: org_id]]]
           ]
         ]
       ],

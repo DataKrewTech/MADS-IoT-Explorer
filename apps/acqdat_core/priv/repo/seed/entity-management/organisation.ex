@@ -25,5 +25,4 @@ defmodule AcqdatCore.Seed.EntityManagement.Organisation do
       "join_field": "organisation"
       )
   end
-
 end
