@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.ImageDeletion
+  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.IotManager.GatewayDataDump
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.IotManager.Gateway
@@ -52,6 +53,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
         case Gateway.update(gateway, params) do
           {:ok, gateway} ->
+            ElasticSearch.update_gateway("pro", gateway)
+
             conn
             |> put_status(200)
             |> render("show.json", %{gateway: gateway})
@@ -75,6 +78,10 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, gateway}} <- {:create, Gateway.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.insert_gateway("pro", gateway)
+          end)
+
           conn
           |> put_status(200)
           |> render("show.json", %{gateway: gateway})
@@ -135,6 +142,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
             if gateway.image_url != nil do
               ImageDeletion.delete_operation(gateway.image_url, "gateway")
             end
+
+            ElasticSearch.delete_data("pro", gateway)
 
             conn
             |> put_status(200)

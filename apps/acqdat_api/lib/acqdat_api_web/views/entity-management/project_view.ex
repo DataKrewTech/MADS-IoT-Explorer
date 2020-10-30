@@ -138,4 +138,27 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       uuid: parameter.uuid
     }
   end
+
+  def render("hits.json", %{hits: hits}) do
+    %{
+      projects: render_many(hits.hits, ProjectView, "source.json")
+    }
+  end
+
+  def render("source.json", %{project: %{_source: hits}}) do
+    %{
+      type: "Project",
+      id: hits.id,
+      name: hits.name,
+      archived: hits.archived,
+      slug: hits.slug,
+      description: hits.description,
+      version: hits.version,
+      location: hits.location,
+      avatar: hits.avatar,
+      metadata: render_many(hits.metadata, ProjectView, "metadata.json"),
+      start_date: hits.start_date,
+      creator_id: hits.creator_id
+    }
+  end
 end
