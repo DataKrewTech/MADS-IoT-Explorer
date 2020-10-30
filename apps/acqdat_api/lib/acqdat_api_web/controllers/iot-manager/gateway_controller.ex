@@ -25,17 +25,61 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
   plug :load_hierarchy_tree when action in [:hierarchy]
 
-  def index(conn, params) do
-    changeset = verify_index_params(params)
-
+  def search_gateways(conn, params) do
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, gateway} = {:list, Gateway.get_all(data, [:org, :project, :sensors])}
+        with {:ok, hits} <- ElasticSearch.search_gateways(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
+      404 ->
         conn
-        |> put_status(200)
-        |> render("index.json", gateway)
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  # def index(conn, params) do
+  #   changeset = verify_index_params(params)
+
+  #   case conn.status do
+  #     nil ->
+  #       {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+  #       {:list, gateway} = {:list, Gateway.get_all(data, [:org, :project, :sensors])}
+
+  #       conn
+  #       |> put_status(200)
+  #       |> render("index.json", gateway)
+
+  #     404 ->
+  #       conn
+  #       |> send_error(404, "Resource Not Found")
+  #   end
+  # end
+
+  def index(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.gateway_indexing(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "success" => false,
+              "error" => true,
+              "message" => "elasticsearch is not running"
+            })
+        end
 
       404 ->
         conn

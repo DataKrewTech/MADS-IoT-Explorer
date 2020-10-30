@@ -81,6 +81,19 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
+  def search_gateways(%{"project_id" => project_id, "label" => label} = params) do
+    case do_gateway_search(project_id, label, params) do
+      {:ok, _return_code, hits} ->
+        {:ok, hits.hits}
+
+      {:error, _return_code, hits} ->
+        {:error, hits}
+
+      :error ->
+        {:error, "elasticsearch is not running"}
+    end
+  end
+
   def search_projects(%{"org_id" => org_id, "label" => label} = params) do
     case do_project_search(org_id, label, params) do
       {:ok, _return_code, hits} ->
@@ -150,6 +163,20 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
+  defp do_gateway_search(project_id, label, params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from} = params
+          create_gateway_search_query(project_id, label, page_size, from)
+
+        false ->
+          create_gateway_search_query(project_id, label)
+      end
+
+    Tirexs.Query.create_resource(query)
+  end
+
   defp do_asset_search(type, label, params) do
     query =
       case Map.has_key?(params, "page_size") do
@@ -192,6 +219,24 @@ defmodule AcqdatApi.ElasticSearch do
         false ->
           %{"org_id" => org_id} = params
           project_indexing_query(org_id)
+      end
+
+    case Tirexs.Query.create_resource(query) do
+      {:ok, _return_code, hits} -> {:ok, hits.hits}
+      :error -> {:error, "elasticsearch is not running"}
+    end
+  end
+
+  def gateway_indexing(params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from, "project_id" => project_id} = params
+          gateway_indexing_query(project_id, from, page_size)
+
+        false ->
+          %{"project_id" => project_id} = params
+          gateway_indexing_query(project_id)
       end
 
     case Tirexs.Query.create_resource(query) do
@@ -279,6 +324,36 @@ defmodule AcqdatApi.ElasticSearch do
     ]
   end
 
+  defp create_gateway_search_query(project_id, label) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "gateway", id: project_id]]],
+            filter: [term: ["name.keyword": "#{label}"]]
+          ]
+        ]
+      ],
+      index: "pro"
+    ]
+  end
+
+  defp create_gateway_search_query(project_id, label, page_size, from) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "gateway", id: project_id]]],
+            filter: [term: ["name.keyword": "#{label}"]]
+          ]
+        ],
+        size: page_size,
+        from: from
+      ],
+      index: "pro"
+    ]
+  end
+
   defp user_indexing_query(org_id, from, size) do
     [
       search: [
@@ -332,6 +407,34 @@ defmodule AcqdatApi.ElasticSearch do
         ]
       ],
       index: "org"
+    ]
+  end
+
+  defp gateway_indexing_query(project_id, from, size) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "gateway", id: project_id]]]
+          ]
+        ],
+        size: size,
+        from: from
+      ],
+      index: "pro"
+    ]
+  end
+
+  defp gateway_indexing_query(project_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [[parent_id: [type: "gateway", id: project_id]]]
+          ]
+        ]
+      ],
+      index: "pro"
     ]
   end
 
