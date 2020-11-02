@@ -84,7 +84,6 @@ defmodule AcqdatApiWeb.Router do
     )
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
-    post "/export/:dashboard_id", DashboardExport.DashboardExportController, :create
 
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
       resources "/tasks", DataCruncher.TasksController, only: [:create, :index, :show, :delete]
