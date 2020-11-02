@@ -15,38 +15,9 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
         render_many(asset.sensors, SensorView, "sensor_tree.json")
       end
 
-    asset_mapped_parameters =
-      if Map.has_key?(asset, :sensors) do
-        AssetModel.fetch_mapped_parameters(asset)
-      end
+    entities = (assets || []) ++ (sensors || [])
 
-    %{
-      type: "Asset",
-      id: asset.id,
-      parent_id: asset.parent_id,
-      name: asset.name,
-      properties: asset.properties,
-      type: "Asset",
-      id: asset.id,
-      name: asset.name,
-      description: asset.description,
-      properties: asset.properties,
-      parent_id: asset.parent_id,
-      asset_type_id: asset.asset_type_id,
-      creator_id: asset.creator_id,
-      metadata: render_many(asset.metadata, AssetView, "metadata.json"),
-      mapped_parameters: asset_mapped_parameters,
-      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json"),
-      entities: (assets || []) ++ (sensors || [])
-      # TODO: Need to uncomment below fields depending on the future usecases in the view
-      # description: asset.description,
-      # image_url: asset.image_url,
-      # inserted_at: asset.inserted_at,
-      # metadata: asset.metadata,
-      # slug: asset.slug,
-      # updated_at: asset.updated_at,
-      # uuid: asset.uuid,
-    }
+    view_helper(asset) |> Map.put_new(:entities, entities)
   end
 
   def render("asset_tree_with_gateway.json", %{asset: asset}) do
@@ -65,38 +36,9 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
         render_many(asset.gateways, GatewayView, "gateway_tree.json")
       end
 
-    asset_mapped_parameters =
-      if Map.has_key?(asset, :sensors) do
-        AssetModel.fetch_mapped_parameters(asset)
-      end
+    entities = (assets || []) ++ (sensors || []) ++ (gateways || [])
 
-    %{
-      type: "Asset",
-      id: asset.id,
-      parent_id: asset.parent_id,
-      name: asset.name,
-      properties: asset.properties,
-      type: "Asset",
-      id: asset.id,
-      name: asset.name,
-      description: asset.description,
-      properties: asset.properties,
-      parent_id: asset.parent_id,
-      asset_type_id: asset.asset_type_id,
-      creator_id: asset.creator_id,
-      metadata: render_many(asset.metadata, AssetView, "metadata.json"),
-      mapped_parameters: asset_mapped_parameters,
-      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json"),
-      entities: (assets || []) ++ (sensors || []) ++ (gateways || [])
-      # TODO: Need to uncomment below fields depending on the future usecases in the view
-      # description: asset.description,
-      # image_url: asset.image_url,
-      # inserted_at: asset.inserted_at,
-      # metadata: asset.metadata,
-      # slug: asset.slug,
-      # updated_at: asset.updated_at,
-      # uuid: asset.uuid,
-    }
+    view_helper(asset) |> Map.put_new(:entities, entities)
   end
 
   def render("asset.json", %{asset: asset}) do
@@ -147,6 +89,27 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       page_size: asset.page_size,
       total_entries: asset.total_entries,
       total_pages: asset.total_pages
+    }
+  end
+
+  defp view_helper(asset) do
+    asset_mapped_parameters =
+      if Map.has_key?(asset, :sensors) do
+        AssetModel.fetch_mapped_parameters(asset)
+      end
+
+    %{
+      type: "Asset",
+      id: asset.id,
+      name: asset.name,
+      properties: asset.properties,
+      description: asset.description,
+      parent_id: asset.parent_id,
+      asset_type_id: asset.asset_type_id,
+      creator_id: asset.creator_id,
+      metadata: render_many(asset.metadata, AssetView, "metadata.json"),
+      mapped_parameters: asset_mapped_parameters,
+      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json")
     }
   end
 end

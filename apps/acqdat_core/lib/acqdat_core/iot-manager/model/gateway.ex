@@ -189,7 +189,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   def fetch_gateways(project_id) do
     query =
       from(gateway in Gateway,
-        where: gateway.project_id == ^project_id
+        where: gateway.parent_id == ^project_id
       )
 
     Repo.all(query)
