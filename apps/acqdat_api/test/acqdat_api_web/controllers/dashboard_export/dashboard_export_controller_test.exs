@@ -33,7 +33,17 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
   describe "update/2" do
     setup :setup_conn
 
-    test "update private exported dashboard to public", %{conn: conn, org: org} do
+    setup do
+      dashboard = insert(:dashboard)
+
+      [dashboard: dashboard]
+    end
+
+    test "update private exported dashboard to public", %{
+      conn: conn,
+      org: org,
+      dashboard: dashboard
+    } do
       private_dashboard_exp = insert(:dashboard_export, is_secure: true, password: "test123")
       data = %{is_secure: false}
 
@@ -44,6 +54,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
             conn,
             :update,
             org.id,
+            dashboard.id,
             private_dashboard_exp.dashboard_uuid
           ),
           data
@@ -55,7 +66,11 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       assert response["is_secure"] == false
     end
 
-    test "update public exported dashboard to private", %{conn: conn, org: org} do
+    test "update public exported dashboard to private", %{
+      conn: conn,
+      org: org,
+      dashboard: dashboard
+    } do
       private_dashboard_exp = insert(:dashboard_export, is_secure: false)
       data = %{is_secure: true, password: "test123"}
 
@@ -66,6 +81,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
             conn,
             :update,
             org.id,
+            dashboard.id,
             private_dashboard_exp.dashboard_uuid
           ),
           data
@@ -79,7 +95,8 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
 
     test "update public exported dashboard to private will fail if password is not provided", %{
       conn: conn,
-      org: org
+      org: org,
+      dashboard: dashboard
     } do
       private_dashboard_exp = insert(:dashboard_export, is_secure: false)
       data = %{is_secure: true}
@@ -91,6 +108,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
             conn,
             :update,
             org.id,
+            dashboard.id,
             private_dashboard_exp.dashboard_uuid
           ),
           data
