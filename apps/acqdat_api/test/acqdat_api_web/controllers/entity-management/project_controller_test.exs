@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
+  alias AcqdatApi.ElasticSearch
   import AcqdatCore.Support.Factory
 
   describe "create/2" do
@@ -78,15 +79,19 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
     end
   end
 
+  # ("org", project, %{id: project.org_id})
+
   describe "index/2" do
     setup :setup_conn
 
     test "Project Data", %{conn: conn} do
       test_project = insert(:project)
+      ElasticSearch.create_project("org", test_project, %{id: test_project.org_id})
+      :timer.sleep(1500)
 
       params = %{
         "page_size" => 100,
-        "page_number" => 1
+        "from" => 0
       }
 
       conn = get(conn, Routes.project_path(conn, :index, test_project.org_id, params))
@@ -97,48 +102,43 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       assert assertion_project["archived"] == test_project.archived
       assert assertion_project["description"] == test_project.description
       assert assertion_project["name"] == test_project.name
-      assert assertion_project["org_id"] == test_project.org_id
       assert assertion_project["slug"] == test_project.slug
-    end
-
-    test "if params are missing", %{conn: conn, org: org} do
-      insert_list(3, :project)
-      conn = get(conn, Routes.project_path(conn, :index, org.id, %{}))
-      response = conn |> json_response(200)
-      assert response["total_pages"] == 1
-      assert length(response["projects"]) == response["total_entries"]
+      ElasticSearch.delete_data("org", test_project)
+      :timer.sleep(1500)
     end
 
     test "Big page size", %{conn: conn, org: org} do
-      insert_list(3, :project)
+      [project1, _project2, _project3] = insert_list(3, :project)
+      ElasticSearch.create_project("org", project1, %{id: project1.org_id})
+      :timer.sleep(1500)
 
       params = %{
-        "page_size" => 100,
-        "page_number" => 1
+        "page_size" => 1,
+        "from" => 0
       }
 
-      conn = get(conn, Routes.project_path(conn, :index, org.id, params))
+      conn = get(conn, Routes.project_path(conn, :index, project1.org_id, params))
       response = conn |> json_response(200)
-      assert response["page_number"] == params["page_number"]
-      assert response["page_size"] == params["page_size"]
-      assert response["total_pages"] == 1
-      assert length(response["projects"]) == response["total_entries"]
+      assert length(response["projects"]) == 1
+      ElasticSearch.delete_data("org", project1)
+      :timer.sleep(1500)
     end
 
     test "Pagination", %{conn: conn} do
       [project1, _project2, _project3] = insert_list(3, :project)
+      ElasticSearch.create_project("org", project1, %{id: project1.org_id})
+      :timer.sleep(1500)
 
       params = %{
         "page_size" => 1,
-        "page_number" => 1
+        "from" => 0
       }
 
       conn = get(conn, Routes.project_path(conn, :index, project1.org_id, params))
       page1_response = conn |> json_response(200)
-      assert page1_response["page_number"] == params["page_number"]
-      assert page1_response["page_size"] == params["page_size"]
-      assert page1_response["total_pages"] == 1
-      assert length(page1_response["projects"]) == page1_response["page_size"]
+      assert length(page1_response["projects"]) == 1
+      ElasticSearch.delete_data("org", project1)
+      :timer.sleep(1500)
     end
 
     test "fails if invalid token in authorization header", %{conn: conn, org: org} do
@@ -150,10 +150,57 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
 
       params = %{
         "page_size" => 2,
-        "page_number" => 1
+        "from" => 1
       }
 
       conn = get(conn, Routes.project_path(conn, :index, org.id, params))
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
+  describe "search/2" do
+    setup :setup_conn
+
+    test "Project Data", %{conn: conn} do
+      test_project = insert(:project)
+      ElasticSearch.create_project("org", test_project, %{id: test_project.org_id})
+      :timer.sleep(1500)
+
+      params = %{
+        "label" => test_project.name
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.search_projects_path(conn, :search_projects, test_project.org_id, params)
+        )
+
+      response = conn |> json_response(200)
+      assert length(response["projects"]) == 1
+      assertion_project = List.first(response["projects"])
+      assert assertion_project["id"] == test_project.id
+      assert assertion_project["archived"] == test_project.archived
+      assert assertion_project["description"] == test_project.description
+      assert assertion_project["name"] == test_project.name
+      assert assertion_project["slug"] == test_project.slug
+      ElasticSearch.delete_data("org", test_project)
+      :timer.sleep(1500)
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn, org: org} do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        "label" => "Random Project"
+      }
+
+      conn = get(conn, Routes.search_projects_path(conn, :search_projects, org.id, params))
       result = conn |> json_response(403)
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
