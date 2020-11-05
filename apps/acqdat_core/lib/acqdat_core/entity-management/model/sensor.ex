@@ -121,7 +121,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
   def child_sensors_query(root) when not is_list(root) do
     from(sensor in Sensor,
-      preload: [:sensor_type],
+      preload: [:sensor_type, :gateway],
       where: sensor.parent_id == ^root.id and sensor.parent_type == "Asset"
     )
   end
