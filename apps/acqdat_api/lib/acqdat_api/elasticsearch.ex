@@ -107,8 +107,8 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
-  def search_assets(type, %{"label" => label} = params) do
-    case do_asset_search(type, label, params) do
+  def search_entities(type, %{"label" => label} = params) do
+    case do_entities_search(type, label, params) do
       {:ok, _return_code, hits} ->
         {:ok, hits.hits}
 
@@ -177,18 +177,37 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  defp do_asset_search(type, label, params) do
+  defp do_entities_search(type, label, params) do
     query =
       case Map.has_key?(params, "page_size") do
         true ->
-          %{"page_size" => page_size, "from" => from} = params
-          create_query("name", label, type, page_size, from)
+          %{"page_size" => page_size, "from" => from, "project_id" => project_id} = params
+          create_entities_query(label, type, page_size, from, project_id)
 
         false ->
-          create_query("name", label, type)
+          %{"project_id" => project_id} = params
+          create_entities_query(type, label, project_id)
       end
 
     Tirexs.Query.create_resource(query)
+  end
+
+  def entities_indexing(type, params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from, "project_id" => project_id} = params
+          create_entities_query(type, page_size, from, project_id)
+
+        false ->
+          %{"project_id" => project_id} = params
+          create_entities_query(type, project_id)
+      end
+
+    case Tirexs.Query.create_resource(query) do
+      {:ok, _return_code, hits} -> {:ok, hits.hits}
+      :error -> {:error, "elasticsearch is not running"}
+    end
   end
 
   def user_indexing(params) do
@@ -291,6 +310,114 @@ defmodule AcqdatApi.ElasticSearch do
         from: from
       ],
       index: "organisation"
+    ]
+  end
+
+  defp create_entities_query(value, index, size, from, project_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [
+              [
+                match: [
+                  name: [
+                    query: "#{value}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        size: size,
+        from: from
+      ],
+      index: "#{index}"
+    ]
+  end
+
+  defp create_entities_query(index, value, project_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [
+              [
+                match: [
+                  name: [
+                    query: "#{value}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      index: "#{index}"
+    ]
+  end
+
+  defp create_entities_query(index, size, from, project_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        size: size,
+        from: from
+      ],
+      index: "#{index}"
+    ]
+  end
+
+  defp create_entities_query(index, project_id) do
+    [
+      search: [
+        query: [
+          bool: [
+            must: [
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "firstQuery"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      index: "#{index}"
     ]
   end
 
@@ -542,5 +669,76 @@ defmodule AcqdatApi.ElasticSearch do
 
   def delete_data(type, params) do
     delete("#{type}/_doc/#{params.id}")
+  end
+
+  def insert_asset(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      properties: params.properties,
+      slug: params.slug,
+      uuid: params.uuid,
+      project_id: params.project_id
+    )
+  end
+
+  def update_asset(type, params) do
+    update = fn ->
+      post("#{type}/_doc/#{params.id}",
+        id: params.id,
+        name: params.name,
+        properties: params.properties,
+        slug: params.slug,
+        uuid: params.uuid,
+        project_id: params.project_id
+      )
+    end
+
+    retry(update)
+  end
+
+  def insert_sensor(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      metadata: params.metadata,
+      slug: params.slug,
+      uuid: params.uuid,
+      project_id: params.project_id,
+      org_id: params.org_id,
+      gateway_id: params.gateway_id,
+      parent_id: params.parent_id,
+      parent_type: params.parent_type,
+      sensor_type_id: params.sensor_type_id
+    )
+  end
+
+  def insert_asset_type(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      slug: params.slug,
+      uuid: params.uuid,
+      project_id: params.project_id,
+      org_id: params.org_id,
+      sensor_type_present: params.sensor_type_present,
+      sensor_type_uuid: params.sensor_type_uuid,
+      metadata: params.metadata,
+      parameters: params.parameters
+    )
+  end
+
+  def insert_sensor_type(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      slug: params.slug,
+      uuid: params.uuid,
+      project_id: params.project_id,
+      org_id: params.org_id,
+      generated_by: params.generated_by,
+      metadata: params.metadata,
+      parameters: params.parameters
+    )
   end
 end

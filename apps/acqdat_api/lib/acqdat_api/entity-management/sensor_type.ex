@@ -1,5 +1,6 @@
 defmodule AcqdatApi.EntityManagement.SensorType do
   alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 
@@ -33,6 +34,10 @@ defmodule AcqdatApi.EntityManagement.SensorType do
 
   defp verify_sensor_type({:ok, sensor_type}) do
     sensor_type = Repo.preload(sensor_type, :org)
+
+    Task.start_link(fn ->
+      ElasticSearch.insert_sensor_type("sensor_types", sensor_type)
+    end)
 
     {:ok,
      %{

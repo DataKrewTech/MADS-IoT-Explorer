@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.AssetType
   alias AcqdatApi.EntityManagement.AssetType
+  alias AcqdatApi.ElasticSearch
 
   plug AcqdatApiWeb.Plug.LoadProject
   plug AcqdatApiWeb.Plug.LoadOrg
@@ -15,6 +16,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, asset_type}} <- {:create, AssetType.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.insert_asset_type("asset_types", asset_type)
+          end)
+
           conn
           |> put_status(200)
           |> render("asset_type.json", %{asset_type: asset_type})
@@ -32,17 +37,43 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
     end
   end
 
-  def index(conn, params) do
-    changeset = verify_index_params(params)
-
+  def search_asset_type(conn, params) do
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, asset_type} = {:list, AssetType.get_all(data, [:org, :project])}
+        with {:ok, hits} <- ElasticSearch.search_entities("asset_types", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
+      404 ->
         conn
-        |> put_status(200)
-        |> render("index.json", asset_type)
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def index(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.entities_indexing("asset_types", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
       404 ->
         conn
@@ -55,6 +86,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
       nil ->
         case AssetType.update(conn.assigns.asset_type, params) do
           {:ok, asset_type} ->
+            Task.start_link(fn ->
+              ElasticSearch.insert_asset_type("asset_types", asset_type)
+            end)
+
             conn
             |> put_status(200)
             |> render("asset_type.json", %{asset_type: asset_type})

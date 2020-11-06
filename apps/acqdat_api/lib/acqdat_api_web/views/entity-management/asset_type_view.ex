@@ -49,4 +49,25 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
       total_pages: asset_type.total_pages
     }
   end
+
+  def render("hits.json", %{hits: hits}) do
+    %{
+      asset_types: render_many(hits.hits, AssetTypeView, "source.json")
+    }
+  end
+
+  def render("source.json", %{asset_type: %{_source: hits}}) do
+    %{
+      id: hits.id,
+      name: hits.name,
+      slug: hits.slug,
+      uuid: hits.uuid,
+      project_id: hits.project_id,
+      org_id: hits.org_id,
+      sensor_type_present: hits.sensor_type_present,
+      sensor_type_uuid: hits.sensor_type_uuid,
+      metadata: hits.metadata,
+      parameters: hits.parameters
+    }
+  end
 end

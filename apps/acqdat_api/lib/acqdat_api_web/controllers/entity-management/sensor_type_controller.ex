@@ -1,6 +1,7 @@
 defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.EntityManagement.SensorType
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.SensorType
 
@@ -23,17 +24,43 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
   #   end
   # end
 
-  def index(conn, params) do
-    changeset = verify_index_params(params)
-
+  def search_sensor_type(conn, params) do
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor} = {:list, SensorType.get_all(data, [:org])}
+        with {:ok, hits} <- ElasticSearch.search_entities("sensor_types", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
+      404 ->
         conn
-        |> put_status(200)
-        |> render("index.json", sensor)
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def index(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.entities_indexing("sensor_types", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
       404 ->
         conn
@@ -73,6 +100,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
 
         case SensorType.update(sensor_type, params) do
           {:ok, sensor_type} ->
+            Task.start_link(fn ->
+              ElasticSearch.insert_sensor_type("sensor_types", sensor_type)
+            end)
+
             conn
             |> put_status(200)
             |> render("sensor_type.json", %{sensor_type: sensor_type})

@@ -100,4 +100,26 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       value: metadata.value
     }
   end
+
+  def render("hits.json", %{hits: hits}) do
+    %{
+      sensors: render_many(hits.hits, SensorView, "source.json")
+    }
+  end
+
+  def render("source.json", %{sensor: %{_source: hits}}) do
+    %{
+      id: hits.id,
+      name: hits.name,
+      metadata: render_many(hits.metadata, SensorView, "metadata.json"),
+      slug: hits.slug,
+      uuid: hits.uuid,
+      project_id: hits.project_id,
+      org_id: hits.org_id,
+      gateway_id: hits.gateway_id,
+      parent_id: hits.parent_id,
+      parent_type: hits.parent_type,
+      sensor_type_id: hits.sensor_type_id
+    }
+  end
 end

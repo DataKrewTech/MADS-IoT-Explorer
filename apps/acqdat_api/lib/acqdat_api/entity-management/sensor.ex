@@ -1,5 +1,6 @@
 defmodule AcqdatApi.EntityManagement.Sensor do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
 
   def create(attrs) do
@@ -29,6 +30,10 @@ defmodule AcqdatApi.EntityManagement.Sensor do
   end
 
   defp verify_sensor({:ok, sensor}) do
+    Task.start_link(fn ->
+      ElasticSearch.insert_sensor("sensors", sensor)
+    end)
+
     {:ok,
      %{
        id: sensor.id,
