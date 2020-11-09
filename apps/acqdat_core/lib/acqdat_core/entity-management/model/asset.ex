@@ -278,7 +278,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   defp fetch_asset_descendants_map_for_gateway(nil, _entities, asset) do
     sensors = SensorModel.child_sensors(asset)
     gateways = GatewayModel.child_gateways(asset)
-    Map.put_new(asset, :sensors, sensors)
+    asset = Map.put_new(asset, :sensors, sensors)
     Map.put_new(asset, :gateways, gateways)
   end
 
