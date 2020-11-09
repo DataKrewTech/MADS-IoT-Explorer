@@ -100,7 +100,10 @@ defmodule AcqdatCore.MixProject do
       {:tortoise, "~> 0.9"},
 
       # flow based programming
-      {:virta, in_umbrella: true}
+      {:virta, in_umbrella: true},
+
+      # Elixir implementation of the generic tree data structure
+      {:nary_tree, git: "git@github.com:BandanaPandey/nary_tree.git"}
     ]
   end
 
