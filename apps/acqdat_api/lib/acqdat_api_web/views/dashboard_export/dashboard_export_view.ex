@@ -13,4 +13,11 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportView do
       is_secure: dashboard_export.is_secure
     }
   end
+
+  def render("show_credentials.json", %{dashboard_export: dashboard_export}) do
+    %{
+      password: dashboard_export.password,
+      is_secure: dashboard_export.is_secure
+    }
+  end
 end

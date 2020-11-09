@@ -83,6 +83,12 @@ defmodule AcqdatApiWeb.Router do
       :update
     )
 
+    get(
+      "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
+      DashboardExport.DashboardExportController,
+      :show_credentials
+    )
+
     resources "/components", DataCruncher.ComponentsController, only: [:index]
 
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do

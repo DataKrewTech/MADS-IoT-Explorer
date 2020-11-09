@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportController do
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
   plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
   plug AcqdatApiWeb.Plug.LoadPanel when action in [:show]
-  plug AcqdatApiWeb.Plug.LoadDashboardExport when action in [:update]
+  plug AcqdatApiWeb.Plug.LoadDashboardExport when action in [:update, :show_credentials]
 
   def create(conn, params) do
     case conn.status do
@@ -54,6 +54,19 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportController do
           {:update, {:error, message}} ->
             send_error(conn, 400, message)
         end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def show_credentials(conn, _params) do
+    case conn.status do
+      nil ->
+        conn
+        |> put_status(200)
+        |> render("show_credentials.json", %{dashboard_export: conn.assigns.exported_dashboard})
 
       404 ->
         conn
