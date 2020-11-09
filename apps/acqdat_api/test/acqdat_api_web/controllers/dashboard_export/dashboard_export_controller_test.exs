@@ -119,4 +119,88 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       assert response == %{"errors" => %{"message" => %{"error" => "wrong information provided"}}}
     end
   end
+
+  describe "show_credentials/2" do
+    setup :setup_conn
+
+    setup do
+      dashboard = insert(:dashboard)
+
+      [dashboard: dashboard]
+    end
+
+    test "shows credentials of the private dashboard_export", %{
+      conn: conn,
+      org: org,
+      dashboard: dashboard
+    } do
+      private_dashboard_exp = insert(:dashboard_export, is_secure: true, password: "test123")
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(
+            conn,
+            :show_credentials,
+            org.id,
+            dashboard.id,
+            private_dashboard_exp.dashboard_uuid
+          )
+        )
+
+      response = conn |> json_response(200)
+
+      assert Map.has_key?(response, "password")
+      assert response["is_secure"] == true
+      assert response["password"] == "test123"
+    end
+
+    test "credentials of public dashboard_export'll be null", %{
+      conn: conn,
+      org: org,
+      dashboard: dashboard
+    } do
+      private_dashboard_exp = insert(:dashboard_export, is_secure: false)
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(
+            conn,
+            :show_credentials,
+            org.id,
+            dashboard.id,
+            private_dashboard_exp.dashboard_uuid
+          )
+        )
+
+      response = conn |> json_response(200)
+
+      assert Map.has_key?(response, "password")
+      assert response["is_secure"] == false
+      refute response["password"]
+    end
+
+    test "it'll show error if dashboard_export doesn't exist", %{
+      conn: conn,
+      org: org,
+      dashboard: dashboard
+    } do
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(
+            conn,
+            :show_credentials,
+            org.id,
+            dashboard.id,
+            -1
+          )
+        )
+
+      response = conn |> json_response(404)
+
+      assert response == %{"errors" => %{"message" => "Resource Not Found"}}
+    end
+  end
 end
