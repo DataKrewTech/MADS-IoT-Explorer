@@ -38,6 +38,66 @@ defmodule AcqdatApiWeb.AuthControllerTest do
     end
   end
 
+  describe "validate_credentials/2" do
+    setup :setup_user_with_conn
+
+    setup %{conn: conn, user: user, user_params: params} do
+      org = insert(:organisation)
+      data = %{email: user.email, password: params.password}
+      conn = post(conn, Routes.auth_path(conn, :sign_in), data)
+      result = conn |> json_response(200)
+
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{result["refresh_token"]}")
+
+      [
+        org: org,
+        params: params,
+        conn: conn
+      ]
+    end
+
+    test "returns user details with valid credentials", %{conn: conn, org: org, params: params} do
+      conn =
+        post(conn, Routes.auth_path(conn, :validate_credentials, org.id), %{
+          password: params.password
+        })
+
+      result = conn |> json_response(200)
+
+      assert Map.has_key?(result, "id")
+      assert Map.has_key?(result, "email")
+    end
+
+    test "returns error if user password is invalid", %{conn: conn, org: org} do
+      params = %{password: "avcbd123489u"}
+      conn = post(conn, Routes.auth_path(conn, :validate_credentials, org.id), params)
+
+      result = conn |> json_response(401)
+
+      assert %{
+               "errors" => %{
+                 "message" => "Invalid Credentials"
+               }
+             } == result
+    end
+
+    test "fails if authorization header not found", %{conn: conn, org: org} do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      params = %{}
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      conn = post(conn, Routes.auth_path(conn, :validate_credentials, org.id), params)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+  end
+
   describe "validate_token/2" do
     setup :setup_user_with_conn
 
