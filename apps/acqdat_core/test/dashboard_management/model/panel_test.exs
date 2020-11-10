@@ -32,6 +32,28 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
       assert not is_nil(length(result.widgets))
     end
 
+    test "returns a particular panel widgets with from_date and to_date selected on the basis of last filter_metadata" do
+      panel = insert(:panel, filter_metadata: %{last: "15_day"})
+      widget_instance = build(:widget_instance, panel: panel)
+      {:ok, widget_instance1} = Repo.insert(widget_instance)
+      {:ok, result} = PanelModel.get_with_widgets(widget_instance1.panel_id)
+
+      assert not is_nil(result)
+      assert result.id == widget_instance1.panel_id
+      assert not is_nil(length(result.widgets))
+    end
+
+    test "returns a particular panel widgets with from_date and to_date set by user" do
+      panel = insert(:panel, filter_metadata: %{last: "custom"})
+      widget_instance = build(:widget_instance, panel: panel)
+      {:ok, widget_instance1} = Repo.insert(widget_instance)
+      {:ok, result} = PanelModel.get_with_widgets(widget_instance1.panel_id)
+
+      assert not is_nil(result)
+      assert result.id == widget_instance1.panel_id
+      assert not is_nil(length(result.widgets))
+    end
+
     test "returns error not found, if panel is not present" do
       {:error, result} = PanelModel.get_with_widgets(-1)
       assert result == "panel with this id not found"
