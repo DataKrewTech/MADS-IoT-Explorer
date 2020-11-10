@@ -5,6 +5,7 @@ defmodule AcqdatApi.Account do
 
   alias AcqdatCore.Domain.Account
   alias AcqdatApiWeb.Guardian
+  alias AcqdatCore.Schema.RoleManagement.User
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -53,6 +54,10 @@ defmodule AcqdatApi.Account do
       {:error, _} = error ->
         error
     end
+  end
+
+  def validate_credentials(%User{email: email}, %{password: password}) do
+    Account.authenticate(email, password)
   end
 
   ############## private functions #####################

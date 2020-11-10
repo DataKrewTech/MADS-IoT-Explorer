@@ -24,4 +24,10 @@ defmodule AcqdatApiWeb.Validators.Auth do
       refresh_token!: :string
     })
   )
+
+  defparams(
+    verify_validate_params(%{
+      password!: :string
+    })
+  )
 end

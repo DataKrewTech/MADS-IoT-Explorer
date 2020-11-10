@@ -26,4 +26,11 @@ defmodule AcqdatApiWeb.AuthView do
   def render("delete.json", _) do
     %{ok: true}
   end
+
+  def render("user.json", user) do
+    %{
+      id: user.id,
+      email: user.email
+    }
+  end
 end

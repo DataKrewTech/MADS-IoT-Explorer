@@ -4,6 +4,8 @@ defmodule AcqdatApiWeb.AuthController do
   import AcqdatApiWeb.Validators.Auth
   alias AcqdatApi.Account
 
+  plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:validate_credentials]
+
   def sign_in(conn, params) do
     changeset = verify_login_credentials(params)
 
@@ -54,6 +56,24 @@ defmodule AcqdatApiWeb.AuthController do
 
       {:signout, {:error, message}} ->
         send_error(conn, 400, message)
+    end
+  end
+
+  def validate_credentials(conn, params) do
+    changeset = verify_validate_params(params)
+    current_user = conn.assigns.current_user
+
+    with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+         {:validate, {:ok, user}} <- {:validate, Account.validate_credentials(current_user, data)} do
+      conn
+      |> put_status(200)
+      |> render("user.json", user)
+    else
+      {:extract, {:error, error}} ->
+        send_error(conn, 400, error)
+
+      {:validate, {:error, message}} ->
+        send_error(conn, 401, "Invalid Credentials")
     end
   end
 end
