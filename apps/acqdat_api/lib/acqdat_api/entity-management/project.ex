@@ -9,7 +9,6 @@ defmodule AcqdatApi.EntityManagement.Project do
 
   def update(project, params) do
     project = project |> Repo.preload([:leads, :users])
-    params = update_version(params, project)
     ProjectModel.update(project, params)
   end
 
@@ -50,10 +49,6 @@ defmodule AcqdatApi.EntityManagement.Project do
 
   defp verify_project({:error, project}) do
     {:error, %{error: extract_changeset_error(project)}}
-  end
-
-  defp update_version(params, project) do
-    Map.put_new(params, "version", Decimal.to_integer(project.version) + 1)
   end
 
   defp params_extraction(params) do
