@@ -124,8 +124,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "if widget type is deleted", %{conn: conn} do
       [widget1, widget2, widget3] = Widget.seed_multiple_widget()
       :timer.sleep(1500)
-      require IEx
-      IEx.pry()
       conn = delete(conn, Routes.widget_type_path(conn, :delete, widget1.widget_type_id))
 
       conn =
