@@ -117,4 +117,26 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
       assert rwidget3["id"] == widget3.id
     end
   end
+
+  describe "widget type dependency/2" do
+    setup :setup_conn
+
+    test "if widget type is deleted", %{conn: conn} do
+      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      :timer.sleep(1500)
+      require IEx
+      IEx.pry()
+      conn = delete(conn, Routes.widget_type_path(conn, :delete, widget1.widget_type_id))
+
+      conn =
+        get(conn, Routes.widget_path(conn, :index), %{
+          "from" => 0,
+          "page_size" => 100
+        })
+
+      %{"widgets" => widgets} = conn |> json_response(200)
+      Widget.delete_index()
+      assert length(widgets) == 2
+    end
+  end
 end

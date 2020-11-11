@@ -1,5 +1,6 @@
 defmodule AcqdatCore.Model.Widgets.WidgetType do
   alias AcqdatCore.Widgets.Schema.WidgetType
+  alias AcqdatCore.Model.Widgets.Widget
   alias AcqdatCore.Repo
   import Ecto.Query
 
@@ -19,6 +20,7 @@ defmodule AcqdatCore.Model.Widgets.WidgetType do
   end
 
   def delete(widget_type) do
+    Widget.delete_from_elasticsearch(widget_type)
     Repo.delete(widget_type)
   end
 

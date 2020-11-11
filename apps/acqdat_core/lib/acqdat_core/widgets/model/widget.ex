@@ -1,7 +1,9 @@
 defmodule AcqdatCore.Model.Widgets.Widget do
   alias AcqdatCore.Widgets.Schema.Widget
   alias AcqdatCore.Repo
+  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.Helper, as: ModelHelper
+
   import Ecto.Query
 
   def create(params) do
@@ -17,6 +19,19 @@ defmodule AcqdatCore.Model.Widgets.Widget do
       widget ->
         {:ok, widget |> Repo.preload(:widget_type)}
     end
+  end
+
+  def delete_from_elasticsearch(widget_type) do
+    query =
+      from(widget in Widget,
+        where: widget.widget_type_id == ^widget_type.id
+      )
+
+    widgets = Repo.all(query)
+
+    Enum.each(widgets, fn widget ->
+      ElasticSearch.delete_data("widgets", widget)
+    end)
   end
 
   def delete(widget) do
