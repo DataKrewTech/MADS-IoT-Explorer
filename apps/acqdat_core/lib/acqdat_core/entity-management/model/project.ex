@@ -52,8 +52,16 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
   # NOTE: Version of Project will be incremented, whenever any update on Project happens
   def update(%Project{} = project, params) do
-    params = params |> Map.put_new("version", Decimal.add(project.version, "0.1"))
     changeset = Project.update_changeset(project, params)
+
+    changeset =
+      if changeset.changes != %{} do
+        params = params |> Map.put_new("version", Decimal.add(project.version, "0.1"))
+        Project.update_changeset(project, params)
+      else
+        changeset
+      end
+
     Repo.update(changeset)
   end
 

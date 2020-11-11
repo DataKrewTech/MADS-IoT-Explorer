@@ -36,6 +36,39 @@ defmodule AcqdatCore.Model.EntityManagement.ProjectTest do
     end
   end
 
+  describe "update/2" do
+    setup do
+      project = insert(:project)
+
+      [project: project]
+    end
+
+    test "updating project name/params will increment project version", context do
+      %{project: project} = context
+
+      assert {:ok, result} = Project.update(project, %{"name" => "updated demo project"})
+      assert result.name == "updated demo project"
+      assert result.version == Decimal.add(project.version, "0.1")
+    end
+
+    test "updating project archived column will increment project version", context do
+      %{project: project} = context
+
+      assert {:ok, result} = Project.update(project, %{"archived" => true})
+      assert result.archived
+      assert result.version == Decimal.add(project.version, "0.1")
+    end
+
+    test "not changing any project params will not update project's version", context do
+      %{project: project} = context
+
+      assert {:ok, result} = Project.update(project, %{"name" => project.name})
+      assert result.name == project.name
+      assert result.version != Decimal.add(project.version, "0.1")
+      assert result.version == project.version
+    end
+  end
+
   describe "hierarchy_data/2" do
     setup do
       project = insert(:project)
