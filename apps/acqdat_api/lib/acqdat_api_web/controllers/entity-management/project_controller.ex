@@ -30,7 +30,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, project} = {:list, Project.get_all(data, [:leads, :users])}
+        {:list, project} = {:list, Project.get_all(data, [:leads, :users, :creator])}
 
         conn
         |> put_status(200)
@@ -48,7 +48,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, project} = {:list, Project.get_all_archived(data, [:leads, :users])}
+        {:list, project} = {:list, Project.get_all_archived(data, [:leads, :users, :creator])}
 
         conn
         |> put_status(200)
