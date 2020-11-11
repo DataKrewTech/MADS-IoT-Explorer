@@ -94,31 +94,14 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     {interval, _} = Integer.parse(interval)
     to_date = DateTime.utc_now()
 
-    from_date =
-      case duration do
-        "second" ->
-          Timex.shift(to_date, seconds: -interval)
-
-        "minute" ->
-          Timex.shift(to_date, minutes: -interval)
-
-        "hour" ->
-          Timex.shift(to_date, hours: -interval)
-
-        "day" ->
-          Timex.shift(to_date, days: -interval)
-
-        "week" ->
-          Timex.shift(to_date, weeks: -interval)
-
-        "month" ->
-          Timex.shift(to_date, months: -interval)
-
-        "year" ->
-          Timex.shift(to_date, years: -interval)
-      end
+    from_date = to_date |> from_date(duration, interval)
 
     %{from_date: from_date, to_date: to_date}
+  end
+
+  defp from_date(to_date, duration, interval) do
+    duration = String.to_atom(duration <> "s")
+    Timex.shift(to_date, [{duration, -interval}])
   end
 
   defp from_unix(datetime) do
