@@ -2,7 +2,6 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   import Ecto.Query
   alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Schema.RoleManagement.User
-  alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
