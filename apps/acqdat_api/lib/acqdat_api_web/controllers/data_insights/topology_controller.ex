@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.DataInsights.TopologyController do
     case conn.status do
       nil ->
         with {:index, topology} <-
-               {:index, Topology.gen_topology(org_id, project_id)} do
+               {:index, Topology.gen_topology(org_id, conn.assigns.project)} do
           conn
           |> put_status(200)
           |> render("index.json", topology: topology)

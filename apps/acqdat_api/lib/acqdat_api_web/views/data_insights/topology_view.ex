@@ -5,30 +5,38 @@ defmodule AcqdatApiWeb.DataInsights.TopologyView do
 
   def render("index.json", %{topology: topology}) do
     %{
-      topology: render_many(topology, TopologyView, "topology_data.json")
+      id: topology.id,
+      name: topology.name,
+      children: render_many(topology[:children] || [], TopologyView, "topology_entity.json")
+    }
+  end
+
+  def render("topology_entity.json", %{topology: topology}) do
+    %{
+      id: topology.id,
+      name: topology.name,
+      children: render_many(topology[:children] || [], TopologyView, "topology_entity.json")
     }
   end
 
   def render("details.json", %{topology: topology}) do
     %{
-      entities: render_many(topology, TopologyView, "entity.json")
+      asset_types: render_many(topology[:asset_types], TopologyView, "asset_type.json"),
+      sensor_types: render_many(topology[:sensor_types], TopologyView, "sensor_type.json")
     }
   end
 
-  def render("entity.json", %{
-        topology: %AcqdatCore.Schema.EntityManagement.AssetType{} = entity
-      }) do
+  def render("asset_type.json", %{topology: entity}) do
     %{
       id: entity.id,
       name: entity.name,
       type: "AssetType",
-      parameters: render_many(entity.parameters, AssetTypeView, "data_tree.json"),
       metadata: render_many(entity.metadata, AssetTypeView, "metadata.json")
     }
   end
 
-  def render("entity.json", %{
-        topology: %AcqdatCore.Schema.EntityManagement.SensorType{} = entity
+  def render("sensor_type.json", %{
+        topology: entity
       }) do
     %{
       id: entity.id,
@@ -36,40 +44,6 @@ defmodule AcqdatApiWeb.DataInsights.TopologyView do
       type: "SensorType",
       parameters: render_many(entity.parameters, AssetTypeView, "data_tree.json"),
       metadata: render_many(entity.metadata, AssetTypeView, "metadata.json")
-    }
-  end
-
-  def render("topology_data.json", %{topology: data}) do
-    %{
-      entities: render_many(data, TopologyView, "asset_type1.json")
-    }
-  end
-
-  def render("asset_type1.json", %{
-        topology: {%AcqdatCore.Schema.EntityManagement.AssetType{} = entity, value}
-      }) do
-    entities =
-      if value == [%{}], do: [], else: render_many(value, TopologyView, "topology_data.json")
-
-    %{
-      id: entity.id,
-      name: entity.name,
-      type: "AssetType",
-      parameters: render_many(entity.parameters, AssetTypeView, "data_tree.json"),
-      metadata: render_many(entity.metadata, AssetTypeView, "metadata.json"),
-      entities: entities
-    }
-  end
-
-  def render("asset_type1.json", %{
-        topology: {%AcqdatCore.Schema.EntityManagement.SensorType{} = entity, value}
-      }) do
-    %{
-      id: entity.id,
-      name: entity.name,
-      parameters: render_many(entity.parameters, SensorTypeView, "data_tree.json"),
-      metadata: render_many(entity.metadata, SensorTypeView, "metadata.json"),
-      type: "SensorType"
     }
   end
 end
