@@ -23,7 +23,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
 
   def render("project_including_gateway.json", %{project: project}) do
     params =
-      render_many(project.sensors, SensorView, "sensor_tree.json") ++
+      render_many(project.sensors, SensorView, "sensor_heirarchy_tree.json") ++
         render_many(project.assets, AssetView, "asset_tree_with_gateway.json")
 
     %{
