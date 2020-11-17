@@ -57,7 +57,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
     test "search with no hits", %{conn: conn, user: user} do
       widget = insert(:widget)
-      [widget: widget] = Widget.seed_widget(widget)
+      Widget.seed_widget(widget)
       :timer.sleep(1500)
 
       conn =
@@ -78,7 +78,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup :setup_conn
 
     test "fails if authorization header not found", %{conn: conn} do
-      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      Widget.seed_multiple_widget()
       :timer.sleep(1500)
       bad_access_token = "avcbd123489u"
 
@@ -122,7 +122,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup :setup_conn
 
     test "if widget type is deleted", %{conn: conn} do
-      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      [widget1, _widget2, _widget3] = Widget.seed_multiple_widget()
       :timer.sleep(1500)
       conn = delete(conn, Routes.widget_type_path(conn, :delete, widget1.widget_type_id))
 
@@ -135,6 +135,62 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
       %{"widgets" => widgets} = conn |> json_response(200)
       Widget.delete_index()
       assert length(widgets) == 2
+    end
+  end
+
+  describe "update and delete widgets/2" do
+    setup :setup_conn
+
+    test "if widget is updated", %{conn: conn} do
+      widget = insert(:widget)
+      Widget.seed_widget(widget)
+      :timer.sleep(1500)
+
+      conn =
+        put(conn, Routes.widget_path(conn, :update, widget.id), %{
+          "label" => "Update Widget"
+        })
+
+      :timer.sleep(1500)
+
+      conn =
+        get(conn, Routes.widget_path(conn, :search_widget), %{
+          "label" => "Update Widget"
+        })
+
+      %{
+        "widgets" => [widgets]
+      } = conn |> json_response(200)
+
+      Widget.delete_index()
+
+      assert widgets["id"] == widget.id
+      assert widgets["label"] == "Update Widget"
+    end
+
+    test "if widget is deleted", %{conn: conn} do
+      widget = insert(:widget)
+      Widget.seed_widget(widget)
+      :timer.sleep(1500)
+
+      conn =
+        put(conn, Routes.widget_path(conn, :delete, widget.id), %{
+          "label" => "Update Widget"
+        })
+
+      :timer.sleep(1500)
+
+      conn =
+        get(conn, Routes.widget_path(conn, :search_widget), %{
+          "label" => widget.label
+        })
+
+      result = conn |> json_response(200)
+      Widget.delete_index()
+
+      assert result == %{
+               "widgets" => []
+             }
     end
   end
 end

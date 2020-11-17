@@ -211,6 +211,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         case User.delete(conn.assigns.user) do
           {:ok, user} ->
+            ElasticSearch.delete_users("organisation", user)
+
             conn
             |> put_status(200)
             |> render("user_details.json", %{user_details: user})

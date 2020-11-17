@@ -47,6 +47,14 @@ defmodule AcqdatApi.ElasticSearch do
     retry(update)
   end
 
+  def delete_users(type, params) do
+    delete = fn ->
+      delete("#{type}/_doc/#{params.id}?routing=#{params.org_id}")
+    end
+
+    retry(delete)
+  end
+
   def delete(type, params) do
     delete_function = fn ->
       delete("#{type}/_doc/#{params}")
