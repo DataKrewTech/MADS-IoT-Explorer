@@ -34,66 +34,10 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end)
   end
 
-  defp group_by_asset_type(entity) do
-    k =
-      Enum.group_by(entity.assets, fn x -> x.asset_type end, fn asset ->
-        assets =
-          if Map.has_key?(asset, :assets) do
-            group_by_asset_type(asset)
-          end
+  def gen_topology(org_id, %{name: name, id: project_id}) do
+    proj_hierarchy = hierarchy_data(org_id, project_id) |> cumulate_assets_n_sensors()
 
-        sensors =
-          if Map.has_key?(asset, :sensors) do
-            group_by_senor_type(asset)
-          end
-
-        data =
-          case {assets, sensors} do
-            {nil, sensors} ->
-              sensors
-
-            {assets, nil} ->
-              {key, value} = Enum.at(assets, 0)
-              %{id: "AT_#{key.id}", name: key.name, children: List.flatten(value)}
-
-            {assets, sensors} ->
-              #     %{id: "AT_#{key.id}", name: key.name, children: List.flatten(value)}
-              assets
-          end
-
-        data
-
-        # if assets != nil && sensors != nil, do: Map.merge(assets, sensors), else: assets || sensors
-      end)
-
-    # data = Enum.reduce(k, [], fn {key, val}, acc ->
-    #   acc ++ [%{id: "AT_#{key.id}", name: key.name, children: val}]
-    #  end)
-
-    {key, value} = Enum.at(k, 0)
-    %{id: "AT_#{key.id}", name: key.name, children: List.flatten(value)}
-  end
-
-  defp group_by_senor_type(entity) do
-    k = Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
-
-    data =
-      Enum.reduce(k, [], fn {key, val}, acc ->
-        acc ++ [%{id: "ST_#{key.id}", name: key.name}]
-      end)
-
-    data
-  end
-
-  # %{id: "AT 1", name: "Root", children: [%{id: "ST 2", name: "Left"}, %{id: "ST 3", name: "Right"}]}
-  def gen_topology(org_id, project_id) do
-    hire_data = hierarchy_data(org_id, project_id)
-
-    Enum.reduce(hire_data, %{}, fn project, acc ->
-      assets = if Map.has_key?(project, :assets), do: group_by_asset_type(project), else: []
-      sensors = if Map.has_key?(project, :sensors), do: group_by_senor_type(project), else: []
-      Map.merge(acc, assets)
-    end)
+    %{id: "PT_#{project_id}", name: name, children: proj_hierarchy}
   end
 
   def get_by_id(id) when is_integer(id) do
@@ -222,5 +166,60 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
       )
 
     Repo.all(query)
+  end
+
+  defp cumulate_assets_n_sensors(hire_data) do
+    Enum.reduce(hire_data, [], fn project, acc ->
+      assets = if Map.has_key?(project, :assets), do: group_by_asset_type(project), else: []
+      sensors = if Map.has_key?(project, :sensors), do: group_by_senor_type(project), else: []
+      acc ++ assets ++ sensors
+    end)
+  end
+
+  defp group_by_senor_type(entity) do
+    grouped_data = Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
+
+    Enum.reduce(grouped_data, [], fn {key, val}, acc ->
+      acc ++ [%{id: "ST_#{key.id}", name: key.name}]
+    end)
+  end
+
+  defp group_by_asset_type(entity) do
+    grouped_data =
+      Enum.group_by(entity.assets, fn x -> x.asset_type end, fn asset ->
+        assets =
+          if Map.has_key?(asset, :assets) do
+            group_by_asset_type(asset)
+          end
+
+        sensors =
+          if Map.has_key?(asset, :sensors) do
+            group_by_senor_type(asset)
+          end
+
+        formulate_assets_n_sensors(assets, sensors)
+      end)
+
+    grouped_data |> cumulate_assets_data()
+  end
+
+  defp formulate_assets_n_sensors(assets, sensors) do
+    case {assets, sensors} do
+      {nil, sensors} ->
+        sensors
+
+      {assets, nil} ->
+        {key, value} = Enum.at(assets, 0)
+        %{id: "AT_#{key.id}", name: key.name, children: List.flatten(value)}
+
+      {assets, sensors} ->
+        [assets] ++ sensors
+    end
+  end
+
+  defp cumulate_assets_data(data) do
+    Enum.reduce(data, [], fn {key, val}, acc ->
+      acc ++ [%{id: "AT_#{key.id}", name: key.name, children: List.flatten(val)}]
+    end)
   end
 end

@@ -26,7 +26,7 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
         [{_, tree}] = data
         tree
       else
-        topology_map = ProjectModel.gen_topology(org_id, project.id)
+        topology_map = ProjectModel.gen_topology(org_id, project)
         TopologyEtsConfig.set(proj_key, topology_map)
       end
   end
