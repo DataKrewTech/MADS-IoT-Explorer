@@ -75,6 +75,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, sensor_type}} <- {:create, SensorType.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.insert_sensor_type("sensor_types", sensor_type)
+          end)
+
           conn
           |> put_status(200)
           |> render("sensor_type.json", %{sensor_type: sensor_type})
@@ -132,6 +136,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
 
         case SensorType.delete(sensor_type) do
           {:ok, sensor_type} ->
+            Task.start_link(fn ->
+              ElasticSearch.delete("sensor_types", sensor_type.id)
+            end)
+
             conn
             |> put_status(200)
             |> render("sensor_type.json", %{sensor_type: sensor_type})
