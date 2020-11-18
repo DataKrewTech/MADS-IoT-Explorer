@@ -133,4 +133,74 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       assert rasset3["id"] == asset3.id
     end
   end
+
+  describe "update and delete assets/2" do
+    setup :setup_conn
+
+    test "if asset is updated", %{conn: conn} do
+      asset = insert(:asset)
+      Asset.seed_asset(asset)
+      :timer.sleep(1500)
+
+      conn =
+        put(conn, Routes.assets_path(conn, :update, asset.org_id, asset.project_id, asset.id), %{
+          "name" => "Testing Asset"
+        })
+
+      :timer.sleep(1500)
+
+      conn =
+        get(
+          conn,
+          Routes.search_assets_path(conn, :search_assets, asset.org_id, asset.project_id),
+          %{
+            "label" => "Testing Asset"
+          }
+        )
+
+      result = conn |> json_response(200)
+
+      Asset.delete_index()
+
+      assert result == %{
+               "assets" => [
+                 %{
+                   "id" => asset.id,
+                   "name" => "Testing Asset",
+                   "properties" => asset.properties,
+                   "slug" => asset.slug,
+                   "uuid" => asset.uuid
+                 }
+               ]
+             }
+    end
+
+    test "if asset is deleted", %{conn: conn} do
+      asset = insert(:asset)
+      Asset.seed_asset(asset)
+      :timer.sleep(1500)
+
+      conn =
+        delete(conn, Routes.assets_path(conn, :delete, asset.org_id, asset.project_id, asset.id))
+
+      :timer.sleep(1500)
+
+      conn =
+        get(
+          conn,
+          Routes.search_assets_path(conn, :search_assets, asset.org_id, asset.project_id),
+          %{
+            "label" => asset.name
+          }
+        )
+
+      result = conn |> json_response(200)
+
+      Asset.delete_index()
+
+      assert result == %{
+               "assets" => []
+             }
+    end
+  end
 end

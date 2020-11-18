@@ -103,6 +103,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
       nil ->
         case Asset.delete(conn.assigns.asset) do
           {:ok, {_number, nil}} ->
+            Task.start_link(fn ->
+              ElasticSearch.delete("assets", conn.assigns.asset.id)
+            end)
+
             conn
             |> put_status(200)
             |> render("asset.json", %{asset: conn.assigns.asset})

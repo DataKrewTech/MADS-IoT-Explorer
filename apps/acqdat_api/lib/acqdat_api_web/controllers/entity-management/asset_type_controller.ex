@@ -116,6 +116,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
       nil ->
         case AssetType.delete(conn.assigns.asset_type) do
           {:ok, asset_type} ->
+            Task.start_link(fn ->
+              ElasticSearch.delete("asset_types", conn.assigns.asset_type.id)
+            end)
+
             conn
             |> put_status(200)
             |> render("asset_type.json", %{asset_type: asset_type})
