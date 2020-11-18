@@ -49,7 +49,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
   end
 
   def seed_gateway() do
-    put("/pro",%{mappings: %{properties: %{join_field: %{type: "join", relations: %{pro: ["gateway", "asset_type", "sensor_type"]}}}}})
+    put("/pro",%{mappings: %{properties: %{join_field: %{type: "join", relations: %{pro: ["gateway"]}}}}})
     projects = Repo.all(Project)
     Enum.each(projects, fn project ->
       insert_pro("pro", project)
@@ -91,7 +91,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
       parent_type: params.parent_type,
       parent_id: params.parent_id,
       description: params.description,
-      access_token: params.access_tokne,
+      access_token: params.access_token,
       serializer: params.serializer,
       current_location: params.current_location,
       channel: params.channel,
