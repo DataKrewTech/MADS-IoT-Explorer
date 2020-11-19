@@ -28,7 +28,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
 
     sensors =
       if Map.has_key?(asset, :sensors) do
-        render_many(asset.sensors, SensorView, "sensor_heirarchy_tree.json")
+        render_many(asset.sensors, SensorView, "sensor_hierarchy_tree.json")
       end
 
     gateways =

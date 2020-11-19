@@ -30,7 +30,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
     }
   end
 
-  def render("sensor_heirarchy_tree.json", %{sensor: sensor}) do
+  def render("sensor_hierarchy_tree.json", %{sensor: sensor}) do
     %{
       type: "Sensor",
       id: sensor.id,
