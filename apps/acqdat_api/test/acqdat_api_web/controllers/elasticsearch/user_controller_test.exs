@@ -11,6 +11,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "fails if authorization header not found", %{conn: conn, user: user} do
       User.create_index()
       User.seed_user(user)
+      :timer.sleep(1500)
       bad_access_token = "avcbd123489u"
       org = insert(:organisation)
 
