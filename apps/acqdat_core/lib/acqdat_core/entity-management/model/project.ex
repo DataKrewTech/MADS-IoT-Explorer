@@ -37,7 +37,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   def gen_topology(org_id, %{name: name, id: project_id}) do
     proj_hierarchy = hierarchy_data(org_id, project_id) |> cumulate_assets_n_sensors()
 
-    %{id: "PT_#{project_id}", name: name, children: proj_hierarchy}
+    %{id: "#{project_id}", name: name, type: "Project", children: proj_hierarchy}
   end
 
   def get_by_id(id) when is_integer(id) do
@@ -180,7 +180,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     grouped_data = Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
 
     Enum.reduce(grouped_data, [], fn {key, val}, acc ->
-      acc ++ [%{id: "ST_#{key.id}", name: key.name}]
+      acc ++ [%{id: "#{key.id}", name: key.name, type: "SensorType"}]
     end)
   end
 
@@ -210,7 +210,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
       {assets, nil} ->
         {key, value} = Enum.at(assets, 0)
-        %{id: "AT_#{key.id}", name: key.name, children: List.flatten(value)}
+        %{id: "#{key.id}", name: key.name, type: "AssetType", children: List.flatten(value)}
 
       {assets, sensors} ->
         [assets] ++ sensors
@@ -219,7 +219,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
   defp cumulate_assets_data(data) do
     Enum.reduce(data, [], fn {key, val}, acc ->
-      acc ++ [%{id: "AT_#{key.id}", name: key.name, children: List.flatten(val)}]
+      acc ++ [%{id: "#{key.id}", name: key.name, type: "AssetType", children: List.flatten(val)}]
     end)
   end
 end

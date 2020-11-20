@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.DataInsights.TopologyView do
     %{
       id: topology.id,
       name: topology.name,
+      type: topology.type,
       children: render_many(topology[:children] || [], TopologyView, "topology_entity.json")
     }
   end
@@ -15,6 +16,7 @@ defmodule AcqdatApiWeb.DataInsights.TopologyView do
     %{
       id: topology.id,
       name: topology.name,
+      type: topology.type,
       children: render_many(topology[:children] || [], TopologyView, "topology_entity.json")
     }
   end
