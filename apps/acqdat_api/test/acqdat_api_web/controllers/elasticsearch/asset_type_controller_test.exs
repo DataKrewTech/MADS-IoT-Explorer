@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       asset_type = insert(:asset_type)
       AssetType.seed_asset_type(asset_type)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -40,7 +40,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "search with valid params", %{conn: conn} do
       asset_type = insert(:asset_type)
       AssetType.seed_asset_type(asset_type)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -73,7 +73,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "search with no hits", %{conn: conn} do
       asset_type = insert(:asset_type)
       AssetType.seed_asset_type(asset_type)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -105,7 +105,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
       AssetType.seed_multiple_assets_type(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -126,7 +126,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "index with valid params and multiple entries", %{conn: conn} do
       project = insert(:project)
       [asset_type1, asset_type2, asset_type3] = AssetType.seed_multiple_assets_type(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.asset_type_path(conn, :index, project.org_id, project.id), %{
@@ -151,7 +151,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "if asset type is updated", %{conn: conn} do
       asset_type = insert(:asset_type)
       AssetType.seed_asset_type(asset_type)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         put(
@@ -168,7 +168,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
           }
         )
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -201,7 +201,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
     test "if asset type is deleted", %{conn: conn} do
       asset_type = insert(:asset_type)
       AssetType.seed_asset_type(asset_type)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         delete(
@@ -215,7 +215,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
           )
         )
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(

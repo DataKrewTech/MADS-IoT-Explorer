@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       sensor = insert(:sensor)
       Sensor.seed_sensor(sensor)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -35,7 +35,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "search with valid params", %{conn: conn} do
       sensor = insert(:sensor)
       Sensor.seed_sensor(sensor)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -72,7 +72,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "search with no hits", %{conn: conn} do
       sensor = insert(:sensor)
       Sensor.seed_sensor(sensor)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       project = insert(:project)
 
       conn =
@@ -100,7 +100,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
       Sensor.seed_multiple_sensors(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -121,7 +121,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "index with valid params and multiple entries", %{conn: conn} do
       project = insert(:project)
       [sensor1, sensor2, sensor3] = Sensor.seed_multiple_sensors(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.sensor_path(conn, :index, project.org_id, project.id), %{
@@ -146,7 +146,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "if sensor is updated", %{conn: conn} do
       sensor = insert(:sensor)
       Sensor.seed_sensor(sensor)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         put(
@@ -157,7 +157,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
           }
         )
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -194,7 +194,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
     test "if sensor is deleted", %{conn: conn} do
       sensor = insert(:sensor)
       Sensor.seed_sensor(sensor)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         delete(
@@ -202,7 +202,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
           Routes.sensor_path(conn, :delete, sensor.org_id, sensor.project_id, sensor.id)
         )
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(

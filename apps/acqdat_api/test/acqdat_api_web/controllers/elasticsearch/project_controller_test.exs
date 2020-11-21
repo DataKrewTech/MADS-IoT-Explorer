@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       project = insert(:project, org: org)
       Project.create_index()
       Project.seed_project(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -33,7 +33,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       project = insert(:project, org: org)
       Project.create_index()
       Project.seed_project(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.search_projects_path(conn, :search_projects, org.id), %{
@@ -59,7 +59,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       project = insert(:project)
       Project.create_index()
       Project.seed_project(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.search_projects_path(conn, :search_projects, org.id), %{
@@ -81,7 +81,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     test "fails if authorization header not found", %{conn: conn, org: org} do
       Project.create_index()
       Project.seed_multiple_project(org)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -102,7 +102,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     test "index with valid params and multiple entries", %{conn: conn, org: org} do
       Project.create_index()
       [project1, project2, project3] = Project.seed_multiple_project(org)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.project_path(conn, :index, org.id), %{

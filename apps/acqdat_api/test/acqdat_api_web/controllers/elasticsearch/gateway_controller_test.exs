@@ -13,7 +13,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       gateway = insert(:gateway, project: project, org: project.org)
       Gateway.create_index()
       Gateway.seed_gateway(gateway)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -39,7 +39,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       gateway = insert(:gateway, project: project, org: project.org)
       Gateway.create_index()
       Gateway.seed_gateway(gateway)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -70,7 +70,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       gateway = insert(:gateway)
       Gateway.create_index()
       Gateway.seed_gateway(gateway)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -97,7 +97,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       project = insert(:project)
       Gateway.create_index()
       Gateway.seed_multiple_gateway(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -119,7 +119,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       project = insert(:project)
       Gateway.create_index()
       [gateway1, gateway2, gateway3] = Gateway.seed_multiple_gateway(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.gateway_path(conn, :index, project.org.id, project.id), %{

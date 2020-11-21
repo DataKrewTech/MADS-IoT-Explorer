@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       widget = insert(:widget)
       [widget: widget] = Widget.seed_widget(widget)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -31,7 +31,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "search with valid params", %{conn: conn} do
       widget = insert(:widget)
       [widget: widget] = Widget.seed_widget(widget)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
@@ -58,7 +58,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "search with no hits", %{conn: conn, user: user} do
       widget = insert(:widget)
       Widget.seed_widget(widget)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
@@ -79,7 +79,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       Widget.seed_multiple_widget()
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -99,7 +99,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
     test "index with valid params and multiple entries", %{conn: conn} do
       [widget1, widget2, widget3] = Widget.seed_multiple_widget()
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :index), %{
@@ -123,7 +123,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
     test "if widget type is deleted", %{conn: conn} do
       [widget1, _widget2, _widget3] = Widget.seed_multiple_widget()
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       conn = delete(conn, Routes.widget_type_path(conn, :delete, widget1.widget_type_id))
 
       conn =
@@ -144,14 +144,14 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "if widget is updated", %{conn: conn} do
       widget = insert(:widget)
       Widget.seed_widget(widget)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         put(conn, Routes.widget_path(conn, :update, widget.id), %{
           "label" => "Update Widget"
         })
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
@@ -171,14 +171,14 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "if widget is deleted", %{conn: conn} do
       widget = insert(:widget)
       Widget.seed_widget(widget)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         put(conn, Routes.widget_path(conn, :delete, widget.id), %{
           "label" => "Update Widget"
         })
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{

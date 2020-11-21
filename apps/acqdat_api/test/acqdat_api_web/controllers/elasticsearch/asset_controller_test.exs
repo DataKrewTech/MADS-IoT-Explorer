@@ -11,7 +11,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       asset = insert(:asset)
       Asset.seed_asset(asset)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -35,7 +35,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "search with valid params", %{conn: conn} do
       asset = insert(:asset)
       Asset.seed_asset(asset)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -66,7 +66,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "search with no hits", %{conn: conn} do
       asset = insert(:asset)
       Asset.seed_asset(asset)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       project = insert(:project)
 
       conn =
@@ -94,7 +94,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
       Asset.seed_multiple_assets(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -115,7 +115,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "index with valid params and multiple entries", %{conn: conn} do
       project = insert(:project)
       [asset1, asset2, asset3] = Asset.seed_multiple_assets(project)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.assets_path(conn, :index, project.org_id, project.id), %{
@@ -140,14 +140,14 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "if asset is updated", %{conn: conn} do
       asset = insert(:asset)
       Asset.seed_asset(asset)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         put(conn, Routes.assets_path(conn, :update, asset.org_id, asset.project_id, asset.id), %{
           "name" => "Testing Asset"
         })
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
@@ -178,12 +178,12 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
     test "if asset is deleted", %{conn: conn} do
       asset = insert(:asset)
       Asset.seed_asset(asset)
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         delete(conn, Routes.assets_path(conn, :delete, asset.org_id, asset.project_id, asset.id))
 
-      :timer.sleep(1500)
+      :timer.sleep(2500)
 
       conn =
         get(
