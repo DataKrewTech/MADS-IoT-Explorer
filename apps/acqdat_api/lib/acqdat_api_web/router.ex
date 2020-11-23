@@ -23,6 +23,10 @@ defmodule AcqdatApiWeb.Router do
     plug(AcqdatApiWeb.DashboardExportAuth)
   end
 
+  pipeline :password_reset_auth do
+    plug(AcqdatApiWeb.PasswordResetAuth)
+  end
+
   scope "/", AcqdatApiWeb do
     pipe_through(:export_auth)
     get("/dashboards/:dashboard_uuid", DashboardExport.DashboardExportController, :export)
@@ -34,6 +38,11 @@ defmodule AcqdatApiWeb.Router do
     )
 
     get("/details/:dashboard_uuid/panels/:id", DashboardExport.DashboardExportController, :show)
+  end
+
+  scope "/", AcqdatApiWeb do
+    pipe_through(:password_reset_auth)
+    put("/reset_password", RoleManagement.ForgotPasswordController, :reset_password)
   end
 
   scope "/", AcqdatApiWeb do
@@ -54,6 +63,8 @@ defmodule AcqdatApiWeb.Router do
     resources "/orgs", EntityManagement.OrganisationController, only: [:show]
     resources "/apps", AppController, only: [:index]
     get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
+
+    post("/forgot_password/:user_id", RoleManagement.ForgotPasswordController, :forgot_password)
 
     # NOTE: Kept widgets resources out of organisation_scope currently
     get "/widgets/search", Widgets.WidgetController, :search_widget

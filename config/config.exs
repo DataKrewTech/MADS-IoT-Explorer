@@ -101,6 +101,10 @@ config :acqdat_api,
        :frontend_url,
        System.get_env("DASHBOARD_URL", "https://mads.netlify.app/dashboards/")
 
+config :acqdat_api,
+       :mads_url,
+       System.get_env("MADS_URL", "https://mads.netlify.app/")
+
 # salt
 config :acqdat_core,
        :secret_salt,
