@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
   alias NaryTree
+  alias NaryTree.Node
   import AcqdatApiWeb.Helpers
 
   @table :proj_topology
@@ -66,15 +67,18 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
   end
 
   # TODO: Need to refactor this piece of code and add proper error msg
-  defp validate_entities({asset_types, _sensor_types}, entities_list, parent_tree)
-       when length(asset_types) == length(entities_list) do
-    {entity_levels, root_entity, entity_map} =
-      Enum.reduce(asset_types, {[], nil, %{}}, fn entity, {acc1, acc2, acc3} ->
+  def validate_entities1({asset_types, _sensor_types}, entities_list, parent_tree) do
+    # when length(asset_types) == length(entities_list) do
+    {entity_levels, {root_node, root_entity}, entity_map} =
+      Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
         node = NaryTree.get(parent_tree, entity.id)
         acc1 = acc1 ++ [node.level]
-        acc2 = if acc2 != nil && acc2.level < node.level, do: acc2, else: node
-        acc3 = Map.put_new(acc3, entity, false)
-        {acc1, acc2, acc3}
+
+        {acc2, acc4} =
+          if acc2 != nil && acc2.level < node.level, do: {acc2, acc4}, else: {node, entity}
+
+        acc3 = Map.put_new(acc3, "#{entity.type}_#{entity.id}", false)
+        {acc1, {acc2, acc4}, acc3}
       end)
 
     if length(Enum.uniq(entity_levels)) == 1 do
@@ -82,11 +86,16 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
         "All the asset_type entities are at the same level, Please attach common parent entity"
       )
     else
-      IO.puts("Need to implement only for asset_types flow")
-      node_tracker = Map.put(entity_map, root_entity, true)
+      node_tracker = Map.put(entity_map, "#{root_entity.type}_#{root_entity.id}", true)
+
+      IO.inspect(root_node)
+
+      IO.inspect(node_tracker)
+
+      # entities_list = Enum.reject(entities_list, fn entity -> entity == root_entity end)
 
       # find descendents of root element and check whether remaining entites exist or not?
-      fetch_descendants(root_node, entities_list, node_tracker)
+      fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
     end
   end
 
@@ -94,7 +103,75 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
     IO.puts("Need to find root element here")
   end
 
-  defp fetch_descendants(root_node, entities_list, node_tracker) do
+  def traverse(tree, tree_node, entities_list, node_tracker) do
+    key = "#{tree_node.type}_#{tree_node.id}"
+
+    data = Enum.find(entities_list, fn x -> x.id == tree_node.id && x.type == tree_node.type end)
+
+    node_tracker =
+      if data do
+        node_tracker ++ [data]
+      else
+        node_tracker
+      end
+
+    subtree_map =
+      if data,
+        do: %{id: tree_node.id, name: tree_node.name, type: tree_node.type, children: []},
+        else: []
+
+    case tree_node.children do
+      [] ->
+        {subtree_map, node_tracker}
+
+      _ ->
+        res =
+          Enum.reduce(tree_node.children, {subtree_map, node_tracker}, fn child_id,
+                                                                          {acc1, acc2} ->
+            node = NaryTree.get(tree, child_id)
+            res = traverse(tree, node, entities_list, node_tracker)
+            {data, data2} = res
+
+            if res != nil && acc1 != %{} && acc1 != [] do
+              items = acc1[:children] ++ [data]
+              acc1 = acc1 |> Map.put(:children, List.flatten(items))
+              acc2 = acc2 ++ data2
+
+              IO.puts("node_tracker")
+              IO.inspect(node_tracker)
+              {acc1, acc2}
+            else
+              acc2 = acc2 ++ node_tracker
+              {acc1, acc2}
+            end
+          end)
+    end
+  end
+
+  def traverse(parent_tree, node, _, _) when is_nil(node),
+    do: raise("Expecting %NaryTree.Node(), found nil.")
+
+  def traverse(parent_tree, %Node{children: children} = node, entities_list, node_tracker)
+      when children == [] do
+    IO.puts("inside childeren [] cond")
+  end
+
+  def fetch_descendants(parent_tree, root_node, entities_list, node_tracker) do
+    # subtree_map = %{id: root_node.id, name: root_node.name, type: root_node.type}
+    # node_tracker
+
+    {subtree, node_tracker} = traverse(parent_tree, root_node, entities_list, [])
+    # m = :maps.filter fn _, v -> v == false end, node_tracker
+    # res = Map.keys(m)
+    res = Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list)
+
+    if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
+      IO.puts("final output")
+      # subtree = Map.put_new(subtree_map, :children, subtree) 
+      IO.inspect(subtree)
+    else
+      IO.puts("throws error: followings are not connected to the tree")
+    end
   end
 
   defp ets_proj_key(project) do
