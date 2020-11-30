@@ -3,11 +3,34 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   alias AcqdatApi.EntityManagement.Sensor
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   import AcqdatApiWeb.Helpers
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Validators.EntityManagement.Sensor
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
   plug :load_sensor when action in [:update, :delete, :show]
+
+  def search_sensors(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.search_entities("sensors", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -26,16 +49,20 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   end
 
   def index(conn, params) do
-    changeset = verify_index_params(params)
-
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, sensor} = {:list, SensorModel.get_all_by_project_n_org(data)}
-
-        conn
-        |> put_status(200)
-        |> render("index.json", sensor)
+        with {:ok, hits} <- ElasticSearch.entities_indexing("sensors", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
       404 ->
         conn
@@ -50,6 +77,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, sensor}} <- {:create, Sensor.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.insert_sensor("sensors", sensor)
+          end)
+
           conn
           |> put_status(200)
           |> render("sensor.json", %{sensor: sensor})
@@ -74,6 +105,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
         case SensorModel.update(sensor, params) do
           {:ok, sensor} ->
+            Task.start_link(fn ->
+              ElasticSearch.insert_sensor("sensors", sensor)
+            end)
+
             conn
             |> put_status(200)
             |> render("sensor.json", %{sensor: sensor})
@@ -96,6 +131,10 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
       nil ->
         case SensorModel.delete(id) do
           {:ok, sensor} ->
+            Task.start_link(fn ->
+              ElasticSearch.delete("sensors", sensor.id)
+            end)
+
             conn
             |> put_status(200)
             |> render("sensor.json", %{sensor: sensor})

@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   alias AcqdatApi.EntityManagement.Project
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Project
 
@@ -24,23 +25,67 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     end
   """
 
-  def index(conn, params) do
-    changeset = verify_index_params(params)
-
+  def search_projects(conn, params) do
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, project} = {:list, Project.get_all(data, [:leads, :users, :creator])}
-
-        conn
-        |> put_status(200)
-        |> render("index.json", project)
+        with {:ok, hits} <- ElasticSearch.search_projects(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
     end
   end
+
+  def index(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.project_indexing(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, _message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "success" => false,
+              "error" => true,
+              "message" => "elasticsearch is not running"
+            })
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  # def index(conn, params) do
+  #   changeset = verify_index_params(params)
+
+  #   case conn.status do
+  #     nil ->
+  #       {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+  #       {:list, project} = {:list, Project.get_all(data, [:leads, :users])}
+
+  #       conn
+  #       |> put_status(200)
+  #       |> render("index.json", project)
+
+  #     404 ->
+  #       conn
+  #       |> send_error(404, "Resource Not Found")
+  #   end
+  # end
 
   def archived(conn, params) do
     changeset = verify_index_params(params)
@@ -70,6 +115,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
         case Project.update(project, params) do
           {:ok, project} ->
+            ElasticSearch.update_project("org", project, project.org_id)
+
             conn
             |> put_status(200)
             |> render("show.json", %{project: project})
@@ -95,6 +142,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, project}} <- {:create, Project.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.create_project("org", project, %{id: project.org_id})
+          end)
+
           conn
           |> put_status(200)
           |> render("show.json", %{project: project})
@@ -122,6 +173,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
             if project.avatar != nil do
               ImageDeletion.delete_operation(project.avatar, "project")
             end
+
+            ElasticSearch.delete_data("org", project)
 
             conn
             |> put_status(200)

@@ -122,6 +122,9 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
+    get "/projects/search", EntityManagement.ProjectController, :search_projects,
+      as: :search_projects
+
     post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
     get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
     get("/entities", EntityManagement.EntityController, :fetch_all_hierarchy)
@@ -136,6 +139,7 @@ defmodule AcqdatApiWeb.Router do
       only: [:index, :create, :update, :delete, :show]
 
     scope "/projects/:project_id", IotManager do
+      get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
       put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
       resources "/gateways", GatewayController, except: [:new, :edit]
       post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
@@ -156,6 +160,13 @@ defmodule AcqdatApiWeb.Router do
 
     scope "/projects/:project_id", EntityManagement do
       resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
+      get "/assets/search", AssetController, :search_assets, as: :search_assets
+      get "/sensors/search", SensorController, :search_sensors, as: :search_sensors
+
+      get "/sensor_type/search", SensorTypeController, :search_sensor_type,
+        as: :search_sensor_type
+
+      get "/asset_type/search", AssetTypeController, :search_asset_type, as: :search_asset_type
 
       resources "/assets", AssetController,
         only: [:create, :show, :update, :delete, :index],
@@ -200,9 +211,6 @@ defmodule AcqdatApiWeb.Router do
         as: :update_widget_instances
 
     post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
-
-    get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
-      as: :search_assets
   end
 
   # TODO: Need to remove this scope later, and clean test-cases also

@@ -4,6 +4,18 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
   alias AcqdatApiWeb.Widgets.WidgetView
 
   def render("widget.json", %{widget: widget}) do
+    visual_prop =
+      case Map.has_key?(widget, :visual_prop) do
+        true -> widget.visual_prop
+        false -> nil
+      end
+
+    data_prop =
+      case Map.has_key?(widget, :data_prop) do
+        true -> widget.data_prop
+        false -> nil
+      end
+
     %{
       id: widget.id,
       widget_type_id: widget.widget_type_id,
@@ -18,8 +30,8 @@ defmodule AcqdatApiWeb.Widgets.WidgetView do
       widget_type: render_one(widget.widget_type, WidgetTypeView, "widget_type.json"),
       visual_settings: render_many(widget.visual_settings, WidgetView, "visual_settings.json"),
       data_settings: render_many(widget.data_settings, WidgetView, "data_settings.json"),
-      visual_prop: widget.visual_prop,
-      data_prop: widget.data_prop
+      visual_prop: visual_prop,
+      data_prop: data_prop
     }
   end
 

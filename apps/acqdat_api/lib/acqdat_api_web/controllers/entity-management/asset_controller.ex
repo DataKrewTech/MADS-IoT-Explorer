@@ -8,7 +8,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
   plug AcqdatApiWeb.Plug.LoadProject
   plug :load_asset when action in [:show, :update, :delete]
-  plug :check_org_and_asset_type when action in [:search_assets, :create]
+  plug :check_org_and_asset_type when action in [:create]
 
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
@@ -31,6 +31,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, asset}} <- {:create, Asset.create(data)} do
+          Task.start_link(fn ->
+            ElasticSearch.insert_asset("assets", asset)
+          end)
+
           conn
           |> put_status(200)
           |> render("asset.json", %{asset: asset})
@@ -53,6 +57,8 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
       nil ->
         case Asset.update_asset(conn.assigns.asset, params) do
           {:ok, asset} ->
+            ElasticSearch.update_asset("assets", asset)
+
             conn
             |> put_status(200)
             |> render("asset.json", %{asset: asset})
@@ -71,16 +77,20 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   end
 
   def index(conn, params) do
-    changeset = verify_index_params(params)
-
     case conn.status do
       nil ->
-        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, asset} = {:list, Asset.get_all(data, [])}
-
-        conn
-        |> put_status(200)
-        |> render("index.json", asset)
+        with {:ok, hits} <- ElasticSearch.entities_indexing("assets", params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> put_status(404)
+            |> json(%{
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
+            })
+        end
 
       404 ->
         conn
@@ -93,6 +103,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
       nil ->
         case Asset.delete(conn.assigns.asset) do
           {:ok, {_number, nil}} ->
+            Task.start_link(fn ->
+              ElasticSearch.delete("assets", conn.assigns.asset.id)
+            end)
+
             conn
             |> put_status(200)
             |> render("asset.json", %{asset: conn.assigns.asset})
@@ -104,19 +118,19 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     end
   end
 
-  def search_assets(conn, %{"label" => label}) do
+  def search_assets(conn, params) do
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.search_assets("assets", label) do
+        with {:ok, hits} <- ElasticSearch.search_entities("assets", params) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
           {:error, message} ->
             conn
             |> put_status(404)
             |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => message
+              "status_code" => 404,
+              "title" => message,
+              "detail" => message
             })
         end
 

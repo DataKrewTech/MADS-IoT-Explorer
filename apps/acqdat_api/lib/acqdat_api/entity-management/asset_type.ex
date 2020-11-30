@@ -1,6 +1,7 @@
 defmodule AcqdatApi.EntityManagement.AssetType do
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatCore.Model.EntityManagement.SensorType, as: STModel
+  alias AcqdatApi.ElasticSearch
   import AcqdatApiWeb.Helpers
   alias Ecto.Multi
   alias AcqdatCore.Repo

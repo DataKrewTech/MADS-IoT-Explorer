@@ -155,17 +155,17 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     end
   end
 
-  def search_widget(conn, %{"label" => label}) do
-    with {:ok, hits} <- ElasticSearch.search_widget("widgets", label) do
+  def search_widget(conn, params) do
+    with {:ok, hits} <- ElasticSearch.search_widget("widgets", params) do
       conn |> put_status(200) |> render("hits.json", %{hits: hits})
     else
       {:error, message} ->
         conn
         |> put_status(404)
         |> json(%{
-          "success" => false,
-          "error" => true,
-          "message" => message
+          "status_code" => 404,
+          "title" => message,
+          "detail" => message
         })
     end
   end

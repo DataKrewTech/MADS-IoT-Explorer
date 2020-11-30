@@ -177,47 +177,6 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
     end
   end
 
-  describe "index/2" do
-    setup :setup_conn
-
-    setup do
-      gateway = insert(:gateway)
-      [gateway: gateway]
-    end
-
-    test "list gateway data of a project", %{conn: conn, gateway: gateway} do
-      params = %{
-        "page_size" => 100,
-        "page_number" => 1
-      }
-
-      conn =
-        get(conn, Routes.gateway_path(conn, :index, gateway.org_id, gateway.project_id, params))
-
-      response = conn |> json_response(200)
-      assert response["gateways"]
-    end
-
-    test "fails if invalid token in authorization header", %{conn: conn, gateway: gateway} do
-      bad_access_token = "qwerty1234567qwerty12"
-
-      conn =
-        conn
-        |> put_req_header("authorization", "Bearer #{bad_access_token}")
-
-      params = %{
-        "page_size" => 2,
-        "page_number" => 1
-      }
-
-      conn =
-        get(conn, Routes.gateway_path(conn, :index, gateway.org_id, gateway.project_id, params))
-
-      result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
-    end
-  end
-
   describe "show/2" do
     setup :setup_conn
 

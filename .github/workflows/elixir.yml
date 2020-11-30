@@ -14,6 +14,7 @@ jobs:
       image: elixir:1.9.1-slim
       env:
         MIX_ENV: test
+        ELASTIC_SEARCH_HOST: "http://elastic_search:9200"
 
     services: 
       db:
@@ -25,7 +26,7 @@ jobs:
           POSTGRES_USER: postgres
         options:  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       elastic_search:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
         env: 
           discovery.type: single-node
           bootstrap.memory_lock: true
