@@ -10,6 +10,7 @@ defmodule AcqdatCore.Support.Factory do
   @access_time_hours 5
 
   alias AcqdatCore.Test.Support.WidgetData
+  alias AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory
   alias AcqdatCore.Widgets.Schema.{Widget, WidgetType}
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
