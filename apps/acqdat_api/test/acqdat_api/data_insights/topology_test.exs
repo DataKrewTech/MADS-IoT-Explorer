@@ -3,7 +3,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
   use AcqdatCore.DataCase
   alias AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory
   alias AcqdatApiWeb.DataInsights.Topology
-  alias AcqdatCore.Model.EntityManagement.{Project, AssetType, SensorType}
+  alias AcqdatCore.Model.EntityManagement.{Project, AssetType, SensorType, Asset}
 
   describe "gen_sub_topology/3" do
     setup do
@@ -178,7 +178,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
                "All entities are not directly connected, please connect common parent entity."
     end
 
-    test "returns valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment]",
+    test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment]",
          context do
       %{org_id: org_id, project: project} = context
 
@@ -210,7 +210,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       assert length(res["Building"]) != 0
     end
 
-    test "returns valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment, EnergyMtr]",
+    test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment, EnergyMtr]",
          context do
       %{org_id: org_id, project: project} = context
 
@@ -250,6 +250,36 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       assert length(res["Apartment"]) != 0
       assert length(res["Building"]) != 0
       assert length(res["Energy Meter"]) != 0
+    end
+
+    test "should return valid data, if the user provided entities are not directly connected, like this [Building, EnergyMtr]",
+         context do
+      %{org_id: org_id, project: project} = context
+
+      {:ok, building_type} = AssetType.get(%{name: "Building"})
+      {:ok, energy_mtr_type} = SensorType.get(%{name: "Energy Meter"})
+
+      user_list = [
+        %{
+          id: building_type.id,
+          name: "Building",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: energy_mtr_type.id,
+          name: "Energy Meter",
+          type: "SensorType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(res, "Building")
+      assert Map.has_key?(res, "Energy Meter")
     end
   end
 end
