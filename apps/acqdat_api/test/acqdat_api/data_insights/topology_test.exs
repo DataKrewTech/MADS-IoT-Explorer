@@ -11,7 +11,25 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       {:ok, project} = Project.get(project_id)
 
-      [org_id: org_id, project: project]
+      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
+      {:ok, playground_type} = AssetType.get(%{name: "PlayGround"})
+      {:ok, building_type} = AssetType.get(%{name: "Building"})
+      {:ok, place_type} = AssetType.get(%{name: "Place"})
+      {:ok, occupancy_sensor_type} = SensorType.get(%{name: "Occupancy Sensor"})
+      {:ok, energy_mtr_type} = SensorType.get(%{name: "Energy Meter"})
+      {:ok, temp_mtr_type} = SensorType.get(%{name: "Temp Sensor"})
+
+      [
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        playground_type: playground_type,
+        building_type: building_type,
+        place_type: place_type,
+        occupancy_sensor_type: occupancy_sensor_type,
+        energy_mtr_type: energy_mtr_type,
+        temp_mtr_type: temp_mtr_type
+      ]
     end
 
     test "returns sensor data, if user's input contains only one sensor_type(EnergyMtr)",
@@ -82,10 +100,12 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
     test "returns error, if user's input contains only asset_types, and all are on the same level eg: [Apartment, Playground]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
-      {:ok, playground_type} = AssetType.get(%{name: "PlayGround"})
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        playground_type: playground_type
+      } = context
 
       user_list = [
         %{
@@ -112,11 +132,13 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
     test "returns error(Needs to attach common parent Building), if user input contains [Apartment, Playground, OccSensor]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
-      {:ok, playground_type} = AssetType.get(%{name: "PlayGround"})
-      {:ok, occ_sen_type} = SensorType.get(%{name: "Occupancy Sensor"})
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        playground_type: playground_type,
+        occupancy_sensor_type: occupancy_sensor_type
+      } = context
 
       user_list = [
         %{
@@ -134,7 +156,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           pos: 2
         },
         %{
-          id: occ_sen_type.id,
+          id: occupancy_sensor_type.id,
           name: "Occupancy Sensor",
           type: "SensorType",
           metdata_name: "name",
@@ -150,10 +172,12 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
     test "returns error(Needs to attach common parent Building), if user input contains [Apartment, OccSensor]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
-      {:ok, occ_sen_type} = SensorType.get(%{name: "Occupancy Sensor"})
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        occupancy_sensor_type: occupancy_sensor_type
+      } = context
 
       user_list = [
         %{
@@ -164,7 +188,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           pos: 1
         },
         %{
-          id: occ_sen_type.id,
+          id: occupancy_sensor_type.id,
           name: "Occupancy Sensor",
           type: "SensorType",
           metdata_name: "name",
@@ -180,10 +204,12 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
     test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
-      {:ok, building_type} = AssetType.get(%{name: "Building"})
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        building_type: building_type
+      } = context
 
       user_list = [
         %{
@@ -206,17 +232,19 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       assert Map.has_key?(res, "Apartment")
       assert Map.has_key?(res, "Building")
-      assert length(res["Apartment"]) != 0
-      assert length(res["Building"]) != 0
+      assert length(res["Apartment"]) == 7
+      assert length(res["Building"]) == 3
     end
 
     test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment, EnergyMtr]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, apartment_type} = AssetType.get(%{name: "Apartment"})
-      {:ok, building_type} = AssetType.get(%{name: "Building"})
-      {:ok, energy_mtr_type} = SensorType.get(%{name: "Energy Meter"})
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        building_type: building_type,
+        energy_mtr_type: energy_mtr_type
+      } = context
 
       user_list = [
         %{
@@ -247,17 +275,93 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       assert Map.has_key?(res, "Apartment")
       assert Map.has_key?(res, "Building")
       assert Map.has_key?(res, "Energy Meter")
-      assert length(res["Apartment"]) != 0
-      assert length(res["Building"]) != 0
-      assert length(res["Energy Meter"]) != 0
+      assert length(res["Apartment"]) == 7
+      assert length(res["Building"]) == 3
+      assert length(res["Energy Meter"]) == 6
+    end
+
+    test "should return valid data, if the user provided entities like this [Place, Apartment]",
+         context do
+      %{org_id: org_id, project: project, apartment_type: apartment_type, place_type: place_type} =
+        context
+
+      user_list = [
+        %{
+          id: apartment_type.id,
+          name: "Apartment",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: place_type.id,
+          name: "Place",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(res, "Apartment")
+      assert Map.has_key?(res, "Place")
+      assert length(res["Place"]) == 1
+      assert length(res["Apartment"]) == 7
+    end
+
+    test "should return valid data, if the user provided input with two siblings and one parent like [Building, Apartment, Playground]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        building_type: building_type,
+        playground_type: playground_type
+      } = context
+
+      user_list = [
+        %{
+          id: building_type.id,
+          name: "Building",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: apartment_type.id,
+          name: "Apartment",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 3
+        },
+        %{
+          id: playground_type.id,
+          name: "PlayGround",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(res, "Apartment")
+      assert Map.has_key?(res, "Building")
+      assert Map.has_key?(res, "PlayGround")
+      assert length(res["Apartment"]) == 7
+      assert length(res["Building"]) == 3
+      assert length(res["PlayGround"]) == 3
     end
 
     test "should return valid data, if the user provided entities are not directly connected, like this [Building, EnergyMtr]",
          context do
-      %{org_id: org_id, project: project} = context
-
-      {:ok, building_type} = AssetType.get(%{name: "Building"})
-      {:ok, energy_mtr_type} = SensorType.get(%{name: "Energy Meter"})
+      %{
+        org_id: org_id,
+        project: project,
+        building_type: building_type,
+        energy_mtr_type: energy_mtr_type
+      } = context
 
       user_list = [
         %{
@@ -280,6 +384,149 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       assert Map.has_key?(res, "Building")
       assert Map.has_key?(res, "Energy Meter")
+      assert length(res["Energy Meter"]) == 6
+      assert length(res["Building"]) == 3
+    end
+
+    test "should return valid data, if the user provided entities are like this [Place, EnergyMtr]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        place_type: place_type,
+        energy_mtr_type: energy_mtr_type
+      } = context
+
+      user_list = [
+        %{
+          id: place_type.id,
+          name: "Place",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: energy_mtr_type.id,
+          name: "Energy Meter",
+          type: "SensorType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(res, "Place")
+      assert Map.has_key?(res, "Energy Meter")
+      assert length(res["Energy Meter"]) == 6
+      assert length(res["Place"]) == 1
+    end
+
+    test "should return valid data, if the user provided entities are like this [Place, OccupancySensor]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        place_type: place_type,
+        occupancy_sensor_type: occupancy_sensor_type
+      } = context
+
+      user_list = [
+        %{
+          id: place_type.id,
+          name: "Place",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: occupancy_sensor_type.id,
+          name: "Occupancy Sensor",
+          type: "SensorType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(res, "Place")
+      assert Map.has_key?(res, "Occupancy Sensor")
+      assert length(res["Occupancy Sensor"]) == 2
+      assert length(res["Place"]) == 1
+    end
+
+    test "should return error, if the user provided entities are like this [Building, Apartment, OccupancySensor]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        building_type: building_type,
+        occupancy_sensor_type: occupancy_sensor_type
+      } = context
+
+      user_list = [
+        %{
+          id: apartment_type.id,
+          name: "Apartment",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: building_type.id,
+          name: "Building",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 3
+        },
+        %{
+          id: occupancy_sensor_type.id,
+          name: "Occupancy Sensor",
+          type: "SensorType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert length(res["Occupancy Sensor"]) == 2
+      assert length(res["Building"]) == 3
+      assert length(res["Apartment"]) == 7
+    end
+
+    test "should return error, if the user provided entities are like this [Place, Temp Sensor]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        place_type: apartment_type,
+        temp_mtr_type: temp_mtr_type
+      } = context
+
+      user_list = [
+        %{
+          id: apartment_type.id,
+          name: "Place",
+          type: "AssetType",
+          metdata_name: "name",
+          pos: 2
+        },
+        %{
+          id: temp_mtr_type.id,
+          name: "Temp Sensor",
+          type: "SensorType",
+          metdata_name: "name",
+          pos: 1
+        }
+      ]
+
+      {:error, err_msg} = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert err_msg ==
+               "All entities are not directly connected, please connect common parent entity."
     end
   end
 end
