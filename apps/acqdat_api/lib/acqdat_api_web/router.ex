@@ -49,6 +49,7 @@ defmodule AcqdatApiWeb.Router do
     pipe_through(:api)
 
     post("/sign-in", AuthController, :sign_in)
+    post("/forgot_password", RoleManagement.ForgotPasswordController, :forgot_password)
     post("/orgs/:org_id/users", RoleManagement.UserController, :create)
   end
 
@@ -63,8 +64,6 @@ defmodule AcqdatApiWeb.Router do
     resources "/orgs", EntityManagement.OrganisationController, only: [:show]
     resources "/apps", AppController, only: [:index]
     get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
-
-    post("/forgot_password/:user_id", RoleManagement.ForgotPasswordController, :forgot_password)
 
     # NOTE: Kept widgets resources out of organisation_scope currently
     get "/widgets/search", Widgets.WidgetController, :search_widget

@@ -17,17 +17,25 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
 
   def create(params) do
     %{
-      user_id: user_id
+      email: email
     } = params
 
-    token = generate_token(get(user_id))
+    check_user(UserModel.get_by_email(email))
+  end
+
+  defp check_user({:ok, user}) do
+    token = generate_token(get(user.id))
 
     verify_forgot_password(
       ForgotPasswordModel.create(%{
         token: token,
-        user_id: user_id
+        user_id: user.id
       })
     )
+  end
+
+  defp check_user({:error, message}) do
+    {:error, %{error: message}}
   end
 
   defp verify_forgot_password({:ok, %{token: token, user_id: user_id}}) do

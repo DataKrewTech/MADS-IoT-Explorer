@@ -38,6 +38,16 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     end
   end
 
+  def get_by_email(email) when is_binary(email) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        {:error, "not found"}
+
+      user ->
+        {:ok, user}
+    end
+  end
+
   @doc """
   Returns a user by the supplied email.
   """

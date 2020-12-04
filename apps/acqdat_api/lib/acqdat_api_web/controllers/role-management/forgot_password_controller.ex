@@ -5,12 +5,12 @@ defmodule AcqdatApiWeb.RoleManagement.ForgotPasswordController do
   alias AcqdatApi.RoleManagement.ForgotPassword, as: ForgotPassword
 
   def forgot_password(conn, params) do
-    changeset = verify_user_id(params)
+    changeset = verify_email(params)
 
     case conn.status do
       nil ->
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:list, url} <- {:list, ForgotPassword.create(data)} do
+             {:list, {:ok, _url}} <- {:list, ForgotPassword.create(data)} do
           conn
           |> put_status(200)
           |> json(%{
@@ -20,10 +20,22 @@ defmodule AcqdatApiWeb.RoleManagement.ForgotPasswordController do
           })
         else
           {:extract, {:error, error}} ->
-            send_error(conn, 400, error)
+            conn
+            |> put_status(200)
+            |> json(%{
+              "status_code" => 400,
+              "details" => error,
+              "error" => error
+            })
 
           {:list, {:error, message}} ->
-            send_error(conn, 400, message.error)
+            conn
+            |> put_status(200)
+            |> json(%{
+              "status_code" => 400,
+              "details" => message,
+              "error" => message
+            })
         end
 
       404 ->
