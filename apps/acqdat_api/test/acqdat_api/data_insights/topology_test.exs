@@ -38,11 +38,11 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: "2",
-          name: "Energy Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => "2",
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -53,22 +53,21 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
     end
 
     test "returns asset data, if user's input contains only one asset_type(Building)", context do
-      %{org_id: org_id, project: project} = context
+      %{org_id: org_id, project: project, building_type: building_type} = context
 
       user_list = [
         %{
-          id: "1",
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
-      data = Topology.gen_sub_topology(org_id, project, user_list)
+      res = Topology.gen_sub_topology(org_id, project, user_list)
 
-      assert data[:type] == "AssetType"
-      assert data[:name] == "Building"
+      assert length(res["Building"]) == 3
     end
 
     test "returns error, if user's input contains only sensor_types eg: [EnergyMtr, HeatMtr, OccSensor]",
@@ -77,18 +76,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: "2",
-          name: "Energy Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => "2",
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         },
         %{
-          id: "3",
-          name: "Heat Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 2
+          "id" => "3",
+          "name" => "Heat Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 2
         }
       ]
 
@@ -109,18 +108,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         },
         %{
-          id: playground_type.id,
-          name: "PlayGround",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => playground_type.id,
+          "name" => "PlayGround",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         }
       ]
 
@@ -142,25 +141,25 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         },
         %{
-          id: playground_type.id,
-          name: "PlayGround",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => playground_type.id,
+          "name" => "PlayGround",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: occupancy_sensor_type.id,
-          name: "Occupancy Sensor",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 3
+          "id" => occupancy_sensor_type.id,
+          "name" => "Occupancy Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 3
         }
       ]
 
@@ -181,18 +180,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         },
         %{
-          id: occupancy_sensor_type.id,
-          name: "Occupancy Sensor",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 3
+          "id" => occupancy_sensor_type.id,
+          "name" => "Occupancy Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 3
         }
       ]
 
@@ -213,18 +212,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: building_type.id,
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -248,25 +247,25 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: building_type.id,
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 3
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 3
         },
         %{
-          id: energy_mtr_type.id,
-          name: "Energy Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -287,18 +286,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: place_type.id,
-          name: "Place",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => place_type.id,
+          "name" => "Place",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -322,25 +321,25 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: building_type.id,
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 3
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 3
         },
         %{
-          id: playground_type.id,
-          name: "PlayGround",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 1
+          "id" => playground_type.id,
+          "name" => "PlayGround",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -365,18 +364,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: building_type.id,
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: energy_mtr_type.id,
-          name: "Energy Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -399,18 +398,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: place_type.id,
-          name: "Place",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => place_type.id,
+          "name" => "Place",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: energy_mtr_type.id,
-          name: "Energy Meter",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -433,18 +432,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: place_type.id,
-          name: "Place",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => place_type.id,
+          "name" => "Place",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: occupancy_sensor_type.id,
-          name: "Occupancy Sensor",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => occupancy_sensor_type.id,
+          "name" => "Occupancy Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -468,25 +467,39 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Apartment",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: building_type.id,
-          name: "Building",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 3
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "painted",
+          "pos" => 4
         },
         %{
-          id: occupancy_sensor_type.id,
-          name: "Occupancy Sensor",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 3
+        },
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "color",
+          "pos" => 5
+        },
+        %{
+          "id" => occupancy_sensor_type.id,
+          "name" => "Occupancy Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
@@ -508,18 +521,18 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       user_list = [
         %{
-          id: apartment_type.id,
-          name: "Place",
-          type: "AssetType",
-          metdata_name: "name",
-          pos: 2
+          "id" => apartment_type.id,
+          "name" => "Place",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
         },
         %{
-          id: temp_mtr_type.id,
-          name: "Temp Sensor",
-          type: "SensorType",
-          metdata_name: "name",
-          pos: 1
+          "id" => temp_mtr_type.id,
+          "name" => "Temp Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
         }
       ]
 
