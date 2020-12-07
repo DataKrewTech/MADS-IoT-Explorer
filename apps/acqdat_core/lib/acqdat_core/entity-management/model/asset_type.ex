@@ -20,6 +20,16 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
+  def get(params) when is_map(params) do
+    case Repo.get_by(AssetType, params) do
+      nil ->
+        {:error, "AssetType not found"}
+
+      asset_type ->
+        {:ok, asset_type}
+    end
+  end
+
   def get_all(%{org_id: org_id, project_id: project_id}) do
     query =
       from(asset_type in AssetType,

@@ -19,6 +19,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
+
   def get_for_view(asset_ids) do
     query =
       from(asset in Asset,
@@ -27,6 +28,23 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       )
 
     Repo.all(query)
+  end
+
+  def get_all_by_asset_type(entity_ids) do
+    Asset
+    |> where([asset], asset.asset_type_id in ^entity_ids)
+    |> order_by(:id)
+    |> Repo.all()
+  end
+
+  def get_all_by_ids(entity_ids) do
+    Asset
+    |> where([asset], asset.id in ^entity_ids)
+    |> Repo.all()
+  end
+
+  def fetch_child_descendants(asset) do
+    AsNestedSet.descendants(asset) |> AsNestedSet.execute(Repo)
   end
 
   def child_assets(project_id) do
