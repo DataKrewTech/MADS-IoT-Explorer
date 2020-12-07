@@ -195,6 +195,7 @@ defmodule AcqdatApiWeb.Router do
     scope "/projects/:project_id", DataInsights do
       resources "/topology", TopologyController, only: [:index]
       get("/topology_entities", TopologyController, :entities)
+      post("/fact_table", TopologyController, :fact_table)
     end
 
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]

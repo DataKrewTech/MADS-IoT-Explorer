@@ -1,5 +1,4 @@
 defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
-  alias AcqdatCore.Repo
   alias AcqdatCore.Model.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Schema.EntityManagement.Asset, as: AssetSchema
   import AcqdatCore.Support.Factory
@@ -41,13 +40,37 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
     user = insert(:user)
 
     building_1 =
-      build_asset_map("Building 1", org.id, org.name, project.id, user.id, building_asset_type.id)
+      build_asset_map(
+        "Building 1",
+        org.id,
+        org.name,
+        project.id,
+        user.id,
+        building_asset_type.id,
+        "Building"
+      )
 
     building_2 =
-      build_asset_map("Building 2", org.id, org.name, project.id, user.id, building_asset_type.id)
+      build_asset_map(
+        "Building 2",
+        org.id,
+        org.name,
+        project.id,
+        user.id,
+        building_asset_type.id,
+        "Building"
+      )
 
     building_3 =
-      build_asset_map("Building 3", org.id, org.name, project.id, user.id, building_asset_type.id)
+      build_asset_map(
+        "Building 3",
+        org.id,
+        org.name,
+        project.id,
+        user.id,
+        building_asset_type.id,
+        "Building"
+      )
 
     apt_1_1 =
       build_asset_map(
@@ -56,7 +79,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     apt_1_2 =
@@ -66,7 +90,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     playground_1 =
@@ -76,7 +101,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        playground_asset_type.id
+        playground_asset_type.id,
+        "PlayGround"
       )
 
     apt_2_1 =
@@ -86,7 +112,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     apt_2_2 =
@@ -96,7 +123,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     apt_2_3 =
@@ -106,7 +134,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     playground_2 =
@@ -116,7 +145,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        playground_asset_type.id
+        playground_asset_type.id,
+        "PlayGround"
       )
 
     apt_3_1 =
@@ -126,7 +156,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     apt_3_2 =
@@ -136,7 +167,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        apartment_asset_type.id
+        apartment_asset_type.id,
+        "Apartment"
       )
 
     playground_3 =
@@ -146,7 +178,8 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
         org.name,
         project.id,
         user.id,
-        playground_asset_type.id
+        playground_asset_type.id,
+        "PlayGround"
       )
 
     {:ok, place_1} =
@@ -278,17 +311,17 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
     }
   end
 
-  defp build_asset_map(name, org_id, _org_name, project_id, creator_id, asset_type_id) do
+  defp build_asset_map(name, org_id, _org_name, project_id, creator_id, asset_type_id, type) do
     %AssetSchema{
       name: name,
       org_id: org_id,
       project_id: project_id,
       creator_id: creator_id,
       asset_type_id: asset_type_id,
-      metadata: [],
       mapped_parameters: [],
       owner_id: creator_id,
-      properties: []
+      properties: [],
+      metadata: gen_asset_metadata(type)
     }
   end
 
@@ -300,10 +333,96 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
       project_id: project_id,
       creator_id: creator_id,
       asset_type_id: asset_type_id,
-      metadata: [],
       mapped_parameters: [],
       owner_id: creator_id,
-      properties: []
+      properties: [],
+      metadata: [
+        %{
+          name: "location",
+          data_type: "string",
+          unit: "unit",
+          value: "demo location"
+        }
+      ]
     }
+  end
+
+  defp gen_asset_metadata(type) do
+    case type do
+      "Building" ->
+        [
+          %{
+            name: "color",
+            data_type: "string",
+            unit: "",
+            value: Enum.random(["white", "blue", "orange", "yellow", "pink"])
+          },
+          %{
+            name: "date of constr",
+            data_type: "date",
+            unit: "date",
+            value: "#{Date.utc_today()}"
+          },
+          %{
+            name: "no of floors",
+            data_type: "integer",
+            unit: "",
+            value: "#{Enum.random(1..10)}"
+          }
+        ]
+
+      "Apartment" ->
+        [
+          %{
+            name: "painted",
+            data_type: "boolean",
+            unit: "",
+            value: "#{Enum.random([true, false])}"
+          },
+          %{
+            name: "floor no",
+            data_type: "integer",
+            unit: "",
+            value: "#{Enum.random(1..10)}"
+          },
+          %{
+            name: "no of rooms",
+            data_type: "integer",
+            unit: "",
+            value: "#{Enum.random(1..4)}"
+          },
+          %{
+            name: "no of kids",
+            data_type: "integer",
+            unit: "",
+            value: "#{Enum.random(0..4)}"
+          },
+          %{
+            name: "ethnicity",
+            data_type: "string",
+            unit: "",
+            value: "#{Enum.random(["American", "Indian", "African", "Korean", "Japanese"])}"
+          }
+        ]
+
+      "PlayGround" ->
+        [
+          %{
+            name: "painted",
+            data_type: "boolean",
+            unit: "",
+            value: "#{Enum.random([true, false])}"
+          },
+          %{
+            name: "no of instruments",
+            data_type: "integer",
+            unit: "",
+            value: "#{Enum.random(2..10)}"
+          }
+        ]
+
+      _ ->
+        []
+    end
   end
 end
