@@ -116,15 +116,30 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   def search_entities(type, %{"label" => label} = params) do
-    case do_entities_search(type, label, params) do
-      {:ok, _return_code, hits} ->
-        {:ok, hits.hits}
+    case is_nil(String.first(label)) do
+      false ->
+        case do_entities_search(type, label, params) do
+          {:ok, _return_code, hits} ->
+            {:ok, hits.hits}
 
-      {:error, _return_code, hits} ->
-        {:error, hits}
+          {:error, _return_code, hits} ->
+            {:error, hits}
 
-      :error ->
-        {:error, "elasticsearch is not running"}
+          :error ->
+            {:error, "elasticsearch is not running"}
+        end
+
+      true ->
+        case do_entities_search(type, params) do
+          {:ok, _return_code, hits} ->
+            {:ok, hits.hits}
+
+          {:error, _return_code, hits} ->
+            {:error, hits}
+
+          :error ->
+            {:error, "elasticsearch is not running"}
+        end
     end
   end
 
@@ -195,6 +210,21 @@ defmodule AcqdatApi.ElasticSearch do
         false ->
           %{"project_id" => project_id} = params
           create_entities_query(type, label, project_id)
+      end
+
+    Tirexs.Query.create_resource(query)
+  end
+
+  defp do_entities_search(type, params) do
+    query =
+      case Map.has_key?(params, "page_size") do
+        true ->
+          %{"page_size" => page_size, "from" => from, "project_id" => project_id} = params
+          create_entities_query(type, page_size, from, project_id)
+
+        false ->
+          %{"project_id" => project_id} = params
+          create_entities_query(type, project_id)
       end
 
     Tirexs.Query.create_resource(query)
@@ -328,7 +358,7 @@ defmodule AcqdatApi.ElasticSearch do
           bool: [
             must: [
               [
-                match: [
+                match_phrase_prefix: [
                   name: [
                     query: "#{value}",
                     _name: "firstQuery"

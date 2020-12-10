@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
   alias AcqdatApiWeb.EntityManagement.{AssetView, AssetTypeView, SensorView}
   alias AcqdatApiWeb.IotManager.GatewayView
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
+  alias AcqdatApi.ElasticSearch
 
   def render("asset_tree.json", %{asset: asset}) do
     assets =
@@ -68,17 +69,25 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      assets: render_many(hits.hits, AssetView, "source.json")
+      assets: render_many(hits.hits, AssetView, "source.json"),
+      total_entries: ElasticSearch.find_total_counts("assets")
     }
   end
 
   def render("source.json", %{asset: %{_source: hits}}) do
+    asset = AssetModel.get_for_view(hits.id)
+
     %{
-      id: hits.id,
-      name: hits.name,
-      properties: hits.properties,
-      slug: hits.slug,
-      uuid: hits.uuid
+      type: "Asset",
+      id: asset.id,
+      name: asset.name,
+      properties: asset.properties,
+      description: asset.description,
+      parent_id: asset.parent_id,
+      asset_type_id: asset.asset_type_id,
+      creator_id: asset.creator_id,
+      metadata: render_many(asset.metadata, AssetView, "metadata.json"),
+      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json")
     }
   end
 

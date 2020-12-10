@@ -18,6 +18,16 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
+  def get_for_view(id) when is_integer(id) do
+    case Repo.get(Asset, id) |> Repo.preload([:org, :project, :asset_type]) do
+      nil ->
+        {:error, "not found"}
+
+      asset ->
+        asset |> Repo.preload([:org, :project, :asset_type])
+    end
+  end
+
   def child_assets(project_id) do
     Asset |> dump_assets(%{project_id: project_id}) |> AsNestedSet.execute(Repo)
   end
