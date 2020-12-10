@@ -605,6 +605,19 @@ defmodule AcqdatApi.ElasticSearch do
     )
   end
 
+  def find_total_counts(index) do
+    case get("#{index}/_count") do
+      {:ok, _return_code, %{count: count}} ->
+        count
+
+      {:error, _return_code, hits} ->
+        {:error, hits}
+
+      :error ->
+        {:error, "elasticsearch is not running"}
+    end
+  end
+
   def update_project(type, params, org_id) do
     update = fn ->
       post("#{type}/_doc/#{params.id}?routing=#{org_id}",

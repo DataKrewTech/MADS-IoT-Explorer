@@ -3,6 +3,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
   alias AcqdatApiWeb.EntityManagement.AssetView
   alias AcqdatApiWeb.EntityManagement.SensorView
   alias AcqdatApiWeb.EntityManagement.ProjectView
+  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.Model.EntityManagement.Project
 
   def render("project.json", %{project: project}) do
     params =
@@ -141,24 +143,32 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      projects: render_many(hits.hits, ProjectView, "source.json")
+      projects: render_many(hits.hits, ProjectView, "source.json"),
+      total_entries: ElasticSearch.find_total_counts("org")
     }
   end
 
   def render("source.json", %{project: %{_source: hits}}) do
+    project = Project.get_for_view(hits.id)
+
     %{
       type: "Project",
-      id: hits.id,
-      name: hits.name,
-      archived: hits.archived,
-      slug: hits.slug,
-      description: hits.description,
-      version: hits.version,
-      location: hits.location,
-      avatar: hits.avatar,
-      metadata: render_many(hits.metadata, ProjectView, "metadata.json"),
-      start_date: hits.start_date,
-      creator_id: hits.creator_id
+      id: project.id,
+      name: project.name,
+      archived: project.archived,
+      slug: project.slug,
+      description: project.description,
+      version: project.version,
+      location: project.location,
+      org_id: project.org_id,
+      avatar: project.avatar,
+      metadata: render_many(project.metadata, ProjectView, "metadata.json"),
+      start_date: project.start_date,
+      creator_id: project.creator_id,
+      creator: render_one(project.creator, ProjectView, "user.json"),
+      created_at: project.inserted_at,
+      leads: render_many(project.leads, ProjectView, "user.json"),
+      users: render_many(project.users, ProjectView, "user.json")
     }
   end
 end

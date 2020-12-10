@@ -70,7 +70,8 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       Project.delete_index()
 
       assert result == %{
-               "projects" => []
+               "projects" => [],
+               "total_entries" => 1
              }
     end
   end

@@ -44,6 +44,16 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end
   end
 
+  def get_for_view(id) when is_integer(id) do
+    case Repo.get(Project, id) do
+      nil ->
+        {:error, "not found"}
+
+      project ->
+        project |> Repo.preload([:leads, :users, :creator])
+    end
+  end
+
   def update_version(%Project{} = project) do
     changeset = Project.update_changeset(project, %{version: Decimal.add(project.version, "0.1")})
     Repo.update(changeset)
