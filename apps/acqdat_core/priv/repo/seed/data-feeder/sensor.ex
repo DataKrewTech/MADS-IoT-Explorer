@@ -45,6 +45,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
       uuid: params.uuid,
       project_id: params.project_id,
       org_id: params.org_id,
+      description: params.description,
       sensor_type_present: params.sensor_type_present,
       sensor_type_uuid: params.sensor_type_uuid,
       metadata: params.metadata,

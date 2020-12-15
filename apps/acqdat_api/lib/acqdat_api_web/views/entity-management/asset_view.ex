@@ -70,7 +70,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
   def render("hits.json", %{hits: hits}) do
     %{
       assets: render_many(hits.hits, AssetView, "source.json"),
-      total_entries: ElasticSearch.find_total_counts("assets")
+      total_entries: length(hits.hits)
     }
   end
 
