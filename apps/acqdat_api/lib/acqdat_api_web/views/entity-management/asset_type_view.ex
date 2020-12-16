@@ -53,7 +53,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeView do
   def render("hits.json", %{hits: hits}) do
     %{
       asset_types: render_many(hits.hits, AssetTypeView, "source.json"),
-      total_entries: length(hits.hits)
+      total_entries: hits.total.value
     }
   end
 
