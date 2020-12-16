@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.EntityManagement.{SensorView, SensorTypeView}
   alias AcqdatApiWeb.IotManager.GatewayView
+  alias AcqdatCore.Model.EntityManagement.Sensor
 
   def render("sensor.json", %{sensor: sensor}) do
     %{
@@ -117,11 +118,14 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      sensors: render_many(hits.hits, SensorView, "source.json")
+      sensors: render_many(hits.hits, SensorView, "source.json"),
+      total_entries: hits.total.value
     }
   end
 
   def render("source.json", %{sensor: %{_source: hits}}) do
+    hits = Sensor.get_for_view(hits.id)
+
     %{
       id: hits.id,
       name: hits.name,
@@ -133,6 +137,8 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       gateway_id: hits.gateway_id,
       parent_id: hits.parent_id,
       parent_type: hits.parent_type,
+      sensor_type: render_one(hits.sensor_type, SensorTypeView, "sensor_type.json"),
+      description: hits.description,
       sensor_type_id: hits.sensor_type_id
     }
   end

@@ -759,6 +759,7 @@ defmodule AcqdatApi.ElasticSearch do
       org_id: params.org_id,
       gateway_id: params.gateway_id,
       parent_id: params.parent_id,
+      description: params.description,
       parent_type: params.parent_type,
       sensor_type_id: params.sensor_type_id
     )

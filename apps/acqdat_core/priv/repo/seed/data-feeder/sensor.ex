@@ -33,6 +33,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
       gateway_id: params.gateway_id,
       parent_id: params.parent_id,
       parent_type: params.parent_type,
+      description: params.description,
       sensor_type_id: params.sensor_type_id
       )
   end
