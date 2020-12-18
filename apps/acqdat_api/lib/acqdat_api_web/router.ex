@@ -165,7 +165,7 @@ defmodule AcqdatApiWeb.Router do
       get "/sensor_type/search", SensorTypeController, :search_sensor_type,
         as: :search_sensor_type
 
-      get "/asset_type/search", AssetTypeController, :search_asset_type, as: :search_asset_type
+      get "/asset_types/search", AssetTypeController, :search_asset_type, as: :search_asset_type
 
       resources "/assets", AssetController,
         only: [:create, :show, :update, :delete, :index],
