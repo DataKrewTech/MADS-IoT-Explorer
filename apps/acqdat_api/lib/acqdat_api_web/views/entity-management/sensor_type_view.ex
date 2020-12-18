@@ -50,7 +50,8 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      sensor_types: render_many(hits.hits, SensorTypeView, "source.json")
+      sensor_types: render_many(hits.hits, SensorTypeView, "source.json"),
+      total_entries: hits.total.value
     }
   end
 
@@ -60,6 +61,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeView do
       name: hits.name,
       slug: hits.slug,
       uuid: hits.uuid,
+      description: hits.description,
       project_id: hits.project_id,
       org_id: hits.org_id,
       generated_by: hits.generated_by,

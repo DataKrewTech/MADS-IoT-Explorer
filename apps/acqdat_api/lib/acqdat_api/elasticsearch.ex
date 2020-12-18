@@ -787,6 +787,7 @@ defmodule AcqdatApi.ElasticSearch do
       name: params.name,
       slug: params.slug,
       uuid: params.uuid,
+      description: params.description,
       project_id: params.project_id,
       org_id: params.org_id,
       generated_by: params.generated_by,
