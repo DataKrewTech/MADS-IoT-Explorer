@@ -47,7 +47,7 @@ defmodule AcqdatApiWeb.Router do
 
   scope "/", AcqdatApiWeb do
     pipe_through(:api)
-
+    post "/verify-token", RoleManagement.InvitationController, :validate_token
     post("/sign-in", AuthController, :sign_in)
     post("/forgot_password", RoleManagement.ForgotPasswordController, :forgot_password)
     post("/orgs/:org_id/users", RoleManagement.UserController, :create)

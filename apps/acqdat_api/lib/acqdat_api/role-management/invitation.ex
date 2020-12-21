@@ -8,6 +8,8 @@ defmodule AcqdatApi.RoleManagement.Invitation do
   alias AcqdatCore.Mailer
   alias AcqdatCore.Repo
 
+  defdelegate get_by_token(token), to: InvitationModel
+
   def create(attrs, current_user) do
     invitation_details = invitation_details_attrs(attrs, current_user)
 

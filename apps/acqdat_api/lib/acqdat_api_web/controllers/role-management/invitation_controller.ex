@@ -28,6 +28,27 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
     end
   end
 
+  def validate_token(conn, %{"token" => token}) do
+    case conn.status do
+      nil ->
+        case Invitation.get_by_token(token) do
+          nil ->
+            conn
+            |> put_status(401)
+            |> json(%{is_valid: false})
+
+          _token_details ->
+            conn
+            |> put_status(200)
+            |> json(%{is_valid: true})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "User already exists with this email address")
+    end
+  end
+
   def create(conn, %{"invitation" => invite_attrs, "org_id" => org_id}) do
     case conn.status do
       nil ->
