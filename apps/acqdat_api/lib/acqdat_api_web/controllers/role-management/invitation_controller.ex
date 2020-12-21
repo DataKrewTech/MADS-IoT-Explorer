@@ -34,7 +34,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
         case Invitation.get_by_token(token) do
           nil ->
             conn
-            |> put_status(401)
+            |> put_status(200)
             |> json(%{is_valid: false})
 
           _token_details ->
