@@ -90,15 +90,35 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   def search_gateways(%{"project_id" => project_id, "label" => label} = params) do
-    case do_gateway_search(project_id, label, params) do
-      {:ok, _return_code, hits} ->
-        {:ok, hits.hits}
+    case is_nil(String.first(label)) do
+      false ->
+        case do_gateway_search(project_id, label, params) do
+          {:ok, _return_code, hits} ->
+            {:ok, hits.hits}
 
-      {:error, _return_code, hits} ->
-        {:error, hits}
+          {:error, _return_code, hits} ->
+            {:error, hits}
 
-      :error ->
-        {:error, "elasticsearch is not running"}
+          :error ->
+            {:error, "elasticsearch is not running"}
+        end
+
+      true ->
+        query =
+          case Map.has_key?(params, "page_size") do
+            true ->
+              %{"page_size" => page_size, "from" => from, "project_id" => project_id} = params
+              gateway_indexing_query(project_id, from, page_size)
+
+            false ->
+              %{"project_id" => project_id} = params
+              gateway_indexing_query(project_id)
+          end
+
+        case Tirexs.Query.create_resource(query) do
+          {:ok, _return_code, hits} -> {:ok, hits.hits}
+          :error -> {:error, "elasticsearch is not running"}
+        end
     end
   end
 
@@ -494,8 +514,24 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "gateway", id: project_id]]],
-            filter: [term: ["name.keyword": "#{label}"]]
+            must: [
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ]
       ],
@@ -508,8 +544,24 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "gateway", id: project_id]]],
-            filter: [term: ["name.keyword": "#{label}"]]
+            must: [
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ],
         size: page_size,
@@ -580,7 +632,16 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "gateway", id: project_id]]]
+            must: [
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ],
         size: size,
@@ -595,7 +656,16 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "gateway", id: project_id]]]
+            must: [
+              [
+                match: [
+                  project_id: [
+                    query: project_id,
+                    _name: "secondQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ]
       ],
@@ -676,6 +746,8 @@ defmodule AcqdatApi.ElasticSearch do
       name: params.name,
       uuid: params.uuid,
       slug: params.slug,
+      org_id: params.org_id,
+      project_id: params.project_id,
       parent_type: params.parent_type,
       parent_id: params.parent_id,
       description: params.description,

@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
   alias AcqdatApiWeb.RoleManagement.RoleView
+  alias AcqdatCore.Model.RoleManagement.User, as: UserModel
 
   def render("user_details.json", %{user_details: user_details}) do
     %{
@@ -89,7 +90,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
 
   def render("hits.json", %{hits: hits}) do
     %{
-      users: render_many(hits.hits, UserView, "source.json")
+      users: render_many(hits.hits, UserView, "source.json"),
+      total_entries: hits.total.value
     }
   end
 
@@ -104,17 +106,22 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   end
 
   def render("source.json", %{user: %{_source: hits}}) do
+    user_details = UserModel.get_for_view(hits.id)
+
     %{
-      id: hits.id,
-      first_name: hits.first_name,
-      last_name: hits.last_name,
-      email: hits.email,
-      org_id: hits.org_id,
-      role_id: hits.role_id,
-      role: render_one(preload_role(hits.role_id), RoleView, "role.json"),
+      id: user_details.id,
+      email: user_details.email,
+      first_name: user_details.first_name,
+      last_name: user_details.last_name,
+      image: user_details.avatar,
+      is_invited: user_details.is_invited,
+      phone_number: user_details.phone_number,
+      role_id: user_details.role_id,
+      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
+      role: render_one(user_details.role, RoleView, "role.json"),
       org:
         render_one(
-          preload_org(hits.org_id),
+          user_details.org,
           OrganisationView,
           "org.json"
         )

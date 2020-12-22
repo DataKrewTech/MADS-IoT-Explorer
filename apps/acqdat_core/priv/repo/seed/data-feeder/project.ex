@@ -90,6 +90,8 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
       slug: params.slug,
       parent_type: params.parent_type,
       parent_id: params.parent_id,
+      org_id: params.org_id,
+      project_id: params.project_id,
       description: params.description,
       access_token: params.access_token,
       serializer: params.serializer,
