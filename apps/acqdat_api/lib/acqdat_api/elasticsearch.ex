@@ -123,15 +123,35 @@ defmodule AcqdatApi.ElasticSearch do
   end
 
   def search_projects(%{"org_id" => org_id, "label" => label} = params) do
-    case do_project_search(org_id, label, params) do
-      {:ok, _return_code, hits} ->
-        {:ok, hits.hits}
+    case is_nil(String.first(label)) do
+      false ->
+        case do_project_search(org_id, label, params) do
+          {:ok, _return_code, hits} ->
+            {:ok, hits.hits}
 
-      {:error, _return_code, hits} ->
-        {:error, hits}
+          {:error, _return_code, hits} ->
+            {:error, hits}
 
-      :error ->
-        {:error, "elasticsearch is not running"}
+          :error ->
+            {:error, "elasticsearch is not running"}
+        end
+
+      true ->
+        query =
+          case Map.has_key?(params, "page_size") do
+            true ->
+              %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
+              project_indexing_query(org_id, from, page_size)
+
+            false ->
+              %{"org_id" => org_id} = params
+              project_indexing_query(org_id)
+          end
+
+        case Tirexs.Query.create_resource(query) do
+          {:ok, _return_code, hits} -> {:ok, hits.hits}
+          :error -> {:error, "elasticsearch is not running"}
+        end
     end
   end
 
@@ -484,8 +504,17 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "project", id: org_id]]],
-            filter: [term: ["name.keyword": "#{label}"]]
+            must: [
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [parent_id: [type: "project", id: org_id]]
+            ]
           ]
         ]
       ],
@@ -498,8 +527,17 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "project", id: org_id]]],
-            filter: [term: ["name.keyword": "#{label}"]]
+            must: [
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ],
+              [parent_id: [type: "project", id: org_id]]
+            ]
           ]
         ],
         size: page_size,
