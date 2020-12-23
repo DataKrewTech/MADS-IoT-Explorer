@@ -370,7 +370,7 @@ defmodule AcqdatApi.ElasticSearch do
               [parent_id: [type: "user", id: org_id]],
               [
                 match_phrase_prefix: [
-                  name: [
+                  first_name: [
                     query: "#{label}",
                     _name: "firstQuery"
                   ]
@@ -393,7 +393,7 @@ defmodule AcqdatApi.ElasticSearch do
               [parent_id: [type: "user", id: org_id]],
               [
                 match_phrase_prefix: [
-                  name: [
+                  first_name: [
                     query: "#{label}",
                     _name: "firstQuery"
                   ]
