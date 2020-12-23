@@ -57,12 +57,16 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
                    "first_name" => user.first_name,
                    "id" => user.id,
                    "last_name" => user.last_name,
-                   "org_id" => user.org_id,
                    "role_id" => user.role_id,
                    "org" => organisation,
-                   "role" => role
+                   "role" => role,
+                   "image" => nil,
+                   "is_invited" => false,
+                   "phone_number" => nil,
+                   "user_setting" => nil
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -80,7 +84,8 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       result = conn |> json_response(200)
 
       assert result == %{
-               "users" => []
+               "users" => [],
+               "total_entries" => 0
              }
     end
   end
@@ -175,12 +180,16 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
                    "first_name" => "Random User",
                    "id" => user.id,
                    "last_name" => user.last_name,
-                   "org_id" => user.org_id,
                    "role_id" => user.role_id,
                    "org" => organisation,
-                   "role" => role
+                   "role" => role,
+                   "image" => nil,
+                   "is_invited" => false,
+                   "phone_number" => nil,
+                   "user_setting" => nil
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -202,7 +211,8 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       User.delete_index()
 
       assert result == %{
-               "users" => []
+               "users" => [],
+               "total_entries" => 0
              }
     end
 
@@ -238,12 +248,16 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
                    "first_name" => user2.first_name,
                    "id" => user2.id,
                    "last_name" => user2.last_name,
-                   "org_id" => user2.org_id,
                    "role_id" => user2.role_id,
                    "org" => organisation,
-                   "role" => role
+                   "role" => role,
+                   "image" => nil,
+                   "is_invited" => false,
+                   "phone_number" => nil,
+                   "user_setting" => nil
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
   end

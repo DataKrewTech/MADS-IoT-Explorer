@@ -94,7 +94,8 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
       AssetType.delete_index()
 
       assert result == %{
-               "asset_types" => []
+               "asset_types" => [],
+               "total_entries" => 0
              }
     end
   end
@@ -236,7 +237,8 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
       AssetType.delete_index()
 
       assert result == %{
-               "asset_types" => []
+               "asset_types" => [],
+               "total_entries" => 0
              }
     end
   end

@@ -49,6 +49,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       result = conn |> json_response(200)
 
       Asset.delete_index()
+      asset_type = asset.asset_type
 
       assert result == %{
                "assets" => [
@@ -56,10 +57,28 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
                    "id" => asset.id,
                    "name" => asset.name,
                    "properties" => asset.properties,
-                   "slug" => asset.slug,
-                   "uuid" => asset.uuid
+                   "asset_type_id" => asset.asset_type_id,
+                   "creator_id" => asset.creator_id,
+                   "description" => asset.description,
+                   "parent_id" => asset.parent_id,
+                   "type" => "Asset",
+                   "asset_type" => %{
+                     "description" => asset_type.description,
+                     "id" => asset_type.id,
+                     "metadata" => convert_list_of_struct_to_list_of_map(asset_type.metadata),
+                     "name" => asset_type.name,
+                     "org_id" => asset_type.org_id,
+                     "parameters" => convert_list_of_struct_to_list_of_map(asset_type.parameters),
+                     "project_id" => asset_type.project_id,
+                     "sensor_type_present" => asset_type.sensor_type_present,
+                     "sensor_type_uuid" => asset_type.sensor_type_uuid,
+                     "slug" => asset_type.slug,
+                     "uuid" => asset_type.uuid
+                   },
+                   "metadata" => convert_list_of_struct_to_list_of_map(asset.metadata)
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -83,7 +102,8 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       Asset.delete_index()
 
       assert result == %{
-               "assets" => []
+               "assets" => [],
+               "total_entries" => 0
              }
     end
   end
@@ -161,6 +181,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       result = conn |> json_response(200)
 
       Asset.delete_index()
+      asset_type = asset.asset_type
 
       assert result == %{
                "assets" => [
@@ -168,10 +189,28 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
                    "id" => asset.id,
                    "name" => "Testing Asset",
                    "properties" => asset.properties,
-                   "slug" => asset.slug,
-                   "uuid" => asset.uuid
+                   "asset_type_id" => asset.asset_type_id,
+                   "creator_id" => asset.creator_id,
+                   "description" => asset.description,
+                   "parent_id" => asset.parent_id,
+                   "type" => "Asset",
+                   "asset_type" => %{
+                     "description" => asset_type.description,
+                     "id" => asset_type.id,
+                     "metadata" => convert_list_of_struct_to_list_of_map(asset_type.metadata),
+                     "name" => asset_type.name,
+                     "org_id" => asset_type.org_id,
+                     "parameters" => convert_list_of_struct_to_list_of_map(asset_type.parameters),
+                     "project_id" => asset_type.project_id,
+                     "sensor_type_present" => asset_type.sensor_type_present,
+                     "sensor_type_uuid" => asset_type.sensor_type_uuid,
+                     "slug" => asset_type.slug,
+                     "uuid" => asset_type.uuid
+                   },
+                   "metadata" => convert_list_of_struct_to_list_of_map(asset.metadata)
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -199,8 +238,19 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       Asset.delete_index()
 
       assert result == %{
-               "assets" => []
+               "assets" => [],
+               "total_entries" => 0
              }
     end
+  end
+
+  defp convert_list_of_struct_to_list_of_map(params) do
+    Enum.reduce(params, [], fn x, acc ->
+      acc ++ [convert_atom_key_to_string(Map.from_struct(x))]
+    end)
+  end
+
+  defp convert_atom_key_to_string(params) do
+    for {key, val} <- params, into: %{}, do: {Atom.to_string(key), val}
   end
 end

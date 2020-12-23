@@ -94,7 +94,8 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       SensorType.delete_index()
 
       assert result == %{
-               "sensor_types" => []
+               "sensor_types" => [],
+               "total_entries" => 0
              }
     end
   end
@@ -236,7 +237,8 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       SensorType.delete_index()
 
       assert result == %{
-               "sensor_types" => []
+               "sensor_types" => [],
+               "total_entries" => 0
              }
     end
   end

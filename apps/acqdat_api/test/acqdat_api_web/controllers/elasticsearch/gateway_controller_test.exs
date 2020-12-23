@@ -85,7 +85,8 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       Gateway.delete_index()
 
       assert result == %{
-               "gateways" => []
+               "gateways" => [],
+               "total_entries" => 0
              }
     end
   end

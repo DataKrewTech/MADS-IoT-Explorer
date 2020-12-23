@@ -49,6 +49,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
       result = conn |> json_response(200)
 
       Sensor.delete_index()
+      sensor_type = sensor.sensor_type
 
       assert result == %{
                "sensors" => [
@@ -63,9 +64,24 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
                    "project_id" => sensor.project_id,
                    "sensor_type_id" => sensor.sensor_type_id,
                    "slug" => sensor.slug,
-                   "uuid" => sensor.uuid
+                   "uuid" => sensor.uuid,
+                   "description" => sensor.description,
+                   "sensor_type" => %{
+                     "description" => sensor_type.description,
+                     "generated_by" => "user",
+                     "id" => sensor_type.id,
+                     "metadata" => convert_list_of_struct_to_list_of_map(sensor_type.metadata),
+                     "name" => sensor_type.name,
+                     "org_id" => sensor_type.org_id,
+                     "parameters" =>
+                       convert_list_of_struct_to_list_of_map(sensor_type.parameters),
+                     "project_id" => sensor_type.project_id,
+                     "slug" => sensor_type.slug,
+                     "uuid" => sensor_type.uuid
+                   }
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -89,7 +105,8 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
       Sensor.delete_index()
 
       assert result == %{
-               "sensors" => []
+               "sensors" => [],
+               "total_entries" => 0
              }
     end
   end
@@ -171,6 +188,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
       result = conn |> json_response(200)
 
       Sensor.delete_index()
+      sensor_type = sensor.sensor_type
 
       assert result == %{
                "sensors" => [
@@ -184,10 +202,25 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
                    "parent_type" => sensor.parent_type,
                    "project_id" => sensor.project_id,
                    "sensor_type_id" => sensor.sensor_type_id,
+                   "description" => sensor.description,
+                   "sensor_type" => %{
+                     "description" => sensor_type.description,
+                     "generated_by" => "user",
+                     "id" => sensor_type.id,
+                     "metadata" => convert_list_of_struct_to_list_of_map(sensor_type.metadata),
+                     "name" => sensor_type.name,
+                     "org_id" => sensor_type.org_id,
+                     "parameters" =>
+                       convert_list_of_struct_to_list_of_map(sensor_type.parameters),
+                     "project_id" => sensor_type.project_id,
+                     "slug" => sensor_type.slug,
+                     "uuid" => sensor_type.uuid
+                   },
                    "slug" => sensor.slug,
                    "uuid" => sensor.uuid
                  }
-               ]
+               ],
+               "total_entries" => 1
              }
     end
 
@@ -218,8 +251,19 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
       Sensor.delete_index()
 
       assert result == %{
-               "sensors" => []
+               "sensors" => [],
+               "total_entries" => 0
              }
     end
+  end
+
+  defp convert_list_of_struct_to_list_of_map(params) do
+    Enum.reduce(params, [], fn x, acc ->
+      acc ++ [convert_atom_key_to_string(Map.from_struct(x))]
+    end)
+  end
+
+  defp convert_atom_key_to_string(params) do
+    for {key, val} <- params, into: %{}, do: {Atom.to_string(key), val}
   end
 end
