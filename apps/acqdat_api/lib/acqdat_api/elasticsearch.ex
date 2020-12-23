@@ -366,8 +366,17 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "user", id: org_id]]],
-            filter: [term: ["first_name.keyword": "#{label}"]]
+            must: [
+              [parent_id: [type: "user", id: org_id]],
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ]
       ],
@@ -380,8 +389,17 @@ defmodule AcqdatApi.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "user", id: org_id]]],
-            filter: [term: ["first_name.keyword": "#{label}"]]
+            must: [
+              [parent_id: [type: "user", id: org_id]],
+              [
+                match_phrase_prefix: [
+                  name: [
+                    query: "#{label}",
+                    _name: "firstQuery"
+                  ]
+                ]
+              ]
+            ]
           ]
         ],
         size: page_size,
