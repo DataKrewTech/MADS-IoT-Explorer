@@ -8,8 +8,19 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
   describe "search_widgets/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       widget = insert(:widget)
+      [widget: widget] = Widget.seed_widget(widget)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Widget.delete_index()
+      end)
+
+      [widget: widget]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, widget: widget} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -25,19 +36,13 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn} do
-      widget = insert(:widget)
-      [widget: widget] = Widget.seed_widget(widget)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, widget: widget} do
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
           "label" => widget.label
         })
 
       result = conn |> json_response(200)
-
-      Widget.delete_index()
 
       assert result == %{
                "widgets" => [
@@ -53,17 +58,12 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     end
 
     test "search with no hits", %{conn: conn, user: user} do
-      widget = insert(:widget)
-      Widget.seed_widget(widget)
-      :timer.sleep(2500)
-
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
           "label" => user.first_name
         })
 
       result = conn |> json_response(200)
-      Widget.delete_index()
 
       assert result == %{
                "widgets" => []
@@ -73,6 +73,17 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
   describe "index widgets/2" do
     setup :setup_conn
+
+    setup do
+      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Widget.delete_index()
+      end)
+
+      [widget1: widget1, widget2: widget2, widget3: widget3]
+    end
 
     test "fails if authorization header not found", %{conn: conn} do
       bad_access_token = "avcbd123489u"
@@ -91,10 +102,12 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "index with valid params and multiple entries", %{conn: conn} do
-      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
-      :timer.sleep(2500)
-
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      widget1: widget1,
+      widget2: widget2,
+      widget3: widget3
+    } do
       conn =
         get(conn, Routes.widget_path(conn, :index), %{
           "from" => 0,
@@ -103,7 +116,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
       %{"widgets" => widgets} = conn |> json_response(200)
 
-      Widget.delete_index()
       assert length(widgets) == 3
       [rwidget1, rwidget2, rwidget3] = widgets
       assert rwidget1["id"] == widget1.id
@@ -115,9 +127,18 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
   describe "widget type dependency/2" do
     setup :setup_conn
 
-    test "if widget type is deleted", %{conn: conn} do
-      [widget1, _widget2, _widget3] = Widget.seed_multiple_widget()
+    setup do
+      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
       :timer.sleep(2500)
+
+      on_exit(fn ->
+        Widget.delete_index()
+      end)
+
+      [widget1: widget1, widget2: widget2, widget3: widget3]
+    end
+
+    test "if widget type is deleted", %{conn: conn, widget1: widget1} do
       conn = delete(conn, Routes.widget_type_path(conn, :delete, widget1.widget_type_id))
 
       conn =
@@ -127,7 +148,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
         })
 
       %{"widgets" => widgets} = conn |> json_response(200)
-      Widget.delete_index()
       assert length(widgets) == 2
     end
   end
@@ -135,11 +155,19 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
   describe "update and delete widgets/2" do
     setup :setup_conn
 
-    test "if widget is updated", %{conn: conn} do
+    setup do
       widget = insert(:widget)
-      Widget.seed_widget(widget)
+      [widget: widget] = Widget.seed_widget(widget)
       :timer.sleep(2500)
 
+      on_exit(fn ->
+        Widget.delete_index()
+      end)
+
+      [widget: widget]
+    end
+
+    test "if widget is updated", %{conn: conn, widget: widget} do
       conn =
         put(conn, Routes.widget_path(conn, :update, widget.id), %{
           "label" => "Update Widget"
@@ -156,17 +184,11 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
         "widgets" => [widgets]
       } = conn |> json_response(200)
 
-      Widget.delete_index()
-
       assert widgets["id"] == widget.id
       assert widgets["label"] == "Update Widget"
     end
 
-    test "if widget is deleted", %{conn: conn} do
-      widget = insert(:widget)
-      Widget.seed_widget(widget)
-      :timer.sleep(2500)
-
+    test "if widget is deleted", %{conn: conn, widget: widget} do
       conn =
         put(conn, Routes.widget_path(conn, :delete, widget.id), %{
           "label" => "Update Widget"
@@ -180,7 +202,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
         })
 
       result = conn |> json_response(200)
-      Widget.delete_index()
 
       assert result == %{
                "widgets" => []

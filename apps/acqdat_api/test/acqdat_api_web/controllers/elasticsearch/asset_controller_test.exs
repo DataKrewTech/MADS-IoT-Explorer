@@ -3,13 +3,25 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
   alias AcqdatCore.Factory.ElasticSearch.Asset
+  alias AcqdatApiWeb.ElasticSearch.AssetControllerTest
   import AcqdatCore.Support.Factory
 
   describe "search_assets/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       asset = insert(:asset)
+      Asset.seed_asset(asset)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Asset.delete_index()
+      end)
+
+      [asset: asset]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, asset: asset} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -29,11 +41,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn} do
-      asset = insert(:asset)
-      Asset.seed_asset(asset)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, asset: asset} do
       conn =
         get(
           conn,
@@ -45,7 +53,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
 
       result = conn |> json_response(200)
 
-      Asset.delete_index()
       asset_type = asset.asset_type
 
       assert result == %{
@@ -79,10 +86,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
              }
     end
 
-    test "search with no hits", %{conn: conn} do
-      asset = insert(:asset)
-      Asset.seed_asset(asset)
-      :timer.sleep(2500)
+    test "search with no hits", %{conn: conn, asset: asset} do
       project = insert(:project)
 
       conn =
@@ -96,8 +100,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
 
       result = conn |> json_response(200)
 
-      Asset.delete_index()
-
       assert result == %{
                "assets" => [],
                "total_entries" => 0
@@ -108,8 +110,19 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
   describe "index assets/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       project = insert(:project)
+      [asset1, asset2, asset3] = Asset.seed_multiple_assets(project)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Asset.delete_index()
+      end)
+
+      [asset1: asset1, asset2: asset2, asset3: asset3, project: project]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, project: project} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -126,11 +139,13 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "index with valid params and multiple entries", %{conn: conn} do
-      project = insert(:project)
-      [asset1, asset2, asset3] = Asset.seed_multiple_assets(project)
-      :timer.sleep(2500)
-
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      asset1: asset1,
+      asset2: asset2,
+      asset3: asset3,
+      project: project
+    } do
       conn =
         get(conn, Routes.assets_path(conn, :index, project.org_id, project.id), %{
           "from" => 0,
@@ -139,7 +154,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
 
       %{"assets" => assets} = conn |> json_response(200)
 
-      Asset.delete_index()
       assert length(assets) == 3
       [rasset1, rasset2, rasset3] = assets
       assert rasset1["id"] == asset1.id
@@ -151,11 +165,19 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
   describe "update and delete assets/2" do
     setup :setup_conn
 
-    test "if asset is updated", %{conn: conn} do
+    setup do
       asset = insert(:asset)
       Asset.seed_asset(asset)
       :timer.sleep(2500)
 
+      on_exit(fn ->
+        Asset.delete_index()
+      end)
+
+      [asset: asset]
+    end
+
+    test "if asset is updated", %{conn: conn, asset: asset} do
       conn =
         put(conn, Routes.assets_path(conn, :update, asset.org_id, asset.project_id, asset.id), %{
           "name" => "Testing Asset"
@@ -174,7 +196,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
 
       result = conn |> json_response(200)
 
-      Asset.delete_index()
       asset_type = asset.asset_type
 
       assert result == %{
@@ -208,11 +229,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
              }
     end
 
-    test "if asset is deleted", %{conn: conn} do
-      asset = insert(:asset)
-      Asset.seed_asset(asset)
-      :timer.sleep(2500)
-
+    test "if asset is deleted", %{conn: conn, asset: asset} do
       conn =
         delete(conn, Routes.assets_path(conn, :delete, asset.org_id, asset.project_id, asset.id))
 
@@ -228,8 +245,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetControllerTest do
         )
 
       result = conn |> json_response(200)
-
-      Asset.delete_index()
 
       assert result == %{
                "assets" => [],

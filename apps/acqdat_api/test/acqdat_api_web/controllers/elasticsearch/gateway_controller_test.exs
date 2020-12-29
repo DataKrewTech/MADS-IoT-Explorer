@@ -8,9 +8,25 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
   describe "search_gateways/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       project = insert(:project)
       gateway = insert(:gateway, project: project, org: project.org)
+      Gateway.create_index()
+      Gateway.seed_gateway(gateway)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Gateway.delete_index()
+      end)
+
+      [project: project, gateway: gateway]
+    end
+
+    test "fails if authorization header not found", %{
+      conn: conn,
+      project: project,
+      gateway: gateway
+    } do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -30,13 +46,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn} do
-      project = insert(:project)
-      gateway = insert(:gateway, project: project, org: project.org)
-      Gateway.create_index()
-      Gateway.seed_gateway(gateway)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, project: project, gateway: gateway} do
       conn =
         get(
           conn,
@@ -48,7 +58,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
 
       %{"gateways" => [rgateway]} = conn |> json_response(200)
 
-      Gateway.delete_index()
       assert rgateway["access_token"] == gateway.access_token
 
       assert rgateway["uuid"] == gateway.uuid
@@ -61,24 +70,17 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       assert rgateway["channel"] == gateway.channel
     end
 
-    test "search with no hits", %{conn: conn} do
-      project = insert(:project)
-      gateway = insert(:gateway)
-      Gateway.create_index()
-      Gateway.seed_gateway(gateway)
-      :timer.sleep(2500)
-
+    test "search with no hits", %{conn: conn, project: project} do
       conn =
         get(
           conn,
           Routes.search_gateways_path(conn, :search_gateways, project.org.id, project.id),
           %{
-            "label" => gateway.name
+            "label" => "Random Name ?"
           }
         )
 
       result = conn |> json_response(200)
-      Gateway.delete_index()
 
       assert result == %{
                "gateways" => [],
@@ -90,8 +92,20 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
   describe "index gateways/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       project = insert(:project)
+      Gateway.create_index()
+      [gateway1, gateway2, gateway3] = Gateway.seed_multiple_gateway(project)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Gateway.delete_index()
+      end)
+
+      [project: project, gateway1: gateway1, gateway2: gateway2, gateway3: gateway3]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, project: project} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -108,12 +122,13 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "index with valid params and multiple entries", %{conn: conn} do
-      project = insert(:project)
-      Gateway.create_index()
-      [gateway1, gateway2, gateway3] = Gateway.seed_multiple_gateway(project)
-      :timer.sleep(2500)
-
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      project: project,
+      gateway1: gateway1,
+      gateway2: gateway2,
+      gateway3: gateway3
+    } do
       conn =
         get(conn, Routes.gateway_path(conn, :index, project.org.id, project.id), %{
           "from" => 0,
@@ -122,7 +137,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
 
       %{"gateways" => gateways} = conn |> json_response(200)
 
-      Gateway.delete_index()
       assert length(gateways) == 3
       [rgateway1, rgateway2, rgateway3] = gateways
       assert rgateway1["id"] == gateway1.id

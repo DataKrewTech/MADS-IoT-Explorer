@@ -8,8 +8,19 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
   describe "search_sensor_type/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       sensor_type = insert(:sensor_type)
+      SensorType.seed_sensor_type(sensor_type)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        SensorType.delete_index()
+      end)
+
+      [sensor_type: sensor_type]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, sensor_type: sensor_type} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -34,11 +45,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn} do
-      sensor_type = insert(:sensor_type)
-      SensorType.seed_sensor_type(sensor_type)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, sensor_type: sensor_type} do
       conn =
         get(
           conn,
@@ -59,7 +66,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
         ]
       } = conn |> json_response(200)
 
-      SensorType.delete_index()
       assert rsensor_type["id"] == sensor_type.id
       assert rsensor_type["project_id"] == sensor_type.project_id
       assert rsensor_type["slug"] == sensor_type.slug
@@ -67,11 +73,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       assert rsensor_type["name"] == sensor_type.name
     end
 
-    test "search with no hits", %{conn: conn} do
-      sensor_type = insert(:sensor_type)
-      SensorType.seed_sensor_type(sensor_type)
-      :timer.sleep(2500)
-
+    test "search with no hits", %{conn: conn, sensor_type: sensor_type} do
       conn =
         get(
           conn,
@@ -88,8 +90,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
 
       result = conn |> json_response(200)
 
-      SensorType.delete_index()
-
       assert result == %{
                "sensor_types" => [],
                "total_entries" => 0
@@ -100,8 +100,24 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
   describe "index sensor types/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn} do
+    setup do
       project = insert(:project)
+      [sensor_type1, sensor_type2, sensor_type3] = SensorType.seed_multiple_sensor_type(project)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        SensorType.delete_index()
+      end)
+
+      [
+        sensor_type1: sensor_type1,
+        sensor_type2: sensor_type2,
+        sensor_type3: sensor_type3,
+        project: project
+      ]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, project: project} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -118,11 +134,13 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "index with valid params and multiple entries", %{conn: conn} do
-      project = insert(:project)
-      [sensor_type1, sensor_type2, sensor_type3] = SensorType.seed_multiple_sensor_type(project)
-      :timer.sleep(2500)
-
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      sensor_type1: sensor_type1,
+      sensor_type2: sensor_type2,
+      sensor_type3: sensor_type3,
+      project: project
+    } do
       conn =
         get(conn, Routes.sensor_type_path(conn, :index, project.org_id, project.id), %{
           "from" => 0,
@@ -131,7 +149,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
 
       %{"sensor_types" => sensor_types} = conn |> json_response(200)
 
-      SensorType.delete_index()
       assert length(sensor_types) == 3
       [rsensor_type1, rsensor_type2, rsensor_type3] = sensor_types
       assert rsensor_type1["id"] == sensor_type1.id
@@ -143,11 +160,19 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
   describe "update and delete sensor type/2" do
     setup :setup_conn
 
-    test "if sensor type is updated", %{conn: conn} do
+    setup do
       sensor_type = insert(:sensor_type)
       SensorType.seed_sensor_type(sensor_type)
       :timer.sleep(2500)
 
+      on_exit(fn ->
+        SensorType.delete_index()
+      end)
+
+      [sensor_type: sensor_type]
+    end
+
+    test "if sensor type is updated", %{conn: conn, sensor_type: sensor_type} do
       conn =
         put(
           conn,
@@ -185,7 +210,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
         ]
       } = conn |> json_response(200)
 
-      SensorType.delete_index()
       assert rsensor_type["id"] == sensor_type.id
       assert rsensor_type["project_id"] == sensor_type.project_id
       assert rsensor_type["slug"] == sensor_type.slug
@@ -193,11 +217,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
       assert rsensor_type["name"] == "Random Name ?"
     end
 
-    test "if sensor type is deleted", %{conn: conn} do
-      sensor_type = insert(:sensor_type)
-      SensorType.seed_sensor_type(sensor_type)
-      :timer.sleep(2500)
-
+    test "if sensor type is deleted", %{conn: conn, sensor_type: sensor_type} do
       conn =
         delete(
           conn,
@@ -227,8 +247,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
         )
 
       result = conn |> json_response(200)
-
-      SensorType.delete_index()
 
       assert result == %{
                "sensor_types" => [],

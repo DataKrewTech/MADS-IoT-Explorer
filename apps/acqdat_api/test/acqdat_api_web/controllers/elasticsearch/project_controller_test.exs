@@ -8,8 +8,20 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
   describe "search_projects/2" do
     setup :setup_conn
 
-    test "fails if authorization header not found", %{conn: conn, org: org} do
-      project = insert(:project, org: org)
+    setup do
+      project = insert(:project)
+      Project.create_index()
+      Project.seed_project(project)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Project.delete_index()
+      end)
+
+      [project: project]
+    end
+
+    test "fails if authorization header not found", %{conn: conn, project: project} do
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -17,7 +29,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
       conn =
-        get(conn, Routes.search_projects_path(conn, :search_projects, org.id), %{
+        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
           "label" => project.name
         })
 
@@ -25,20 +37,14 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn, org: org} do
-      project = insert(:project, org: org)
-      Project.create_index()
-      Project.seed_project(project)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, project: project} do
       conn =
-        get(conn, Routes.search_projects_path(conn, :search_projects, org.id), %{
+        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
           "label" => project.name
         })
 
       %{"projects" => [rproject]} = conn |> json_response(200)
 
-      Project.delete_index()
       assert rproject["archived"] == project.archived
 
       assert rproject["creator_id"] == project.creator_id
@@ -51,19 +57,13 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       assert rproject["start_date"] == project.start_date
     end
 
-    test "search with no hits", %{conn: conn, org: org} do
-      project = insert(:project)
-      Project.create_index()
-      Project.seed_project(project)
-      :timer.sleep(2500)
-
+    test "search with no hits", %{conn: conn, project: project} do
       conn =
-        get(conn, Routes.search_projects_path(conn, :search_projects, org.id), %{
-          "label" => project.name
+        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
+          "label" => "Random Name ?"
         })
 
       result = conn |> json_response(200)
-      Project.delete_index()
 
       assert result == %{
                "projects" => [],
@@ -74,6 +74,19 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
 
   describe "index projects/2" do
     setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      Project.create_index()
+      [project1, project2, project3] = Project.seed_multiple_project(org)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Project.delete_index()
+      end)
+
+      [project1: project1, project2: project2, project3: project3]
+    end
 
     test "fails if authorization header not found", %{conn: conn, org: org} do
       bad_access_token = "avcbd123489u"
@@ -92,20 +105,20 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "index with valid params and multiple entries", %{conn: conn, org: org} do
-      Project.create_index()
-      [project1, project2, project3] = Project.seed_multiple_project(org)
-      :timer.sleep(2500)
-
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      project1: project1,
+      project2: project2,
+      project3: project3
+    } do
       conn =
-        get(conn, Routes.project_path(conn, :index, org.id), %{
+        get(conn, Routes.project_path(conn, :index, project1.org.id), %{
           "from" => 0,
           "page_size" => 3
         })
 
       %{"projects" => projects} = conn |> json_response(200)
 
-      Project.delete_index()
       assert length(projects) == 3
       [rproject1, rproject2, rproject3] = projects
       assert rproject1["id"] == project1.id
