@@ -11,9 +11,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
       gateway = insert(:gateway, project: project, org: project.org)
-      Gateway.create_index()
-      Gateway.seed_gateway(gateway)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -30,7 +27,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
         )
 
       result = conn |> json_response(403)
-      Gateway.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -96,9 +92,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
-      Gateway.create_index()
-      Gateway.seed_multiple_gateway(project)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -112,7 +105,6 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
         })
 
       result = conn |> json_response(403)
-      Gateway.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 

@@ -9,9 +9,6 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     setup :setup_conn
 
     test "fails if authorization header not found", %{conn: conn, user: user} do
-      User.create_index()
-      User.seed_user(user)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
       org = insert(:organisation)
 
@@ -25,7 +22,6 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
         })
 
       result = conn |> json_response(403)
-      User.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -94,9 +90,6 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     setup :setup_conn
 
     test "fails if authorization header not found", %{conn: conn, org: org} do
-      User.create_index()
-      User.seed_multiple_user(org)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -110,7 +103,6 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
         })
 
       result = conn |> json_response(403)
-      User.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 

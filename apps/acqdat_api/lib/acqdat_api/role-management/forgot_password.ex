@@ -23,6 +23,15 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
     check_user(UserModel.get_by_email(email))
   end
 
+  def email(url, user) do
+    new_email()
+    |> from(@from_address)
+    |> to(user.email)
+    |> subject(@subject)
+    |> put_html_layout({AcqdatCore.EmailView, "email.html"})
+    |> render("forgot_password.html", user: user, url: url)
+  end
+
   defp check_user({:ok, user}) do
     token = generate_token(get(user.id))
 
@@ -81,14 +90,5 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
   defp send_email(url, user) do
     email(url, user)
     |> Mailer.deliver_now()
-  end
-
-  def email(url, user) do
-    new_email()
-    |> from(@from_address)
-    |> to(user.email)
-    |> subject(@subject)
-    |> put_html_layout({AcqdatCore.EmailView, "email.html"})
-    |> render("forgot_password.html", user: user, url: url)
   end
 end

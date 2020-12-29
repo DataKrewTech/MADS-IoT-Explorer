@@ -47,24 +47,6 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     end
   end
 
-  # def index(conn, params) do
-  #   changeset = verify_index_params(params)
-
-  #   case conn.status do
-  #     nil ->
-  #       {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-  #       {:list, gateway} = {:list, Gateway.get_all(data, [:org, :project, :sensors])}
-
-  #       conn
-  #       |> put_status(200)
-  #       |> render("index.json", gateway)
-
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
-
   def index(conn, params) do
     case conn.status do
       nil ->

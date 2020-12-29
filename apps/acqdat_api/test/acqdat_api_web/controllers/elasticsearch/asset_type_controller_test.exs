@@ -10,8 +10,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       asset_type = insert(:asset_type)
-      AssetType.seed_asset_type(asset_type)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -33,7 +31,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
         )
 
       result = conn |> json_response(403)
-      AssetType.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -105,8 +102,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
-      AssetType.seed_multiple_assets_type(project)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -120,7 +115,6 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
         })
 
       result = conn |> json_response(403)
-      AssetType.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 

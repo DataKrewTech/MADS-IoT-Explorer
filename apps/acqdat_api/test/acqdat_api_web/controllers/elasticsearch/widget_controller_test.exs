@@ -10,8 +10,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       widget = insert(:widget)
-      [widget: widget] = Widget.seed_widget(widget)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -24,7 +22,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
         })
 
       result = conn |> json_response(403)
-      Widget.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -78,8 +75,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup :setup_conn
 
     test "fails if authorization header not found", %{conn: conn} do
-      Widget.seed_multiple_widget()
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -93,7 +88,6 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
         })
 
       result = conn |> json_response(403)
-      Widget.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 

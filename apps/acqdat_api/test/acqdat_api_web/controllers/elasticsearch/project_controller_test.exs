@@ -10,9 +10,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
 
     test "fails if authorization header not found", %{conn: conn, org: org} do
       project = insert(:project, org: org)
-      Project.create_index()
-      Project.seed_project(project)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -25,7 +22,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
         })
 
       result = conn |> json_response(403)
-      Project.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -80,9 +76,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     setup :setup_conn
 
     test "fails if authorization header not found", %{conn: conn, org: org} do
-      Project.create_index()
-      Project.seed_multiple_project(org)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -96,7 +89,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
         })
 
       result = conn |> json_response(403)
-      Project.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 

@@ -10,8 +10,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       sensor_type = insert(:sensor_type)
-      SensorType.seed_sensor_type(sensor_type)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -33,7 +31,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
         )
 
       result = conn |> json_response(403)
-      SensorType.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
@@ -105,8 +102,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
 
     test "fails if authorization header not found", %{conn: conn} do
       project = insert(:project)
-      SensorType.seed_multiple_sensor_type(project)
-      :timer.sleep(2500)
       bad_access_token = "avcbd123489u"
 
       conn =
@@ -120,7 +115,6 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
         })
 
       result = conn |> json_response(403)
-      SensorType.delete_index()
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
