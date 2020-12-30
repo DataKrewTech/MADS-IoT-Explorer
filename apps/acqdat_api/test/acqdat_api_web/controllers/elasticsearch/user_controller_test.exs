@@ -74,25 +74,21 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
              }
     end
 
-    # test "search with no hits in a particular organisation", %{conn: conn, user: user} do
-    #   User.create_index()
-    #   :timer.sleep(2500)
-    #   User.seed_user(user)
-    #   :timer.sleep(5000)
-    #   org = insert(:organisation)
+    test "search with no hits in a particular organisation", %{conn: conn, user: user} do
+      org = insert(:organisation)
 
-    #   conn =
-    #     get(conn, Routes.user_path(conn, :search_users, org.id), %{
-    #       "label" => user.first_name
-    #     })
+      conn =
+        get(conn, Routes.user_path(conn, :search_users, org.id), %{
+          "label" => user.first_name
+        })
 
-    #   result = conn |> json_response(200)
+      result = conn |> json_response(200)
 
-    #   assert result == %{
-    #            "users" => [],
-    #            "total_entries" => 0
-    #          }
-    # end
+      assert result == %{
+               "users" => [],
+               "total_entries" => 0
+             }
+    end
   end
 
   # describe "index users/2" do
