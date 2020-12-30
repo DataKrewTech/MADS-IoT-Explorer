@@ -7,6 +7,8 @@ defmodule AcqdatCore.Factory.ElasticSearch.User do
     put("/organisation", %{
       mappings: %{properties: %{join_field: %{type: "join", relations: %{organisation: "user"}}}}
     })
+
+    :timer.sleep(2500)
   end
 
   def seed_user(user) do
