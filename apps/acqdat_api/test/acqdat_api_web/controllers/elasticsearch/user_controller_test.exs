@@ -91,54 +91,67 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     end
   end
 
-  # describe "index users/2" do
-  #   setup :setup_conn
+  describe "index users/2" do
+    setup :setup_conn
 
-  #   test "fails if authorization header not found", %{conn: conn, org: org} do
-  #     bad_access_token = "avcbd123489u"
+    setup do
+      org = insert(:organisation)
+      User.create_index()
+      [user1, user2, user3] = User.seed_multiple_user(org, 3)
+      :timer.sleep(5000)
 
-  #     conn =
-  #       conn
-  #       |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      on_exit(fn ->
+        User.delete_index()
+      end)
 
-  #     conn =
-  #       get(conn, Routes.user_path(conn, :index, org.id), %{
-  #         "from" => 0,
-  #         "page_size" => 1
-  #       })
+      [user1: user1, user2: user2, user3: user3, new_org: org]
+    end
 
-  #     result = conn |> json_response(403)
-  #     assert result == %{"errors" => %{"message" => "Unauthorized"}}
-  #   end
+    test "fails if authorization header not found", %{conn: conn, org: org} do
+      bad_access_token = "avcbd123489u"
 
-  #   test "index with valid params and multiple entries", %{conn: conn, org: org} do
-  #     User.create_index()
-  #     :timer.sleep(2500)
-  #     [user1, user2, user3] = User.seed_multiple_user(org, 3)
-  #     :timer.sleep(5000)
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-  #     conn =
-  #       get(conn, Routes.user_path(conn, :index, user1.org_id), %{
-  #         "from" => 0,
-  #         "page_size" => 3
-  #       })
+      conn =
+        get(conn, Routes.user_path(conn, :index, org.id), %{
+          "from" => 0,
+          "page_size" => 1
+        })
 
-  #     %{"users" => users} = conn |> json_response(200)
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
 
-  #     User.delete_index()
-  #     assert length(users) == 3
-  #     [ruser1, ruser2, ruser3] = users
-  #     assert ruser1["email"] == user1.email
-  #     assert ruser1["first_name"] == user1.first_name
-  #     assert ruser1["id"] == user1.id
-  #     assert ruser2["email"] == user2.email
-  #     assert ruser2["first_name"] == user2.first_name
-  #     assert ruser2["id"] == user2.id
-  #     assert ruser3["email"] == user3.email
-  #     assert ruser3["first_name"] == user3.first_name
-  #     assert ruser3["id"] == user3.id
-  #   end
-  # end
+    test "index with valid params and multiple entries", %{
+      conn: conn,
+      user1: user1,
+      user2: user2,
+      user3: user3,
+      new_org: org
+    } do
+      conn =
+        get(conn, Routes.user_path(conn, :index, user1.org_id), %{
+          "from" => 0,
+          "page_size" => 3
+        })
+
+      %{"users" => users} = conn |> json_response(200)
+
+      assert length(users) == 3
+      [ruser1, ruser2, ruser3] = users
+      assert ruser1["email"] == user1.email
+      assert ruser1["first_name"] == user1.first_name
+      assert ruser1["id"] == user1.id
+      assert ruser2["email"] == user2.email
+      assert ruser2["first_name"] == user2.first_name
+      assert ruser2["id"] == user2.id
+      assert ruser3["email"] == user3.email
+      assert ruser3["first_name"] == user3.first_name
+      assert ruser3["id"] == user3.id
+    end
+  end
 
   # describe "update and delete users/2" do
   #   setup :setup_conn
