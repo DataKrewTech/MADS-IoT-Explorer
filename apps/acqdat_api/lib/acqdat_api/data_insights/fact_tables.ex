@@ -319,7 +319,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     qry = """
       CREATE OR REPLACE VIEW #{fact_table_name} AS
       SELECT * FROM(
-      VALUES 
+      VALUES
       #{data}) as #{fact_table_name}(#{table_headers});
     """
 
