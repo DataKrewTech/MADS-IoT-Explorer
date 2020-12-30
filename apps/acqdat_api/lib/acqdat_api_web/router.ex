@@ -198,6 +198,8 @@ defmodule AcqdatApiWeb.Router do
       post("/fact_table", TopologyController, :fact_table)
     end
 
+    post("/fetch_token", DataInsights.EntityController, :fetch_token)
+
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
     get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
 
