@@ -25,47 +25,46 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    # test "search with valid params", %{conn: conn, user: user} do
-    #   User.create_index()
-    #   :timer.sleep(2500)
-    #   User.seed_user(user)
-    #   :timer.sleep(5000)
+    test "search with valid params", %{conn: conn, user: user} do
+      User.create_index("organisation", user.org)
+      User.seed_user(user)
+      :timer.sleep(2500)
 
-    #   conn =
-    #     get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
-    #       "label" => user.first_name
-    #     })
+      conn =
+        get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
+          "label" => user.first_name
+        })
 
-    #   result = conn |> json_response(200)
+      result = conn |> json_response(200)
 
-    #   role = %{
-    #     "description" => user.role.description,
-    #     "id" => user.role.id,
-    #     "name" => user.role.name
-    #   }
+      role = %{
+        "description" => user.role.description,
+        "id" => user.role.id,
+        "name" => user.role.name
+      }
 
-    #   organisation = %{"id" => user.org.id, "name" => user.org.name, "type" => "Organisation"}
-    #   User.delete_index()
+      organisation = %{"id" => user.org.id, "name" => user.org.name, "type" => "Organisation"}
+      User.delete_index()
 
-    #   assert result == %{
-    #            "users" => [
-    #              %{
-    #                "email" => user.email,
-    #                "first_name" => user.first_name,
-    #                "id" => user.id,
-    #                "last_name" => user.last_name,
-    #                "role_id" => user.role_id,
-    #                "org" => organisation,
-    #                "role" => role,
-    #                "image" => nil,
-    #                "is_invited" => false,
-    #                "phone_number" => nil,
-    #                "user_setting" => nil
-    #              }
-    #            ],
-    #            "total_entries" => 1
-    #          }
-    # end
+      assert result == %{
+               "users" => [
+                 %{
+                   "email" => user.email,
+                   "first_name" => user.first_name,
+                   "id" => user.id,
+                   "last_name" => user.last_name,
+                   "role_id" => user.role_id,
+                   "org" => organisation,
+                   "role" => role,
+                   "image" => nil,
+                   "is_invited" => false,
+                   "phone_number" => nil,
+                   "user_setting" => nil
+                 }
+               ],
+               "total_entries" => 1
+             }
+    end
 
     # test "search with no hits in a particular organisation", %{conn: conn, user: user} do
     #   User.create_index()
