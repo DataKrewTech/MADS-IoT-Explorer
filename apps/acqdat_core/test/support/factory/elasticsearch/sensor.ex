@@ -11,8 +11,8 @@ defmodule AcqdatCore.Factory.ElasticSearch.Sensor do
     delete("/sensors")
   end
 
-  def seed_multiple_sensors(project) do
-    [sensor1, sensor2, sensor3] = insert_list(3, :sensor, project: project, org: project.org)
+  def seed_multiple_sensors(project, count) do
+    [sensor1, sensor2, sensor3] = insert_list(count, :sensor, project: project, org: project.org)
     ElasticSearch.insert_sensor("sensors", sensor1)
     ElasticSearch.insert_sensor("sensors", sensor2)
     ElasticSearch.insert_sensor("sensors", sensor3)

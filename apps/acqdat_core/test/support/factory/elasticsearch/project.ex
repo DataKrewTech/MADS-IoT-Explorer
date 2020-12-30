@@ -17,8 +17,8 @@ defmodule AcqdatCore.Factory.ElasticSearch.Project do
     delete("/org")
   end
 
-  def seed_multiple_project(org) do
-    [project1, project2, project3] = insert_list(3, :project, org: org)
+  def seed_multiple_project(org, count) do
+    [project1, project2, project3] = insert_list(count, :project, org: org)
     ElasticSearch.create_project("org", project1, org)
     ElasticSearch.create_project("org", project2, org)
     ElasticSearch.create_project("org", project3, org)

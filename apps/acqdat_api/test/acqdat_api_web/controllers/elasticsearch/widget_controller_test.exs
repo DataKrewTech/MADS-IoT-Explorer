@@ -75,7 +75,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup :setup_conn
 
     setup do
-      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      [widget1, widget2, widget3] = Widget.seed_multiple_widget(3)
       :timer.sleep(2500)
 
       on_exit(fn ->
@@ -128,7 +128,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup :setup_conn
 
     setup do
-      [widget1, widget2, widget3] = Widget.seed_multiple_widget()
+      [widget1, widget2, widget3] = Widget.seed_multiple_widget(3)
       :timer.sleep(2500)
 
       on_exit(fn ->
@@ -173,7 +173,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
           "label" => "Update Widget"
         })
 
-      :timer.sleep(2500)
+      :timer.sleep(4000)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
@@ -194,7 +194,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
           "label" => "Update Widget"
         })
 
-      :timer.sleep(2500)
+      :timer.sleep(4000)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{

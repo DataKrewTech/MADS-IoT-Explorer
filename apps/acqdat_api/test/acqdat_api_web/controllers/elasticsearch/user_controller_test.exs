@@ -28,7 +28,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "search with valid params", %{conn: conn, user: user} do
       User.create_index()
       User.seed_user(user)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
@@ -69,7 +69,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "search with no hits in a particular organisation", %{conn: conn, user: user} do
       User.create_index()
       User.seed_user(user)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
       org = insert(:organisation)
 
       conn =
@@ -108,8 +108,8 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "index with valid params and multiple entries", %{conn: conn, org: org} do
       User.create_index()
-      [user1, user2, user3] = User.seed_multiple_user(org)
-      :timer.sleep(2500)
+      [user1, user2, user3] = User.seed_multiple_user(org, 3)
+      :timer.sleep(5000)
 
       conn =
         get(conn, Routes.user_path(conn, :index, user1.org_id), %{
@@ -140,14 +140,14 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "if user is updated", %{conn: conn, user: user} do
       User.create_index()
       User.seed_user(user)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn =
         put(conn, Routes.user_path(conn, :update, user.org_id, user.id), %{
           "first_name" => "Random User"
         })
 
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
@@ -188,11 +188,11 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "if user is deleted", %{conn: conn, user: user} do
       User.create_index()
       User.seed_user(user)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn = delete(conn, Routes.user_path(conn, :delete, user.org_id, user.id))
 
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
@@ -210,12 +210,12 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "if user is deleted check for multiple users", %{conn: conn, org: org} do
       User.create_index()
-      [user1, user2, _user3] = User.seed_multiple_user(org)
-      :timer.sleep(2500)
+      [user1, user2, _user3] = User.seed_multiple_user(org, 3)
+      :timer.sleep(5000)
 
       conn = delete(conn, Routes.user_path(conn, :delete, user1.org_id, user1.id))
 
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, user2.org_id), %{

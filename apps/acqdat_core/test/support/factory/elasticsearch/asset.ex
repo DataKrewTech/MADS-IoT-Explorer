@@ -11,8 +11,8 @@ defmodule AcqdatCore.Factory.ElasticSearch.Asset do
     delete("/assets")
   end
 
-  def seed_multiple_assets(project) do
-    [asset1, asset2, asset3] = insert_list(3, :asset, project: project, org: project.org)
+  def seed_multiple_assets(project, count) do
+    [asset1, asset2, asset3] = insert_list(count, :asset, project: project, org: project.org)
     ElasticSearch.insert_asset("assets", asset1)
     ElasticSearch.insert_asset("assets", asset2)
     ElasticSearch.insert_asset("assets", asset3)

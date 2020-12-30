@@ -102,7 +102,7 @@ defmodule AcqdatApiWeb.ElasticSearch.AssetTypeControllerTest do
 
     setup do
       project = insert(:project)
-      [asset_type1, asset_type2, asset_type3] = AssetType.seed_multiple_assets_type(project)
+      [asset_type1, asset_type2, asset_type3] = AssetType.seed_multiple_assets_type(project, 3)
       :timer.sleep(2500)
 
       on_exit(fn ->

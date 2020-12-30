@@ -102,7 +102,10 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorTypeControllerTest do
 
     setup do
       project = insert(:project)
-      [sensor_type1, sensor_type2, sensor_type3] = SensorType.seed_multiple_sensor_type(project)
+
+      [sensor_type1, sensor_type2, sensor_type3] =
+        SensorType.seed_multiple_sensor_type(project, 3)
+
       :timer.sleep(2500)
 
       on_exit(fn ->

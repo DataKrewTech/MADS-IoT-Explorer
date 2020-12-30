@@ -114,7 +114,7 @@ defmodule AcqdatApiWeb.ElasticSearch.SensorControllerTest do
 
     setup do
       project = insert(:project)
-      [sensor1, sensor2, sensor3] = Sensor.seed_multiple_sensors(project)
+      [sensor1, sensor2, sensor3] = Sensor.seed_multiple_sensors(project, 3)
       :timer.sleep(2500)
 
       on_exit(fn ->

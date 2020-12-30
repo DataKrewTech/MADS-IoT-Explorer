@@ -78,7 +78,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     setup do
       org = insert(:organisation)
       Project.create_index()
-      [project1, project2, project3] = Project.seed_multiple_project(org)
+      [project1, project2, project3] = Project.seed_multiple_project(org, 3)
       :timer.sleep(2500)
 
       on_exit(fn ->

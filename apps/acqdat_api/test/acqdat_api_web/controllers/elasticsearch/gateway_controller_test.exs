@@ -95,7 +95,7 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
     setup do
       project = insert(:project)
       Gateway.create_index()
-      [gateway1, gateway2, gateway3] = Gateway.seed_multiple_gateway(project)
+      [gateway1, gateway2, gateway3] = Gateway.seed_multiple_gateway(project, 3)
       :timer.sleep(2500)
 
       on_exit(fn ->

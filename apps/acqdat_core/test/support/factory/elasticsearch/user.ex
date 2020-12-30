@@ -18,8 +18,8 @@ defmodule AcqdatCore.Factory.ElasticSearch.User do
     delete("/organisation")
   end
 
-  def seed_multiple_user(org) do
-    [user1, user2, user3] = insert_list(3, :user, org: org)
+  def seed_multiple_user(org, count) do
+    [user1, user2, user3] = insert_list(count, :user, org: org)
     ElasticSearch.create_user("organisation", user1, user1.org)
     ElasticSearch.create_user("organisation", user2, user2.org)
     ElasticSearch.create_user("organisation", user3, user3.org)

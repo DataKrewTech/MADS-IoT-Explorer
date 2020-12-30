@@ -17,8 +17,10 @@ defmodule AcqdatCore.Factory.ElasticSearch.Gateway do
     delete("/pro")
   end
 
-  def seed_multiple_gateway(project) do
-    [gateway1, gateway2, gateway3] = insert_list(3, :gateway, project: project, org: project.org)
+  def seed_multiple_gateway(project, count) do
+    [gateway1, gateway2, gateway3] =
+      insert_list(count, :gateway, project: project, org: project.org)
+
     ElasticSearch.insert_gateway("pro", gateway1)
     ElasticSearch.insert_gateway("pro", gateway2)
     ElasticSearch.insert_gateway("pro", gateway3)
