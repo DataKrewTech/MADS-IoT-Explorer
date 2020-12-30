@@ -44,7 +44,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(name project_id org_id slug uuid from_date to_date)a
+  @required ~w(name project_id org_id slug uuid)a
   @optional ~w(group_interval group_interval_type columns_metadata)a
   @permitted @required ++ @optional
 

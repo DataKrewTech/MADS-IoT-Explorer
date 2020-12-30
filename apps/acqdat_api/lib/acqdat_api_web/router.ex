@@ -196,6 +196,7 @@ defmodule AcqdatApiWeb.Router do
       resources "/topology", TopologyController, only: [:index]
       get("/topology_entities", TopologyController, :entities)
       post("/fact_table", TopologyController, :fact_table)
+      resources "/fact_tables", FactTablesController, only: [:create]
     end
 
     post("/fetch_token", DataInsights.EntityController, :fetch_token)
