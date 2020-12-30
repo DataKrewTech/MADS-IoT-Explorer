@@ -27,6 +27,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "search with valid params", %{conn: conn, user: user} do
       User.create_index()
+      :timer.sleep(2500)
       User.seed_user(user)
       :timer.sleep(5000)
 
@@ -68,6 +69,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "search with no hits in a particular organisation", %{conn: conn, user: user} do
       User.create_index()
+      :timer.sleep(2500)
       User.seed_user(user)
       :timer.sleep(5000)
       org = insert(:organisation)
@@ -108,6 +110,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "index with valid params and multiple entries", %{conn: conn, org: org} do
       User.create_index()
+      :timer.sleep(2500)
       [user1, user2, user3] = User.seed_multiple_user(org, 3)
       :timer.sleep(5000)
 
@@ -139,8 +142,9 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "if user is updated", %{conn: conn, user: user} do
       User.create_index()
+      :timer.sleep(2500)
       User.seed_user(user)
-      :timer.sleep(5000)
+      :timer.sleep(2500)
 
       conn =
         put(conn, Routes.user_path(conn, :update, user.org_id, user.id), %{
@@ -187,6 +191,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "if user is deleted", %{conn: conn, user: user} do
       User.create_index()
+      :timer.sleep(2500)
       User.seed_user(user)
       :timer.sleep(5000)
 
@@ -210,12 +215,13 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
     test "if user is deleted check for multiple users", %{conn: conn, org: org} do
       User.create_index()
+      :timer.sleep(2500)
       [user1, user2, _user3] = User.seed_multiple_user(org, 3)
-      :timer.sleep(5000)
+      :timer.sleep(2500)
 
       conn = delete(conn, Routes.user_path(conn, :delete, user1.org_id, user1.id))
 
-      :timer.sleep(5000)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, user2.org_id), %{

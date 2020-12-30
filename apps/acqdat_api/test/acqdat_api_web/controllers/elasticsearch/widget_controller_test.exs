@@ -173,7 +173,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
           "label" => "Update Widget"
         })
 
-      :timer.sleep(4000)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
@@ -194,7 +194,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
           "label" => "Update Widget"
         })
 
-      :timer.sleep(4000)
+      :timer.sleep(2500)
 
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
