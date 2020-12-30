@@ -8,6 +8,19 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
   describe "search_users/2" do
     setup :setup_conn
 
+    setup do
+      user = insert(:user)
+      User.create_index()
+      User.seed_user(user)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        User.delete_index()
+      end)
+
+      [new_user: user]
+    end
+
     test "fails if authorization header not found", %{conn: conn, user: user} do
       bad_access_token = "avcbd123489u"
       org = insert(:organisation)
@@ -25,11 +38,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
 
-    test "search with valid params", %{conn: conn, user: user} do
-      User.create_index("organisation", user.org)
-      User.seed_user(user)
-      :timer.sleep(2500)
-
+    test "search with valid params", %{conn: conn, new_user: user} do
       conn =
         get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
           "label" => user.first_name
@@ -44,7 +53,6 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       }
 
       organisation = %{"id" => user.org.id, "name" => user.org.name, "type" => "Organisation"}
-      User.delete_index()
 
       assert result == %{
                "users" => [
