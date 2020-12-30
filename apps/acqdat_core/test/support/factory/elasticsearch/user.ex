@@ -5,7 +5,7 @@ defmodule AcqdatCore.Factory.ElasticSearch.User do
   import Tirexs.HTTP
 
   def create_index() do
-    put("/organisation", %{
+    put("organisation", %{
       mappings: %{properties: %{join_field: %{type: "join", relations: %{organisation: "user"}}}}
     })
 
@@ -23,6 +23,7 @@ defmodule AcqdatCore.Factory.ElasticSearch.User do
 
   def seed_multiple_user(org, count) do
     User.create_index()
+    :timer.sleep(2500)
     [user1, user2, user3] = insert_list(count, :user, org: org)
     ElasticSearch.create_user("organisation", user1, user1.org)
     :timer.sleep(2500)
