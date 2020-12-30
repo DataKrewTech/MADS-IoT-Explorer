@@ -38,14 +38,14 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     end
   end
 
-  def get_for_view(id) when is_integer(id) do
-    case Repo.get(User, id) do
-      nil ->
-        {:error, "not found"}
+  def get_for_view(user_ids) do
+    query =
+      from(user in User,
+        where: user.id in ^user_ids,
+        preload: [:user_setting, :org, :role]
+      )
 
-      user ->
-        user |> Repo.preload([:user_setting, :org, :role])
-    end
+    Repo.all(query)
   end
 
   def get_by_email(email) when is_binary(email) do

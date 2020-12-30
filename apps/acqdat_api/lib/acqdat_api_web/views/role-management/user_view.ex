@@ -89,8 +89,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   end
 
   def render("hits.json", %{hits: hits}) do
+    user_ids = extract_ids(hits.hits)
+    users = UserModel.get_for_view(user_ids)
+
     %{
-      users: render_many(hits.hits, UserView, "source.json"),
+      users: render_many(users, UserView, "source.json"),
       total_entries: hits.total.value
     }
   end
@@ -105,9 +108,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("source.json", %{user: %{_source: hits}}) do
-    user_details = UserModel.get_for_view(hits.id)
-
+  def render("source.json", %{user: user_details}) do
     %{
       id: user_details.id,
       email: user_details.email,
@@ -167,5 +168,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
 
   defp preload_org(id) do
     Map.from_struct(Repo.get(Organisation, id))
+  end
+
+  defp extract_ids(hits) do
+    Enum.reduce(hits, [], fn %{_source: hits}, acc ->
+      acc ++ [hits.id]
+    end)
   end
 end

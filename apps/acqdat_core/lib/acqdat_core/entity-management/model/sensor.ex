@@ -14,14 +14,14 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Repo.update(changeset)
   end
 
-  def get_for_view(id) when is_integer(id) do
-    case Repo.get(Sensor, id) do
-      nil ->
-        {:error, "not found"}
+  def get_for_view(sensor_ids) do
+    query =
+      from(sensor in Sensor,
+        where: sensor.id in ^sensor_ids,
+        preload: [:sensor_type]
+      )
 
-      sensor ->
-        sensor |> Repo.preload([:sensor_type])
-    end
+    Repo.all(query)
   end
 
   def get(id) when is_integer(id) do

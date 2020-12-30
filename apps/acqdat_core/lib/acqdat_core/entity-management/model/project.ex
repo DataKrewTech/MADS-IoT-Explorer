@@ -44,14 +44,14 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end
   end
 
-  def get_for_view(id) when is_integer(id) do
-    case Repo.get(Project, id) do
-      nil ->
-        {:error, "not found"}
+  def get_for_view(project_ids) do
+    query =
+      from(project in Project,
+        where: project.id in ^project_ids,
+        preload: [:leads, :users, :creator]
+      )
 
-      project ->
-        project |> Repo.preload([:leads, :users, :creator])
-    end
+    Repo.all(query)
   end
 
   def update_version(%Project{} = project) do

@@ -68,15 +68,16 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
   end
 
   def render("hits.json", %{hits: hits}) do
+    asset_ids = extract_ids(hits.hits)
+    assets = AssetModel.get_for_view(asset_ids)
+
     %{
-      assets: render_many(hits.hits, AssetView, "source.json"),
+      assets: render_many(assets, AssetView, "source.json"),
       total_entries: hits.total.value
     }
   end
 
-  def render("source.json", %{asset: %{_source: hits}}) do
-    asset = AssetModel.get_for_view(hits.id)
-
+  def render("source.json", %{asset: asset}) do
     %{
       type: "Asset",
       id: asset.id,
@@ -120,5 +121,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
       mapped_parameters: asset_mapped_parameters,
       asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json")
     }
+  end
+
+  defp extract_ids(hits) do
+    Enum.reduce(hits, [], fn %{_source: hits}, acc ->
+      acc ++ [hits.id]
+    end)
   end
 end

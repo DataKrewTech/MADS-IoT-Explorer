@@ -142,15 +142,16 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
   end
 
   def render("hits.json", %{hits: hits}) do
+    project_ids = extract_ids(hits.hits)
+    projects = Project.get_for_view(project_ids)
+
     %{
-      projects: render_many(hits.hits, ProjectView, "source.json"),
+      projects: render_many(projects, ProjectView, "source.json"),
       total_entries: ElasticSearch.find_total_counts("org")
     }
   end
 
-  def render("source.json", %{project: %{_source: hits}}) do
-    project = Project.get_for_view(hits.id)
-
+  def render("source.json", %{project: project}) do
     %{
       type: "Project",
       id: project.id,
@@ -170,5 +171,11 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       leads: render_many(project.leads, ProjectView, "user.json"),
       users: render_many(project.users, ProjectView, "user.json")
     }
+  end
+
+  defp extract_ids(hits) do
+    Enum.reduce(hits, [], fn %{_source: hits}, acc ->
+      acc ++ [hits.id]
+    end)
   end
 end

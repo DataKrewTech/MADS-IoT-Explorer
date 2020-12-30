@@ -117,15 +117,16 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
   end
 
   def render("hits.json", %{hits: hits}) do
+    sensor_ids = extract_ids(hits.hits)
+    sensors = Sensor.get_for_view(sensor_ids)
+
     %{
-      sensors: render_many(hits.hits, SensorView, "source.json"),
+      sensors: render_many(sensors, SensorView, "source.json"),
       total_entries: hits.total.value
     }
   end
 
-  def render("source.json", %{sensor: %{_source: hits}}) do
-    hits = Sensor.get_for_view(hits.id)
-
+  def render("source.json", %{sensor: hits}) do
     %{
       id: hits.id,
       name: hits.name,
@@ -141,5 +142,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
       description: hits.description,
       sensor_type_id: hits.sensor_type_id
     }
+  end
+
+  defp extract_ids(hits) do
+    Enum.reduce(hits, [], fn %{_source: hits}, acc ->
+      acc ++ [hits.id]
+    end)
   end
 end

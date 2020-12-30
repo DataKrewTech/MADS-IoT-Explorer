@@ -18,14 +18,14 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  def get_for_view(id) when is_integer(id) do
-    case Repo.get(Asset, id) |> Repo.preload([:org, :project, :asset_type]) do
-      nil ->
-        {:error, "not found"}
+  def get_for_view(asset_ids) do
+    query =
+      from(asset in Asset,
+        where: asset.id in ^asset_ids,
+        preload: [:org, :project, :asset_type]
+      )
 
-      asset ->
-        asset |> Repo.preload([:org, :project, :asset_type])
-    end
+    Repo.all(query)
   end
 
   def child_assets(project_id) do
