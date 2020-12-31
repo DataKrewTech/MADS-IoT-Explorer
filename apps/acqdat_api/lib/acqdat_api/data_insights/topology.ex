@@ -6,7 +6,6 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
   alias AcqdatApi.DataInsights.FactTableGenWorker
   alias NaryTree
-  alias NaryTree.Node
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
@@ -135,31 +134,12 @@ defmodule AcqdatApi.DataInsights.Topology do
     else
       node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
-      IO.inspect(root_node)
-
-      IO.inspect(node_tracker)
-
-      # entities_list = Enum.reject(entities_list, fn entity -> entity == root_entity end)
-
       execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
 
       # find descendents of root element and check whether remaining entites exist or not?
       # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
     end
   end
-
-  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
-    res = FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
-    # validate_res(res)
-  end
-
-  # defp validate_res(:ok, res) do
-  #   {:ok, res}
-  # end
-
-  # defp validate_res(:error, res) do
-  #   {:error, "something went wrong!"}
-  # end
 
   defp validate_entities(id, {asset_types, sensor_types}, entities_list, parent_tree) do
     {entity_levels, {root_node, root_entity}, entity_map} =
@@ -174,21 +154,16 @@ defmodule AcqdatApi.DataInsights.Topology do
         {acc1, {acc2, acc4}, acc3}
       end)
 
-    # require IEx
-    # IEx.pry
-
     node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
-
-    IO.inspect(root_node)
-
-    IO.inspect(node_tracker)
-
-    # entities_list = Enum.reject(entities_list, fn entity -> entity == root_entity end)
 
     # find descendents of root element and check whether remaining entites exist or not?
     # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
 
     execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+  end
+
+  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
+    FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
   end
 
   def traverse(tree, tree_node, entities_list, node_tracker) do
@@ -257,8 +232,6 @@ defmodule AcqdatApi.DataInsights.Topology do
       IO.puts("final output")
       # subtree = Map.put_new(subtree_map, :children, subtree) 
       IO.inspect(subtree)
-      # require IEx
-      # IEx.pry
       subtree = NaryTree.from_map(subtree)
       dynamic_query(fact_table_id, subtree, entities_list)
     else
@@ -288,96 +261,100 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   def fact_table_representation(fact_table_name, output, subtree) do
-    headers =
-      Stream.with_index(Map.keys(output), 0)
-      |> Enum.reduce(%{}, fn {v, k}, acc ->
-        Map.put(acc, v, k)
-      end)
+    headers = output |> parse_table_headers_map()
 
     IO.puts("headers")
     IO.inspect(headers)
     tree_elem = output[subtree.root]
 
-    rows_len =
-      Enum.reduce(subtree.nodes, 0, fn {key, node}, size ->
-        if node.content != :empty do
-          if node.type == "SensorType" and node.content != ["name"],
-            do: size + length(node.content) * 2,
-            else: size + length(node.content)
-        else
-          size + 1
-        end
-      end)
+    rows_len = subtree |> compute_table_row_len()
 
     data =
       Enum.reduce(tree_elem, [], fn parent_entity, acc ->
         node = NaryTree.get(subtree, subtree.root)
 
-        res1 =
+        res =
           Enum.reduce(node.children, [], fn child_entity, acc1 ->
-            res =
-              Enum.reduce(output[child_entity], [], fn entity, acc3 ->
-                if entity.parent_id == parent_entity.id do
-                  empty_row = List.duplicate(nil, rows_len)
-                  child_node = NaryTree.get(subtree, child_entity)
-                  # Enum.reduce(node.content, {empty_row, 0}, fn elem, {comp_row, index} ->
-                  #   List.replace_at(empty_row, (headers[subtree.root] + index), (parent_entity[:name] || parent_entity[:value]))
-                  # end)
-                  computed_row =
-                    List.replace_at(
-                      empty_row,
-                      headers[subtree.root],
-                      parent_entity[:name] || parent_entity[:value]
-                    )
-
-                  # computed_row = if parent_entity[:value] do
-                  #   List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:value])
-                  # else
-                  #   computed_row
-                  # end
-                  computed_row =
-                    if parent_entity[:time] do
-                      List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:time])
-                    else
-                      computed_row
-                    end
-
-                  computed_row =
-                    List.replace_at(
-                      computed_row,
-                      headers[child_entity],
-                      entity[:name] || entity[:value]
-                    )
-
-                  # computed_row = if entity[:value] do
-                  #   List.replace_at(computed_row, headers[child_entity] + 1, entity[:value])
-                  # else
-                  #   computed_row
-                  # end
-
-                  computed_row =
-                    if entity[:time] do
-                      List.replace_at(computed_row, headers[child_entity] + 1, entity[:time])
-                    else
-                      computed_row
-                    end
-
-                  data =
-                    fetch_children(child_node, entity, subtree, output, computed_row, headers)
-
-                  if data != [], do: acc3 ++ data, else: acc3 ++ [computed_row]
-                else
-                  acc3
-                end
-              end)
-
-            acc1 ++ res
+            acc1 ++
+              compute_table_data(output, subtree, headers, rows_len, parent_entity, child_entity)
           end)
 
-        acc ++ res1
+        acc ++ res
       end)
 
-    table_headers =
+    table_headers = output |> gen_fact_table_headers(subtree)
+    table_body = data |> convert_table_data_to_text
+
+    create_fact_table_view(fact_table_name, table_headers, table_body)
+
+    data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+    %{headers: data.columns, data: data.rows}
+  end
+
+  def compute_table_data(output, subtree, headers, rows_len, parent_entity, child_entity) do
+    Enum.reduce(output[child_entity], [], fn entity, acc3 ->
+      if entity.parent_id == parent_entity.id do
+        empty_row = List.duplicate(nil, rows_len)
+        child_node = NaryTree.get(subtree, child_entity)
+
+        computed_row =
+          List.replace_at(
+            empty_row,
+            headers[subtree.root],
+            parent_entity[:name] || parent_entity[:value]
+          )
+
+        computed_row =
+          if parent_entity[:time] do
+            List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:time])
+          else
+            computed_row
+          end
+
+        computed_row =
+          List.replace_at(
+            computed_row,
+            headers[child_entity],
+            entity[:name] || entity[:value]
+          )
+
+        computed_row =
+          if entity[:time] do
+            List.replace_at(computed_row, headers[child_entity] + 1, entity[:time])
+          else
+            computed_row
+          end
+
+        data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
+
+        if data != [], do: acc3 ++ data, else: acc3 ++ [computed_row]
+      else
+        acc3
+      end
+    end)
+  end
+
+  def compute_table_row_len(subtree) do
+    Enum.reduce(subtree.nodes, 0, fn {key, node}, size ->
+      if node.content != :empty do
+        if node.type == "SensorType" and node.content != ["name"],
+          do: size + length(node.content) * 2,
+          else: size + length(node.content)
+      else
+        size + 1
+      end
+    end)
+  end
+
+  def parse_table_headers_map(output) do
+    Stream.with_index(Map.keys(output), 0)
+    |> Enum.reduce(%{}, fn {v, k}, acc ->
+      Map.put(acc, v, k)
+    end)
+  end
+
+  def gen_fact_table_headers(output, subtree) do
+    headers =
       Map.keys(output)
       |> Enum.reduce([], fn x, acc ->
         node = NaryTree.get(subtree, x)
@@ -400,43 +377,30 @@ defmodule AcqdatApi.DataInsights.Topology do
         end
       end)
 
-    res = %{headers: table_headers, data: data}
+    Enum.map_join(headers, ",", &"\"#{&1}\"")
+  end
 
-    string_form =
+  def convert_table_data_to_text(data) do
+    text_form =
       Enum.reduce(data, "", fn ele, acc ->
         acc <> "(" <> Enum.map_join(ele, ",", &"\'#{&1}\'") <> "),"
       end)
 
-    {string1, _} = String.split_at(string_form, -1)
-    table_headers = Enum.map_join(table_headers, ",", &"\"#{&1}\"")
+    {text_form, _} = String.split_at(text_form, -1)
+    text_form
+  end
 
+  def create_fact_table_view(fact_table_name, table_headers, data) do
     Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [])
 
     qry = """
     CREATE OR REPLACE VIEW #{fact_table_name} AS
       SELECT * FROM(
       VALUES 
-      #{string1}) as #{fact_table_name}(#{table_headers});
+      #{data}) as #{fact_table_name}(#{table_headers});
     """
 
-    res = Ecto.Adapters.SQL.query!(Repo, qry, [])
-    IO.puts("res")
-    IO.inspect(res)
-    data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-    %{headers: data.columns, data: data.rows}
-  end
-
-  def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
-    offset = page_size * (page_number - 1)
-
-    data =
-      Ecto.Adapters.SQL.query!(
-        Repo,
-        "select * from #{fact_table_name} OFFSET #{offset} LIMIT 20",
-        []
-      )
-
-    %{headers: data.columns, data: data.rows}
+    Ecto.Adapters.SQL.query!(Repo, qry, [])
   end
 
   def fetch_children(parent_node, parent_entity, subtree, output, computed_row, headers) do
@@ -539,6 +503,19 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     output = %{headers: res1.columns, data: res1.rows}
     IO.inspect(output)
+  end
+
+  def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
+    offset = page_size * (page_number - 1)
+
+    data =
+      Ecto.Adapters.SQL.query!(
+        Repo,
+        "select * from #{fact_table_name} OFFSET #{offset} LIMIT 20",
+        []
+      )
+
+    %{headers: data.columns, data: data.rows}
   end
 
   def reduce_data(subtree, tree_node, entities, user_list) do
