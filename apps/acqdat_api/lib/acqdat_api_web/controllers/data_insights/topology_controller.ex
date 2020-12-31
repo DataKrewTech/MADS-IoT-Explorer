@@ -44,29 +44,4 @@ defmodule AcqdatApiWeb.DataInsights.TopologyController do
         |> send_error(404, "Resource Not Found")
     end
   end
-
-  def fact_table(conn, %{
-        "org_id" => org_id,
-        "project_id" => project_id,
-        "fact_table_id" => id,
-        "user_list" => user_list
-      }) do
-    case conn.status do
-      nil ->
-        case Topology.gen_sub_topology(id, org_id, conn.assigns.project, user_list) do
-          {:error, message} ->
-            conn
-            |> send_error(404, message)
-
-          data ->
-            conn
-            |> put_status(200)
-            |> render("fact_table_data.json", %{topology: data})
-        end
-
-      404 ->
-        conn
-        |> send_error(404, "Resource Not Found")
-    end
-  end
 end
