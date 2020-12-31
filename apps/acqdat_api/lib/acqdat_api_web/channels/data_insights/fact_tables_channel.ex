@@ -4,23 +4,24 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
 
   intercept ["out_put_res"]
 
-  def join("project_fact_table:" <> project_id, _params, socket) do
-    # if socket.assigns.user_id do
-    #   socket = assign(socket, :project, project_id)
-    #   response = %{message: "Channel Joined Successfully #{project_id}"}
-    #   {:ok, response, socket}
-    # else
-    #   {:error, %{reason: "unauthorized"}, socket}
-    # end
-    response = %{message: "Channel Joined Successfully #{project_id}"}
-    {:ok, response, socket}
+  def join("project_fact_table:" <> fact_table_id, _params, socket) do
+    if socket.assigns.user_id do
+      socket = assign(socket, :fact_table_id, fact_table_id)
+      response = %{message: "Channel Joined Successfully FactTable ID #{fact_table_id}"}
+      {:ok, response, socket}
+    else
+      {:error, %{reason: "unauthorized"}, socket}
+    end
   end
 
   def handle_out("out_put_res", %{data: payload}, socket) do
-    push(socket, "out_put_res", %{
-      task: payload
-      # Phoenix.View.render(AcqdatApiWeb.DataCruncher.TasksView, "task.json", %{task: payload})
-    })
+    push(
+      socket,
+      "out_put_res",
+      Phoenix.View.render(AcqdatApiWeb.DataInsights.TopologyView, "fact_table_data.json", %{
+        topology: payload
+      })
+    )
 
     {:noreply, socket}
   end
