@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.DataInsights.Topology do
+defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel

@@ -48,10 +48,4 @@ defmodule AcqdatApiWeb.DataInsights.TopologyView do
       metadata: render_many(entity.metadata, AssetTypeView, "metadata.json")
     }
   end
-
-  def render("fact_table_data.json", %{topology: topology}) do
-    %{
-      fact_table: topology
-    }
-  end
 end

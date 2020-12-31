@@ -7,4 +7,10 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       name: fact_table.name
     }
   end
+
+  def render("fact_table_data.json", %{fact_table: fact_table}) do
+    %{
+      fact_table: fact_table
+    }
+  end
 end

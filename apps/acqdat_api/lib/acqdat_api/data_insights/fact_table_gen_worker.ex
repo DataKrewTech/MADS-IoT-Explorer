@@ -1,7 +1,7 @@
 defmodule AcqdatApi.DataInsights.FactTableGenWorker do
   use GenServer
   alias AcqdatCore.DataCruncher.Domain.Workflow
-  alias AcqdatApiWeb.DataInsights.Topology
+  alias AcqdatApi.DataInsights.Topology
   alias AcqdatCore.Repo
 
   def start_link(_) do
@@ -17,13 +17,11 @@ defmodule AcqdatApi.DataInsights.FactTableGenWorker do
   end
 
   def handle_cast({:register, params}, _status) do
-    data = execute_workflow(params)
-    output = Task.await(data)
+    output =
+      params
+      |> execute_workflow()
+      |> Task.await()
 
-    IO.puts("data")
-    IO.inspect(data)
-    IO.puts("output")
-    IO.inspect(output)
     fact_table_id = elem(params, 0)
 
     AcqdatApiWeb.Endpoint.broadcast("project_fact_table:#{fact_table_id}", "out_put_res", %{

@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.DataInsights.TasksChannel do
   use Phoenix.Channel
-  alias AcqdatApiWeb.DataInsights.Topology
+  alias AcqdatApi.DataInsights.Topology
 
   intercept ["out_put_res"]
 
@@ -18,8 +18,8 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
     push(
       socket,
       "out_put_res",
-      Phoenix.View.render(AcqdatApiWeb.DataInsights.TopologyView, "fact_table_data.json", %{
-        topology: payload
+      Phoenix.View.render(AcqdatApiWeb.DataInsights.FactTablesView, "fact_table_data.json", %{
+        fact_table: payload
       })
     )
 
