@@ -1,7 +1,11 @@
 defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
+  import Ecto.Query
   alias AcqdatCore.Model.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Schema.EntityManagement.Asset, as: AssetSchema
+  alias AcqdatCore.Schema.EntityManagement.Sensor, as: SensorSchema
+  alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SensorsDataSchema
   import AcqdatCore.Support.Factory
+  alias AcqdatCore.Repo
 
   def setup_tree() do
     # Tree Topology initialization
@@ -34,9 +38,22 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
     building_asset_type = insert(:asset_type, name: "Building")
     apartment_asset_type = insert(:asset_type, name: "Apartment")
     playground_asset_type = insert(:asset_type, name: "PlayGround")
-    energy_mtr_sensor_type = insert(:sensor_type, name: "Energy Meter")
-    temp_sensor_type = insert(:sensor_type, name: "Temp Sensor")
-    occupancy_sensor_type = insert(:sensor_type, name: "Occupancy Sensor")
+
+    energy_mtr_sensor_type =
+      insert(:sensor_type,
+        name: "Energy Meter",
+        parameters: gen_sensor_type_params("Energy Meter")
+      )
+
+    temp_sensor_type =
+      insert(:sensor_type, name: "Temp Sensor", parameters: gen_sensor_type_params("Temp Sensor"))
+
+    occupancy_sensor_type =
+      insert(:sensor_type,
+        name: "Occupancy Sensor",
+        parameters: gen_sensor_type_params("Occupancy Sensor")
+      )
+
     user = insert(:user)
 
     building_1 =
@@ -296,7 +313,189 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
     {:ok, energy_mtr_3_1} = Sensor.create(energy_mtr_3_1)
     {:ok, energy_mtr_3_2} = Sensor.create(energy_mtr_3_2)
 
+    temp_sensors =
+      SensorSchema
+      |> where([sensor], sensor.sensor_type_id == ^temp_sensor_type.id)
+      |> Repo.all()
+      |> Repo.preload([:sensor_type])
+
+    occup_sensors =
+      SensorSchema
+      |> where([sensor], sensor.sensor_type_id == ^occupancy_sensor_type.id)
+      |> Repo.all()
+      |> Repo.preload([:sensor_type])
+
+    energy_sensors =
+      SensorSchema
+      |> where([sensor], sensor.sensor_type_id == ^energy_mtr_sensor_type.id)
+      |> Repo.all()
+      |> Repo.preload([:sensor_type])
+
+    sensor_list =
+      sensor_data_list(org.id, temp_sensors) ++
+        sensor_data_list(org.id, occup_sensors) ++ sensor_data_list(org.id, energy_sensors)
+
+    Repo.transaction(fn ->
+      Enum.each(sensor_list, fn data ->
+        changeset = SensorsDataSchema.changeset(%SensorsDataSchema{}, data)
+        Repo.insert(changeset)
+      end)
+    end)
+
     {:ok, {org.id, project.id}}
+  end
+
+  defp sensor_data_list(org_id, sensors) do
+    Enum.reduce(sensors, [], fn sensor, acc ->
+      acc ++ gen_sensors_data(org_id, sensor)
+    end)
+  end
+
+  defp gen_sensors_data(org_id, sensor) do
+    current_date = DateTime.utc_now()
+
+    [
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -86400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp: DateTime.truncate(current_date, :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -6400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -16400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -65400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -186_400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -6900, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -86501, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -6500, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -16900, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -65500, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -286_400, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      },
+      %{
+        org_id: org_id,
+        project_id: sensor.project_id,
+        sensor_id: sensor.id,
+        parameters: generate_parameters_data(sensor),
+        inserted_timestamp:
+          DateTime.truncate(DateTime.add(current_date, -6890, :second), :second),
+        inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
+        updated_at: DateTime.truncate(DateTime.utc_now(), :second)
+      }
+    ]
+  end
+
+  defp generate_parameters_data(sensor) do
+    Enum.map(sensor.sensor_type.parameters, fn parameter ->
+      %{
+        name: parameter.name,
+        data_type: parameter.data_type,
+        uuid: parameter.uuid,
+        value: to_string(Enum.random(10..100))
+      }
+    end)
   end
 
   defp build_sensor_map(name, org_id, project_id, sensor_type_id, parent_id) do
@@ -418,6 +617,55 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
             data_type: "integer",
             unit: "",
             value: "#{Enum.random(2..10)}"
+          }
+        ]
+
+      _ ->
+        []
+    end
+  end
+
+  defp gen_sensor_type_params(type) do
+    case type do
+      "Energy Meter" ->
+        [
+          %{
+            name: "Voltage",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
+          },
+          %{
+            name: "Current",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
+          },
+          %{
+            name: "Power",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
+          },
+          %{
+            name: "Energy",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
+          }
+        ]
+
+      "Temp Sensor" ->
+        [
+          %{
+            name: "Temperature",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
+          }
+        ]
+
+      "Occupancy Sensor" ->
+        [
+          %{
+            name: "Occupancy",
+            data_type: "string",
+            uuid: UUID.uuid1(:hex)
           }
         ]
 

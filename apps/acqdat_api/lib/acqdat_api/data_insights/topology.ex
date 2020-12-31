@@ -4,10 +4,12 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
+  alias AcqdatApi.DataInsights.FactTableGenWorker
   alias NaryTree
   alias NaryTree.Node
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
+  alias AcqdatCore.Domain.EntityManagement.SensorData
   alias AcqdatCore.Repo
   import Ecto.Query
 
@@ -35,11 +37,11 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
     end
   end
 
-  def gen_sub_topology(org_id, project, entities_list) do
-    parse_entities(entities_list, org_id, project)
+  def gen_sub_topology(id, org_id, project, entities_list) do
+    parse_entities(id, entities_list, org_id, project)
   end
 
-  defp parse_entities(entities_list, org_id, project) do
+  defp parse_entities(id, entities_list, org_id, project) do
     res =
       Enum.reduce(entities_list, {[], []}, fn entity, {acc1, acc2} ->
         acc1 = if entity["type"] == "AssetType", do: acc1 ++ [entity], else: acc1
@@ -50,17 +52,37 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
     topology_map = gen_topology(org_id, project)
     parent_tree = NaryTree.from_map(topology_map)
 
-    validate_entities(res, entities_list, parent_tree)
+    validate_entities(id, res, entities_list, parent_tree)
   end
 
-  defp validate_entities({_, sensor_types}, entities_list, _)
+  defp validate_entities(_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == 1 and length(sensor_types) == length(entities_list) do
-    IO.puts("implement query for single sensor_types details with timestamp column")
-    [%{"id" => id, "name" => name}] = sensor_types
-    subtree_map = %{id: id, name: name, type: "SensorType"}
+    [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = sensor_types
+
+    query =
+      if metadata_name == "name" do
+        from(sensor in Sensor,
+          where: sensor.sensor_type_id == ^id,
+          select: map(sensor, [:id, :name])
+        )
+      else
+        [%{"date_from" => date_from, "date_to" => date_to}] = sensor_types
+
+        sensor_ids =
+          from(sensor in Sensor,
+            where: sensor.sensor_type_id == ^id,
+            select: sensor.id
+          )
+          |> Repo.all()
+
+        query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
+        SensorData.fetch_sensors_data(query, [metadata_name])
+      end
+
+    %{"#{name}" => Repo.all(query)}
   end
 
-  defp validate_entities({asset_types, _}, entities_list, _)
+  defp validate_entities(_id, {asset_types, _}, entities_list, _)
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
     [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = asset_types
 
@@ -87,13 +109,13 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
   end
 
   # TODO: Add proper error msg
-  defp validate_entities({_, sensor_types}, entities_list, _)
+  defp validate_entities(_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == length(entities_list) do
     {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
   end
 
   # TODO: Need to refactor this piece of code and add proper error msg
-  defp validate_entities({asset_types, _sensor_types}, entities_list, parent_tree)
+  defp validate_entities(id, {asset_types, _sensor_types}, entities_list, parent_tree)
        when length(asset_types) == length(entities_list) do
     {entity_levels, {root_node, root_entity}, entity_map} =
       Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
@@ -119,12 +141,27 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
 
       # entities_list = Enum.reject(entities_list, fn entity -> entity == root_entity end)
 
+      execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+
       # find descendents of root element and check whether remaining entites exist or not?
-      fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
+      # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
     end
   end
 
-  defp validate_entities({asset_types, sensor_types}, entities_list, parent_tree) do
+  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
+    res = FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
+    # validate_res(res)
+  end
+
+  # defp validate_res(:ok, res) do
+  #   {:ok, res}
+  # end
+
+  # defp validate_res(:error, res) do
+  #   {:error, "something went wrong!"}
+  # end
+
+  defp validate_entities(id, {asset_types, sensor_types}, entities_list, parent_tree) do
     {entity_levels, {root_node, root_entity}, entity_map} =
       Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
         node = NaryTree.get(parent_tree, "#{entity["id"]}")
@@ -149,7 +186,9 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
     # entities_list = Enum.reject(entities_list, fn entity -> entity == root_entity end)
 
     # find descendents of root element and check whether remaining entites exist or not?
-    fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
+    # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
+
+    execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
   end
 
   def traverse(tree, tree_node, entities_list, node_tracker) do
@@ -211,7 +250,7 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
     end
   end
 
-  def fetch_descendants(parent_tree, root_node, entities_list, node_tracker) do
+  def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
     {subtree, node_tracker} = traverse(parent_tree, root_node, entities_list, [])
     # IO.puts("----------------------------------------------------------------------")
     if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
@@ -221,13 +260,13 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
       # require IEx
       # IEx.pry
       subtree = NaryTree.from_map(subtree)
-      dynamic_query(subtree)
+      dynamic_query(fact_table_id, subtree, entities_list)
     else
       {:error, "All entities are not directly connected, please connect common parent entity."}
     end
   end
 
-  def dynamic_query(subtree) do
+  def dynamic_query(fact_table_id, subtree, user_list) do
     IO.inspect(subtree)
     node = NaryTree.get(subtree, subtree.root)
 
@@ -240,11 +279,269 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
       )
       |> Repo.all()
 
-    res = reduce_data(subtree, node, data)
-    Map.merge(%{"#{node.name}" => data}, res)
+    res = reduce_data(subtree, node, data, user_list)
+    output = Map.merge(%{"#{node.id}" => data}, res)
+
+    fact_table_name = "fact_table_#{fact_table_id}"
+
+    fact_table_representation(fact_table_name, output, subtree)
   end
 
-  def reduce_data(subtree, tree_node, entities) do
+  def fact_table_representation(fact_table_name, output, subtree) do
+    headers =
+      Stream.with_index(Map.keys(output), 0)
+      |> Enum.reduce(%{}, fn {v, k}, acc ->
+        Map.put(acc, v, k)
+      end)
+
+    IO.puts("headers")
+    IO.inspect(headers)
+    tree_elem = output[subtree.root]
+
+    rows_len =
+      Enum.reduce(subtree.nodes, 0, fn {key, node}, size ->
+        if node.content != :empty do
+          if node.type == "SensorType" and node.content != ["name"],
+            do: size + length(node.content) * 2,
+            else: size + length(node.content)
+        else
+          size + 1
+        end
+      end)
+
+    data =
+      Enum.reduce(tree_elem, [], fn parent_entity, acc ->
+        node = NaryTree.get(subtree, subtree.root)
+
+        res1 =
+          Enum.reduce(node.children, [], fn child_entity, acc1 ->
+            res =
+              Enum.reduce(output[child_entity], [], fn entity, acc3 ->
+                if entity.parent_id == parent_entity.id do
+                  empty_row = List.duplicate(nil, rows_len)
+                  child_node = NaryTree.get(subtree, child_entity)
+                  # Enum.reduce(node.content, {empty_row, 0}, fn elem, {comp_row, index} ->
+                  #   List.replace_at(empty_row, (headers[subtree.root] + index), (parent_entity[:name] || parent_entity[:value]))
+                  # end)
+                  computed_row =
+                    List.replace_at(
+                      empty_row,
+                      headers[subtree.root],
+                      parent_entity[:name] || parent_entity[:value]
+                    )
+
+                  # computed_row = if parent_entity[:value] do
+                  #   List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:value])
+                  # else
+                  #   computed_row
+                  # end
+                  computed_row =
+                    if parent_entity[:time] do
+                      List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:time])
+                    else
+                      computed_row
+                    end
+
+                  computed_row =
+                    List.replace_at(
+                      computed_row,
+                      headers[child_entity],
+                      entity[:name] || entity[:value]
+                    )
+
+                  # computed_row = if entity[:value] do
+                  #   List.replace_at(computed_row, headers[child_entity] + 1, entity[:value])
+                  # else
+                  #   computed_row
+                  # end
+
+                  computed_row =
+                    if entity[:time] do
+                      List.replace_at(computed_row, headers[child_entity] + 1, entity[:time])
+                    else
+                      computed_row
+                    end
+
+                  data =
+                    fetch_children(child_node, entity, subtree, output, computed_row, headers)
+
+                  if data != [], do: acc3 ++ data, else: acc3 ++ [computed_row]
+                else
+                  acc3
+                end
+              end)
+
+            acc1 ++ res
+          end)
+
+        acc ++ res1
+      end)
+
+    table_headers =
+      Map.keys(output)
+      |> Enum.reduce([], fn x, acc ->
+        node = NaryTree.get(subtree, x)
+
+        if node.content != ["name"] && node.content != :empty do
+          res =
+            if node.type == "SensorType" do
+              Enum.reduce(node.content, [], fn ele, sum ->
+                if ele == "name",
+                  do: sum ++ ["#{node.name}_#{ele}"],
+                  else: sum ++ ["#{node.name}_#{ele}", "#{node.name}_dateTime"]
+              end)
+            else
+              Enum.map(node.content, fn z -> "#{node.name}_#{z}" end)
+            end
+
+          acc ++ res
+        else
+          acc ++ [node.name]
+        end
+      end)
+
+    res = %{headers: table_headers, data: data}
+
+    string_form =
+      Enum.reduce(data, "", fn ele, acc ->
+        acc <> "(" <> Enum.map_join(ele, ",", &"\'#{&1}\'") <> "),"
+      end)
+
+    {string1, _} = String.split_at(string_form, -1)
+    table_headers = Enum.map_join(table_headers, ",", &"\"#{&1}\"")
+
+    Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [])
+
+    qry = """
+    CREATE OR REPLACE VIEW #{fact_table_name} AS
+      SELECT * FROM(
+      VALUES 
+      #{string1}) as #{fact_table_name}(#{table_headers});
+    """
+
+    res = Ecto.Adapters.SQL.query!(Repo, qry, [])
+    IO.puts("res")
+    IO.inspect(res)
+    data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+    %{headers: data.columns, data: data.rows}
+  end
+
+  def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
+    offset = page_size * (page_number - 1)
+
+    data =
+      Ecto.Adapters.SQL.query!(
+        Repo,
+        "select * from #{fact_table_name} OFFSET #{offset} LIMIT 20",
+        []
+      )
+
+    %{headers: data.columns, data: data.rows}
+  end
+
+  def fetch_children(parent_node, parent_entity, subtree, output, computed_row, headers) do
+    Enum.reduce(parent_node.children, [], fn child_entity, acc1 ->
+      res1 =
+        Enum.reduce(output[child_entity], [], fn entity, acc3 ->
+          if entity.parent_id == parent_entity.id do
+            computed_row =
+              List.replace_at(
+                computed_row,
+                headers[child_entity],
+                entity[:name] || entity[:value]
+              )
+
+            child_node = NaryTree.get(subtree, child_entity)
+            data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
+            if data != [], do: acc3 ++ data, else: acc3 ++ [computed_row]
+          else
+            acc3
+          end
+        end)
+
+      acc1 ++ res1
+    end)
+  end
+
+  def pivot_table(fact_table_name, user_list) do
+    query =
+      if user_list[:columns] == [] do
+        rows_data = user_list[:rows] |> Enum.map_join(",", &"\"#{&1}\"")
+
+        values_data =
+          Enum.reduce(user_list[:values], rows_data, fn value, acc ->
+            rows_data =
+              if Enum.member?(["sum", "avg", "min", "max"], value[:action]) do
+                rows_data <>
+                  "," <>
+                  "#{value[:action]}(CAST(\"#{value[:name]}\" AS NUMERIC)) as #{value[:title]}"
+              else
+                rows_data <> "," <> "#{value[:action]}(\"#{value[:name]}\") as #{value[:title]}"
+              end
+          end)
+
+        """
+          select #{values_data}
+          from #{fact_table_name}
+          group by cube(#{rows_data})
+          order by #{rows_data}
+        """
+      else
+        [column | _] = user_list[:columns]
+        [value | _] = user_list[:values]
+        # require IEx
+        # IEx.pry
+        column_res =
+          Ecto.Adapters.SQL.query!(
+            Repo,
+            "select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1",
+            []
+          )
+
+        columns_data =
+          List.flatten(column_res.rows)
+          |> Enum.filter(&(!is_nil(&1)))
+          |> Enum.uniq()
+          |> Enum.map_join(",", &("\"#{&1}\"" <> " TEXT"))
+
+        rows_data = user_list[:rows] |> Enum.join(",")
+
+        columns_data = rows_data <> " TEXT," <> columns_data
+
+        selected_data =
+          rows_data <>
+            "," <> column <> "," <> "#{value[:action]}(#{value[:name]}) as #{value[:title]}"
+
+        """
+          SELECT * 
+          FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} group by #{rows_data}, #{
+          column
+        } order by #{rows_data}, #{column}',
+          'select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1')
+          AS final_result(#{columns_data})
+        """
+      end
+
+    #   SELECT * 
+    # FROM crosstab('SELECT Building, sum(count(Occupsensor)) OVER (PARTITION BY Building), Apartment, count(Occupsensor) as "Count of Sensor" 
+    #       FROM f_table
+    #       group by Building, Apartment
+    #       order by Building, Apartment',
+    #        'select distinct Apartment FROM f_table where Apartment is not null order by 1')
+    # AS final_result
+    # (Building TEXT, Total bigint, "Apartment 1.1" TEXT,"Apartment 1.2" TEXT,"Apartment 2.1" TEXT,"Apartment 2.2" TEXT,
+    #  "Apartment 2.3" TEXT, "Apartment 3.1" TEXT,"Apartment 3.2" TEXT)
+
+    require IEx
+    IEx.pry()
+
+    res1 = Ecto.Adapters.SQL.query!(Repo, query, [])
+
+    output = %{headers: res1.columns, data: res1.rows}
+    IO.inspect(output)
+  end
+
+  def reduce_data(subtree, tree_node, entities, user_list) do
     Enum.reduce(tree_node.children, %{}, fn id, acc ->
       node = NaryTree.get(subtree, id)
 
@@ -259,7 +556,7 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
       # IO.inspect(entities)
 
       query =
-        if node.content != [] && node.content != :empty do
+        if node.content != [] && node.content != :empty && node.content != ["name"] do
           content = node.content -- ["name"]
 
           if node.type == "AssetType" do
@@ -270,36 +567,57 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
               select: %{
                 id: asset.id,
                 name: asset.name,
+                parent_id: asset.parent_id,
                 value: fragment("?->>'value'", c),
                 param_name: fragment("?->>'name'", c)
               }
             )
           else
-            from(sensor in Sensor,
-              where:
-                sensor.sensor_type_id == ^id and sensor.parent_id in ^entities and
-                  sensor.parent_type == "Asset",
-              select: map(sensor, [:id, :name])
-            )
+            subquery =
+              from(sensor in Sensor,
+                where:
+                  sensor.sensor_type_id == ^id and sensor.parent_id in ^entities and
+                    sensor.parent_type == "Asset",
+                select: sensor.id
+              )
+
+            sensor_ids = Repo.all(subquery)
+
+            if sensor_ids != [] do
+              sensor_entity =
+                Enum.filter(user_list, fn x ->
+                  "#{x["id"]}" == node.id && x["type"] == node.type
+                end)
+
+              [
+                %{
+                  "metadata_name" => metadata_name,
+                  "date_to" => date_to,
+                  "date_from" => date_from
+                }
+              ] = sensor_entity
+
+              query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
+              SensorData.fetch_sensors_data(query, [metadata_name])
+            else
+              subquery
+            end
           end
         else
           if node.type == "AssetType" do
             from(asset in Asset,
               where: asset.asset_type_id == ^id and asset.parent_id in ^entities,
-              select: map(asset, [:id, :name])
+              select: map(asset, [:id, :name, :parent_id])
             )
           else
             from(sensor in Sensor,
               where:
                 sensor.sensor_type_id == ^id and sensor.parent_id in ^entities and
                   sensor.parent_type == "Asset",
-              select: map(sensor, [:id, :name])
+              select: map(sensor, [:id, :name, :parent_id])
             )
           end
         end
-
-      # require IEx
-      # IEx.pry
 
       k = Repo.all(query)
 
@@ -343,8 +661,8 @@ defmodule AcqdatApiWeb.DataInsights.Topology do
       # IO.inspect(child_id)
       # IO.inspect(k)
       # IO.puts("-----------------------------")
-      res1 = reduce_data(subtree, node, k)
-      res2 = Map.put_new(acc, node.name, k)
+      res1 = reduce_data(subtree, node, k, user_list)
+      res2 = Map.put_new(acc, node.id, k)
       # IO.puts("res1")
       # IO.inspect(res1)
       # IO.puts("res2")

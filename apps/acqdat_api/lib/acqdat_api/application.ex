@@ -13,6 +13,7 @@ defmodule AcqdatApi.Application do
       AcqdatApi.ExtractRoutesSupervisor,
       AcqdatApi.DataCruncher.TaskExecuteWorker,
       AcqdatApi.Helper.RedisSupervisor,
+      AcqdatApi.DataInsights.FactTableGenWorker,
       {Task.Supervisor, name: Datakrew.TaskSupervisor}
       # Starts a worker by calling: AcqdatApi.Worker.start_link(arg)
       # {AcqdatApi.Worker, arg},

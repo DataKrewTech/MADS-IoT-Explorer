@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.UserSocket do
 
   ## Channels
   channel("tasks:*", AcqdatApiWeb.DataCruncher.TasksChannel)
+  channel("project_fact_table:*", AcqdatApiWeb.DataInsights.TasksChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -18,24 +19,27 @@ defmodule AcqdatApiWeb.UserSocket do
   # performing token verification on connect.
   # socket = new Socket("/socket", {params: {token: window.userToken}})
   def connect(%{"token" => token}, socket, _connect_info) do
-    case Phoenix.Token.verify(
-           socket,
-           @secret_key_base,
-           token,
-           max_age: 86_400
-         ) do
-      {:ok, %{user_id: user_id, org_id: org_id}} ->
-        socket =
-          socket
-          |> assign(:user_token, token)
-          |> assign(:org_id, org_id)
-          |> assign(:user_id, user_id)
+    # require IEx
+    # IEx.pry
+    # case Phoenix.Token.verify(
+    #        socket,
+    #        @secret_key_base,
+    #        token,
+    #        max_age: 86_400
+    #      ) do
+    #   {:ok, %{user_id: user_id, org_id: org_id}} ->
+    #     socket =
+    #       socket
+    #       |> assign(:user_token, token)
+    #       |> assign(:org_id, org_id)
+    #       |> assign(:user_id, user_id)
 
-        {:ok, socket}
+    #     {:ok, socket}
 
-      {:error, reason} ->
-        :error
-    end
+    #   {:error, reason} ->
+    #     :error
+    # end
+    {:ok, socket}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
