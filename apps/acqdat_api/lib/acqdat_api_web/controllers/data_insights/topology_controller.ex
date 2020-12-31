@@ -45,10 +45,15 @@ defmodule AcqdatApiWeb.DataInsights.TopologyController do
     end
   end
 
-  def fact_table(conn, %{"org_id" => org_id, "project_id" => project_id, "user_list" => user_list}) do
+  def fact_table(conn, %{
+        "org_id" => org_id,
+        "project_id" => project_id,
+        "fact_table_id" => id,
+        "user_list" => user_list
+      }) do
     case conn.status do
       nil ->
-        case Topology.gen_sub_topology(org_id, conn.assigns.project, user_list) do
+        case Topology.gen_sub_topology(id, org_id, conn.assigns.project, user_list) do
           {:error, message} ->
             conn
             |> send_error(404, message)
