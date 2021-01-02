@@ -34,11 +34,11 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
     test "returns sensor data, if user's input contains only one sensor_type(EnergyMtr)",
          context do
-      %{org_id: org_id, project: project} = context
+      %{org_id: org_id, project: project, energy_mtr_type: energy_mtr_type} = context
 
       user_list = [
         %{
-          "id" => "2",
+          "id" => energy_mtr_type.id,
           "name" => "Energy Meter",
           "type" => "SensorType",
           "metadata_name" => "name",
@@ -48,8 +48,29 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       data = Topology.gen_sub_topology(org_id, project, user_list)
 
-      assert data[:type] == "SensorType"
-      assert data[:name] == "Energy Meter"
+      assert length(data["Energy Meter"]) == 6
+    end
+
+    test "returns sensor data with timestamp, if user's input contains only one sensor_type(EnergyMtr) with metadata",
+         context do
+      %{org_id: org_id, project: project, energy_mtr_type: energy_mtr_type} = context
+
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Current",
+          "date_from" => Timex.shift(Timex.now(), months: -1),
+          "date_to" => Timex.now(),
+          "pos" => 1
+        }
+      ]
+
+      data = Topology.gen_sub_topology(org_id, project, user_list)
+
+      assert Map.has_key?(data, "Energy Meter")
+      assert length(data["Energy Meter"]) != 0
     end
 
     test "returns asset data, if user's input contains only one asset_type(Building)", context do
@@ -455,7 +476,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       assert length(res["Place"]) == 1
     end
 
-    test "should return error, if the user provided entities are like this [Building, Apartment, OccupancySensor]",
+    test "should return data, if the user provided entities are like this [Building, Apartment, OccupancySensor]",
          context do
       %{
         org_id: org_id,
@@ -505,6 +526,81 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       res = Topology.gen_sub_topology(org_id, project, user_list)
 
+      IO.inspect(res)
+
+      assert length(res["Occupancy Sensor"]) == 2
+      assert length(res["Building"]) == 3
+      assert length(res["Apartment"]) == 7
+    end
+
+    test "should return data, if the user provided entities are like this [Building, Place, Apartment, OccupancySensor, EnergyMtr]",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        building_type: building_type,
+        occupancy_sensor_type: occupancy_sensor_type,
+        place_type: place_type,
+        energy_mtr_type: energy_mtr_type
+      } = context
+
+      user_list = [
+        %{
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
+        },
+        %{
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "painted",
+          "pos" => 4
+        },
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 3
+        },
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "color",
+          "pos" => 5
+        },
+        %{
+          "id" => occupancy_sensor_type.id,
+          "name" => "Occupancy Sensor",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
+        },
+        %{
+          "id" => place_type.id,
+          "name" => "Place",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
+        },
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "pos" => 1
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      IO.inspect(res)
+
       assert length(res["Occupancy Sensor"]) == 2
       assert length(res["Building"]) == 3
       assert length(res["Apartment"]) == 7
@@ -540,6 +636,43 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
 
       assert err_msg ==
                "All entities are not directly connected, please connect common parent entity."
+    end
+
+    test "should return data, if the user provided entities contains sensors telemetry data",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        apartment_type: apartment_type,
+        energy_mtr_type: energy_mtr_type
+      } = context
+
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Current",
+          "date_from" => Timex.shift(Timex.now(), months: -1),
+          "date_to" => Timex.now(),
+          "pos" => 1
+        },
+        %{
+          "id" => apartment_type.id,
+          "name" => "Apartment",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "pos" => 2
+        }
+      ]
+
+      res = Topology.gen_sub_topology(org_id, project, user_list)
+
+      require IEx
+      IEx.pry()
+
+      assert length(res["Energy Meter"]) != 0
+      assert length(res["Apartment"]) == 7
     end
   end
 end

@@ -159,6 +159,14 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     Repo.all(query) |> Repo.preload(preloads)
   end
 
+  def get_all_by_sensor_type(sensor_type_id) do
+    from(sensor in Sensor,
+      where: sensor.sensor_type_id == ^sensor_type_id,
+      select: map(sensor, [:id, :name])
+    )
+    |> Repo.all()
+  end
+
   def child_sensors_query(root) when not is_list(root) do
     from(sensor in Sensor,
       preload: [:sensor_type, :gateway],
