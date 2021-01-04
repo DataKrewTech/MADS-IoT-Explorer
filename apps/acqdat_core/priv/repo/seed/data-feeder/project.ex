@@ -26,7 +26,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
       id: params.id,
       name: params.name,
       uuid: params.uuid,
-      "join_field": "organisation"
+      "join_field": "org"
       )
   end
 

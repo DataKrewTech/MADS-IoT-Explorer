@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   alias AcqdatCore.Schema.EntityManagement.Sensor
   alias AcqdatCore.Schema.EntityManagement.AssetType
   alias AcqdatCore.Schema.EntityManagement.SensorType
+  alias AcqdatCore.Schema.EntityManagement.Asset
 
   alias AcqdatCore.Repo
   import Tirexs.HTTP
@@ -11,6 +12,10 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
     Enum.each(sensors, fn sensor ->
       insert_sensor("sensors", sensor)
     end)
+    assets = Repo.all(Asset)
+    Enum.each(assets, fn asset ->
+      insert_asset("assets", asset)
+    end)
     asset_types = Repo.all(AssetType)
     Enum.each(asset_types, fn asset_type ->
       insert_asset_type("asset_types", asset_type)
@@ -19,6 +24,17 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
     Enum.each(sensor_types, fn sensor_type ->
       insert_sensor_type("sensor_types", sensor_type)
     end)
+  end
+
+  def insert_asset(type, params) do
+    post("#{type}/_doc/#{params.id}",
+      id: params.id,
+      name: params.name,
+      properties: params.properties,
+      slug: params.slug,
+      uuid: params.uuid,
+      project_id: params.project_id
+    )
   end
 
   defp insert_sensor(type, params) do
