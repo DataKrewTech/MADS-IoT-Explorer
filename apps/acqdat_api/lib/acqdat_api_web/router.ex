@@ -195,7 +195,10 @@ defmodule AcqdatApiWeb.Router do
     scope "/projects/:project_id", DataInsights do
       resources "/topology", TopologyController, only: [:index]
       get("/topology_entities", TopologyController, :entities)
-      resources "/fact_tables", FactTablesController, only: [:create, :update]
+
+      resources "/fact_tables", FactTablesController, only: [:create, :update] do
+        resources "/pivot_tables", PivotTablesController, only: [:create]
+      end
     end
 
     post("/fetch_token", DataInsights.EntityController, :fetch_token)

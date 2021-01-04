@@ -74,6 +74,9 @@ defmodule AcqdatApi.DataInsights.Topology do
           )
           |> Repo.all()
 
+        date_from = from_unix(date_from)
+        date_to = from_unix(date_to)
+
         query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
         SensorData.fetch_sensors_data(query, [metadata_name])
       end
@@ -429,18 +432,19 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   def pivot_table(fact_table_name, user_list) do
     query =
-      if user_list[:columns] == [] do
-        rows_data = user_list[:rows] |> Enum.map_join(",", &"\"#{&1}\"")
+      if user_list["columns"] == [] do
+        rows_data = user_list["rows"] |> Enum.map_join(",", &"\"#{&1}\"")
 
         values_data =
-          Enum.reduce(user_list[:values], rows_data, fn value, acc ->
+          Enum.reduce(user_list["values"], rows_data, fn value, acc ->
             rows_data =
-              if Enum.member?(["sum", "avg", "min", "max"], value[:action]) do
+              if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
                 rows_data <>
                   "," <>
-                  "#{value[:action]}(CAST(\"#{value[:name]}\" AS NUMERIC)) as #{value[:title]}"
+                  "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as #{value["title"]}"
               else
-                rows_data <> "," <> "#{value[:action]}(\"#{value[:name]}\") as #{value[:title]}"
+                rows_data <>
+                  "," <> "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
               end
           end)
 
@@ -451,10 +455,9 @@ defmodule AcqdatApi.DataInsights.Topology do
           order by #{rows_data}
         """
       else
-        [column | _] = user_list[:columns]
-        [value | _] = user_list[:values]
-        # require IEx
-        # IEx.pry
+        [column | _] = user_list["columns"]
+        [value | _] = user_list["values"]
+
         column_res =
           Ecto.Adapters.SQL.query!(
             Repo,
@@ -468,13 +471,13 @@ defmodule AcqdatApi.DataInsights.Topology do
           |> Enum.uniq()
           |> Enum.map_join(",", &("\"#{&1}\"" <> " TEXT"))
 
-        rows_data = user_list[:rows] |> Enum.join(",")
+        rows_data = user_list["rows"] |> Enum.join(",")
 
         columns_data = rows_data <> " TEXT," <> columns_data
 
         selected_data =
           rows_data <>
-            "," <> column <> "," <> "#{value[:action]}(#{value[:name]}) as #{value[:title]}"
+            "," <> column <> "," <> "#{value["action"]}(#{value["name"]}) as #{value["title"]}"
 
         """
           SELECT * 
@@ -496,13 +499,9 @@ defmodule AcqdatApi.DataInsights.Topology do
     # (Building TEXT, Total bigint, "Apartment 1.1" TEXT,"Apartment 1.2" TEXT,"Apartment 2.1" TEXT,"Apartment 2.2" TEXT,
     #  "Apartment 2.3" TEXT, "Apartment 3.1" TEXT,"Apartment 3.2" TEXT)
 
-    require IEx
-    IEx.pry()
-
     res1 = Ecto.Adapters.SQL.query!(Repo, query, [])
 
-    output = %{headers: res1.columns, data: res1.rows}
-    IO.inspect(output)
+    %{headers: res1.columns, data: res1.rows}
   end
 
   def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
@@ -573,6 +572,9 @@ defmodule AcqdatApi.DataInsights.Topology do
                   "date_from" => date_from
                 }
               ] = sensor_entity
+
+              date_from = from_unix(date_from)
+              date_to = from_unix(date_to)
 
               query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
               SensorData.fetch_sensors_data(query, [metadata_name])
@@ -652,5 +654,10 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   defp ets_proj_key(project) do
     "#{project.id}_#{project.version}"
+  end
+
+  defp from_unix(datetime) do
+    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
+    res
   end
 end
