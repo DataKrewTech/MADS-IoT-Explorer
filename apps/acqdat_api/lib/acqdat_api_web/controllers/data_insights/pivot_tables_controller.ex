@@ -6,23 +6,24 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
 
-  def create(conn, %{
-        "org_id" => org_id,
-        "project_id" => project_id,
-        "fact_tables_id" => fact_tables_id,
-        "user_list" => user_list
-      }) do
+  def create(conn, params) do
     case conn.status do
       nil ->
-        case Topology.pivot_table("fact_table_#{fact_tables_id}", user_list) do
-          {:error, message} ->
-            conn
-            |> send_error(404, message)
+        case Topology.gen_pivot_table(params) do
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
 
-          data ->
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
+            conn
+            |> send_error(400, error)
+
+          {:ok, data} ->
             conn
             |> put_status(200)
-            |> render("pivot_table_data.json", %{pivot_table: data})
+            |> render("pivot_table_data.json", %{pivot_table: data[:gen_pivot_data]})
         end
 
       404 ->
