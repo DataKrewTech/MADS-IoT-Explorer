@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.DataInsights.TopologyController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
-  alias AcqdatApiWeb.DataInsights.Topology
+  alias AcqdatApi.DataInsights.Topology
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadOrg
