@@ -10,6 +10,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
   alias AcqdatCore.Repo
+  alias Ecto.Multi
   import Ecto.Query
 
   @table :proj_topology
@@ -291,7 +292,7 @@ defmodule AcqdatApi.DataInsights.Topology do
     create_fact_table_view(fact_table_name, table_headers, table_body)
 
     data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-    %{headers: data.columns, data: data.rows}
+    %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
   end
 
   def compute_table_data(output, subtree, headers, rows_len, parent_entity, child_entity) do
@@ -397,7 +398,7 @@ defmodule AcqdatApi.DataInsights.Topology do
     Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [])
 
     qry = """
-    CREATE OR REPLACE VIEW #{fact_table_name} AS
+      CREATE OR REPLACE VIEW #{fact_table_name} AS
       SELECT * FROM(
       VALUES 
       #{data}) as #{fact_table_name}(#{table_headers});
@@ -430,10 +431,126 @@ defmodule AcqdatApi.DataInsights.Topology do
     end)
   end
 
-  def pivot_table(fact_table_name, user_list) do
+  def gen_pivot_table(%{
+        "org_id" => org_id,
+        "project_id" => project_id,
+        "fact_tables_id" => fact_tables_id,
+        "name" => name,
+        "user_list" => user_list
+      }) do
+    Multi.new()
+    |> Multi.run(:persist_to_db, fn _, _changes ->
+      PivotTableModel.create(%{
+        org_id: org_id,
+        project_id: project_id,
+        fact_table_id: fact_tables_id,
+        name: name,
+        columns: user_list["columns"],
+        rows: user_list["rows"],
+        values: user_list["values"],
+        filters: user_list["filters"]
+      })
+    end)
+    |> Multi.run(:gen_pivot_data, fn _, %{persist_to_db: table} ->
+      # require IEx
+      # IEx.pry
+      gen_pivot_data(fact_tables_id, user_list)
+    end)
+    |> run_under_transaction(:gen_pivot_data)
+
+    # query =
+    #   if user_list["columns"] == [] do
+    #     rows_data = Enum.map(user_list["rows"], fn x -> x["name"] end)
+    #     rows_data = rows_data |> Enum.map_join(",", &"\"#{&1}\"")
+
+    #     values_data =
+    #       Enum.reduce(user_list["values"], rows_data, fn value, acc ->
+    #         rows_data =
+    #           if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
+    #             rows_data <>
+    #               "," <>
+    #               "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as #{value["title"]}"
+    #           else
+    #             rows_data <>
+    #               "," <> "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
+    #           end
+    #       end)
+
+    #     """
+    #       select #{values_data}
+    #       from #{fact_table_name}
+    #       group by cube(#{rows_data})
+    #       order by #{rows_data}
+    #     """
+    #   else
+    #     [column | _] = user_list["columns"]
+    #     [value | _] = user_list["values"]
+
+    #     column_res =
+    #       Ecto.Adapters.SQL.query!(
+    #         Repo,
+    #         "select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1",
+    #         []
+    #       )
+
+    #     columns_data =
+    #       List.flatten(column_res.rows)
+    #       |> Enum.filter(&(!is_nil(&1)))
+    #       |> Enum.uniq()
+    #       |> Enum.map_join(",", &("\"#{&1}\"" <> " TEXT"))
+
+    #     rows_data = user_list["rows"] |> Enum.join(",")
+
+    #     columns_data = rows_data <> " TEXT," <> columns_data 
+
+    #     selected_data =
+    #       rows_data <>
+    #         "," <> column <> "," <> "#{value["action"]}(#{value["name"]}) as #{value["title"]}"
+
+    #     """
+    #       SELECT * 
+    #       FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} group by #{rows_data}, #{
+    #       column
+    #     } order by #{rows_data}, #{column}',
+    #       'select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1')
+    #       AS final_result(#{columns_data})
+    #     """
+    #   end
+
+    # #   SELECT * 
+    # # FROM crosstab('SELECT Building, sum(count(Occupsensor)) OVER (PARTITION BY Building), Apartment, count(Occupsensor) as "Count of Sensor" 
+    # #       FROM f_table
+    # #       group by Building, Apartment
+    # #       order by Building, Apartment',
+    # #        'select distinct Apartment FROM f_table where Apartment is not null order by 1')
+    # # AS final_result
+    # # (Building TEXT, Total bigint, "Apartment 1.1" TEXT,"Apartment 1.2" TEXT,"Apartment 2.1" TEXT,"Apartment 2.2" TEXT,
+    # #  "Apartment 2.3" TEXT, "Apartment 3.1" TEXT,"Apartment 3.2" TEXT)
+
+    # res1 = Ecto.Adapters.SQL.query!(Repo, query, [])
+
+    # %{headers: res1.columns, data: res1.rows}
+  end
+
+  defp run_under_transaction(multi, result_key) do
+    multi
+    |> Repo.transaction()
+    |> case do
+      {:ok, result} ->
+        {:ok, result[result_key]}
+
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
+        {:error, failed_value}
+    end
+  end
+
+  def gen_pivot_data(fact_tables_id, user_list) do
+    fact_table_name = "fact_table_#{fact_tables_id}"
+
     query =
       if user_list["columns"] == [] do
-        rows_data = user_list["rows"] |> Enum.map_join(",", &"\"#{&1}\"")
+        rows_data = Enum.map(user_list["rows"], fn x -> x["name"] end)
+        rows_data = rows_data |> Enum.map_join(",", &"\"#{&1}\"")
 
         values_data =
           Enum.reduce(user_list["values"], rows_data, fn value, acc ->
@@ -489,16 +606,6 @@ defmodule AcqdatApi.DataInsights.Topology do
         """
       end
 
-    #   SELECT * 
-    # FROM crosstab('SELECT Building, sum(count(Occupsensor)) OVER (PARTITION BY Building), Apartment, count(Occupsensor) as "Count of Sensor" 
-    #       FROM f_table
-    #       group by Building, Apartment
-    #       order by Building, Apartment',
-    #        'select distinct Apartment FROM f_table where Apartment is not null order by 1')
-    # AS final_result
-    # (Building TEXT, Total bigint, "Apartment 1.1" TEXT,"Apartment 1.2" TEXT,"Apartment 2.1" TEXT,"Apartment 2.2" TEXT,
-    #  "Apartment 2.3" TEXT, "Apartment 3.1" TEXT,"Apartment 3.2" TEXT)
-
     res1 = Ecto.Adapters.SQL.query!(Repo, query, [])
 
     %{headers: res1.columns, data: res1.rows}
@@ -514,7 +621,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         []
       )
 
-    %{headers: data.columns, data: data.rows}
+    %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
   end
 
   def reduce_data(subtree, tree_node, entities, user_list) do
@@ -650,6 +757,11 @@ defmodule AcqdatApi.DataInsights.Topology do
       # Map.merge(res2, res1, fn _k, v1, v2 -> Map.merge(v1, v2) end)
       Map.merge(res2, res1)
     end)
+  end
+
+  defp total_no_of_rec(fact_table_name) do
+    res = Ecto.Adapters.SQL.query!(Repo, "select count(*) from #{fact_table_name}", [])
+    res.rows |> List.first() |> List.first()
   end
 
   defp ets_proj_key(project) do
