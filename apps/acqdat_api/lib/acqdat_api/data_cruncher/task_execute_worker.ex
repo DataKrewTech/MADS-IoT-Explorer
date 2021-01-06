@@ -1,6 +1,7 @@
 defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
   use GenServer
   alias AcqdatCore.DataCruncher.Domain.Workflow
+  alias AcqdatCore.DataCruncher.Model.Task, as: TaskModel
   alias AcqdatCore.Repo
 
   def start_link(_) do
@@ -23,7 +24,8 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
       end)
 
     tasks |> Enum.map(fn task -> Task.await(task) end)
-    task = task |> Repo.preload(workflows: :temp_output)
+
+    {:ok, task} = TaskModel.get(task.id)
 
     AcqdatApiWeb.Endpoint.broadcast("tasks:#{task.id}", "out_put_res", %{data: task})
     {:noreply, task}

@@ -59,7 +59,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     end)
   end
 
-  defp generate_graph_data(%{input_data: input_data, id: worflow_id} = workflow) do
+  defp generate_graph_data(%{input_data: input_data, id: workflow_id} = workflow) do
     # TODO: Needs to refactor and test it out for multiple input data and nodes
     nodes =
       Enum.reduce(input_data, %{}, fn data, acc ->
@@ -72,7 +72,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
 
             res = [
               {
-                worflow_id,
+                workflow_id,
                 String.to_atom(node["inports"]),
                 stream_data
               }
