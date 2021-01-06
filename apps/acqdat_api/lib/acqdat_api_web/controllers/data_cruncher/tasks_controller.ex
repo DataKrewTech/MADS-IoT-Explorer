@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DataCruncher.Tasks
   alias AcqdatApi.DataCruncher.Task
+  alias AcqdatCore.Repo
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadOrg
@@ -13,6 +14,36 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
       nil ->
         case Task.create(params) do
           {:ok, task} ->
+            conn
+            |> put_status(200)
+            |> render("task.json", %{task: task})
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
+
+            conn
+            |> send_error(400, error)
+
+          {:error, error} ->
+            conn
+            |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        case Task.update(params) do
+          {:ok, task} ->
+            # require IEx
+            # IEx.pry
+            task = task |> Repo.preload(workflows: :temp_output)
+
             conn
             |> put_status(200)
             |> render("task.json", %{task: task})

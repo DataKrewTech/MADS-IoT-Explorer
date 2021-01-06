@@ -9,6 +9,11 @@ defmodule AcqdatCore.DataCruncher.Model.Task do
     Repo.insert(changeset)
   end
 
+  def update(task, params) do
+    changeset = Tasks.update_changeset(task, params)
+    Repo.update(changeset)
+  end
+
   def delete(task) do
     Repo.delete(task)
   end

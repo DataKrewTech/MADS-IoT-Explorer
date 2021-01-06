@@ -70,4 +70,18 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     )
     |> cast_assoc(:workflows, with: &Workflow.changeset/2)
   end
+
+  def update_changeset(%__MODULE__{} = task, params) do
+    task
+    |> cast(params, @permitted)
+    |> assoc_constraint(:org)
+    |> assoc_constraint(:user)
+    |> validate_required(@required_params)
+    |> validate_inclusion(:type, @task_types)
+    |> unique_constraint(:name,
+      name: :unique_task_name_per_user_n_org,
+      message: "Task name should be uniq"
+    )
+    |> cast_assoc(:workflows, with: &Workflow.changeset/2)
+  end
 end

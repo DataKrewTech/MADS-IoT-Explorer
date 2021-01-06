@@ -14,6 +14,12 @@ defmodule AcqdatApi.DataCruncher.Task do
     verify_task(TaskModel.get(id), params)
   end
 
+  def update(%{"id" => id, "action" => action} = params)
+      when action == "register" do
+    {id, _} = Integer.parse(id)
+    verify_task(TaskModel.get(id), params)
+  end
+
   def create(params) do
     Multi.new()
     |> Multi.run(:create_task, fn _, _changes ->
@@ -47,7 +53,9 @@ defmodule AcqdatApi.DataCruncher.Task do
       TaskModel.update(task, params)
     end)
     |> Multi.run(:register_workflows, fn _, %{update_task: task} ->
-      Task.register_workflows(task)
+      task
+      |> Repo.preload(workflows: :temp_output)
+      |> Task.register_workflows()
     end)
     |> run_transaction()
   end
