@@ -64,6 +64,9 @@ defmodule AcqdatCore.DataCruncher.Schema.Tasks do
     |> add_uuid()
     |> validate_required(@required_params)
     |> validate_inclusion(:type, @task_types)
+    |> unique_constraint(:name,
+      name: :unique_task_name_per_user_n_org,
+      message: "Task name should be uniq")
     |> cast_assoc(:workflows, with: &Workflow.changeset/2)
   end
 end
