@@ -489,10 +489,23 @@ defmodule AcqdatApi.DataInsights.Topology do
         [column | _] = user_list["columns"]
         [value | _] = user_list["values"]
 
+        col_query =
+          if column["action"] == "group" do
+            """
+              select
+                date_trunc('day', to_timestamp("#{column["name"]}", 'YYYY-MM-DD'))
+                from #{fact_table_name}
+                group by 1
+                order by 1;
+            """
+          else
+            "select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1"
+          end
+
         column_res =
           Ecto.Adapters.SQL.query!(
             Repo,
-            "select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1",
+            col_query,
             []
           )
 
@@ -502,27 +515,104 @@ defmodule AcqdatApi.DataInsights.Topology do
           |> Enum.uniq()
           |> Enum.map_join(",", &("\"#{&1}\"" <> " TEXT"))
 
-        rows_data = user_list["rows"] |> Enum.join(",")
+        rows_data = Enum.map(user_list["rows"], fn x -> x["name"] end)
+        rows_data = rows_data |> Enum.join(",")
 
         columns_data = rows_data <> " TEXT," <> columns_data
 
-        selected_data =
-          rows_data <>
-            "," <> column <> "," <> "#{value["action"]}(#{value["name"]}) as #{value["title"]}"
+        crosstab_query =
+          if column["action"] == "group" do
+            # value_name = "\"#{value["name"]}\""
 
-        """
-          SELECT * 
-          FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} group by #{rows_data}, #{
-          column
-        } order by #{rows_data}, #{column}',
-          'select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1')
-          AS final_result(#{columns_data})
-        """
+            inner_select_qry =
+              aggregate_data_sub_query(
+                value["action"],
+                rows_data,
+                column["name"],
+                value,
+                fact_table_name
+              )
+
+            """
+              SELECT * FROM CROSSTAB ($$
+                #{inner_select_qry}
+              $$,$$
+               #{col_query}
+              $$
+            ) AS (
+                #{columns_data}
+            )
+            """
+          else
+            selected_data =
+              rows_data <>
+                "," <>
+                column <> "," <> "#{value["action"]}(#{value["name"]}) as #{value["title"]}"
+
+            """
+              SELECT *
+              FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} group by #{rows_data}, #{
+              column
+            } order by #{rows_data}, #{column}',
+              'select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1')
+              AS final_result(#{columns_data})
+            """
+          end
       end
 
     res1 = Ecto.Adapters.SQL.query!(Repo, query, [])
 
+    IO.inspect(res1)
+
     {:ok, %{headers: res1.columns, data: res1.rows, id: pivot_table.id, name: pivot_table.name}}
+  end
+
+  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+      when action == "count" do
+    value_name = "\"#{value["name"]}\""
+
+    """
+      SELECT "#{rows_data}",
+          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          COUNT(#{value_name}) as #{value["title"]}
+          FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
+    """
+  end
+
+  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+      when action == "sum" do
+    value_name = "\"#{value["name"]}\""
+
+    """
+      SELECT "#{rows_data}",
+          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          SUM(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+          FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
+    """
+  end
+
+  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+      when action == "min" do
+    value_name = "\"#{value["name"]}\""
+
+    """
+      SELECT "#{rows_data}",
+          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          MIN(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+          FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
+    """
+  end
+
+  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+      when action == "max" do
+    value_name = "\"#{value["name"]}\""
+
+    """
+      SELECT "#{rows_data}",
+          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          MAX(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+          FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
+    """
   end
 
   def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
