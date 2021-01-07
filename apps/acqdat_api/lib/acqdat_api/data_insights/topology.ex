@@ -493,7 +493,9 @@ defmodule AcqdatApi.DataInsights.Topology do
           if column["action"] == "group" do
             """
               select
-                date_trunc('day', to_timestamp("#{column["name"]}", 'YYYY-MM-DD'))
+                time_bucket('#{column["group_interval"]} #{column["group_by"]}'::VARCHAR::INTERVAL, to_timestamp("#{
+              column["name"]
+            }", 'YYYY-MM-DD hh24:mi:ss'))
                 from #{fact_table_name}
                 group by 1
                 order by 1;
@@ -522,15 +524,15 @@ defmodule AcqdatApi.DataInsights.Topology do
 
         crosstab_query =
           if column["action"] == "group" do
-            # value_name = "\"#{value["name"]}\""
-
             inner_select_qry =
               aggregate_data_sub_query(
                 value["action"],
                 rows_data,
                 column["name"],
                 value,
-                fact_table_name
+                fact_table_name,
+                column["group_interval"],
+                column["group_by"]
               )
 
             """
@@ -567,49 +569,81 @@ defmodule AcqdatApi.DataInsights.Topology do
     {:ok, %{headers: res1.columns, data: res1.rows, id: pivot_table.id, name: pivot_table.name}}
   end
 
-  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+  def aggregate_data_sub_query(
+        action,
+        rows_data,
+        col_name,
+        value,
+        fact_table_name,
+        group_int,
+        group_by
+      )
       when action == "count" do
     value_name = "\"#{value["name"]}\""
 
     """
       SELECT "#{rows_data}",
-          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
           COUNT(#{value_name}) as #{value["title"]}
           FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
     """
   end
 
-  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+  def aggregate_data_sub_query(
+        action,
+        rows_data,
+        col_name,
+        value,
+        fact_table_name,
+        group_int,
+        group_by
+      )
       when action == "sum" do
     value_name = "\"#{value["name"]}\""
 
     """
       SELECT "#{rows_data}",
-          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
           SUM(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
           FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
     """
   end
 
-  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+  def aggregate_data_sub_query(
+        action,
+        rows_data,
+        col_name,
+        value,
+        fact_table_name,
+        group_int,
+        group_by
+      )
       when action == "min" do
     value_name = "\"#{value["name"]}\""
 
     """
       SELECT "#{rows_data}",
-          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
           MIN(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
           FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
     """
   end
 
-  def aggregate_data_sub_query(action, rows_data, col_name, value, fact_table_name)
+  def aggregate_data_sub_query(
+        action,
+        rows_data,
+        col_name,
+        value,
+        fact_table_name,
+        group_int,
+        group_by
+      )
       when action == "max" do
     value_name = "\"#{value["name"]}\""
 
     """
       SELECT "#{rows_data}",
-          date_trunc('day', to_timestamp("#{col_name}", 'YYYY-MM-DD')) as "datetime_data",
+          time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
           MAX(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
           FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
     """
