@@ -178,15 +178,15 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       {"Building Brown", "No of Floors"} ->
         "7"
       {_, "Date Of Construction"} ->
-        Enum.random(Date.range(~D[1999-01-01], ~D[2000-01-01]))
+        "#{Enum.random(Date.range(~D[1999-01-01], ~D[2000-01-01]))}"
       {_, "No of Rooms"} ->
-        Enum.random(2..5)
+        "#{Enum.random(2..5)}"
       {_, "Race"} ->
         Enum.random(["American", "Indian", "African", "Korean", "Japanese", "Chinese"])
       {_, "Painted"} ->
-        Enum.random([true, false])
+        "#{Enum.random([true, false])}"
       {_, "No of Kids"} ->
-        Enum.random(0..3)
+        "#{Enum.random(0..3)}"
     end
   end
 
