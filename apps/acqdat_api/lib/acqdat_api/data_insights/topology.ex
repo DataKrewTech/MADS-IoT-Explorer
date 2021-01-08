@@ -432,6 +432,7 @@ defmodule AcqdatApi.DataInsights.Topology do
     end)
   end
 
+  # TODO: Need to Refactor Pivot Table Creation Method
   def gen_pivot_table(%{
         "org_id" => org_id,
         "project_id" => project_id,
@@ -487,6 +488,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         """
       else
         [column | _] = user_list["columns"]
+        column_name = "\"#{column["name"]}\""
         [value | _] = user_list["values"]
 
         col_query =
@@ -501,7 +503,9 @@ defmodule AcqdatApi.DataInsights.Topology do
                 order by 1;
             """
           else
-            "select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1"
+            "select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and length(#{
+              column_name
+            }) > 0 order by 1"
           end
 
         column_res =
@@ -513,12 +517,16 @@ defmodule AcqdatApi.DataInsights.Topology do
 
         columns_data =
           List.flatten(column_res.rows)
-          |> Enum.filter(&(!is_nil(&1)))
+          |> Enum.filter(&(!is_nil(&1) && &1 != ""))
           |> Enum.uniq()
           |> Enum.map_join(",", &("\"#{&1}\"" <> " TEXT"))
 
         rows_data = Enum.map(user_list["rows"], fn x -> x["name"] end)
-        rows_data = rows_data |> Enum.join(",")
+
+        rows_data =
+          if column["action"] == "group",
+            do: rows_data |> Enum.join(","),
+            else: rows_data |> Enum.map_join(",", &"\"#{&1}\"")
 
         columns_data = rows_data <> " TEXT," <> columns_data
 
@@ -549,14 +557,17 @@ defmodule AcqdatApi.DataInsights.Topology do
             selected_data =
               rows_data <>
                 "," <>
-                column <> "," <> "#{value["action"]}(#{value["name"]}) as #{value["title"]}"
+                column_name <> "," <> value_data_string(value)
 
             """
               SELECT *
-              FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} group by #{rows_data}, #{
-              column
-            } order by #{rows_data}, #{column}',
-              'select distinct #{column} from #{fact_table_name} where #{column} is not null order by 1')
+              FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} where \"#{
+              value["name"]
+            }\" is not null and length(\"#{value["name"]}\") > 0
+              group by #{rows_data}, #{column_name} order by #{rows_data}, #{column_name}',
+              'select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and length(#{
+              column_name
+            }) > 0 order by 1')
               AS final_result(#{columns_data})
             """
           end
@@ -567,6 +578,14 @@ defmodule AcqdatApi.DataInsights.Topology do
     IO.inspect(res1)
 
     {:ok, %{headers: res1.columns, data: res1.rows, id: pivot_table.id, name: pivot_table.name}}
+  end
+
+  def value_data_string(value) do
+    if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
+      "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as #{value["title"]}"
+    else
+      "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
+    end
   end
 
   def aggregate_data_sub_query(
@@ -585,6 +604,26 @@ defmodule AcqdatApi.DataInsights.Topology do
       SELECT "#{rows_data}",
           time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
           COUNT(#{value_name}) as #{value["title"]}
+          FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
+    """
+  end
+
+  def aggregate_data_sub_query(
+        action,
+        rows_data,
+        col_name,
+        value,
+        fact_table_name,
+        group_int,
+        group_by
+      )
+      when action == "avg" do
+    value_name = "\"#{value["name"]}\""
+
+    """
+      SELECT "#{rows_data}",
+          time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
+          AVG(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
           FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
     """
   end
