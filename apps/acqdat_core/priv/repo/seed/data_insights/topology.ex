@@ -5,6 +5,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
+  alias AcqdatCore.Schema.EntityManagement.SensorType.Parameters
 
   # Data Seed Info::
   # 6 Buildings
@@ -36,7 +37,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   end
 
   def build_topology(%{id: asset_type_id, org_id: org_id, project_id: project_id} = asset_type, apartment_asset_type, playground_asset_type, user, org) do
-    
+
     {:ok, energy_mtr_sensor_type} = SensorType.create(%{name: "Energy Meter", project_id: project_id, org_id: org_id, parameters: gen_sensor_type_params("Energy Meter")})
 
     {:ok, heat_mtr_sensor_type} = SensorType.create(%{name: "Heat Meter", project_id: project_id, org_id: org_id, parameters: gen_sensor_type_params("Heat Meter")})
@@ -45,7 +46,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
 
     list = ["Red", "Green", "Blue", "Yellow", "White", "Brown"]
 
-    Enum.each(list, fn ele -> 
+    Enum.each(list, fn ele ->
       {:ok, building} = build_root_asset(
           "Building #{ele}",
           org_id,
@@ -71,12 +72,12 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       )
 
       {:ok, occup_sensor} = Sensor.create(occup_sensor)
-      
+
 
       {no_of_floors, _} = Integer.parse(no_of_floors)
 
-      Enum.each(1..no_of_floors, fn floor_no -> 
-        Enum.each(1..4, fn apt_no -> 
+      Enum.each(1..no_of_floors, fn floor_no ->
+        Enum.each(1..4, fn apt_no ->
           apt_name = "Apt #{ele} #{floor_no}#{apt_no}"
           apt = build_asset_map(apt_name, org_id, project_id, user.id, apartment_asset_type)
           {:ok, apt} = Asset.add_as_child(building, apt, :child)
@@ -129,7 +130,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       properties: [],
       metadata: generate_asset_metadata(asset_type, name)
     }
-  end 
+  end
 
   defp build_root_asset(name, org_id, org_name, project_id, creator_id, asset_type) do
     Asset.add_as_root(%{
@@ -225,7 +226,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       "Heat Meter" ->
         [
           %{
-            name: "Heat",
+            name: "temp",
             data_type: "string",
             uuid: UUID.uuid1(:hex)
           }
@@ -291,5 +292,120 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       _ ->
         []
     end
+  end
+
+  def gen_sensor_type_data("energy", sensor) do
+    duration = 3 * 30 # duration in months
+    interval = 10 # interval in minutes
+    iterator = get_time_iterator(duration, interval)
+
+    Enum.map(iterator, fn time ->
+      %{
+        sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
+        inserted_at: time,
+        inserted_timestamp: time,
+        parameters: energy_parameters(sensor, interval)
+      }
+    end)
+  end
+
+  defp energy_parameters(sensor, duration) do
+    sensor.sensor_type.parameters
+    |> Enum.reduce(%{}, fn
+      %Parameters{name: "Voltage"} = params, acc ->
+        result = %{}
+        |> Map.put(:name, params.name)
+        |> Map.put(:uuid, params.uuid)
+        |> Map.put(:data_type, params.data_type)
+        |> Map.put(:value, Enum.random(230..240))
+
+        Map.put(acc, "Voltage", result)
+      %Parameters{name: "Current"} = params, acc ->
+        result = %{}
+        |> Map.put(:name, params.name)
+        |> Map.put(:uuid, params.uuid)
+        |> Map.put(:data_type, params.data_type)
+        |> Map.put(:value, Enum.random(1..10))
+
+        Map.put(acc, "Current", result)
+      %Parameters{name: "Power"} = params, acc ->
+        voltage = Map.get(acc, "Voltage") |> Map.get(:value)
+        current = Map.get(acc, "Current") |> Map.get(:value)
+        power = voltage * current * 0.9
+        result = %{}
+        |> Map.put(:name, params.name)
+        |> Map.put(:uuid, params.uuid)
+        |> Map.put(:data_type, params.data_type)
+        |> Map.put(:value, power)
+
+        Map.put(acc, "Power", result)
+      %Parameters{name: "Energy"} = params, acc ->
+        power = Map.get(acc, "Power") |> Map.get(:value)
+        energy = (power * duration) / 60
+        result = %{}
+        |> Map.put(:name, params.name)
+        |> Map.put(:uuid, params.uuid)
+        |> Map.put(:data_type, params.data_type)
+        |> Map.put(:value, energy)
+
+        Map.put(acc, "Energy", result)
+    end)
+    |> Enum.map(fn {key, value} ->
+      value
+    end)
+  end
+
+  def gen_sensor_type_data("heat", sensor) do
+    duration = 3 * 30 # duration in months
+    interval = 10 # interval in minutes
+    iterator = get_time_iterator(duration, interval)
+
+    Enum.map(iterator, fn time ->
+      %{
+        sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
+        inserted_at: time,
+        inserted_timestamp: time,
+        parameters: heat_parameters(sensor)
+      }
+    end)
+  end
+
+  defp heat_parameters(sensor) do
+    [param] = sensor.sensor_type.parameters
+    %{}
+    |> Map.put(:uuid, param.uuid)
+    |> Map.put(:name, param.name)
+    |> Map.put(:data_type, param.data_type)
+    |> Map.put(:value, Enum.random(20..35))
+  end
+
+  def gen_sensor_type_data("occupancy", sensor) do
+    duration = 3 * 30 # duration in months
+    interval = 10 # interval in minutes
+    iterator = get_time_iterator(duration, interval)
+
+    Enum.map(iterator, fn time ->
+      %{
+        sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
+        inserted_at: time,
+        inserted_timestamp: time,
+        parameters: occupancy_parameters(sensor)
+      }
+    end)
+  end
+
+  defp occupancy_parameters(sensor) do
+    [param] = sensor.sensor_type.parameters
+    %{}
+    |> Map.put(:uuid, param.uuid)
+    |> Map.put(:name, param.name)
+    |> Map.put(:data_type, param.data_type)
+    |> Map.put(:value, (:rand.uniform 10)/10)
+  end
+
+  defp get_time_iterator(duration, interval) do
+    time_from = Timex.shift(Timex.now(), days: -duration)
+    Timex.Interval.new(from: time_from, until: [days: duration],
+      step: [minutes: interval])
   end
 end
