@@ -6,6 +6,10 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
   alias AcqdatCore.Schema.EntityManagement.SensorType.Parameters
+  alias AcqdatCore.Schema.EntityManagement.SensorsData
+  alias AcqdatCore.Schema.EntityManagement.SensorsData.Parameters, as: Sparameters
+
+  @months 1
 
   # Data Seed Info::
   # 6 Buildings
@@ -33,7 +37,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
 
 
       build_topology(building_asset_type, apartment_asset_type,  playground_asset_type, creator, org)
-    end)
+    end, timeout: :infinity)
   end
 
   def build_topology(%{id: asset_type_id, org_id: org_id, project_id: project_id} = asset_type, apartment_asset_type, playground_asset_type, user, org) do
@@ -72,7 +76,9 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       )
 
       {:ok, occup_sensor} = Sensor.create(occup_sensor)
-
+      occup_sensor = struct(occup_sensor, [sensor_type: occupancy_sensor_type])
+      data = gen_sensor_type_data("occupancy", occup_sensor)
+      Repo.insert_all(SensorsData, data)
 
       {no_of_floors, _} = Integer.parse(no_of_floors)
 
@@ -100,7 +106,13 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
             )
 
             {:ok, energy_sensor} = Sensor.create(energy_sensor)
+            energy_sensor = struct(energy_sensor, [sensor_type: energy_mtr_sensor_type])
+            energy_data = gen_sensor_type_data("energy", energy_sensor)
+            Repo.insert_all(SensorsData, energy_data)
             {:ok, heat_mtr_sen} = Sensor.create(heat_sensor)
+            heat_mtr_sen = struct(heat_mtr_sen, [sensor_type: heat_mtr_sensor_type])
+            heat_data = gen_sensor_type_data("heat", heat_mtr_sen)
+            Repo.insert_all(SensorsData, heat_data)
         end)
       end)
     end)
@@ -295,11 +307,12 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   end
 
   def gen_sensor_type_data("energy", sensor) do
-    duration = 3 * 30 # duration in months
+    duration = @months * 30 # duration in months
     interval = 10 # interval in minutes
     iterator = get_time_iterator(duration, interval)
 
     Enum.map(iterator, fn time ->
+      time = time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
       %{
         sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
         inserted_at: time,
@@ -313,41 +326,21 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
     sensor.sensor_type.parameters
     |> Enum.reduce(%{}, fn
       %Parameters{name: "Voltage"} = params, acc ->
-        result = %{}
-        |> Map.put(:name, params.name)
-        |> Map.put(:uuid, params.uuid)
-        |> Map.put(:data_type, params.data_type)
-        |> Map.put(:value, Enum.random(230..240))
-
+        result = create_parameter_struct(params, Enum.random(230..240))
         Map.put(acc, "Voltage", result)
       %Parameters{name: "Current"} = params, acc ->
-        result = %{}
-        |> Map.put(:name, params.name)
-        |> Map.put(:uuid, params.uuid)
-        |> Map.put(:data_type, params.data_type)
-        |> Map.put(:value, Enum.random(1..10))
-
+        result = create_parameter_struct(params, Enum.random(1..10))
         Map.put(acc, "Current", result)
       %Parameters{name: "Power"} = params, acc ->
         voltage = Map.get(acc, "Voltage") |> Map.get(:value)
         current = Map.get(acc, "Current") |> Map.get(:value)
         power = voltage * current * 0.9
-        result = %{}
-        |> Map.put(:name, params.name)
-        |> Map.put(:uuid, params.uuid)
-        |> Map.put(:data_type, params.data_type)
-        |> Map.put(:value, power)
-
+        result = create_parameter_struct(params, power)
         Map.put(acc, "Power", result)
       %Parameters{name: "Energy"} = params, acc ->
         power = Map.get(acc, "Power") |> Map.get(:value)
         energy = (power * duration) / 60
-        result = %{}
-        |> Map.put(:name, params.name)
-        |> Map.put(:uuid, params.uuid)
-        |> Map.put(:data_type, params.data_type)
-        |> Map.put(:value, energy)
-
+        result = create_parameter_struct(params, energy)
         Map.put(acc, "Energy", result)
     end)
     |> Enum.map(fn {key, value} ->
@@ -356,11 +349,12 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   end
 
   def gen_sensor_type_data("heat", sensor) do
-    duration = 3 * 30 # duration in months
+    duration = @months * 30 # duration in months
     interval = 10 # interval in minutes
     iterator = get_time_iterator(duration, interval)
 
     Enum.map(iterator, fn time ->
+      time = time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
       %{
         sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
         inserted_at: time,
@@ -372,19 +366,17 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
 
   defp heat_parameters(sensor) do
     [param] = sensor.sensor_type.parameters
-    %{}
-    |> Map.put(:uuid, param.uuid)
-    |> Map.put(:name, param.name)
-    |> Map.put(:data_type, param.data_type)
-    |> Map.put(:value, Enum.random(20..35))
+    result = create_parameter_struct(param, Enum.random(20..35))
+    [result]
   end
 
   def gen_sensor_type_data("occupancy", sensor) do
-    duration = 3 * 30 # duration in months
+    duration = @months * 30 # duration in months
     interval = 10 # interval in minutes
     iterator = get_time_iterator(duration, interval)
 
     Enum.map(iterator, fn time ->
+      time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
       %{
         sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
         inserted_at: time,
@@ -396,11 +388,20 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
 
   defp occupancy_parameters(sensor) do
     [param] = sensor.sensor_type.parameters
-    %{}
-    |> Map.put(:uuid, param.uuid)
-    |> Map.put(:name, param.name)
-    |> Map.put(:data_type, param.data_type)
-    |> Map.put(:value, (:rand.uniform 10)/10)
+    result = create_parameter_struct(param, (:rand.uniform 10)/10)
+    [result]
+  end
+
+  defp create_parameter_struct(param, value) do
+    struct(
+      Sparameters,
+      [
+        uuid: param.uuid,
+        name: param.name,
+        data_type: param.data_type,
+        value: value
+      ]
+    )
   end
 
   defp get_time_iterator(duration, interval) do
