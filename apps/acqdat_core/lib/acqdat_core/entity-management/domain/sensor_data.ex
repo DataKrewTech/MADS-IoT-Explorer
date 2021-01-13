@@ -33,7 +33,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
         data.sensor_id == sensor.id and data.sensor_id in ^entity_ids and
           data.inserted_timestamp >= ^date_from and
           data.inserted_timestamp <= ^date_to,
-      select_merge: %{sensor_parent_id: sensor.parent_id}
+      select_merge: %{sensor_parent_id: sensor.parent_id, sensor_name: sensor.name}
     )
   end
 
@@ -454,6 +454,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
         parent_id: data.sensor_parent_id,
         time: data.inserted_timestamp,
         id: data.sensor_id,
+        name: data.sensor_name,
         value: fragment("?->>'value'", c),
         param_name: fragment("?->>'name'", c)
       }

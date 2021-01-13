@@ -34,10 +34,10 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end)
   end
 
-  def gen_topology(org_id, %{name: name, id: project_id}) do
+  def gen_topology(org_id, %{name: name, id: project_id, uuid: project_uuid}) do
     proj_hierarchy = hierarchy_data(org_id, project_id) |> cumulate_assets_n_sensors()
 
-    %{id: "#{project_id}", name: name, type: "Project", children: proj_hierarchy}
+    %{id: "#{project_uuid}", name: name, type: "Project", children: proj_hierarchy}
   end
 
   def get_by_id(id) when is_integer(id) do

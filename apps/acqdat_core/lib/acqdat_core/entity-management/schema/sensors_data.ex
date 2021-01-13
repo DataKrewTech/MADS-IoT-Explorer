@@ -32,6 +32,7 @@ defmodule AcqdatCore.Schema.EntityManagement.SensorsData do
     field(:project_id, :integer, primary_key: true)
 
     field(:sensor_parent_id, :integer, virtual: true)
+    field(:sensor_name, :string, virtual: true)
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

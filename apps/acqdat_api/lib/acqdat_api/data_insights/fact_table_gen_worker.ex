@@ -20,7 +20,7 @@ defmodule AcqdatApi.DataInsights.FactTableGenWorker do
     output =
       params
       |> execute_workflow()
-      |> Task.await()
+      |> Task.await(:infinity)
 
     fact_table_id = elem(params, 0)
 
