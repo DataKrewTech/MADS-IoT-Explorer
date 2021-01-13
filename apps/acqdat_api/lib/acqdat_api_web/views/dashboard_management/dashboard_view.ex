@@ -53,7 +53,9 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
   def render("exported_dashboard.json", %{dashboard: export_details}) do
     %{
       url: export_details.url,
-      is_secure: export_details.is_secure
+      is_secure: export_details.is_secure,
+      shared_on: export_details.inserted_at,
+      password: export_details.password
     }
   end
 
