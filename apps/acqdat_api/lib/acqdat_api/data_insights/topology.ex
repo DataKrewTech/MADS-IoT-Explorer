@@ -168,6 +168,10 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
+    # data = fetch_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+    # data = fetch_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+    # require IEx
+    # IEx.pry
     FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
   end
 
@@ -182,6 +186,9 @@ defmodule AcqdatApi.DataInsights.Topology do
           {acc1, acc2}
         end
       end)
+
+    IO.inspect(data)
+    IO.inspect(metadata)
 
     # data = Enum.find(entities_list, fn x -> "#{x.id}" == tree_node.id && x.type == tree_node.type end)
 
@@ -231,12 +238,20 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
+    IO.puts("----------------------------------------------------------------------")
+    IO.puts("inside fetch_descendants")
+    IO.puts("parent_tree")
+    IO.inspect(parent_tree)
     {subtree, node_tracker} = traverse(parent_tree, root_node, entities_list, [])
-    # IO.puts("----------------------------------------------------------------------")
+    IO.puts("----------------------------------------------------------------------")
+    IO.inspect(subtree)
+    IO.inspect(node_tracker)
+    # require IEx
+    # IEx.pry
     if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
-      IO.puts("final output")
-      # subtree = Map.put_new(subtree_map, :children, subtree) 
-      IO.inspect(subtree)
+      # IO.puts("final output")
+      # # subtree = Map.put_new(subtree_map, :children, subtree) 
+      # IO.inspect(subtree)
       subtree = NaryTree.from_map(subtree)
       dynamic_query(fact_table_id, subtree, entities_list)
     else
@@ -288,6 +303,8 @@ defmodule AcqdatApi.DataInsights.Topology do
       end)
 
     table_headers = output |> gen_fact_table_headers(subtree)
+    IO.puts("table body")
+    IO.inspect(data)
     table_body = data |> convert_table_data_to_text
 
     create_fact_table_view(fact_table_name, table_headers, table_body)
@@ -297,37 +314,87 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   def compute_table_data(output, subtree, headers, rows_len, parent_entity, child_entity) do
+    # IO.puts("output")
+    # IO.inspect(output)
+
+    # IO.puts("output")
+    # IO.inspect(subtree)
+
+    IO.inspect(headers)
+
     Enum.reduce(output[child_entity], [], fn entity, acc3 ->
       if entity.parent_id == parent_entity.id do
         empty_row = List.duplicate(nil, rows_len)
         child_node = NaryTree.get(subtree, child_entity)
 
+        # IO.puts("child_node")
+        # IO.inspect(child_node)
+
+        # IO.puts("child_entity")
+        # IO.inspect(entity)
+
+        # IO.puts(child_entity)
+
+        indx =
+          if headers[subtree.root] != 0 do
+            ind = length(child_node.content -- ["name"]) * 2 + headers[subtree.root]
+            # if Enum.member?(child_node.content, "name"), do: ind + 1, else: ind
+            ind
+          else
+            headers[subtree.root]
+          end
+
         computed_row =
-          List.replace_at(
-            empty_row,
-            headers[subtree.root],
-            parent_entity[:name] || parent_entity[:value]
-          )
+          List.replace_at(empty_row, indx, parent_entity[:name] || parent_entity[:value])
 
         computed_row =
           if parent_entity[:time] do
-            List.replace_at(empty_row, headers[subtree.root] + 1, parent_entity[:time])
+            List.replace_at(empty_row, indx + 1, parent_entity[:time])
           else
             computed_row
           end
 
         computed_row =
-          List.replace_at(
-            computed_row,
-            headers[child_entity],
-            entity[:name] || entity[:value]
-          )
+          if entity[:value] && entity[:param_name] do
+            index_pos = headers[child_entity]
+            index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
+            index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
 
-        computed_row =
-          if entity[:time] do
-            List.replace_at(computed_row, headers[child_entity] + 1, entity[:time])
+            computed_row =
+              List.replace_at(
+                computed_row,
+                index_pos,
+                entity[:value]
+              )
+
+            # if entity[]
+            computed_row =
+              List.replace_at(
+                computed_row,
+                index_pos + 1,
+                entity[:time]
+              )
+
+            index = Enum.find_index(child_node.content, fn x -> x == "name" end)
+
+            if index do
+              index_pos = index_pos + index + 1
+
+              computed_row =
+                List.replace_at(
+                  computed_row,
+                  index_pos,
+                  entity[:name]
+                )
+            else
+              computed_row
+            end
           else
-            computed_row
+            List.replace_at(
+              computed_row,
+              headers[child_entity],
+              entity[:name]
+            )
           end
 
         data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
@@ -342,9 +409,12 @@ defmodule AcqdatApi.DataInsights.Topology do
   def compute_table_row_len(subtree) do
     Enum.reduce(subtree.nodes, 0, fn {key, node}, size ->
       if node.content != :empty do
-        if node.type == "SensorType" and node.content != ["name"],
-          do: size + length(node.content) * 2,
-          else: size + length(node.content)
+        if node.type == "SensorType" and node.content != ["name"] do
+          len = length(node.content -- ["name"]) * 2
+          if Enum.member?(node.content, "name"), do: size + len + 1, else: size + len
+        else
+          size + length(node.content)
+        end
       else
         size + 1
       end
@@ -370,7 +440,7 @@ defmodule AcqdatApi.DataInsights.Topology do
               Enum.reduce(node.content, [], fn ele, sum ->
                 if ele == "name",
                   do: sum ++ ["#{node.name}_#{ele}"],
-                  else: sum ++ ["#{node.name}_#{ele}", "#{node.name}_dateTime"]
+                  else: sum ++ ["#{node.name}_#{ele}", "#{node.name}_#{ele}_dateTime"]
               end)
             else
               Enum.map(node.content, fn z -> "#{node.name}_#{z}" end)
@@ -405,7 +475,10 @@ defmodule AcqdatApi.DataInsights.Topology do
       #{data}) as #{fact_table_name}(#{table_headers});
     """
 
-    Ecto.Adapters.SQL.query!(Repo, qry, [])
+    # require IEx
+    # IEx.pry
+
+    Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
   end
 
   def fetch_children(parent_node, parent_entity, subtree, output, computed_row, headers) do
@@ -575,7 +648,8 @@ defmodule AcqdatApi.DataInsights.Topology do
       Ecto.Adapters.SQL.query!(
         Repo,
         col_query,
-        []
+        [],
+        timeout: :infinity
       )
 
     columns_data =
@@ -678,7 +752,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         pivot_with_crosstab(fact_table_name, rows, columns, values, filters)
       end
 
-    pivot_output = Ecto.Adapters.SQL.query!(Repo, query, [])
+    pivot_output = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
 
     IO.inspect(pivot_output)
 
@@ -876,7 +950,8 @@ defmodule AcqdatApi.DataInsights.Topology do
       Ecto.Adapters.SQL.query!(
         Repo,
         "select * from #{fact_table_name} OFFSET #{offset} LIMIT 20",
-        []
+        [],
+        timeout: :infinity
       )
 
     %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
@@ -932,17 +1007,20 @@ defmodule AcqdatApi.DataInsights.Topology do
 
               [
                 %{
-                  "metadata_name" => metadata_name,
+                  "metadata_name" => _metadata_name,
                   "date_to" => date_to,
                   "date_from" => date_from
                 }
+                | _
               ] = sensor_entity
+
+              parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
 
               date_from = from_unix(date_from)
               date_to = from_unix(date_to)
 
               query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-              SensorData.fetch_sensors_data(query, [metadata_name])
+              SensorData.fetch_sensors_data(query, parameters)
             else
               subquery
             end
@@ -964,6 +1042,9 @@ defmodule AcqdatApi.DataInsights.Topology do
         end
 
       k = Repo.all(query)
+
+      IO.puts("query output")
+      IO.inspect(k)
 
       k =
         if k == [] do
@@ -1030,7 +1111,11 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   defp total_no_of_rec(fact_table_name) do
-    res = Ecto.Adapters.SQL.query!(Repo, "select count(*) from #{fact_table_name}", [])
+    res =
+      Ecto.Adapters.SQL.query!(Repo, "select count(*) from #{fact_table_name}", [],
+        timeout: :infinity
+      )
+
     res.rows |> List.first() |> List.first()
   end
 
@@ -1039,6 +1124,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   defp from_unix(datetime) do
+    {datetime, _} = Integer.parse(datetime)
     {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
     res
   end
