@@ -1,6 +1,6 @@
 defmodule AcqdatApiWeb.DataInsights.TasksChannel do
   use Phoenix.Channel
-  alias AcqdatApi.DataInsights.Topology
+  alias AcqdatApi.DataInsights.FactTables
 
   intercept ["out_put_res"]
 
@@ -39,7 +39,7 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
     IO.inspect(page_size)
 
     data =
-      Topology.fetch_paginated_fact_table("fact_table_#{fact_table_id}", page_number, page_size)
+      FactTables.fetch_paginated_fact_table("fact_table_#{fact_table_id}", page_number, page_size)
 
     broadcast!(socket, "out_put_res", %{data: data})
     {:reply, :ok, socket}

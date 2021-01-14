@@ -1,7 +1,6 @@
 defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
-  alias AcqdatApi.DataInsights.Topology
   alias AcqdatApi.DataInsights.PivotTables
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
@@ -37,7 +36,7 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
   def update(conn, params) do
     case conn.status do
       nil ->
-        case Topology.update_pivot_data(params, conn.assigns.pivot) do
+        case PivotTables.update_pivot_data(params, conn.assigns.pivot) do
           {:error, message} ->
             conn
             |> send_error(404, message)

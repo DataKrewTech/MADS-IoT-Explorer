@@ -1,7 +1,6 @@
 defmodule AcqdatApi.DataInsights.FactTableGenWorker do
   use GenServer
-  alias AcqdatApi.DataInsights.Topology
-  alias AcqdatCore.Repo
+  alias AcqdatApi.DataInsights.FactTables
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -32,7 +31,7 @@ defmodule AcqdatApi.DataInsights.FactTableGenWorker do
 
   defp execute_workflow({fact_table_id, parent_tree, root_node, entities_list, node_tracker}) do
     Task.async(fn ->
-      Topology.fetch_descendants(
+      FactTables.fetch_descendants(
         fact_table_id,
         parent_tree,
         root_node,

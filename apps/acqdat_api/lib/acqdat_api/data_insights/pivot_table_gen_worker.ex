@@ -1,6 +1,6 @@
 defmodule AcqdatApi.DataInsights.PivotTableGenWorker do
   use GenServer
-  alias AcqdatApi.DataInsights.Topology
+  alias AcqdatApi.DataInsights.PivotTables
   alias AcqdatCore.Repo
 
   def start_link(_) do
@@ -36,7 +36,7 @@ defmodule AcqdatApi.DataInsights.PivotTableGenWorker do
 
   defp execute({pivot_table, params}) do
     Task.async(fn ->
-      Topology.gen_pivot_table(
+      PivotTables.gen_pivot_table(
         params,
         pivot_table
       )

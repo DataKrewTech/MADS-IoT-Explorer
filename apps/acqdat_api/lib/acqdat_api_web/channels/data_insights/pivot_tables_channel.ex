@@ -1,6 +1,5 @@
 defmodule AcqdatApiWeb.DataInsights.PivotTablesChannel do
   use Phoenix.Channel
-  alias AcqdatApi.DataInsights.Topology
 
   intercept ["out_put_res_pivot"]
 
