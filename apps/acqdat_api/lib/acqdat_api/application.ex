@@ -14,6 +14,7 @@ defmodule AcqdatApi.Application do
       AcqdatApi.DataCruncher.TaskExecuteWorker,
       AcqdatApi.Helper.RedisSupervisor,
       AcqdatApi.DataInsights.FactTableGenWorker,
+      AcqdatApi.DataInsights.PivotTableGenWorker,
       {Task.Supervisor, name: Datakrew.TaskSupervisor}
       # Starts a worker by calling: AcqdatApi.Worker.start_link(arg)
       # {AcqdatApi.Worker, arg},

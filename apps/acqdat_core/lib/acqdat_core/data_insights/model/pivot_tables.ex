@@ -12,4 +12,14 @@ defmodule AcqdatCore.Model.DataInsights.PivotTables do
     changeset = PivotTables.update_changeset(pivot_table, params)
     Repo.update(changeset)
   end
+
+  def get_by_id(id) when is_integer(id) do
+    case Repo.get(PivotTables, id) do
+      nil ->
+        {:error, "Pivot Table not found"}
+
+      pivot_table ->
+        {:ok, pivot_table}
+    end
+  end
 end

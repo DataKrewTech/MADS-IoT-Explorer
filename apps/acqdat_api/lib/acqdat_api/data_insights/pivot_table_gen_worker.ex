@@ -1,4 +1,4 @@
-defmodule AcqdatApi.DataInsights.FactTableGenWorker do
+defmodule AcqdatApi.DataInsights.PivotTableGenWorker do
   use GenServer
   alias AcqdatApi.DataInsights.Topology
   alias AcqdatCore.Repo
@@ -18,26 +18,27 @@ defmodule AcqdatApi.DataInsights.FactTableGenWorker do
   def handle_cast({:register, params}, _status) do
     output =
       params
-      |> execute_workflow()
+      |> execute()
       |> Task.await(:infinity)
 
-    fact_table_id = elem(params, 0)
+    pivot_table = elem(params, 0)
 
-    AcqdatApiWeb.Endpoint.broadcast("project_fact_table:#{fact_table_id}", "out_put_res", %{
-      data: output
-    })
+    AcqdatApiWeb.Endpoint.broadcast(
+      "project_pivot_table:#{pivot_table.id}",
+      "out_put_res_pivot",
+      %{
+        data: output
+      }
+    )
 
     {:noreply, output}
   end
 
-  defp execute_workflow({fact_table_id, parent_tree, root_node, entities_list, node_tracker}) do
+  defp execute({pivot_table, params}) do
     Task.async(fn ->
-      Topology.fetch_descendants(
-        fact_table_id,
-        parent_tree,
-        root_node,
-        entities_list,
-        node_tracker
+      Topology.gen_pivot_table(
+        params,
+        pivot_table
       )
     end)
   end

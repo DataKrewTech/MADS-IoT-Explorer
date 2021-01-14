@@ -4,7 +4,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
-  alias AcqdatApi.DataInsights.FactTableGenWorker
+  alias AcqdatApi.DataInsights.{FactTableGenWorker, PivotTableGenWorker}
   alias NaryTree
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
@@ -140,9 +140,6 @@ defmodule AcqdatApi.DataInsights.Topology do
       node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
       execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
-
-      # find descendents of root element and check whether remaining entites exist or not?
-      # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
     end
   end
 
@@ -161,17 +158,10 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
-    # find descendents of root element and check whether remaining entites exist or not?
-    # fetch_descendants(parent_tree, root_node, entities_list, node_tracker)
-
     execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
   end
 
   def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
-    # data = fetch_descendants(id, parent_tree, root_node, entities_list, node_tracker)
-    # data = fetch_descendants(id, parent_tree, root_node, entities_list, node_tracker)
-    # require IEx
-    # IEx.pry
     FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
   end
 
@@ -238,20 +228,9 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
-    IO.puts("----------------------------------------------------------------------")
-    IO.puts("inside fetch_descendants")
-    IO.puts("parent_tree")
-    IO.inspect(parent_tree)
     {subtree, node_tracker} = traverse(parent_tree, root_node, entities_list, [])
-    IO.puts("----------------------------------------------------------------------")
-    IO.inspect(subtree)
-    IO.inspect(node_tracker)
-    # require IEx
-    # IEx.pry
+
     if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
-      # IO.puts("final output")
-      # # subtree = Map.put_new(subtree_map, :children, subtree) 
-      # IO.inspect(subtree)
       subtree = NaryTree.from_map(subtree)
       dynamic_query(fact_table_id, subtree, entities_list)
     else
@@ -333,7 +312,8 @@ defmodule AcqdatApi.DataInsights.Topology do
         # IO.puts("child_entity")
         # IO.inspect(entity)
 
-        # IO.puts(child_entity)
+        # IO.puts("entity")
+        # IO.inspect(entity)
 
         indx =
           if headers[subtree.root] != 0 do
@@ -367,7 +347,6 @@ defmodule AcqdatApi.DataInsights.Topology do
                 entity[:value]
               )
 
-            # if entity[]
             computed_row =
               List.replace_at(
                 computed_row,
@@ -475,9 +454,6 @@ defmodule AcqdatApi.DataInsights.Topology do
       #{data}) as #{fact_table_name}(#{table_headers});
     """
 
-    # require IEx
-    # IEx.pry
-
     Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
   end
 
@@ -505,17 +481,25 @@ defmodule AcqdatApi.DataInsights.Topology do
     end)
   end
 
+  def update_pivot_data(params, pivot_table) do
+    PivotTableGenWorker.process({pivot_table, params})
+  end
+
   # TODO: Need to Refactor Pivot Table Creation Method
-  def gen_pivot_table(%{
-        "org_id" => org_id,
-        "project_id" => project_id,
-        "fact_tables_id" => fact_tables_id,
-        "name" => name,
-        "user_list" => user_list
-      }) do
+  def gen_pivot_table(
+        %{
+          "id" => id,
+          "org_id" => org_id,
+          "project_id" => project_id,
+          "fact_tables_id" => fact_tables_id,
+          "name" => name,
+          "user_list" => user_list
+        },
+        pivot_table
+      ) do
     Multi.new()
     |> Multi.run(:persist_to_db, fn _, _changes ->
-      PivotTableModel.create(%{
+      PivotTableModel.update(pivot_table, %{
         org_id: org_id,
         project_id: project_id,
         fact_table_id: fact_tables_id,
@@ -572,9 +556,6 @@ defmodule AcqdatApi.DataInsights.Topology do
     rows_data = rows_data |> Enum.map_join(",", &"\"#{&1}\"")
 
     values_data = pivot_values_col_data(values, rows_data)
-
-    # , {"name": "Building", "title": "Building Name"}
-    # IO.inspect(values)
     [value | _] = values
     value_name = "\"#{value["name"]}\""
 
@@ -960,16 +941,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   def reduce_data(subtree, tree_node, entities, user_list) do
     Enum.reduce(tree_node.children, %{}, fn id, acc ->
       node = NaryTree.get(subtree, id)
-
-      # [_, id] = String.split(child_id, "_")
-
-      # IO.puts("bfore processing")
-      # IO.inspect(entities)
-
       entities = Enum.map(entities, fn entity -> entity[:id] end)
-
-      # IO.puts("aftre processing")
-      # IO.inspect(entities)
 
       query =
         if node.content != [] && node.content != :empty && node.content != ["name"] do
@@ -1100,7 +1072,7 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   defp run_under_transaction(multi, result_key) do
     multi
-    |> Repo.transaction()
+    |> Repo.transaction(timeout: :infinity)
     |> case do
       {:ok, result} ->
         {:ok, result}
