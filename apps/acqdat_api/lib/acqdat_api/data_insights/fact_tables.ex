@@ -13,7 +13,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     fact_table_name = "fact_table_#{id}"
 
     qry = """
-      select distinct "#{name}" from fact_table_10
+      select distinct "#{name}" from #{fact_table_name}
       where "#{name}" is not null and length("#{name}") > 0
       order by 1
     """
