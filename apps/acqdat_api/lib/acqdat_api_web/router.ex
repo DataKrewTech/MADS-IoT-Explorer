@@ -193,6 +193,7 @@ defmodule AcqdatApiWeb.Router do
     end
 
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
+    get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
       resources "/panels", PanelController, except: [:new, :edit]
