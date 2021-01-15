@@ -10,6 +10,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   defdelegate delete(dashboard), to: DashboardModel
   defdelegate get_by_uuid(uuid), to: DashboardModel
 
+  defdelegate recent_dashboards(data), to: DashboardModel
+
   def get_all(%{type: "archived"} = data) do
     DashboardModel.get_all_archived(data)
   end
