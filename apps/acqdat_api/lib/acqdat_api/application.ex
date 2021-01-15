@@ -12,6 +12,7 @@ defmodule AcqdatApi.Application do
       AcqdatApiWeb.Endpoint,
       AcqdatApi.ExtractRoutesSupervisor,
       AcqdatApi.DataCruncher.TaskExecuteWorker,
+      AcqdatApi.Helper.RedisSupervisor,
       {Task.Supervisor, name: Datakrew.TaskSupervisor}
       # Starts a worker by calling: AcqdatApi.Worker.start_link(arg)
       # {AcqdatApi.Worker, arg},
