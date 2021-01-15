@@ -191,7 +191,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       if filters != [] do
         filter_data =
           Enum.reduce(filters, "", fn filter, acc ->
-            # "Apartment" not in ('Apartment 2.2', 'Apartment 2.3')
+            # "Apartment" not in ('Apartment 2.2', 'Apartment 2.2')
             entities = filter["entities"] |> Enum.map_join(",", &"\'\'#{&1}\'\'")
             acc <> "\"#{filter["name"]}\" not in (#{entities}) and "
           end)
@@ -308,7 +308,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            AVG(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(AVG(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -317,7 +317,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            AVG(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(AVG(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -342,7 +342,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            SUM(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(SUM(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -351,7 +351,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            SUM(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(SUM(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -376,7 +376,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MIN(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(MIN(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -385,7 +385,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MIN(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(MIN(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -410,7 +410,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-             MAX(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+             ROUND(MAX(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -419,7 +419,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MAX(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
+            ROUND(MAX(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -432,7 +432,9 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
         rows_data <>
           "," <>
-          "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as \"#{value["title"]}\""
+          "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+            value["title"]
+          }\""
       else
         rows_data <>
           "," <> "#{value["action"]}(\"#{value["name"]}\") as \"#{value["title"]}\""
@@ -443,7 +445,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
   defp pivot_filters_data_parsing(filters) do
     filter_data =
       Enum.reduce(filters, "", fn filter, acc ->
-        # "Apartment" not in ('Apartment 2.2', 'Apartment 2.3')
+        # "Apartment" not in ('Apartment 2.2', 'Apartment 2.2')
         entities = filter["entities"] |> Enum.map_join(",", &"\'#{&1}\'")
         acc <> "\"#{filter["name"]}\" not in (#{entities}) and "
       end)
@@ -453,7 +455,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
 
   defp value_data_string(value) do
     if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
-      "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as #{value["title"]}"
+      "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as #{value["title"]}"
     else
       "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
     end
