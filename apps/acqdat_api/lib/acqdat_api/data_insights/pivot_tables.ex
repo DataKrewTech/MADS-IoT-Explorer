@@ -432,10 +432,10 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
         rows_data <>
           "," <>
-          "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as #{value["title"]}"
+          "#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)) as \"#{value["title"]}\""
       else
         rows_data <>
-          "," <> "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
+          "," <> "#{value["action"]}(\"#{value["name"]}\") as \"#{value["title"]}\""
       end
     end)
   end

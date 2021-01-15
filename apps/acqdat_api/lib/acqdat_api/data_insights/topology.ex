@@ -2,7 +2,6 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
-  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
   alias AcqdatApi.DataInsights.FactTableGenWorker
   alias NaryTree
