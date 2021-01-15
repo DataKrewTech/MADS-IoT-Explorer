@@ -274,7 +274,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            COUNT(#{value_name}) as #{value["title"]}
+            COUNT(#{value_name}) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -283,7 +283,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            COUNT(#{value_name}) as #{value["title"]}
+            COUNT(#{value_name}) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -308,7 +308,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            AVG(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            AVG(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -317,7 +317,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            AVG(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            AVG(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -342,7 +342,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            SUM(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            SUM(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -351,7 +351,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            SUM(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            SUM(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -376,7 +376,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MIN(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            MIN(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -385,7 +385,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MIN(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            MIN(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -410,7 +410,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-             MAX(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+             MAX(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
@@ -419,7 +419,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
-            MAX(CAST(#{value_name} as NUMERIC)) as #{value["title"]}
+            MAX(CAST(#{value_name} as NUMERIC)) as \"#{value["title"]}\"
             FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
