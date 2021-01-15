@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DashboardManagement.Dashboard
   alias AcqdatApi.DashboardManagement.Dashboard
+  alias AcqdatApi.Helper.Redis
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
 
