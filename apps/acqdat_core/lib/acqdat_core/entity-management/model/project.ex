@@ -210,7 +210,13 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
       {assets, nil} ->
         {key, value} = Enum.at(assets, 0)
-        %{id: "#{key.id}", name: key.name, type: "AssetType", children: List.flatten(value)}
+
+        %{
+          id: "#{key.id}",
+          name: key.name,
+          type: "AssetType",
+          children: Enum.uniq(List.flatten(value))
+        }
 
       {assets, sensors} ->
         [assets] ++ sensors
@@ -219,7 +225,15 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
   defp cumulate_assets_data(data) do
     Enum.reduce(data, [], fn {key, val}, acc ->
-      acc ++ [%{id: "#{key.id}", name: key.name, type: "AssetType", children: List.flatten(val)}]
+      acc ++
+        [
+          %{
+            id: "#{key.id}",
+            name: key.name,
+            type: "AssetType",
+            children: Enum.uniq(List.flatten(val))
+          }
+        ]
     end)
   end
 end
