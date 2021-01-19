@@ -103,7 +103,7 @@ config :acqdat_api,
 
 config :acqdat_api,
        :mads_url,
-       System.get_env("MADS_URL", "https://mads.netlify.app/#/")
+       System.get_env("MADS_URL", "https://mads.netlify.app/")
 
 # salt
 config :acqdat_core,

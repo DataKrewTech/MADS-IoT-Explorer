@@ -67,7 +67,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
 
       assert result == %{
                "projects" => [],
-               "total_entries" => 0
+               "total_entries" => 1
              }
     end
   end

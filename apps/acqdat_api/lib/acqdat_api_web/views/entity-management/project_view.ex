@@ -147,7 +147,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
 
     %{
       projects: render_many(projects, ProjectView, "source.json"),
-      total_entries: hits.total.value
+      total_entries: ElasticSearch.find_total_counts("org")
     }
   end
 
