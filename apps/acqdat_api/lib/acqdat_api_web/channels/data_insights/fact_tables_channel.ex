@@ -14,16 +14,12 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
     end
   end
 
-  def handle_out("out_put_res", %{data: payload}, socket) do
-    push(
-      socket,
-      "out_put_res",
-      Phoenix.View.render(AcqdatApiWeb.DataInsights.FactTablesView, "fact_table_data.json", %{
-        fact_table: payload
-      })
-    )
+  def handle_out("out_put_res", %{data: {:error, err_msg}}, socket) do
+    socket |> push_on_channel(%{error: err_msg})
+  end
 
-    {:noreply, socket}
+  def handle_out("out_put_res", %{data: payload}, socket) do
+    socket |> push_on_channel(payload)
   end
 
   def handle_in(
@@ -35,13 +31,22 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
         },
         socket
       ) do
-    IO.inspect(page_number)
-    IO.inspect(page_size)
-
     data =
       FactTables.fetch_paginated_fact_table("fact_table_#{fact_table_id}", page_number, page_size)
 
     broadcast!(socket, "out_put_res", %{data: data})
     {:reply, :ok, socket}
+  end
+
+  defp push_on_channel(socket, data) do
+    push(
+      socket,
+      "out_put_res",
+      Phoenix.View.render(AcqdatApiWeb.DataInsights.FactTablesView, "fact_table_data.json", %{
+        fact_table: data
+      })
+    )
+
+    {:noreply, socket}
   end
 end
