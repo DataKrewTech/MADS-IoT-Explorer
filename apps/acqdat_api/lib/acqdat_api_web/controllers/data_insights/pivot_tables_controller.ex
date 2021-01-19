@@ -56,6 +56,10 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
     case conn.status do
       nil ->
         case PivotTables.update_pivot_data(params, conn.assigns.pivot) do
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
+            send_error(conn, 400, error)
+
           {:error, message} ->
             conn
             |> send_error(404, message)

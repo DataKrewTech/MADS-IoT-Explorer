@@ -89,6 +89,10 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
                conn.assigns.fact_table,
                user_list
              ) do
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
+            send_error(conn, 400, error)
+
           {:error, message} ->
             conn
             |> send_error(404, message)

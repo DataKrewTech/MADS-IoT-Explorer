@@ -91,13 +91,17 @@ defmodule AcqdatApi.DataInsights.FactTables do
         acc ++ res
       end)
 
-    table_headers = output |> gen_fact_table_headers(subtree)
-    table_body = data |> convert_table_data_to_text
+    if data == [] do
+      %{error: "No data present for the specified user inputs"}
+    else
+      table_headers = output |> gen_fact_table_headers(subtree)
+      table_body = data |> convert_table_data_to_text
 
-    create_fact_table_view(fact_table_name, table_headers, table_body)
+      create_fact_table_view(fact_table_name, table_headers, table_body)
 
-    data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-    %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
+      data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+      %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
+    end
   end
 
   def compute_table_data(output, subtree, headers, rows_len, parent_entity, child_entity) do
