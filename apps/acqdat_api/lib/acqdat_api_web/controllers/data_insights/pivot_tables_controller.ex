@@ -1,11 +1,30 @@
 defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.DataInsights.PivotTables
   alias AcqdatApi.DataInsights.PivotTables
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
   plug AcqdatApiWeb.Plug.LoadPivot when action in [:update]
+
+  def index(conn, params) do
+    changeset = verify_index_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, pivot_tables} = {:list, PivotTables.get_all(data)}
+
+        conn
+        |> put_status(200)
+        |> render("index.json", pivot_tables)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
   def create(conn, %{"org_id" => org_id, "fact_tables_id" => fact_tables_id}) do
     case conn.status do
