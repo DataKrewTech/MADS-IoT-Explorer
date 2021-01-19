@@ -6,6 +6,20 @@ defmodule AcqdatApi.DataInsights.FactTables do
   alias AcqdatCore.Domain.EntityManagement.SensorData
   alias AcqdatCore.Repo
   alias NaryTree
+  alias Ecto.Multi
+
+  defdelegate get_all(params), to: FactTables
+
+  def delete(fact_table) do
+    Multi.new()
+    |> Multi.run(:del_rec_frm_fact_tab, fn _, _changes ->
+      FactTables.delete(fact_table)
+    end)
+    |> Multi.run(:del_temp_fact_tab, fn _, %{del_rec_frm_fact_tab: _} ->
+      delete_temp_fact_table_view(fact_table)
+    end)
+    |> run_under_transaction(:del_rec_frm_fact_tab)
+  end
 
   def create(org_id, %{name: project_name, id: project_id}) do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)
@@ -450,6 +464,17 @@ defmodule AcqdatApi.DataInsights.FactTables do
     end
   end
 
+  defp delete_temp_fact_table_view(%{id: id}) do
+    fact_table_name = "fact_table_#{id}"
+
+    qry = """
+      drop view if exists #{fact_table_name}
+    """
+
+    res = Ecto.Adapters.SQL.query!(Repo, qry, [])
+    {:ok, res.rows}
+  end
+
   defp total_no_of_rec(fact_table_name) do
     res =
       Ecto.Adapters.SQL.query!(Repo, "select count(*) from #{fact_table_name}", [],
@@ -463,5 +488,17 @@ defmodule AcqdatApi.DataInsights.FactTables do
     {datetime, _} = Integer.parse(datetime)
     {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
     res
+  end
+
+  defp run_under_transaction(multi, result_key) do
+    multi
+    |> Repo.transaction(timeout: :infinity)
+    |> case do
+      {:ok, result} ->
+        {:ok, result[:del_rec_frm_fact_tab]}
+
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
+        {:error, failed_value}
+    end
   end
 end

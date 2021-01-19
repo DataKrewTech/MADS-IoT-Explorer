@@ -1,10 +1,30 @@
 defmodule AcqdatApiWeb.DataInsights.FactTablesController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.DataInsights.FactTables
   alias AcqdatApi.DataInsights.{FactTables, Topology}
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
+  plug AcqdatApiWeb.Plug.LoadFact when action in [:update, :delete]
+
+  def index(conn, params) do
+    changeset = verify_index_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, fact_tables} = {:list, FactTables.get_all(data)}
+
+        conn
+        |> put_status(200)
+        |> render("index.json", fact_tables)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
 
   def create(conn, %{"org_id" => org_id}) do
     case conn.status do
@@ -56,19 +76,53 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
         "org_id" => org_id,
         "project_id" => project_id,
         "id" => id,
-        "user_list" => user_list
+        "user_list" => user_list,
+        "name" => name
       }) do
     case conn.status do
       nil ->
-        case Topology.gen_sub_topology(id, org_id, conn.assigns.project, user_list) do
+        case Topology.gen_sub_topology(
+               id,
+               org_id,
+               conn.assigns.project,
+               name,
+               conn.assigns.fact_table,
+               user_list
+             ) do
           {:error, message} ->
             conn
             |> send_error(404, message)
 
-          data ->
+          {:ok, data} ->
             conn
             |> put_status(200)
             |> render("fact_table_data.json", %{fact_table: data})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    case conn.status do
+      nil ->
+        case FactTables.delete(conn.assigns.fact_table) do
+          {:ok, fact_table} ->
+            conn
+            |> put_status(200)
+            |> render("fact_table.json", %{fact_tables: fact_table})
+
+          {:error, fact_table} ->
+            error =
+              case String.valid?(fact_table) do
+                false -> extract_changeset_error(fact_table)
+                true -> fact_table
+              end
+
+            conn
+            |> send_error(400, error)
         end
 
       404 ->

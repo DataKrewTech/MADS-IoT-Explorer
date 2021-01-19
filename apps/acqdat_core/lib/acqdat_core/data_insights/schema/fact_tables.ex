@@ -31,7 +31,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     field(:name, :string, null: false)
     field(:slug, :string, null: false)
     field(:uuid, :string, null: false)
-    field(:columns_metadata, :map)
+    field(:columns_metadata, {:array, :map}, default: [])
     field(:from_date, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     field(:to_date, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     field(:group_interval, :integer)
