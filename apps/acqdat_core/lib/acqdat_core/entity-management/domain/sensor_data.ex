@@ -461,6 +461,21 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     )
   end
 
+  def fetch_sensors_values_n_timeseries(
+        subquery,
+        param_uuids
+      ) do
+    from(
+      data in subquery(subquery),
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'name'", c) in ^param_uuids,
+      select: [
+        fragment("?->>'value'", c),
+        data.inserted_timestamp
+      ]
+    )
+  end
+
   def compute_grp_interval(grp_interval, group_interval_type) do
     if group_interval_type == "month" do
       "#{4 * String.to_integer(grp_interval)} week"

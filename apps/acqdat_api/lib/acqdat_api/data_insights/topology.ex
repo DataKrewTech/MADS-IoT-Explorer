@@ -4,12 +4,14 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
   alias AcqdatApi.DataInsights.FactTableGenWorker
+  alias AcqdatCore.Model.DataInsights.FactTables
   alias NaryTree
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
   alias AcqdatCore.Repo
   import Ecto.Query
+  alias Ecto.Multi
 
   @table :proj_topology
 
@@ -19,6 +21,9 @@ defmodule AcqdatApi.DataInsights.Topology do
     %{topology: %{sensor_types: sensor_types || [], asset_types: asset_types || []}}
   end
 
+  # NOTE: 1. gen_topology will parse tree hirerachy
+  #       2. It'll generate parent tree map
+  #       3. It'll save the parent tree map to ETS table
   def gen_topology(org_id, project) do
     proj_key = project |> ets_proj_key()
     data = proj_key |> TopologyEtsConfig.get()
@@ -35,10 +40,26 @@ defmodule AcqdatApi.DataInsights.Topology do
     end
   end
 
-  def gen_sub_topology(id, org_id, project, entities_list) do
-    parse_entities(id, entities_list, org_id, project)
+  # NOTE: 1. gen_sub_topology will update fact_table with user provided inputs
+  #       2. It'll pass user input to parse_entities
+  def gen_sub_topology(id, org_id, project, name, fact_table, entities_list) do
+    Multi.new()
+    |> Multi.run(:update_to_db, fn _, _changes ->
+      FactTables.update(fact_table, %{
+        name: name,
+        columns_metadata: entities_list
+      })
+    end)
+    |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: fact_table} ->
+      parse_entities(id, entities_list, org_id, project)
+      {:ok, "You'll receive fact table data on channel"}
+    end)
+    |> run_under_transaction(:gen_sub_topology)
   end
 
+  # NOTE: 1. parse_entities will seperate asset_type_list and sensor_type_list
+  #       2. It'll create parent tree from the map stores in ETS table
+  #       3. It'll pass the flow to validate_entities
   defp parse_entities(id, entities_list, org_id, project) do
     res =
       Enum.reduce(entities_list, {[], []}, fn entity, {acc1, acc2} ->
@@ -53,16 +74,26 @@ defmodule AcqdatApi.DataInsights.Topology do
     validate_entities(id, res, entities_list, parent_tree)
   end
 
-  defp validate_entities(_id, {_, sensor_types}, entities_list, _)
+  # NOTE: 1. execute_descendants will start a Genserver, which will do the asynchronous computation
+  #          of subtree generation + subree validations + dynamic query building + fact table gen
+  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
+    FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
+  end
+
+  # NOTE: this validate_entities will get executed if there is only one sensor_type is present in user input
+  defp validate_entities(fact_table_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == 1 and length(sensor_types) == length(entities_list) do
     [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = sensor_types
 
-    query =
+    output =
       if metadata_name == "name" do
-        from(sensor in Sensor,
-          where: sensor.sensor_type_id == ^id,
-          select: map(sensor, [:id, :name])
-        )
+        query =
+          from(sensor in Sensor,
+            where: sensor.sensor_type_id == ^id,
+            select: map(sensor, [:name])
+          )
+
+        %{headers: ["#{name}"], data: Repo.all(query)}
       else
         [%{"date_from" => date_from, "date_to" => date_to}] = sensor_types
 
@@ -77,13 +108,19 @@ defmodule AcqdatApi.DataInsights.Topology do
         date_to = from_unix(date_to)
 
         query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-        SensorData.fetch_sensors_data(query, [metadata_name])
+        query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_name])
+
+        %{
+          headers: ["#{name}_#{metadata_name}", "#{name}_#{metadata_name}_dateTime"],
+          data: Repo.all(query)
+        }
       end
 
-    %{"#{name}" => Repo.all(query)}
+    broadcast_to_channel(fact_table_id, output)
   end
 
-  defp validate_entities(_id, {asset_types, _}, entities_list, _)
+  # NOTE: this validate_entities will get executed if there is only one asset_type is present in user input
+  defp validate_entities(fact_table_id, {asset_types, _}, entities_list, _)
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
     [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = asset_types
 
@@ -106,16 +143,20 @@ defmodule AcqdatApi.DataInsights.Topology do
         )
       end
 
-    %{"#{name}" => Repo.all(query)}
+    output = %{"#{name}" => Repo.all(query)}
+    broadcast_to_channel(fact_table_id, output)
   end
 
-  # TODO: Add proper error msg
-  defp validate_entities(_id, {_, sensor_types}, entities_list, _)
+  # NOTE: this validate_entities will get executed if there are multiple only sensor_types present in user input
+  defp validate_entities(id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == length(entities_list) do
-    {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
+    output =
+      {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
+
+    broadcast_to_channel(id, output)
   end
 
-  # TODO: Need to refactor this piece of code and add proper error msg
+  # NOTE: this validate_entities will get executed if there are multiple only asset_types present in user input
   defp validate_entities(id, {asset_types, _sensor_types}, entities_list, parent_tree)
        when length(asset_types) == length(entities_list) do
     {entity_levels, {root_node, root_entity}, entity_map} =
@@ -140,6 +181,8 @@ defmodule AcqdatApi.DataInsights.Topology do
     end
   end
 
+  # NOTE: 1. this validate_entities will find root elem of the user provided input with the help of subtree
+  #       2. this'll then call the Genserver flow for further fact_table processing
   defp validate_entities(id, {asset_types, sensor_types}, entities_list, parent_tree) do
     {entity_levels, {root_node, root_entity}, entity_map} =
       Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
@@ -158,8 +201,10 @@ defmodule AcqdatApi.DataInsights.Topology do
     execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
   end
 
-  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
-    FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
+  defp broadcast_to_channel(fact_table_id, output) do
+    AcqdatApiWeb.Endpoint.broadcast("project_fact_table:#{fact_table_id}", "out_put_res", %{
+      data: output
+    })
   end
 
   defp ets_proj_key(project) do
@@ -170,5 +215,17 @@ defmodule AcqdatApi.DataInsights.Topology do
     {datetime, _} = Integer.parse(datetime)
     {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
     res
+  end
+
+  defp run_under_transaction(multi, result_key) do
+    multi
+    |> Repo.transaction(timeout: :infinity)
+    |> case do
+      {:ok, result} ->
+        {:ok, result[:del_rec_frm_fact_tab]}
+
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
+        {:error, failed_value}
+    end
   end
 end
