@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
       user = insert(:user)
       User.create_index()
       User.seed_user(user)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       on_exit(fn ->
         User.delete_index()
