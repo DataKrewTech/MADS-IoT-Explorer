@@ -9,6 +9,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Schema.EntityManagement.SensorsData.Parameters, as: Sparameters
 
+  # number of months to seed data for
   @months 1
 
   # Data Seed Info::
@@ -19,28 +20,56 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
   #   ->Yellow(3f)
   #   ->White(5f)
   #   ->Brown(7f)
-  #   * Each Floor has 4 apts
+  #   * Each Floor has apartments
   #   * Race(Indian, African, European, Korean, Japanese, Chinese)
   #   * No of rooms in each apartment btw 2,3,4 or 5
   #   * No of kids(0, 1, 2, 3)
   #   * Playground name only
   #   * Each apt has 1 EnergyMeter and 1 HeatMeter
 
+  # Building metadata configuration(at present being used for floors)
+  # Used to insert number of floors per building. Floors should be string.
+  @building_metadata %{
+    "Building Red" => %{"floors" => "1"},
+    "Building Blue" => %{"floors" => "2"},
+    "Building Green" => %{"floors" => "3"},
+    "Building Yellow" => %{"floors" => "1"},
+    "Building White" => %{"floors" => "2"},
+    "Building Brown" => %{"floors" => "3"},
+  }
+
+  # configures how many apartments per floor
+  @building_apartment_Per_floor 2
+
   def seed() do
-    [org] = Repo.all(Organisation)
-    [creator | _] = Repo.all(User)
+    org = Repo.get(Organisation, 1)
+    creator = creator()
     Repo.transaction(fn ->
-      {:ok, project} = Project.create(%{name: "DataInsights Demo", org_id: org.id, creator_id: creator.id, lead_ids: [], user_ids: []})
-      building_asset_type = seed_asset_type(org.id, project.id, "Building")
-      apartment_asset_type = seed_asset_type(org.id, project.id, "Apartment")
-      playground_asset_type = seed_asset_type(org.id, project.id, "PlayGround")
+      {:ok, project} = Project.create(%{name: "DataInsights Demo", org_id:
+        org.id, creator_id: creator.id, lead_ids: [], user_ids: []})
 
+      asset_types = %{
+        building_asset_type: seed_asset_type(org.id, project.id, "Building"),
+        apartment_asset_type: seed_asset_type(org.id, project.id, "Apartment"),
+        playground_asset_type: seed_asset_type(org.id, project.id, "PlayGround")
+      }
 
-      build_topology(building_asset_type, apartment_asset_type,  playground_asset_type, creator, org)
+      build_topology(asset_types, creator, org)
     end, timeout: :infinity)
   end
 
-  def build_topology(%{id: asset_type_id, org_id: org_id, project_id: project_id} = asset_type, apartment_asset_type, playground_asset_type, user, org) do
+  defp creator() do
+    Repo.get_by(User, org_id: 1)
+  end
+
+  def build_topology(asset_types, user, org) do
+    %{
+      building_asset_type: building_asset_type,
+      apartment_asset_type: apartment_asset_type,
+      playground_asset_type: playground_asset_type
+    } = asset_types
+
+    %{id: asset_type_id, org_id: org_id, project_id: project_id} = building_asset_type
 
     {:ok, energy_mtr_sensor_type} = SensorType.create(%{name: "Energy Meter", project_id: project_id, org_id: org_id, parameters: gen_sensor_type_params("Energy Meter")})
 
@@ -48,16 +77,16 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
 
     {:ok, occupancy_sensor_type} = SensorType.create(%{name: "Occupancy Sensor", project_id: project_id, org_id: org_id, parameters: gen_sensor_type_params("Occupancy Sensor")})
 
-    list = ["Red", "Green", "Blue", "Yellow", "White", "Brown"]
+    buildings = ["Red", "Green", "Blue", "Yellow", "White", "Brown"]
 
-    Enum.each(list, fn ele ->
+    Enum.each(buildings, fn ele ->
       {:ok, building} = build_root_asset(
           "Building #{ele}",
           org_id,
           org.name,
           project_id,
           user.id,
-          asset_type
+          building_asset_type
         )
 
       no_of_floors = fetch_metadata_val("No of Floors", "Building #{ele}")
@@ -83,7 +112,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       {no_of_floors, _} = Integer.parse(no_of_floors)
 
       Enum.each(1..no_of_floors, fn floor_no ->
-        Enum.each(1..4, fn apt_no ->
+        Enum.each(1..@building_apartment_Per_floor, fn apt_no ->
           apt_name = "Apt #{ele} #{floor_no}#{apt_no}"
           apt = build_asset_map(apt_name, org_id, project_id, user.id, apartment_asset_type)
           {:ok, apt} = Asset.add_as_child(building, apt, :child)
@@ -179,21 +208,21 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
     IO.inspect({asset_name, metadata_name})
     case {asset_name, metadata_name} do
       {"Building Red", "No of Floors"} ->
-        "2"
+        @building_metadata[asset_name]["floors"]
       {"Building Green", "No of Floors"} ->
-        "4"
+        @building_metadata[asset_name]["floors"]
       {"Building Blue", "No of Floors"} ->
-        "6"
+        @building_metadata[asset_name]["floors"]
       {"Building Yellow", "No of Floors"} ->
-        "3"
+        @building_metadata[asset_name]["floors"]
       {"Building White", "No of Floors"} ->
-        "5"
+        @building_metadata[asset_name]["floors"]
       {"Building Brown", "No of Floors"} ->
-        "7"
+        @building_metadata[asset_name]["floors"]
       {_, "Date Of Construction"} ->
         "#{Enum.random(Date.range(~D[1999-01-01], ~D[2000-01-01]))}"
       {_, "No of Rooms"} ->
-        "#{Enum.random(2..5)}"
+        "#{Enum.random(2..4)}"
       {_, "Race"} ->
         Enum.random(["American", "Indian", "African", "Korean", "Japanese", "Chinese"])
       {_, "Painted"} ->
