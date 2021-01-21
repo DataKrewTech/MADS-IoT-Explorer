@@ -79,7 +79,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
 
         case Gateway.update(gateway, params) do
           {:ok, gateway} ->
-            ElasticSearch.update_gateway("pro", gateway)
+            Task.start_link(fn ->
+              ElasticSearch.insert_gateway("pro", gateway)
+            end)
 
             conn
             |> put_status(200)
