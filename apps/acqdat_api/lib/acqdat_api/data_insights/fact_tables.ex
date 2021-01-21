@@ -118,7 +118,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           if headers[subtree.root] != 0 do
             ind = length(child_node.content -- ["name"]) * 2 + headers[subtree.root]
             # if Enum.member?(child_node.content, "name"), do: ind + 1, else: ind
-            ind - 1
+            # ind - 1
           else
             headers[subtree.root]
           end
@@ -134,8 +134,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
         computed_row =
           case {entity[:value], entity[:param_name], entity[:metadata_name]} do
+            {nil, nil, nil} ->
+              List.replace_at(
+                computed_row,
+                headers[child_entity],
+                entity[:name]
+              )
+
             {value, param_name, nil} ->
-              IO.puts("inside case 1")
               index_pos = headers[child_entity]
               index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
               index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
@@ -401,6 +407,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
       entity_data =
         if entity_data == [] do
+          parent_data = Enum.map(parent_data, fn entity -> entity[:id] end) |> Enum.uniq()
           assets = AssetModel.get_all_by_ids(parent_data)
 
           asset_ids =
