@@ -511,7 +511,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     {:ok, res.rows}
   end
 
-  defp total_no_of_rec(fact_table_name) do
+  def total_no_of_rec(fact_table_name) do
     res =
       Ecto.Adapters.SQL.query!(Repo, "select count(*) from #{fact_table_name}", [],
         timeout: :infinity

@@ -12,6 +12,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Repo
   import Ecto.Query
   alias Ecto.Multi
+  alias AcqdatApi.DataInsights.FactTables, as: FactTablesCon
 
   @table :proj_topology
 
@@ -116,6 +117,27 @@ defmodule AcqdatApi.DataInsights.Topology do
         }
       end
 
+    headers = output[:headers] |> Enum.map_join(",", &"\"#{&1}\"")
+
+    output =
+      if output[:data] != [] do
+        data = FactTablesCon.convert_table_data_to_text(output[:data])
+
+        fact_table_name = "fact_table_#{fact_table_id}"
+
+        FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+
+        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+
+        %{
+          headers: data.columns,
+          data: data.rows,
+          total: FactTablesCon.total_no_of_rec(fact_table_name)
+        }
+      else
+        %{error: "no data present"}
+      end
+
     broadcast_to_channel(fact_table_id, output)
   end
 
@@ -124,26 +146,47 @@ defmodule AcqdatApi.DataInsights.Topology do
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
     [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = asset_types
 
-    query =
+    data =
       if metadata_name == "name" do
         from(asset in Asset,
           where: asset.asset_type_id == ^id,
           select: map(asset, [:id, :name])
         )
+        |> Repo.all()
       else
         from(asset in Asset,
           where: asset.asset_type_id == ^id,
           cross_join: c in fragment("unnest(?)", asset.metadata),
           where: fragment("?->>'name'", c) in ^[metadata_name],
-          select: %{
-            id: asset.id,
-            name: asset.name,
-            value: fragment("(?->>'value', ?->>'name')", c, c)
-          }
+          select: [
+            asset.name,
+            fragment("?->>'value'", c)
+          ]
         )
+        |> Repo.all()
       end
 
-    output = %{"#{name}" => Repo.all(query)}
+    headers = (["name"] ++ [metadata_name]) |> Enum.map_join(",", &"\"#{&1}\"")
+
+    output =
+      if data != [] do
+        data = FactTablesCon.convert_table_data_to_text(data)
+
+        fact_table_name = "fact_table_#{fact_table_id}"
+
+        FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+
+        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+
+        %{
+          headers: data.columns,
+          data: data.rows,
+          total: FactTablesCon.total_no_of_rec(fact_table_name)
+        }
+      else
+        %{error: "no data present"}
+      end
+
     broadcast_to_channel(fact_table_id, output)
   end
 
