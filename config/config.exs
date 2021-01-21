@@ -105,6 +105,10 @@ config :acqdat_api,
        :mads_url,
        System.get_env("MADS_URL", "https://mads.netlify.app/#/")
 
+config :acqdat_api,
+       :redis_port,
+       System.get_env("REDIS_PORT", "redis://localhost:6379/3")
+
 # salt
 config :acqdat_core,
        :secret_salt,

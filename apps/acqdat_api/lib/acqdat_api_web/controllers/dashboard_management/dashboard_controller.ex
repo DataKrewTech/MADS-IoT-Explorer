@@ -71,7 +71,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
             send_error(conn, 400, message)
 
           {:ok, dashboard} ->
-            case Redis.insert_dashboard(dashboard) do
+            case Redis.insert_dashboard(
+                   dashboard,
+                   String.to_integer(Guardian.Plug.current_resource(conn))
+                 ) do
               {:ok, _} ->
                 conn
                 |> put_status(200)
@@ -168,7 +171,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
 
-        case Redis.get_dashboard_ids(data.org_id) do
+        case Redis.get_dashboard_ids(String.to_integer(Guardian.Plug.current_resource(conn))) do
           {:ok, dashboard_ids} ->
             data = Map.put_new(data, :dashboard_ids, dashboard_ids)
             {:list, dashboards} = {:list, Dashboard.recent_dashboards(data)}

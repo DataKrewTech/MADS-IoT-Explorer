@@ -399,4 +399,62 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       assert result == %{"errors" => %{"message" => "Unauthorized"}}
     end
   end
+
+  describe "recent dashboards/2" do
+    setup :setup_conn
+
+    setup do
+      dashboard = insert(:dashboard)
+
+      [dashboard: dashboard]
+    end
+
+    test "fails if invalid token in authorization header", %{conn: conn, dashboard: dashboard} do
+      bad_access_token = "qwerty1234567qwerty12"
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
+
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1,
+        "type" => "archived"
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_path(conn, :recent_dashboard, dashboard.org_id, params)
+        )
+
+      result = conn |> json_response(403)
+      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+    end
+
+    test "recent dashboard with valid dashboard id", %{
+      conn: conn,
+      dashboard: dashboard,
+      user: user
+    } do
+      get(
+        conn,
+        Routes.dashboard_path(conn, :show, dashboard.org_id, dashboard.id)
+      )
+
+      params = %{
+        "page_size" => 2,
+        "page_number" => 1
+      }
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_path(conn, :recent_dashboard, dashboard.org_id, params)
+        )
+
+      %{"dashboards" => [rdashboard]} = conn |> json_response(200)
+      assert rdashboard["id"] == dashboard.id
+    end
+  end
 end
