@@ -433,4 +433,20 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
     ModelHelper.paginated_response(asset_data_with_preloads, paginated_asset_data)
   end
+
+  def fetch_asset_metadata(asset_type_id, metadata_names) do
+    from(
+      asset in Asset,
+      join: c in fragment("unnest(?)", asset.metadata),
+      where:
+        asset.asset_type_id == ^asset_type_id and fragment("?->>'name'", c) in ^metadata_names,
+      select: %{
+        id: asset.id,
+        name: asset.name,
+        value: fragment("?->>'value'", c),
+        metadata_name: fragment("?->>'name'", c)
+      }
+    )
+    |> Repo.all()
+  end
 end

@@ -58,11 +58,15 @@ defmodule AcqdatApi.DataInsights.FactTables do
     # [_, id] = String.split(subtree.root, "_")
     # id = subtree.root
     data =
-      from(asset in Asset,
-        where: asset.asset_type_id == ^node.id,
-        select: map(asset, [:id, :name])
-      )
-      |> Repo.all()
+      if node.content != :empty && node.content != ["name"] do
+        AssetModel.fetch_asset_metadata(node.id, node.content)
+      else
+        from(asset in Asset,
+          where: asset.asset_type_id == ^node.id,
+          select: map(asset, [:id, :name])
+        )
+        |> Repo.all()
+      end
 
     res = fetch_data_using_dynamic_query(subtree, node, data, user_list)
     output = Map.merge(%{"#{node.id}" => data}, res)
@@ -119,56 +123,84 @@ defmodule AcqdatApi.DataInsights.FactTables do
             headers[subtree.root]
           end
 
-        computed_row =
-          List.replace_at(empty_row, indx, parent_entity[:name] || parent_entity[:value])
+        computed_row = List.replace_at(empty_row, indx, parent_entity[:name])
 
         computed_row =
-          if parent_entity[:time] do
-            List.replace_at(empty_row, indx + 1, parent_entity[:time])
+          if parent_entity[:metadata_name] do
+            List.replace_at(computed_row, indx + 1, parent_entity[:value])
           else
             computed_row
           end
 
         computed_row =
-          if entity[:value] && entity[:param_name] do
-            index_pos = headers[child_entity]
-            index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
-            index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
-
-            computed_row =
-              List.replace_at(
-                computed_row,
-                index_pos,
-                entity[:value]
-              )
-
-            computed_row =
-              List.replace_at(
-                computed_row,
-                index_pos + 1,
-                entity[:time]
-              )
-
-            index = Enum.find_index(child_node.content, fn x -> x == "name" end)
-
-            if index do
-              index_pos = index_pos + index + 1
+          case {entity[:value], entity[:param_name], entity[:metadata_name]} do
+            {value, param_name, nil} ->
+              IO.puts("inside case 1")
+              index_pos = headers[child_entity]
+              index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
+              index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
 
               computed_row =
                 List.replace_at(
                   computed_row,
                   index_pos,
-                  entity[:name]
+                  entity[:value]
                 )
-            else
-              computed_row
-            end
-          else
-            List.replace_at(
-              computed_row,
-              headers[child_entity],
-              entity[:name]
-            )
+
+              computed_row =
+                List.replace_at(
+                  computed_row,
+                  index_pos + 1,
+                  entity[:time]
+                )
+
+              index = Enum.find_index(child_node.content, fn x -> x == "name" end)
+
+              if index do
+                index_pos = index_pos + index + 1
+
+                computed_row =
+                  List.replace_at(
+                    computed_row,
+                    index_pos,
+                    entity[:name]
+                  )
+              else
+                computed_row
+              end
+
+            {value, nil, metadata_name} ->
+              index_pos = headers[child_entity]
+              index = Enum.find_index(child_node.content, fn x -> x == entity[:metadata_name] end)
+              index_pos = index_pos + index + 1
+
+              computed_row =
+                if Enum.member?(child_node.content, "name") do
+                  name_index_pos = index_pos - 1
+
+                  computed_row =
+                    List.replace_at(
+                      computed_row,
+                      name_index_pos,
+                      entity[:name]
+                    )
+                else
+                  computed_row
+                end
+
+              computed_row =
+                List.replace_at(
+                  computed_row,
+                  index_pos,
+                  entity[:value]
+                )
+
+            _ ->
+              List.replace_at(
+                computed_row,
+                headers[child_entity],
+                entity[:name]
+              )
           end
 
         data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
@@ -290,10 +322,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
     %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
   end
 
-  def fetch_data_using_dynamic_query(subtree, tree_node, entities, user_list) do
+  def fetch_data_using_dynamic_query(subtree, tree_node, parent_data, user_list) do
     Enum.reduce(tree_node.children, %{}, fn id, acc ->
       node = NaryTree.get(subtree, id)
-      entities = Enum.map(entities, fn entity -> entity[:id] end)
+      entities = Enum.map(parent_data, fn entity -> entity[:id] end) |> Enum.uniq()
 
       query =
         if node.content != [] && node.content != :empty && node.content != ["name"] do
@@ -309,7 +341,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 name: asset.name,
                 parent_id: asset.parent_id,
                 value: fragment("?->>'value'", c),
-                param_name: fragment("?->>'name'", c)
+                metadata_name: fragment("?->>'name'", c)
               }
             )
           else
@@ -369,7 +401,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
       entity_data =
         if entity_data == [] do
-          assets = AssetModel.get_all_by_ids(entities)
+          assets = AssetModel.get_all_by_ids(parent_data)
 
           asset_ids =
             Enum.reduce(assets, [], fn asset, acc ->
