@@ -69,8 +69,16 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
     }
   end
 
-  def render("fact_table_headers.json", data) do
-    %{headers: data.headers}
+  def render("fact_table.json", %{fact_table: fact_table}) do
+    %{
+      id: fact_table.id,
+      name: fact_table.name,
+      columns_metadata: fact_table.columns_metadata,
+      project_id: fact_table.project_id,
+      org_id: fact_table.org_id,
+      slug: fact_table.slug,
+      uuid: fact_table.uuid
+    }
   end
 
   def render("index.json", fact_tables) do
