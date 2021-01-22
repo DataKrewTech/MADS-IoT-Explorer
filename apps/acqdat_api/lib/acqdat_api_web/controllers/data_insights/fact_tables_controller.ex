@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadFact when action in [:update, :delete]
+  plug AcqdatApiWeb.Plug.LoadFact when action in [:update, :delete, :details]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -65,6 +65,21 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
             |> put_status(200)
             |> render("fact_table_data.json", %{fact_table: data[:data]})
         end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def details(conn, %{"fact_tables_id" => fact_tables_id}) do
+    case conn.status do
+      nil ->
+        FactTables.broadcast_to_channel(fact_tables_id)
+
+        conn
+        |> put_status(200)
+        |> render("fact_table.json", %{fact_table: conn.assigns.fact_table})
 
       404 ->
         conn

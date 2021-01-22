@@ -197,6 +197,7 @@ defmodule AcqdatApiWeb.Router do
       get("/topology_entities", TopologyController, :entities)
 
       resources "/fact_tables", FactTablesController, except: [:new, :edit] do
+        get("/details", FactTablesController, :details)
         resources "/pivot_tables", PivotTablesController, only: [:create, :update, :index]
       end
     end

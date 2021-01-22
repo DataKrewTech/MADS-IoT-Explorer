@@ -7,6 +7,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
   alias AcqdatCore.Repo
   alias NaryTree
   alias Ecto.Multi
+  alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SD
 
   defdelegate get_all(params), to: FactTables
 
@@ -146,6 +147,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
               index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
               index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
 
+              IO.puts(index_pos)
+
               computed_row =
                 List.replace_at(
                   computed_row,
@@ -171,6 +174,9 @@ defmodule AcqdatApi.DataInsights.FactTables do
                     index_pos,
                     entity[:name]
                   )
+
+                # IO.puts("internal")
+                # IO.inspect(computed_row)
               else
                 computed_row
               end
@@ -314,6 +320,15 @@ defmodule AcqdatApi.DataInsights.FactTables do
     end)
   end
 
+  def broadcast_to_channel(fact_table_id) do
+    fact_table_name = "fact_table_#{fact_table_id}"
+    output = fetch_paginated_fact_table(fact_table_name, 1, 20)
+
+    AcqdatApiWeb.Endpoint.broadcast("project_fact_table:#{fact_table_id}", "out_put_res", %{
+      data: output
+    })
+  end
+
   def fetch_paginated_fact_table(fact_table_name, page_number, page_size) do
     offset = page_size * (page_number - 1)
 
@@ -382,7 +397,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
               date_to = from_unix(date_to)
 
               query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-              SensorData.fetch_sensors_data(query, parameters)
+              SensorData.fetch_sensors_data_with_parent_id(query, parameters)
             else
               subquery
             end
@@ -424,15 +439,38 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 else
                   list = Enum.map(data, fn x -> x.id end)
 
-                  query =
+                  entity_ids =
                     from(sensor in Sensor,
                       where:
                         sensor.sensor_type_id == ^id and sensor.parent_id in ^list and
                           sensor.parent_type == "Asset",
-                      select: map(sensor, [:id, :name])
+                      select: sensor.id
                     )
+                    |> Repo.all()
 
-                  output = Repo.all(query)
+                  sensor_entity =
+                    Enum.filter(user_list, fn x ->
+                      "#{x["id"]}" == node.id && x["type"] == node.type
+                    end)
+
+                  [
+                    %{
+                      "metadata_name" => _metadata_name,
+                      "date_to" => date_to,
+                      "date_from" => date_from
+                    }
+                    | _
+                  ] = sensor_entity
+
+                  parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
+
+                  date_from = from_unix(date_from)
+                  date_to = from_unix(date_to)
+
+                  query =
+                    SensorData.fetch_sensor_data_btw_time_intv(entity_ids, date_from, date_to)
+
+                  output = SensorData.fetch_sensors_data(query, parameters) |> Repo.all()
                   Enum.map(output, fn x -> Map.merge(%{parent_id: asset.id}, x) end)
                 end
 
@@ -493,7 +531,6 @@ defmodule AcqdatApi.DataInsights.FactTables do
             {data, data2} = res
 
             if res != nil && acc1 != %{} && acc1 != [] do
-              IO.inspect(acc1)
               items = acc1[:children] ++ [data]
               acc1 = acc1 |> Map.put(:children, List.flatten(items))
               acc2 = acc2 ++ data2

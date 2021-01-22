@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Plug.LoadFact do
   def init(default), do: default
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(%{params: %{"fact_table_id" => fact_id}} = conn, _params) do
+  def call(%{params: %{"fact_tables_id" => fact_id}} = conn, _params) do
     check_fact(conn, fact_id)
   end
 

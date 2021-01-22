@@ -442,7 +442,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     )
   end
 
-  def fetch_sensors_data(
+  def fetch_sensors_data_with_parent_id(
         subquery,
         param_uuids
       ) do
@@ -458,6 +458,33 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
         value: fragment("?->>'value'", c),
         param_name: fragment("?->>'name'", c)
       }
+    )
+  end
+
+  def fetch_sensors_data(subquery, param_uuids) do
+    from(
+      data in subquery(subquery),
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'name'", c) in ^param_uuids,
+      select: %{
+        time: data.inserted_timestamp,
+        id: data.sensor_id,
+        name: data.sensor_name,
+        value: fragment("?->>'value'", c),
+        param_name: fragment("?->>'name'", c)
+      }
+    )
+  end
+
+  def fetch_sensor_data_btw_time_intv(sensor_ids, date_from, date_to) do
+    from(
+      data in SensorsData,
+      join: sensor in Sensor,
+      on:
+        data.sensor_id == sensor.id and data.sensor_id in ^sensor_ids and
+          data.inserted_timestamp >= ^date_from and
+          data.inserted_timestamp <= ^date_to,
+      select_merge: %{sensor_name: sensor.name}
     )
   end
 
