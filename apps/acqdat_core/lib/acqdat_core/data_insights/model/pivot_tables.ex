@@ -14,6 +14,10 @@ defmodule AcqdatCore.Model.DataInsights.PivotTables do
     Repo.update(changeset)
   end
 
+  def delete(pivot_table) do
+    Repo.delete(pivot_table)
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(PivotTables, id) do
       nil ->

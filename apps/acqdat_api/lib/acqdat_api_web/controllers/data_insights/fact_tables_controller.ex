@@ -75,8 +75,6 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
   def details(conn, %{"fact_tables_id" => fact_tables_id}) do
     case conn.status do
       nil ->
-        FactTables.broadcast_to_channel(fact_tables_id)
-
         conn
         |> put_status(200)
         |> render("fact_table.json", %{fact_table: conn.assigns.fact_table})

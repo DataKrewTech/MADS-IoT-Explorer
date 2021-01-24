@@ -7,6 +7,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
   import Ecto.Query
 
   defdelegate get_all(params), to: PivotTableModel
+  defdelegate delete(pivot_table), to: PivotTableModel
 
   def create(org_id, fact_tables_id, %{name: project_name, id: project_id}) do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)
