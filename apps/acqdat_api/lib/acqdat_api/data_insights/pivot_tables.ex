@@ -51,17 +51,30 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       })
     end)
     |> Multi.run(:gen_pivot_data, fn _, %{persist_to_db: pivot_table} ->
-      gen_pivot_data(pivot_table, fact_tables_id, user_list)
+      gen_pivot_data(pivot_table)
     end)
     |> run_under_transaction(:gen_pivot_data)
   end
 
-  def gen_pivot_data(pivot_table, fact_tables_id, %{
-        "rows" => rows,
-        "values" => values,
-        "columns" => columns,
-        "filters" => filters
-      }) do
+  def fetch_n_gen_pivot(pivot_table_id) do
+    case PivotTableModel.get_by_id(pivot_table_id) do
+      {:ok, pivot_table} ->
+        gen_pivot_data(pivot_table)
+
+      {:error, error_msg} ->
+        {:error, error_msg}
+    end
+  end
+
+  def gen_pivot_data(
+        %{
+          rows: rows,
+          values: values,
+          columns: columns,
+          filters: filters,
+          fact_table_id: fact_tables_id
+        } = pivot_table
+      ) do
     fact_table_name = "fact_table_#{fact_tables_id}"
 
     query =

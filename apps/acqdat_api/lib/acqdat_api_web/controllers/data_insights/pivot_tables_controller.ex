@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadPivot when action in [:update, :delete]
+  plug AcqdatApiWeb.Plug.LoadPivot when action in [:update, :delete, :show]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -19,6 +19,19 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
         conn
         |> put_status(200)
         |> render("index.json", pivot_tables)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def show(conn, _params) do
+    case conn.status do
+      nil ->
+        conn
+        |> put_status(200)
+        |> render("show.json", %{pivot_table: conn.assigns.pivot})
 
       404 ->
         conn
