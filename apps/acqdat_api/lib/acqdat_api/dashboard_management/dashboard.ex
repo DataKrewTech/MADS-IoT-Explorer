@@ -26,7 +26,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       description: description,
       org_id: org_id,
       avatar: avatar,
-      settings: settings
+      settings: settings,
+      creator_id: creator_id
     } = attrs
 
     dashboard_params = %{
@@ -34,7 +35,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
       description: description,
       org_id: org_id,
       avatar: avatar,
-      settings: settings || %{}
+      settings: settings || %{},
+      creator_id: creator_id
     }
 
     create_dashboard(dashboard_params)
@@ -75,7 +77,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
 
   defp verify_dashboard({:ok, dashboard}) do
     dashboard =
-      dashboard |> Repo.preload([:panels, :dashboard_export]) |> DashboardModel.reorder_panels()
+      dashboard |> Repo.preload([:panels, :dashboard_export, :creator]) |> DashboardModel.reorder_panels()
 
     {:ok, dashboard}
   end

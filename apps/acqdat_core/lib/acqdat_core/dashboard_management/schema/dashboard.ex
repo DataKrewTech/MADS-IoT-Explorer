@@ -10,9 +10,11 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   """
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.Organisation
+  alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.DashboardManagement.Schema.Panel
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
   alias AcqdatCore.DashboardManagement.Schema.Dashboard.Settings
+
 
   @typedoc """
   `name`: Name of the dashboard, which will be unique with respective to org.
@@ -31,6 +33,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:creator, User, on_replace: :delete)
     has_many(:panels, Panel, on_replace: :delete)
 
     # embedded associations
@@ -40,8 +43,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(uuid slug name org_id)a
+
+  @required_params ~w(uuid slug name org_id creator_id)a
   @optional_params ~w(description avatar archived opened_on)a
+
   @permitted @optional_params ++ @required_params
 
   def changeset(%__MODULE__{} = dashboard, params) do
@@ -65,6 +70,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     changeset
     |> cast_embed(:settings, with: &Settings.changeset/2)
     |> assoc_constraint(:org)
+    |> assoc_constraint(:creator)
     |> unique_constraint(:name,
       name: :unique_dashboard_name_per_org,
       message: "unique name under org"
