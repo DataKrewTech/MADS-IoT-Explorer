@@ -9,7 +9,7 @@ defmodule AcqdatApi.Helper.RedisSupervisor do
 
   def init(_args) do
     children = [
-      Redis
+      Redis.child()
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -15,7 +15,7 @@ jobs:
       env:
         MIX_ENV: test
         ELASTIC_SEARCH_HOST: "http://elastic_search:9200"
-        REDIS_PORT: "redis://localhost:6379"
+        REDIS_PORT: "redis://redis:6379"
 
     services: 
       db:
@@ -67,7 +67,7 @@ jobs:
       env:
         DB_HOST: db
         ELASTIC_SEARCH_HOST: http://elastic_search:9200
-        REDIS_PORT: redis://localhost:6379/3
+        REDIS_PORT: redis://redis:6379/3
     - name: Report coverage to Codecov
       uses: codecov/codecov-action@v1 
       with: 
