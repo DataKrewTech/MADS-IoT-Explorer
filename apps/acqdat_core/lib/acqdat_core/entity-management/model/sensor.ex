@@ -187,6 +187,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
             ElasticSearch.delete("sensors", sensor.id)
           end)
 
+          {:ok, sensor}
+
         {:error, message} ->
           {:error, message}
       end
