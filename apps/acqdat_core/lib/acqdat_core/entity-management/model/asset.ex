@@ -19,7 +19,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-
   def get_for_view(asset_ids) do
     query =
       from(asset in Asset,
