@@ -40,7 +40,8 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     test "search with valid params", %{conn: conn, project: project} do
       conn =
         get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
-          "label" => project.name
+          "label" => project.name,
+          "is_archived" => false
         })
 
       %{"projects" => [rproject]} = conn |> json_response(200)
@@ -60,7 +61,8 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     test "search with no hits", %{conn: conn, project: project} do
       conn =
         get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
-          "label" => "Random Name ?"
+          "label" => "Random Name ?",
+          "is_archived" => false
         })
 
       result = conn |> json_response(200)
@@ -98,7 +100,8 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       conn =
         get(conn, Routes.project_path(conn, :index, org.id), %{
           "from" => 0,
-          "page_size" => 1
+          "page_size" => 1,
+          "is_archived" => false
         })
 
       result = conn |> json_response(403)
@@ -114,7 +117,8 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       conn =
         get(conn, Routes.project_path(conn, :index, project1.org.id), %{
           "from" => 0,
-          "page_size" => 3
+          "page_size" => 3,
+          "is_archived" => false
         })
 
       %{"projects" => projects} = conn |> json_response(200)
