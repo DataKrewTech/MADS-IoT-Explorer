@@ -122,10 +122,10 @@ defmodule AcqdatApi.ElasticSearch do
     end
   end
 
-  def search_projects(%{"org_id" => org_id, "label" => label} = params) do
+  def search_projects(%{"org_id" => org_id, "label" => label, "is_archived" => flag} = params) do
     case is_nil(String.first(label)) do
       false ->
-        case do_project_search(org_id, label, params) do
+        case do_project_search(org_id, label, params, flag) do
           {:ok, _return_code, hits} ->
             {:ok, hits.hits}
 
@@ -140,12 +140,18 @@ defmodule AcqdatApi.ElasticSearch do
         query =
           case Map.has_key?(params, "page_size") do
             true ->
-              %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
-              project_indexing_query(org_id, from, page_size)
+              %{
+                "page_size" => page_size,
+                "from" => from,
+                "org_id" => org_id,
+                "is_archived" => flag
+              } = params
+
+              project_indexing_query(org_id, from, page_size, flag)
 
             false ->
-              %{"org_id" => org_id} = params
-              project_indexing_query(org_id)
+              %{"org_id" => org_id, "is_archived" => flag} = params
+              project_indexing_query(org_id, flag)
           end
 
         case Tirexs.Query.create_resource(query) do
@@ -212,15 +218,15 @@ defmodule AcqdatApi.ElasticSearch do
     Tirexs.Query.create_resource(query)
   end
 
-  defp do_project_search(org_id, label, params) do
+  defp do_project_search(org_id, label, params, flag) do
     query =
       case Map.has_key?(params, "page_size") do
         true ->
           %{"page_size" => page_size, "from" => from} = params
-          create_project_search_query(org_id, label, page_size, from)
+          create_project_search_query(org_id, label, page_size, from, flag)
 
         false ->
-          create_project_search_query(org_id, label)
+          create_project_search_query(org_id, label, flag)
       end
 
     Tirexs.Query.create_resource(query)
@@ -310,12 +316,14 @@ defmodule AcqdatApi.ElasticSearch do
     query =
       case Map.has_key?(params, "page_size") do
         true ->
-          %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
-          project_indexing_query(org_id, from, page_size)
+          %{"page_size" => page_size, "from" => from, "org_id" => org_id, "is_archived" => flag} =
+            params
+
+          project_indexing_query(org_id, from, page_size, flag)
 
         false ->
-          %{"org_id" => org_id} = params
-          project_indexing_query(org_id)
+          %{"org_id" => org_id, "is_archived" => flag} = params
+          project_indexing_query(org_id, flag)
       end
 
     case Tirexs.Query.create_resource(query) do
@@ -517,7 +525,7 @@ defmodule AcqdatApi.ElasticSearch do
     ]
   end
 
-  defp create_project_search_query(org_id, label) do
+  defp create_project_search_query(org_id, label, flag) do
     [
       search: [
         query: [
@@ -531,7 +539,8 @@ defmodule AcqdatApi.ElasticSearch do
                   ]
                 ]
               ],
-              [parent_id: [type: "project", id: org_id]]
+              [parent_id: [type: "project", id: org_id]],
+              [match: [archived: flag]]
             ]
           ]
         ]
@@ -540,7 +549,7 @@ defmodule AcqdatApi.ElasticSearch do
     ]
   end
 
-  defp create_project_search_query(org_id, label, page_size, from) do
+  defp create_project_search_query(org_id, label, page_size, from, flag) do
     [
       search: [
         query: [
@@ -554,7 +563,8 @@ defmodule AcqdatApi.ElasticSearch do
                   ]
                 ]
               ],
-              [parent_id: [type: "project", id: org_id]]
+              [parent_id: [type: "project", id: org_id]],
+              [match: [archived: flag]]
             ]
           ]
         ],
@@ -655,12 +665,15 @@ defmodule AcqdatApi.ElasticSearch do
     ]
   end
 
-  defp project_indexing_query(org_id, from, size) do
+  defp project_indexing_query(org_id, from, size, flag) do
     [
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "project", id: org_id]]]
+            must: [
+              [parent_id: [type: "project", id: org_id]],
+              [match: [archived: flag]]
+            ]
           ]
         ],
         size: size,
@@ -670,12 +683,12 @@ defmodule AcqdatApi.ElasticSearch do
     ]
   end
 
-  defp project_indexing_query(org_id) do
+  defp project_indexing_query(org_id, flag) do
     [
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "project", id: org_id]]]
+            must: [[parent_id: [type: "project", id: org_id]], [match: [archived: flag]]]
           ]
         ]
       ],

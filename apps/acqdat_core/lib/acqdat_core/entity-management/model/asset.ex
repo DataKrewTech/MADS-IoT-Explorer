@@ -98,8 +98,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   def fetch_root(org_id, parent_id) do
     query =
       from(asset in Asset,
-        where:
-          asset.org_id == ^org_id and is_nil(asset.parent_id) == true and asset.id == ^parent_id
+        where: asset.org_id == ^org_id and asset.id == ^parent_id
       )
 
     Repo.one!(query) |> Repo.preload([:org, :project, :creator, :asset_type])

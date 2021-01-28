@@ -131,8 +131,15 @@ defmodule AcqdatApi.EntityManagement.AssetType do
     }
 
     case STModel.create(params) do
-      {:ok, sensor_type} -> {:ok, sensor_type}
-      {:error, message} -> {:error, message}
+      {:ok, sensor_type} ->
+        Task.start_link(fn ->
+          ElasticSearch.insert_sensor_type("sensor_types", sensor_type)
+        end)
+
+        {:ok, sensor_type}
+
+      {:error, message} ->
+        {:error, message}
     end
   end
 
