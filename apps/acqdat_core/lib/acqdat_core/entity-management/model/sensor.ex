@@ -14,6 +14,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
           ElasticSearch.insert_sensor("sensors", sensor)
         end)
 
+        {:ok, sensor}
+
       {:error, message} ->
         {:error, message}
     end
@@ -27,6 +29,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
         Task.start_link(fn ->
           ElasticSearch.insert_sensor("sensors", sensor)
         end)
+
+        {:ok, sensor}
 
       {:error, message} ->
         {:error, message}
