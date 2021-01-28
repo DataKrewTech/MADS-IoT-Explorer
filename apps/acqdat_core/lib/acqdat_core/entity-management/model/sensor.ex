@@ -1,17 +1,36 @@
 defmodule AcqdatCore.Model.EntityManagement.Sensor do
   alias AcqdatCore.Schema.EntityManagement.{Sensor, SensorsData}
   alias AcqdatCore.Repo
+  alias AcqdatApi.ElasticSearch
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 
   def create(params) do
     changeset = Sensor.changeset(%Sensor{}, params)
-    Repo.insert(changeset)
+
+    case Repo.insert(changeset) do
+      {:ok, sensor} ->
+        Task.start_link(fn ->
+          ElasticSearch.insert_sensor("sensors", sensor)
+        end)
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   def update(sensor, params) do
     changeset = Sensor.update_changeset(sensor, params)
-    Repo.update(changeset)
+
+    case Repo.update(changeset) do
+      {:ok, sensor} ->
+        Task.start_link(fn ->
+          ElasticSearch.insert_sensor("sensors", sensor)
+        end)
+
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   def get_for_view(sensor_ids) do
@@ -158,7 +177,15 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     if has_iot_data?(sensor.id, sensor.project_id) do
       {:error, "It contains time-series data. Please delete sensors data before deleting sensor."}
     else
-      Repo.delete(sensor)
+      case Repo.delete(sensor) do
+        {:ok, sensor} ->
+          Task.start_link(fn ->
+            ElasticSearch.delete("sensors", sensor.id)
+          end)
+
+        {:error, message} ->
+          {:error, message}
+      end
     end
   end
 
