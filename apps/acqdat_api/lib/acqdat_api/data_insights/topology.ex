@@ -9,6 +9,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
+  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Repo
   import Ecto.Query
   alias Ecto.Multi
@@ -146,27 +147,33 @@ defmodule AcqdatApi.DataInsights.Topology do
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
     [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = asset_types
 
-    data =
+    {headers, data} =
       if metadata_name == "name" do
-        from(asset in Asset,
-          where: asset.asset_type_id == ^id,
-          select: map(asset, [:id, :name])
-        )
-        |> Repo.all()
-      else
-        from(asset in Asset,
-          where: asset.asset_type_id == ^id,
-          cross_join: c in fragment("unnest(?)", asset.metadata),
-          where: fragment("?->>'name'", c) in ^[metadata_name],
-          select: [
-            asset.name,
-            fragment("?->>'value'", c)
-          ]
-        )
-        |> Repo.all()
-      end
+        data1 =
+          from(asset in Asset,
+            where: asset.asset_type_id == ^id,
+            select: [asset.name]
+          )
+          |> Repo.all()
 
-    headers = (["name"] ++ [metadata_name]) |> Enum.map_join(",", &"\"#{&1}\"")
+        headers = "name"
+        {headers, data1}
+      else
+        data1 =
+          from(asset in Asset,
+            where: asset.asset_type_id == ^id,
+            cross_join: c in fragment("unnest(?)", asset.metadata),
+            where: fragment("?->>'name'", c) in ^[metadata_name],
+            select: [
+              asset.name,
+              fragment("?->>'value'", c)
+            ]
+          )
+          |> Repo.all()
+
+        headers = (["name"] ++ [metadata_name]) |> Enum.map_join(",", &"\"#{&1}\"")
+        {headers, data1}
+      end
 
     output =
       if data != [] do
@@ -191,36 +198,80 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   # NOTE: this validate_entities will get executed if there are multiple only sensor_types present in user input
-  defp validate_entities(id, {_, sensor_types}, entities_list, _)
+  defp validate_entities(fact_table_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == length(entities_list) do
     output =
       {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
 
-    broadcast_to_channel(id, output)
+    broadcast_to_channel(fact_table_id, output)
   end
 
   # NOTE: this validate_entities will get executed if there are multiple only asset_types present in user input
-  defp validate_entities(id, {asset_types, _sensor_types}, entities_list, parent_tree)
+  defp validate_entities(fact_table_id, {asset_types, _sensor_types}, entities_list, parent_tree)
        when length(asset_types) == length(entities_list) do
-    {entity_levels, {root_node, root_entity}, entity_map} =
-      Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
-        node = NaryTree.get(parent_tree, "#{entity["id"]}")
-        acc1 = acc1 ++ [node.level]
+    uniq_asset_types = Enum.uniq_by(asset_types, fn asset_type -> asset_type["id"] end)
 
-        {acc2, acc4} =
-          if acc2 != nil && acc2.level < node.level, do: {acc2, acc4}, else: {node, entity}
+    if length(uniq_asset_types) == 1 do
+      [%{"id" => asset_type_id} | _] = uniq_asset_types
+      metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_name"] end)
+      res = AssetModel.fetch_asset_metadata(asset_type_id, metadata_list)
 
-        acc3 = Map.put_new(acc3, "#{entity["type"]}_#{entity["id"]}", false)
-        {acc1, {acc2, acc4}, acc3}
-      end)
+      data =
+        Enum.group_by(res, fn x -> x.name end, fn y -> %{"#{y.metadata_name}" => y.value} end)
 
-    if length(Enum.uniq(entity_levels)) == 1 do
-      {:error,
-       "All the asset_type entities are at the same level, Please attach common parent entity."}
+      [first_metadata | _] = Map.values(data)
+
+      data =
+        Enum.reduce(data, [], fn {key, metadatas}, acc1 ->
+          acc1 ++
+            [[key] ++ List.flatten(Enum.map(metadatas, fn metadata -> Map.values(metadata) end))]
+        end)
+
+      output =
+        if data != [] do
+          headers =
+            (["name"] ++ List.flatten(Enum.map(first_metadata, fn x -> Map.keys(x) end)))
+            |> Enum.map_join(",", &"\"#{&1}\"")
+
+          data = FactTablesCon.convert_table_data_to_text(data)
+
+          fact_table_name = "fact_table_#{fact_table_id}"
+
+          FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+
+          data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+
+          %{
+            headers: data.columns,
+            data: data.rows,
+            total: FactTablesCon.total_no_of_rec(fact_table_name)
+          }
+        else
+          %{error: "no data present"}
+        end
+
+      broadcast_to_channel(fact_table_id, output)
     else
-      node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
+      {entity_levels, {root_node, root_entity}, entity_map} =
+        Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
+          node = NaryTree.get(parent_tree, "#{entity["id"]}")
+          acc1 = acc1 ++ [node.level]
 
-      execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+          {acc2, acc4} =
+            if acc2 != nil && acc2.level < node.level, do: {acc2, acc4}, else: {node, entity}
+
+          acc3 = Map.put_new(acc3, "#{entity["type"]}_#{entity["id"]}", false)
+          {acc1, {acc2, acc4}, acc3}
+        end)
+
+      if length(Enum.uniq(entity_levels)) == 1 do
+        {:error,
+         "All the asset_type entities are at the same level, Please attach common parent entity."}
+      else
+        node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
+
+        execute_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker)
+      end
     end
   end
 

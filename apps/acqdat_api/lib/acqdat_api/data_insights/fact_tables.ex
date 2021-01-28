@@ -78,10 +78,9 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def fact_table_representation(fact_table_name, output, subtree) do
-    headers = output |> parse_table_headers_map()
-    tree_elem = output[subtree.root]
+    {headers, rows_len} = output |> parse_table_headers_map(subtree)
 
-    rows_len = subtree |> compute_table_row_len()
+    tree_elem = output[subtree.root]
 
     data =
       Enum.reduce(tree_elem, [], fn parent_entity, acc ->
@@ -115,104 +114,58 @@ defmodule AcqdatApi.DataInsights.FactTables do
         empty_row = List.duplicate(nil, rows_len)
         child_node = NaryTree.get(subtree, child_entity)
 
-        indx =
-          if headers[subtree.root] != 0 do
-            ind = length(child_node.content -- ["name"]) * 2 + headers[subtree.root]
-            # if Enum.member?(child_node.content, "name"), do: ind + 1, else: ind
-            # ind - 1
+        computed_row =
+          if headers[child_node.parent]["name"] do
+            List.replace_at(empty_row, headers[child_node.parent]["name"], parent_entity[:name])
           else
-            headers[subtree.root]
+            empty_row
           end
-
-        computed_row = List.replace_at(empty_row, indx, parent_entity[:name])
 
         computed_row =
           if parent_entity[:metadata_name] do
-            List.replace_at(computed_row, indx + 1, parent_entity[:value])
+            List.replace_at(
+              computed_row,
+              headers[child_node.parent][parent_entity.metadata_name],
+              parent_entity.value
+            )
           else
             computed_row
           end
 
         computed_row =
-          case {entity[:value], entity[:param_name], entity[:metadata_name]} do
-            {nil, nil, nil} ->
+          if headers[child_entity]["name"] do
+            List.replace_at(computed_row, headers[child_entity]["name"], entity[:name])
+          else
+            computed_row
+          end
+
+        computed_row =
+          if entity[:metadata_name] do
+            List.replace_at(
+              computed_row,
+              headers[child_entity][entity.metadata_name],
+              entity.value
+            )
+          else
+            computed_row
+          end
+
+        computed_row =
+          if entity[:param_name] do
+            computed_row =
               List.replace_at(
                 computed_row,
-                headers[child_entity],
-                entity[:name]
+                headers[child_entity][entity.param_name],
+                entity.value
               )
 
-            {value, param_name, nil} ->
-              index_pos = headers[child_entity]
-              index = Enum.find_index(child_node.content, fn x -> x == entity[:param_name] end)
-              index_pos = if index == 0, do: index_pos + index, else: index_pos + index + 1
-
-              IO.puts(index_pos)
-
-              computed_row =
-                List.replace_at(
-                  computed_row,
-                  index_pos,
-                  entity[:value]
-                )
-
-              computed_row =
-                List.replace_at(
-                  computed_row,
-                  index_pos + 1,
-                  entity[:time]
-                )
-
-              index = Enum.find_index(child_node.content, fn x -> x == "name" end)
-
-              if index do
-                index_pos = index_pos + index + 1
-
-                computed_row =
-                  List.replace_at(
-                    computed_row,
-                    index_pos,
-                    entity[:name]
-                  )
-
-                # IO.puts("internal")
-                # IO.inspect(computed_row)
-              else
-                computed_row
-              end
-
-            {value, nil, metadata_name} ->
-              index_pos = headers[child_entity]
-              index = Enum.find_index(child_node.content, fn x -> x == entity[:metadata_name] end)
-              index_pos = index_pos + index + 1
-
-              computed_row =
-                if Enum.member?(child_node.content, "name") do
-                  name_index_pos = index_pos - 1
-
-                  computed_row =
-                    List.replace_at(
-                      computed_row,
-                      name_index_pos,
-                      entity[:name]
-                    )
-                else
-                  computed_row
-                end
-
-              computed_row =
-                List.replace_at(
-                  computed_row,
-                  index_pos,
-                  entity[:value]
-                )
-
-            _ ->
-              List.replace_at(
-                computed_row,
-                headers[child_entity],
-                entity[:name]
-              )
+            List.replace_at(
+              computed_row,
+              headers[child_entity]["#{entity.param_name}_dateTime"],
+              entity.time
+            )
+          else
+            computed_row
           end
 
         data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
@@ -239,10 +192,25 @@ defmodule AcqdatApi.DataInsights.FactTables do
     end)
   end
 
-  def parse_table_headers_map(output) do
-    Stream.with_index(Map.keys(output), 0)
-    |> Enum.reduce(%{}, fn {v, k}, acc ->
-      Map.put(acc, v, k)
+  def parse_table_headers_map(output, subtree) do
+    Map.keys(output)
+    |> Enum.uniq()
+    |> Stream.with_index(0)
+    |> Enum.reduce({%{}, 0}, fn {entity_type_id, index}, {acc, pos} ->
+      {index_pos, res} =
+        Stream.with_index(subtree.nodes[entity_type_id].content, pos)
+        |> Enum.reduce({pos, %{}}, fn {v, k}, {ind, acc} ->
+          if subtree.nodes[entity_type_id].type == "SensorType" and v != "name" do
+            k = 2 * k
+            acc = Map.put(acc, v, k)
+            {k + 1, Map.put(acc, "#{v}_dateTime", k + 1)}
+          else
+            {k, Map.put(acc, v, k)}
+          end
+        end)
+
+      acc = Map.put(acc, entity_type_id, res)
+      {acc, index_pos + 1}
     end)
   end
 
@@ -302,11 +270,40 @@ defmodule AcqdatApi.DataInsights.FactTables do
         Enum.reduce(output[child_entity], [], fn entity, acc3 ->
           if entity.parent_id == parent_entity.id do
             computed_row =
-              List.replace_at(
-                computed_row,
-                headers[child_entity],
-                entity[:name] || entity[:value]
-              )
+              if headers[child_entity]["name"] do
+                List.replace_at(computed_row, headers[child_entity]["name"], entity[:name])
+              else
+                computed_row
+              end
+
+            computed_row =
+              if entity[:metadata_name] do
+                List.replace_at(
+                  computed_row,
+                  headers[child_entity][entity.metadata_name],
+                  entity.value
+                )
+              else
+                computed_row
+              end
+
+            computed_row =
+              if entity[:param_name] do
+                computed_row =
+                  List.replace_at(
+                    computed_row,
+                    headers[child_entity][entity.param_name],
+                    entity.value
+                  )
+
+                List.replace_at(
+                  computed_row,
+                  headers[child_entity]["#{entity.param_name}_dateTime"],
+                  entity.time
+                )
+              else
+                computed_row
+              end
 
             child_node = NaryTree.get(subtree, child_entity)
             data = fetch_children(child_node, entity, subtree, output, computed_row, headers)
