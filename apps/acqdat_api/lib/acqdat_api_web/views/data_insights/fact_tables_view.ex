@@ -23,7 +23,8 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       project_id: fact_table.project_id,
       org_id: fact_table.org_id,
       slug: fact_table.slug,
-      uuid: fact_table.uuid
+      uuid: fact_table.uuid,
+      pivot_count: fact_table.pivot_count
     }
   end
 
@@ -35,7 +36,8 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       project_id: fact_table.project_id,
       org_id: fact_table.org_id,
       slug: fact_table.slug,
-      uuid: fact_table.uuid
+      uuid: fact_table.uuid,
+      pivot_count: fact_table.pivot_count
     }
   end
 

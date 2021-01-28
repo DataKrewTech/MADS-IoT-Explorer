@@ -36,8 +36,11 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
       }) do
     query =
       from(fact_table in FactTables,
+        join: pivot in assoc(fact_table, :pivot_tables),
+        group_by: fact_table.id,
         where: fact_table.org_id == ^org_id and fact_table.project_id == ^project_id,
-        order_by: fact_table.name
+        order_by: fact_table.name,
+        select_merge: %{pivot_count: count(pivot.id)}
       )
 
     query |> Repo.paginate(page: page_number, page_size: page_size)

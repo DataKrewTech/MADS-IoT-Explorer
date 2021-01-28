@@ -14,6 +14,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
+  alias AcqdatCore.DataInsights.Schema.PivotTables
 
   @typedoc """
   `name`: Fact Table name
@@ -37,9 +38,13 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     field(:group_interval, :integer)
     field(:group_interval_type, :string)
 
+    # virtual field, to load total pivot_tables count per fact_table
+    field(:pivot_count, :integer, virtual: true)
+
     # associations
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:org, Organisation, on_replace: :delete)
+    has_many(:pivot_tables, PivotTables, foreign_key: :fact_table_id)
 
     timestamps(type: :utc_datetime)
   end
