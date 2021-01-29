@@ -26,7 +26,9 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesView do
       filters: pivot_table.filters,
       columns: pivot_table.columns,
       rows: pivot_table.rows,
-      values: pivot_table.values
+      values: pivot_table.values,
+      created_at: pivot_table.inserted_at,
+      creator: render_one(pivot_table.creator, PivotTablesView, "creator.json")
     }
   end
 
@@ -41,7 +43,17 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesView do
       filters: pivot_table.filters,
       columns: pivot_table.columns,
       rows: pivot_table.rows,
-      values: pivot_table.values
+      values: pivot_table.values,
+      created_at: pivot_table.inserted_at
+    }
+  end
+
+  def render("creator.json", %{pivot_tables: creator}) do
+    %{
+      id: creator.id,
+      email: creator.email,
+      first_name: creator.first_name,
+      last_name: creator.last_name
     }
   end
 

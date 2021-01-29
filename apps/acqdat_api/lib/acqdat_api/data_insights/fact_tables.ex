@@ -22,11 +22,25 @@ defmodule AcqdatApi.DataInsights.FactTables do
     |> run_under_transaction(:del_rec_frm_fact_tab)
   end
 
-  def create(org_id, %{name: project_name, id: project_id}) do
+  def create(org_id, %{name: project_name, id: project_id}, %{id: creator_id}) do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)
     fact_table_name = "#{project_name}_fact_table_#{res_name}"
 
-    FactTables.create(%{name: fact_table_name, org_id: org_id, project_id: project_id})
+    FactTables.create(%{
+      name: fact_table_name,
+      org_id: org_id,
+      project_id: project_id,
+      creator_id: creator_id
+    })
+  end
+
+  def create(fact_table_name, org_id, %{name: project_name, id: project_id}, %{id: creator_id}) do
+    FactTables.create(%{
+      name: fact_table_name,
+      org_id: org_id,
+      project_id: project_id,
+      creator_id: creator_id
+    })
   end
 
   def fetch_name_by_id(%{"id" => id, "name" => name}) do

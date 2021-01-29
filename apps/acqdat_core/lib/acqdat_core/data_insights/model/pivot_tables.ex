@@ -37,6 +37,7 @@ defmodule AcqdatCore.Model.DataInsights.PivotTables do
       }) do
     query =
       from(pivot_table in PivotTables,
+        preload: [:creator],
         where:
           pivot_table.org_id == ^org_id and
             pivot_table.project_id == ^project_id and

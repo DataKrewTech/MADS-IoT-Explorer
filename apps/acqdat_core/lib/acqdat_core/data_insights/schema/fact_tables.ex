@@ -15,6 +15,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
   alias AcqdatCore.DataInsights.Schema.PivotTables
+  alias AcqdatCore.Schema.RoleManagement.User
 
   @typedoc """
   `name`: Fact Table name
@@ -44,12 +45,13 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     # associations
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:creator, User, on_replace: :raise)
     has_many(:pivot_tables, PivotTables, foreign_key: :fact_table_id)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(name project_id org_id slug uuid)a
+  @required ~w(name project_id org_id creator_id slug uuid)a
   @optional ~w(group_interval group_interval_type columns_metadata)a
   @permitted @required ++ @optional
 
@@ -78,6 +80,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     changeset
     |> assoc_constraint(:project)
     |> assoc_constraint(:org)
+    |> assoc_constraint(:creator)
     |> unique_constraint(:name,
       name: :unique_fact_table_name_per_project,
       message: "unique fact table name under a project"

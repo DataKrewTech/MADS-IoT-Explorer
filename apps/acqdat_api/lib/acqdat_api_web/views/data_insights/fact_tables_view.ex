@@ -24,7 +24,9 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       org_id: fact_table.org_id,
       slug: fact_table.slug,
       uuid: fact_table.uuid,
-      pivot_count: fact_table.pivot_count
+      pivot_count: fact_table.pivot_count,
+      created_at: fact_table.inserted_at,
+      creator: render_one(fact_table.creator, FactTablesView, "creator.json")
     }
   end
 
@@ -37,7 +39,17 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       org_id: fact_table.org_id,
       slug: fact_table.slug,
       uuid: fact_table.uuid,
-      pivot_count: fact_table.pivot_count
+      pivot_count: fact_table.pivot_count,
+      created_at: fact_table.inserted_at
+    }
+  end
+
+  def render("creator.json", %{fact_tables: creator}) do
+    %{
+      id: creator.id,
+      email: creator.email,
+      first_name: creator.first_name,
+      last_name: creator.last_name
     }
   end
 

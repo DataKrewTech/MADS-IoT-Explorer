@@ -39,10 +39,16 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
     end
   end
 
-  def create(conn, %{"org_id" => org_id, "fact_tables_id" => fact_tables_id}) do
+  def create(conn, %{"name" => name, "org_id" => org_id, "fact_tables_id" => fact_tables_id}) do
     case conn.status do
       nil ->
-        case PivotTables.create(org_id, fact_tables_id, conn.assigns.project) do
+        case PivotTables.create(
+               name,
+               org_id,
+               fact_tables_id,
+               conn.assigns.project,
+               conn.assigns.current_user
+             ) do
           {:ok, pivot_table} ->
             conn
             |> put_status(200)

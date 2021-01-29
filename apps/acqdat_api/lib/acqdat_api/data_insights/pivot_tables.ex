@@ -9,7 +9,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
   defdelegate get_all(params), to: PivotTableModel
   defdelegate delete(pivot_table), to: PivotTableModel
 
-  def create(org_id, fact_tables_id, %{name: project_name, id: project_id}) do
+  def create(org_id, fact_tables_id, %{name: project_name, id: project_id}, %{id: creator_id}) do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)
     pivot_table_name = "#{project_name}_pivot_table_#{fact_tables_id}_#{res_name}"
 
@@ -17,7 +17,20 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       name: pivot_table_name,
       org_id: org_id,
       project_id: project_id,
-      fact_table_id: fact_tables_id
+      fact_table_id: fact_tables_id,
+      creator_id: creator_id
+    })
+  end
+
+  def create(pivot_table_name, org_id, fact_tables_id, %{name: project_name, id: project_id}, %{
+        id: creator_id
+      }) do
+    PivotTables.create(%{
+      name: pivot_table_name,
+      org_id: org_id,
+      project_id: project_id,
+      fact_table_id: fact_tables_id,
+      creator_id: creator_id
     })
   end
 

@@ -15,6 +15,7 @@ defmodule AcqdatCore.DataInsights.Schema.PivotTables do
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
   alias AcqdatCore.DataInsights.Schema.FactTables
+  alias AcqdatCore.Schema.RoleManagement.User
 
   @typedoc """
   `name`: Pivot Table name
@@ -40,11 +41,12 @@ defmodule AcqdatCore.DataInsights.Schema.PivotTables do
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:fact_table, FactTables, on_replace: :delete)
     belongs_to(:org, Organisation, on_replace: :delete)
+    belongs_to(:creator, User, on_replace: :raise)
 
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(name project_id fact_table_id org_id slug uuid)a
+  @required ~w(name project_id fact_table_id creator_id org_id slug uuid)a
   @optional ~w(filters columns rows values)a
   @permitted @required ++ @optional
 
@@ -73,6 +75,7 @@ defmodule AcqdatCore.DataInsights.Schema.PivotTables do
     changeset
     |> assoc_constraint(:org)
     |> assoc_constraint(:project)
+    |> assoc_constraint(:creator)
     |> assoc_constraint(:fact_table)
     |> unique_constraint(:name,
       name: :unique_pivot_table_name_per_fact_table,

@@ -26,10 +26,10 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
     end
   end
 
-  def create(conn, %{"org_id" => org_id}) do
+  def create(conn, %{"name" => name, "org_id" => org_id}) do
     case conn.status do
       nil ->
-        case FactTables.create(org_id, conn.assigns.project) do
+        case FactTables.create(name, org_id, conn.assigns.project, conn.assigns.current_user) do
           {:ok, fact_table} ->
             conn
             |> put_status(200)
