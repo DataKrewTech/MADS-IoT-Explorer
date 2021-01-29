@@ -47,4 +47,19 @@ defmodule AcqdatCore.Model.DataInsights.PivotTables do
 
     query |> Repo.paginate(page: page_number, page_size: page_size)
   end
+
+  def get_all_count_for_project(%{
+        project_id: project_id,
+        org_id: org_id
+      }) do
+    query =
+      from(pivot_table in PivotTables,
+        where:
+          pivot_table.org_id == ^org_id and
+            pivot_table.project_id == ^project_id,
+        select: count(pivot_table.id)
+      )
+
+    Repo.one(query)
+  end
 end

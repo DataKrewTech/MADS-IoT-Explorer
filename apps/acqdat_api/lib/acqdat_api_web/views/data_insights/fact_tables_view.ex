@@ -59,7 +59,8 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       page_number: fact_tables.page_number,
       page_size: fact_tables.page_size,
       total_entries: fact_tables.total_entries,
-      total_pages: fact_tables.total_pages
+      total_pages: fact_tables.total_pages,
+      total_pivot_tables: fact_tables.total_pivot_tables
     }
   end
 end
