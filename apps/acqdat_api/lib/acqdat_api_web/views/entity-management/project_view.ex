@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
   alias AcqdatApiWeb.EntityManagement.AssetView
   alias AcqdatApiWeb.EntityManagement.SensorView
   alias AcqdatApiWeb.EntityManagement.ProjectView
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.EntityManagement.Project
 
   def render("project.json", %{project: project}) do

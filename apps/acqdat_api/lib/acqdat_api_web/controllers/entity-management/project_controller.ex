@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   alias AcqdatApi.EntityManagement.Project
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Project
 

@@ -1,6 +1,6 @@
 defmodule AcqdatApi.EntityManagement.SensorType do
   alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 

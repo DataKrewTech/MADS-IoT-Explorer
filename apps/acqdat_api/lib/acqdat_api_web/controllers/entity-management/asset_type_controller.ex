@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.AssetType
   alias AcqdatApi.EntityManagement.AssetType
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
 
   plug AcqdatApiWeb.Plug.LoadProject
   plug AcqdatApiWeb.Plug.LoadOrg

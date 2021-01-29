@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.ImageDeletion
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.IotManager.GatewayDataDump
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.IotManager.Gateway

@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.RoleManagement.UserController do
   use AcqdatApiWeb, :controller
   alias AcqdatApi.RoleManagement.User
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatApi.Image
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.RoleManagement.User

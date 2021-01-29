@@ -1,5 +1,5 @@
 defmodule AcqdatCore.Factory.ElasticSearch.SensorType do
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatCore.Support.Factory
   import Tirexs.HTTP
 

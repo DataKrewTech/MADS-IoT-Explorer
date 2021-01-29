@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApi.EntityManagement.Asset
   alias AcqdatCore.Model.EntityManagement.AssetType, as: ATModel
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Asset
 

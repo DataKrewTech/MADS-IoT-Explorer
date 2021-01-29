@@ -1,4 +1,4 @@
-defmodule AcqdatApi.ElasticSearch do
+defmodule AcqdatCore.ElasticSearch do
   import Tirexs.HTTP
 
   def create(type, params) do

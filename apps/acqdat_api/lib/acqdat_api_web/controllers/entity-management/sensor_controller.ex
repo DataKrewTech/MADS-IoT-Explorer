@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   alias AcqdatApi.EntityManagement.Sensor
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   import AcqdatApiWeb.Helpers
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatApiWeb.Validators.EntityManagement.Sensor
 
   plug AcqdatApiWeb.Plug.LoadOrg

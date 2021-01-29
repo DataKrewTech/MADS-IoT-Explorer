@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Model.Widgets.Widget do
   alias AcqdatCore.Widgets.Schema.Widget
   alias AcqdatCore.Repo
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.Helper, as: ModelHelper
 
   import Ecto.Query

@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Model.EntityManagement.Sensor do
   alias AcqdatCore.Schema.EntityManagement.{Sensor, SensorsData}
   alias AcqdatCore.Repo
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.Helper, as: ModelHelper
   import Ecto.Query
 

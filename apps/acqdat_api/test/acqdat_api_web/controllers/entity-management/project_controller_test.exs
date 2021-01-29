@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatCore.Support.Factory
 
   describe "create/2" do

@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.IotManager.Gateway, as: GatewayModel
   alias AcqdatCore.Schema.EntityManagement.Asset
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias Ecto.Multi
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper

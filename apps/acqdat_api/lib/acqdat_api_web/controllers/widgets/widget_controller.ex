@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Widgets.Widget
   alias AcqdatApi.Widgets.Widget
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.Widgets.WidgetType, as: WTModel
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion

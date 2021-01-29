@@ -1,6 +1,6 @@
 defmodule AcqdatApi.EntityManagement.Sensor do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
-  alias AcqdatApi.ElasticSearch
+  alias AcqdatCore.ElasticSearch
   import AcqdatApiWeb.Helpers
 
   def create(attrs) do
