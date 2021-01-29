@@ -59,21 +59,6 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesView do
     }
   end
 
-  def render("show.json", %{pivot_table: pivot_table}) do
-    %{
-      id: pivot_table.id,
-      name: pivot_table.name,
-      project_id: pivot_table.project_id,
-      org_id: pivot_table.org_id,
-      slug: pivot_table.slug,
-      uuid: pivot_table.uuid,
-      filters: pivot_table.filters,
-      columns: pivot_table.columns,
-      rows: pivot_table.rows,
-      values: pivot_table.values
-    }
-  end
-
   def render("index.json", pivot_tables) do
     %{
       pivot_tables: render_many(pivot_tables.entries, PivotTablesView, "pivot_table.json"),
