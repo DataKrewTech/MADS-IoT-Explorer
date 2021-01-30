@@ -80,7 +80,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
         where:
           dashboard.org_id == ^org_id and dashboard.archived == false and
             dashboard.id in ^dashboard_ids,
-        order_by: dashboard.id
+        order_by: [desc: dashboard.opened_on]
       )
 
     query |> Repo.paginate(page: page_number, page_size: page_size)
