@@ -15,6 +15,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       slug: dashboard.slug,
       uuid: dashboard.uuid,
       archived: dashboard.archived,
+      opened_on: dashboard.opened_on,
       settings: render_one(dashboard.settings, DashboardView, "settings.json"),
       avatar: dashboard.avatar,
       panels: render_many(dashboard.panels, PanelView, "panel.json"),

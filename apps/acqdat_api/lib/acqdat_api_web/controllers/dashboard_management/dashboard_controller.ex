@@ -76,6 +76,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
                    String.to_integer(Guardian.Plug.current_resource(conn))
                  ) do
               {:ok, _} ->
+                Dashboard.update(dashboard, %{opened_on: DateTime.utc_now()})
+
                 conn
                 |> put_status(200)
                 |> render("show.json", %{dashboard: dashboard})
