@@ -33,7 +33,7 @@ defmodule AcqdatApiWeb.Router do
 
     get(
       "/dashboards/:dashboard_uuid/verify",
-      DashboardManagement.DashboardController,
+      DashboardManagement.DashboardExportController,
       :exported_dashboard
     )
 

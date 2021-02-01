@@ -1,13 +1,18 @@
 defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
-  use AcqdatApiWeb, :authorized_controller
+  use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
   alias AcqdatApi.DashboardManagement.Panel
+  alias AcqdatApi.DashboardManagement.Dashboard
   import AcqdatApiWeb.Validators.DashboardExport.DashboardExport
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
   plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
   plug AcqdatApiWeb.Plug.LoadPanel when action in [:show]
+
+  plug :put_view,
+       AcqdatApiWeb.DashboardManagement.DashboardView when action in [:exported_dashboard]
+
   plug AcqdatApiWeb.Plug.LoadDashboardExport when action in [:update, :show_credentials]
 
   def create(conn, params) do
@@ -121,6 +126,57 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def exported_dashboard(conn, params) do
+    case conn.status do
+      nil ->
+        exported_dashboard = conn.assigns.exported_dashboard
+
+        dashboard =
+          check_exported_dashboard(exported_dashboard.is_secure, params, exported_dashboard)
+
+        case dashboard do
+          {:ok, dashboard} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{dashboard: dashboard})
+
+          {:error, message} ->
+            send_error(conn, 400, message)
+
+          nil ->
+            conn
+            |> send_error(401, "Unauthorized link")
+        end
+
+      401 ->
+        conn
+        |> send_error(401, "Unauthorized link")
+    end
+  end
+
+  ############################# private functions ###########################
+  defp check_exported_dashboard(true, params, exported_dashboard) do
+    case check_password(params["password"], exported_dashboard.password) do
+      false ->
+        nil
+
+      true ->
+        Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+    end
+  end
+
+  defp check_exported_dashboard(false, params, exported_dashboard) do
+    Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+  end
+
+  defp check_password(password, db_password) do
+    if password == db_password do
+      true
+    else
+      false
     end
   end
 end
