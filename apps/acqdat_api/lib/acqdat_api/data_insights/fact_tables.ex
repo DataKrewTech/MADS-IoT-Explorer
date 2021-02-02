@@ -18,6 +18,16 @@ defmodule AcqdatApi.DataInsights.FactTables do
     Map.merge(data, %{total_pivot_tables: tot_pivot_count})
   end
 
+  def fetch_fact_table_details(%{id: fact_table_id} = fact_table) do
+    query =
+      "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'fact_table_#{
+        fact_table_id
+      }'"
+
+    res = Ecto.Adapters.SQL.query!(Repo, query, [])
+    Map.put(fact_table, :fact_table_headers, List.flatten(res.rows))
+  end
+
   def delete(fact_table) do
     Multi.new()
     |> Multi.run(:del_rec_frm_fact_tab, fn _, _changes ->
