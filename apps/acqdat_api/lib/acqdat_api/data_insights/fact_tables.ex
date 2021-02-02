@@ -124,7 +124,11 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
       create_fact_table_view(fact_table_name, table_headers, table_body)
 
-      data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [], timeout: :infinity)
+      data =
+        Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [],
+          timeout: :infinity
+        )
+
       %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
     end
   end
