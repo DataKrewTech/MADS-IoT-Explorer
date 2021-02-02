@@ -129,7 +129,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
           {:ok, fact_table} ->
             conn
             |> put_status(200)
-            |> render("fact_table.json", %{fact_tables: fact_table})
+            |> render("fact_table.json", %{fact_table: fact_table})
 
           {:error, fact_table} ->
             error =
