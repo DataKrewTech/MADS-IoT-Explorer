@@ -90,6 +90,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
+
       401 ->
         conn
         |> send_error(401, "Unauthorized")
@@ -114,6 +115,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
       404 ->
         conn
         |> send_error(404, "Widget Not Found")
+
       401 ->
         conn
         |> send_error(401, "Unauthorized")
@@ -210,13 +212,13 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
             |> send_error(400, error)
         end
 
-        404 ->
-          conn
-          |> send_error(404, "Widget Not Found")
+      404 ->
+        conn
+        |> send_error(404, "Widget Not Found")
 
-        401 ->
-          conn
-          |> send_error(401, "Unauthorized")
+      401 ->
+        conn
+        |> send_error(401, "Unauthorized")
     end
   end
 
