@@ -64,7 +64,12 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       })
     end)
     |> Multi.run(:gen_pivot_data, fn _, %{persist_to_db: pivot_table} ->
-      gen_pivot_data(pivot_table)
+      try do
+        gen_pivot_data(pivot_table)
+      rescue
+        error in Postgrex.Error ->
+          {:error, error.postgres.message}
+      end
     end)
     |> run_under_transaction(:gen_pivot_data)
   end
