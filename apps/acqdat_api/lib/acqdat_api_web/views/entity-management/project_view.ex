@@ -115,7 +115,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
       archived: project.archived,
       slug: project.slug,
       description: project.description,
-      version: project.version
+      version: project.version,
+      uuid: project.uuid
     }
   end
 

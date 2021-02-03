@@ -18,7 +18,8 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationView do
     %{
       type: "Organisation",
       id: org.id,
-      name: org.name
+      name: org.name,
+      uuid: org.uuid
     }
   end
 
