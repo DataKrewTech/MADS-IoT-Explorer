@@ -24,7 +24,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
         fact_table_id
       }'"
 
-    res = Ecto.Adapters.SQL.query!(Repo, query, [])
+    res = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
     Map.put(fact_table, :fact_table_headers, List.flatten(res.rows))
   end
 
@@ -69,7 +69,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
       order by 1
     """
 
-    res = Ecto.Adapters.SQL.query!(Repo, qry, [])
+    res = Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
     %{data: List.flatten(res.rows)}
   end
 
@@ -234,13 +234,37 @@ defmodule AcqdatApi.DataInsights.FactTables do
     |> Enum.reduce({%{}, 0}, fn {entity_type_id, index}, {acc, pos} ->
       {index_pos, res} =
         Stream.with_index(subtree.nodes[entity_type_id].content, pos)
-        |> Enum.reduce({pos, %{}}, fn {v, k}, {ind, acc} ->
+        |> Enum.reduce({pos, %{}}, fn {v, table_indx}, {ind, acc} ->
           if subtree.nodes[entity_type_id].type == "SensorType" and v != "name" do
-            k = 2 * k
-            acc = Map.put(acc, v, k)
-            {k + 1, Map.put(acc, "#{v}_dateTime", k + 1)}
+            ind_pos_of_entity =
+              Enum.find_index(subtree.nodes[entity_type_id].content, fn x -> x == v end)
+
+            name_pos =
+              Enum.find_index(subtree.nodes[entity_type_id].content, fn x -> x == "name" end)
+
+            table_indx =
+              if ind_pos_of_entity != 0 do
+                if name_pos == ind_pos_of_entity - 1 do
+                  if name_pos != 0, do: table_indx + 1, else: table_indx
+                else
+                  if name_pos < ind_pos_of_entity,
+                    do: table_indx + ind_pos_of_entity - 1,
+                    else: table_indx + ind_pos_of_entity
+                end
+              else
+                table_indx
+              end
+
+            acc = Map.put(acc, v, table_indx)
+            {table_indx + 1, Map.put(acc, "#{v}_dateTime", table_indx + 1)}
           else
-            {k, Map.put(acc, v, k)}
+            name_pos =
+              Enum.find_index(subtree.nodes[entity_type_id].content, fn x -> x == "name" end)
+
+            if subtree.nodes[entity_type_id].type == "SensorType" and v == "name" and
+                 name_pos != 0,
+               do: {table_indx + name_pos, Map.put(acc, v, table_indx + name_pos)},
+               else: {table_indx, Map.put(acc, v, table_indx)}
           end
         end)
 
@@ -287,7 +311,9 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def create_fact_table_view(fact_table_name, table_headers, data) do
-    Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [])
+    Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [],
+      timeout: :infinity
+    )
 
     qry = """
       CREATE OR REPLACE VIEW #{fact_table_name} AS
@@ -583,7 +609,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
       drop view if exists #{fact_table_name}
     """
 
-    res = Ecto.Adapters.SQL.query!(Repo, qry, [])
+    res = Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
     {:ok, res.rows}
   end
 
