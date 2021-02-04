@@ -11,7 +11,8 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesView do
   def render("create.json", %{pivot_table: pivot_table}) do
     %{
       id: pivot_table.id,
-      name: pivot_table.name
+      name: pivot_table.name,
+      fact_table_headers: pivot_table.fact_table_headers
     }
   end
 
@@ -44,7 +45,8 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesView do
       columns: pivot_table.columns,
       rows: pivot_table.rows,
       values: pivot_table.values,
-      created_at: pivot_table.inserted_at
+      created_at: pivot_table.inserted_at,
+      fact_table_headers: pivot_table.fact_table_headers
     }
   end
 

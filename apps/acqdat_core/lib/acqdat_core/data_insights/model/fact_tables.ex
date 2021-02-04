@@ -18,6 +18,15 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
     Repo.delete(fact_table)
   end
 
+  def get_fact_table_headers(fact_table_id) do
+    query =
+      "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'fact_table_#{
+        fact_table_id
+      }'"
+
+    Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
+  end
+
   def get_by_id(id) when is_integer(id) do
     case Repo.get(FactTables, id) do
       nil ->

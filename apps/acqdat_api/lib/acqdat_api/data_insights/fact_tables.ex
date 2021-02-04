@@ -18,13 +18,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
     Map.merge(data, %{total_pivot_tables: tot_pivot_count})
   end
 
-  def fetch_fact_table_details(%{id: fact_table_id} = fact_table) do
-    query =
-      "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'fact_table_#{
-        fact_table_id
-      }'"
-
-    res = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
+  def fetch_fact_table_headers(%{id: fact_table_id} = fact_table) do
+    res = FactTables.get_fact_table_headers(fact_table_id)
     Map.put(fact_table, :fact_table_headers, List.flatten(res.rows))
   end
 
@@ -482,7 +477,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           end
         end
 
-      entity_data = Repo.all(query)
+      entity_data = Repo.all(query, timeout: :infinity)
 
       entity_data =
         if entity_data == [] do

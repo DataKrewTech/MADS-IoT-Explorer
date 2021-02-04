@@ -1,5 +1,5 @@
 defmodule AcqdatApi.DataInsights.PivotTables do
-  alias AcqdatCore.Model.DataInsights.PivotTables
+  alias AcqdatCore.Model.DataInsights.{PivotTables, FactTables}
   alias AcqdatApi.DataInsights.PivotTableGenWorker
   alias Ecto.Multi
   alias AcqdatCore.Repo
@@ -8,6 +8,11 @@ defmodule AcqdatApi.DataInsights.PivotTables do
 
   defdelegate get_all(params), to: PivotTableModel
   defdelegate delete(pivot_table), to: PivotTableModel
+
+  def fetch_fact_table_headers(%{fact_table_id: fact_table_id} = pivot_table) do
+    res = FactTables.get_fact_table_headers(fact_table_id)
+    Map.put(pivot_table, :fact_table_headers, List.flatten(res.rows))
+  end
 
   def create(org_id, fact_tables_id, %{name: project_name, id: project_id}, %{id: creator_id}) do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)

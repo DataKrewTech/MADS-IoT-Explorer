@@ -78,7 +78,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
         conn
         |> put_status(200)
         |> render("fact_table_details.json", %{
-          fact_table: FactTables.fetch_fact_table_details(conn.assigns.fact_table)
+          fact_table: FactTables.fetch_fact_table_headers(conn.assigns.fact_table)
         })
 
       404 ->

@@ -31,7 +31,9 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
       nil ->
         conn
         |> put_status(200)
-        |> render("show.json", %{pivot_table: conn.assigns.pivot})
+        |> render("show.json", %{
+          pivot_table: PivotTables.fetch_fact_table_headers(conn.assigns.pivot)
+        })
 
       404 ->
         conn
@@ -52,7 +54,9 @@ defmodule AcqdatApiWeb.DataInsights.PivotTablesController do
           {:ok, pivot_table} ->
             conn
             |> put_status(200)
-            |> render("create.json", %{pivot_table: pivot_table})
+            |> render("create.json", %{
+              pivot_table: PivotTables.fetch_fact_table_headers(pivot_table)
+            })
 
           {:error, %Ecto.Changeset{} = changeset} ->
             error = extract_changeset_error(changeset)
