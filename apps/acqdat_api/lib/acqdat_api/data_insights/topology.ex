@@ -265,8 +265,11 @@ defmodule AcqdatApi.DataInsights.Topology do
         end)
 
       if length(Enum.uniq(entity_levels)) == 1 do
-        {:error,
-         "All the asset_type entities are at the same level, Please attach common parent entity."}
+        output =
+          {:error,
+           "All the asset_type entities are at the same level, Please attach common parent entity."}
+
+        broadcast_to_channel(fact_table_id, output)
       else
         node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
