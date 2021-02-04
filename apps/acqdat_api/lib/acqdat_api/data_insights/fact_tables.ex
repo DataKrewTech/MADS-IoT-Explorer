@@ -78,7 +78,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
       subtree = NaryTree.from_map(subtree)
-      build_dynamic_query(fact_table_id, subtree, entities_list)
+
+      try do
+        build_dynamic_query(fact_table_id, subtree, entities_list)
+      rescue
+        error in Postgrex.Error ->
+          {:error, error.postgres.message}
+      end
     else
       {:error, "All entities are not directly connected, please connect common parent entity."}
     end
