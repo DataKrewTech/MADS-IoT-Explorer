@@ -44,12 +44,13 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   # NOTE: 1. gen_sub_topology will update fact_table with user provided inputs
   #       2. It'll pass user input to parse_entities
-  def gen_sub_topology(id, org_id, project, name, fact_table, entities_list) do
+  def gen_sub_topology(id, org_id, project, name, fact_table, entities_list, date_range_settings) do
     Multi.new()
     |> Multi.run(:update_to_db, fn _, _changes ->
       FactTables.update(fact_table, %{
         name: name,
-        columns_metadata: entities_list
+        columns_metadata: entities_list,
+        date_range_settings: date_range_settings
       })
     end)
     |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: fact_table} ->

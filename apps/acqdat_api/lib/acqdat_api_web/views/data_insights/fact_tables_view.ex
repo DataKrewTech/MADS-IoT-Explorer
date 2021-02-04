@@ -55,7 +55,8 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesView do
       slug: fact_table.slug,
       uuid: fact_table.uuid,
       pivot_count: fact_table.pivot_count,
-      created_at: fact_table.inserted_at
+      created_at: fact_table.inserted_at,
+      date_range_settings: fact_table.date_range_settings
     }
   end
 

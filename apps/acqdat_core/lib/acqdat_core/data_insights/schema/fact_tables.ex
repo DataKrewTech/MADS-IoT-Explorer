@@ -34,6 +34,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     field(:slug, :string, null: false)
     field(:uuid, :string, null: false)
     field(:columns_metadata, {:array, :map}, default: [])
+    field(:date_range_settings, :map)
     field(:from_date, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     field(:to_date, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     field(:group_interval, :integer)
@@ -52,7 +53,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
   end
 
   @required ~w(name project_id org_id creator_id slug uuid)a
-  @optional ~w(group_interval group_interval_type columns_metadata)a
+  @optional ~w(group_interval group_interval_type columns_metadata date_range_settings)a
   @permitted @required ++ @optional
 
   @spec changeset(
