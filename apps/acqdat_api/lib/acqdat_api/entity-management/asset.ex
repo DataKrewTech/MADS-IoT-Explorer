@@ -3,6 +3,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
+  alias AcqdatApiWeb.EntityManagement.AssetErrorHelper
   alias AcqdatCore.Schema.EntityManagement.{Asset}
 
   defdelegate asset_descendants(id), to: AssetModel
@@ -39,6 +40,10 @@ defmodule AcqdatApi.EntityManagement.Asset do
 
   defp verify_asset({:ok, asset}) do
     {:ok, asset |> Repo.preload([:asset_type])}
+  end
+
+  defp verify_asset({:error, %Ecto.ConstraintError{constraint: constraint}}) do
+    {:error, %{error: AssetErrorHelper.error_message(String.to_atom(constraint))}}
   end
 
   defp verify_asset({:error, asset}) do

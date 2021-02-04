@@ -43,15 +43,17 @@ defmodule AcqdatApiWeb.ErrorView do
       {:ok, errors} ->
         %{
           status_code: assigns.conn.status,
-          title: default_message,
-          detail: errors
+          title: errors.title,
+          detail: errors.error,
+          source: errors.source
         }
 
       _ ->
         %{
           status_code: assigns.conn.status,
           title: default_message,
-          detail: default_message
+          source: nil,
+          detail: "You are not allowed to perform this action."
         }
     end
   end

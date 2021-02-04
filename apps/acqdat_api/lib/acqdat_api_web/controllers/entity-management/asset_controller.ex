@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
   alias AcqdatApi.EntityManagement.Asset
   alias AcqdatCore.Model.EntityManagement.AssetType, as: ATModel
   alias AcqdatCore.ElasticSearch
+  alias AcqdatApiWeb.EntityManagement.AssetErrorHelper
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Asset
 
@@ -20,11 +21,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AssetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AssetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -80,11 +81,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AssetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AssetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -118,6 +119,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     case conn.status do
       nil ->
         case Asset.delete(conn.assigns.asset) do
+          {:ok, {:error, message}} ->
+            conn
+            |> send_error(404, AssetErrorHelper.error_message(:asset_with_child_sensors, message))
+
           {:ok, {_number, nil}} ->
             Task.start_link(fn ->
               ElasticSearch.delete("assets", conn.assigns.asset.id)

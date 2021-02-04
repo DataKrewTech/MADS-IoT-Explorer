@@ -167,7 +167,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         asset_struct(%{
           name: name,
           org_id: org_id,
-          slug: org_name <> name,
+          slug: org_name <> name <> to_string(project_id),
           project_id: project_id,
           creator_id: creator_id,
           asset_type_id: asset_type_id,
@@ -187,6 +187,9 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     rescue
       error in Ecto.InvalidChangesetError ->
         {:error, error.changeset}
+
+      error in Ecto.ConstraintError ->
+        {:error, error}
     end
   end
 
