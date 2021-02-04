@@ -15,11 +15,19 @@ defmodule AcqdatApiWeb.Helpers do
   end
 
   def extract_changeset_error(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Enum.reduce(opts, msg, fn {key, value}, acc ->
-        String.replace(acc, "%{#{key}}", to_string(value))
+    error =
+      Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+        Enum.reduce(opts, msg, fn {key, value}, acc ->
+          String.replace(acc, "%{#{key}}", to_string(value))
+        end)
       end)
-    end)
+
+    %{
+      title: "Insufficient or not unique parameters",
+      error:
+        "Parameters provided to perform current action either not valid or missing or not unique",
+      source: ectract_error(error)
+    }
   end
 
   def send_error(conn, code, message) when is_binary(message) do
@@ -34,5 +42,44 @@ defmodule AcqdatApiWeb.Helpers do
     conn
     |> put_status(code)
     |> put_view(AcqdatApiWeb.ErrorView)
+  end
+
+  defp ectract_error(error) do
+    Enum.reduce(error, %{}, fn {key, value}, acc ->
+      Map.merge(acc, %{"#{key}": reduce_error(value)})
+    end)
+  end
+
+  defp remove_empty_maps(value) do
+    Enum.reduce(value, [], fn v, acc ->
+      case List.first(Map.keys(v)) do
+        nil -> acc
+        _ -> acc ++ [v]
+      end
+    end)
+  end
+
+  defp reduce_error(value) when is_list(value) do
+    case length(value) do
+      1 ->
+        value
+
+      _ ->
+        value = remove_empty_maps(value)
+
+        for v <- value do
+          reduce_error(v)
+        end
+    end
+  end
+
+  defp reduce_error(value) when is_binary(value) do
+    value
+  end
+
+  defp reduce_error(value) when is_map(value) do
+    Enum.reduce(value, %{}, fn {key, v}, acc ->
+      Map.merge(acc, %{"#{key}": List.to_string(v)})
+    end)
   end
 end

@@ -120,7 +120,7 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)
       assert result == :error
-      assert %{name: ["unique name under hierarchy"]} == errors_on(changeset)
+      assert %{name: ["name already taken under this heirarchy"]} == errors_on(changeset)
     end
 
     # TODO: complete the test
