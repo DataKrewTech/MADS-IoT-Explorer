@@ -25,7 +25,7 @@ defmodule AcqdatApiWeb.Helpers do
     %{
       title: "Insufficient or not unique parameters",
       error:
-        "Parameters provided to perform current action either not valid or missing or not unique",
+        "Parameters provided to perform current action is either not valid or missing or not unique",
       source: ectract_error(error)
     }
   end

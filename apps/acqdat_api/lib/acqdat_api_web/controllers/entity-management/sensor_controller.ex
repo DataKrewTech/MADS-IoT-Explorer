@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.ElasticSearch
+  alias AcqdatApiWeb.EntityManagement.SensorErrorHelper
   import AcqdatApiWeb.Validators.EntityManagement.Sensor
 
   plug AcqdatApiWeb.Plug.LoadOrg
@@ -28,11 +29,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -48,11 +49,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -74,11 +75,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -102,11 +103,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -134,11 +135,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -155,8 +156,12 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
             |> put_status(200)
             |> render("sensor_delete.json", %{sensor: sensor})
 
-          {:error, sensor} ->
-            error = extract_changeset_error(sensor)
+          {:error, message} ->
+            error =
+              case String.valid?(message) do
+                true -> SensorErrorHelper.error_message(:iot_data_existence, message)
+                false -> extract_changeset_error(message)
+              end
 
             conn
             |> send_error(400, error)
@@ -164,11 +169,11 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, SensorErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, SensorErrorHelper.error_message(:unauthorized))
     end
   end
 
