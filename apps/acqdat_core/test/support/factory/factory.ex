@@ -15,6 +15,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
+  alias AcqdatCore.DataInsights.Schema.FactTables
 
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
@@ -301,6 +302,17 @@ defmodule AcqdatCore.Support.Factory do
           unit: sequence(:sensor_type_name, &"SensorTypeUnit#{&1}")
         }
       ]
+    }
+  end
+
+  def fact_tables_factory() do
+    %FactTables{
+      uuid: UUID.uuid1(:hex),
+      name: sequence(:fact_tables_name, &"FactTable#{&1}"),
+      slug: sequence(:fact_tables_name, &"FactTable#{&1}"),
+      org: build(:organisation),
+      project: build(:project),
+      creator: build(:user)
     }
   end
 
