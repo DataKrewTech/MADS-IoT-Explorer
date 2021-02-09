@@ -2,6 +2,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   import Ecto.Query
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
+  alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Model.EntityManagement.Asset, as: AModel
   alias AcqdatCore.Model.EntityManagement.Project, as: PModel
   alias AcqdatCore.Model.IotManager.MQTT.BrokerCredentials
@@ -106,8 +107,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
 
     Multi.new()
     |> Multi.run(:update_gateway, fn _, _changes ->
-      changeset = Gateway.update_changeset(gateway, params)
-      Repo.update(changeset)
+      update_gateway(gateway, params)
     end)
     |> Multi.run(:setup_mqtt_if_needed, fn _, changes ->
       %{update_gateway: gateway} = changes
@@ -131,6 +131,31 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
       {:error, _failed_operation, failed_value, _} ->
         {:error, failed_value}
     end
+  end
+
+  defp update_gateway(gateway, %{"mapped_parameters" => mapped_parameters} = params) do
+    sensor_ids = extract_sensor_ids_from_parameters(mapped_parameters)
+    changeset = Gateway.update_changeset(gateway, params)
+
+    case Repo.update(changeset) do
+      {:ok, gateway} ->
+        GModel.associate_sensors(gateway |> Repo.preload([:sensors]), sensor_ids)
+        {:ok, gateway}
+
+      {:error, message} ->
+        {:error, message}
+    end
+  end
+
+  defp extract_sensor_ids_from_parameters(mapped_parameters) do
+    Enum.reduce(mapped_parameters, [], fn {key, value}, acc ->
+      acc ++ [value["entity_id"]]
+    end)
+  end
+
+  defp update_gateway(gateway, params) do
+    changeset = Gateway.update_changeset(gateway, params)
+    Repo.update(changeset)
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do

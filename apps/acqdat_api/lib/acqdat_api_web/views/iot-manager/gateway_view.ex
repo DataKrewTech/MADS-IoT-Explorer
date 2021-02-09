@@ -6,6 +6,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
   alias AcqdatApiWeb.EntityManagement.SensorView
   alias AcqdatCore.Repo
 
+  @http_url System.get_env("HTTP_URL" || "https://datakrewtech.com/iot/")
+
   def render("index.json", gateway) do
     %{
       gateways: render_many(gateway.entries, GatewayView, "show.json"),
@@ -48,6 +50,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       name: gateway.name,
       access_token: gateway.access_token,
       serializer: gateway.serializer,
+      channel_details: selective_rendering(gateway),
       channel: gateway.channel,
       parent_id: gateway.parent_id,
       parent_type: gateway.parent_type,
@@ -63,6 +66,35 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       project: render_one(gateway.project, ProjectView, "project_gateway.json"),
       sensors: render_many(gateway.sensors, SensorView, "sensor.json"),
       timestamp_mapping: gateway.timestamp_mapping
+    }
+  end
+
+  defp selective_rendering(%{channel: "http"} = gateway) do
+    %{
+      path: create_url("http", gateway),
+      access_token: gateway.access_token
+    }
+  end
+
+  defp create_url("http", gateway) do
+    @http_url <>
+      "orgs/" <>
+      "#{gateway.org_id}" <>
+      "/projects/" <> "#{gateway.project.id}" <> "/gateways/" <> "#{gateway.id}" <> "/data_dump"
+  end
+
+  defp create_url("mqtt", gateway) do
+    "org/" <>
+      "#{gateway.uuid}" <>
+      "/project/" <> "#{gateway.project.uuid}" <> "/gateway/" <> "#{gateway.uuid}"
+  end
+
+  defp selective_rendering(%{channel: "mqtt"} = gateway) do
+    %{
+      topic: create_url("mqtt", gateway),
+      client_id: gateway.uuid,
+      username: gateway.uuid,
+      auth_token: gateway.access_token
     }
   end
 
