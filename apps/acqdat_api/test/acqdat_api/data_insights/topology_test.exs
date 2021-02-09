@@ -50,6 +50,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Energy Meter",
           "type" => "SensorType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         }
       ]
@@ -80,12 +81,16 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
         fact_table: fact_table
       } = context
 
+      param =
+        Enum.find(energy_mtr_type.parameters, fn parameter -> parameter.name == "Current" end)
+
       user_list = [
         %{
           "id" => energy_mtr_type.id,
           "name" => "Energy Meter",
           "type" => "SensorType",
           "metadata_name" => "Current",
+          "metadata_id" => param.uuid,
           "date_from" =>
             "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
           "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
@@ -121,6 +126,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Building",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         }
       ]
@@ -152,6 +158,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Energy Meter",
           "type" => "SensorType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         },
         %{
@@ -159,6 +166,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Heat Meter",
           "type" => "SensorType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 2
         }
       ]
@@ -201,6 +209,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Apartment",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         },
         %{
@@ -208,6 +217,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "PlayGround",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 2
         }
       ]
@@ -251,6 +261,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Apartment",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         },
         %{
@@ -258,6 +269,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "PlayGround",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 2
         },
         %{
@@ -265,6 +277,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Occupancy Sensor",
           "type" => "SensorType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 3
         }
       ]
@@ -307,6 +320,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Apartment",
           "type" => "AssetType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 1
         },
         %{
@@ -314,6 +328,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
           "name" => "Occupancy Sensor",
           "type" => "SensorType",
           "metadata_name" => "name",
+          "metadata_id" => "name",
           "pos" => 3
         }
       ]
