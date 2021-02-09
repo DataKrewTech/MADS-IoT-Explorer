@@ -108,7 +108,7 @@ defmodule AcqdatApi.EntityManagement.AssetType do
   end
 
   defp verify_asset_type({:error, changeset}) do
-    {:error, %{error: extract_changeset_error(changeset)}}
+    {:error, extract_changeset_error(changeset)}
   end
 
   defp add_sensor_type(params) do

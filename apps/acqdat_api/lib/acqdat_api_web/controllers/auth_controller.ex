@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.AuthController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Auth
   alias AcqdatApi.Account
+  alias AcqdatApiWeb.AuthErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:validate_credentials]
 
@@ -19,7 +20,7 @@ defmodule AcqdatApiWeb.AuthController do
         send_error(conn, 400, error)
 
       {:login, {:error, message}} ->
-        send_error(conn, 401, message)
+        send_error(conn, 401, AuthErrorHelper.error_message(:unauthorized))
     end
   end
 
