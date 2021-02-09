@@ -26,29 +26,44 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
     end
   end
 
-  def create(conn, %{"name" => name, "org_id" => org_id}) do
+  def create(conn, params) do
     case conn.status do
       nil ->
-        case FactTables.create(name, org_id, conn.assigns.project, conn.assigns.current_user) do
-          {:ok, fact_table} ->
-            conn
-            |> put_status(200)
-            |> render("create.json", %{fact_table: fact_table})
+        changeset = verify_create(params)
 
-          {:error, %Ecto.Changeset{} = changeset} ->
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:create, {:ok, fact_table}} <-
+               {:create,
+                FactTables.create(
+                  data.name,
+                  data.org_id,
+                  conn.assigns.project,
+                  conn.assigns.current_user
+                )} do
+          conn
+          |> put_status(200)
+          |> render("create.json", %{fact_table: fact_table})
+        else
+          {:extract, {:error, %Ecto.Changeset{} = changeset}} ->
             error = extract_changeset_error(changeset)
 
             conn
             |> send_error(400, error)
 
-          {:error, error} ->
-            conn
-            |> send_error(400, error)
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message)
         end
 
       404 ->
         conn
         |> send_error(404, "Resource Not Found")
+
+      401 ->
+        conn
+        |> send_error(401, "Unauthorized")
     end
   end
 

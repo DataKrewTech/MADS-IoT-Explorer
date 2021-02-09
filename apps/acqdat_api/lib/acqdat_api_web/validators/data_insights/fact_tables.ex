@@ -9,4 +9,12 @@ defmodule AcqdatApiWeb.Validators.DataInsights.FactTables do
       project_id!: :integer
     })
   )
+
+  defparams(
+    verify_create(%{
+      org_id!: :integer,
+      name!: :string,
+      project_id!: :integer
+    })
+  )
 end
