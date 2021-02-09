@@ -174,7 +174,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       )
 
       query = "SELECT EXISTS (
-         SELECT FROM information_schema.tables 
+         SELECT FROM information_schema.tables
          WHERE table_name   = 'fact_table_#{fact_table.id}'
          )"
 
@@ -223,7 +223,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       )
 
       query = "SELECT EXISTS (
-         SELECT FROM information_schema.tables 
+         SELECT FROM information_schema.tables
          WHERE table_name   = 'fact_table_#{fact_table.id}'
          )"
 
@@ -280,7 +280,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       )
 
       query = "SELECT EXISTS (
-         SELECT FROM information_schema.tables 
+         SELECT FROM information_schema.tables
          WHERE table_name   = 'fact_table_#{fact_table.id}'
          )"
 
@@ -329,7 +329,7 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       )
 
       query = "SELECT EXISTS (
-         SELECT FROM information_schema.tables 
+         SELECT FROM information_schema.tables
          WHERE table_name   = 'fact_table_#{fact_table.id}'
          )"
 
