@@ -48,10 +48,9 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       panels: render_many(dashboard.panels, PanelView, "panel.json"),
       exported_url:
         render_one(dashboard.dashboard_export, DashboardView, "exported_dashboard.json"),
-      creator: render_one(dashboard.creator, DashboardView, "creator.json"),
+      creator: render_one(dashboard.creator, DashboardView, "creator.json")
     }
   end
-
 
   def render("creator.json", %{dashboard: creator}) do
     %{

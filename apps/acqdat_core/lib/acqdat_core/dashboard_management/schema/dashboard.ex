@@ -15,7 +15,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
   alias AcqdatCore.DashboardManagement.Schema.Dashboard.Settings
 
-
   @typedoc """
   `name`: Name of the dashboard, which will be unique with respective to org.
   `uuid`: A universally unique id to identify the Dashboard.
@@ -42,7 +41,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
 
     timestamps(type: :utc_datetime)
   end
-
 
   @required_params ~w(uuid slug name org_id creator_id)a
   @optional_params ~w(description avatar archived opened_on)a

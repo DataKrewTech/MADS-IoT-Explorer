@@ -9,7 +9,9 @@ defmodule AcqdatCore.IotManager.DataParser do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
 
   def start_parsing(data_dump) do
-    %{gateway_uuid: gateway_uuid, data: iot_data, inserted_timestamp: inserted_timestamp} = data_dump
+    %{gateway_uuid: gateway_uuid, data: iot_data, inserted_timestamp: inserted_timestamp} =
+      data_dump
+
     {:ok, gateway} = GModel.get(%{uuid: gateway_uuid})
 
     mapped_parameters = fetch_mapped_parameters(gateway.id)
@@ -54,7 +56,6 @@ defmodule AcqdatCore.IotManager.DataParser do
     Repo.insert_all(GDSchema, gateway_data)
     AlertCreation.gateway_alert(data)
   end
-
 
   defp data_manifest(:sensor_data, data, org_id, project_id, inserted_timestamp) do
     sensor_data =

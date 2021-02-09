@@ -35,7 +35,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        params = add_avatar_to_params(conn, params) |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
+        params =
+          add_avatar_to_params(conn, params)
+          |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
+
         changeset = verify_create(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
