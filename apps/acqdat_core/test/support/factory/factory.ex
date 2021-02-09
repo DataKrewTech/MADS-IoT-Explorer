@@ -112,7 +112,8 @@ defmodule AcqdatCore.Support.Factory do
       uuid: UUID.uuid1(:hex),
       name: sequence(:dashboard_name, &"Dashboard#{&1}"),
       slug: sequence(:dashboard_name, &"Dashboard#{&1}"),
-      org: build(:organisation)
+      org: build(:organisation),
+      creator: build(:user)
     }
   end
 

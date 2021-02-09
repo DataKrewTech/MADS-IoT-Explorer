@@ -84,18 +84,23 @@ defmodule AcqdatCore.Model.DashboardManagement.DashboardTest do
 
     test "creates a dashboard with supplied params", context do
       %{organisation: organisation} = context
+      user = insert(:user)
 
       params = %{
         name: "Demo Dashboard",
-        org_id: organisation.id
+        org_id: organisation.id,
+        creator_id: user.id
       }
 
       assert {:ok, _dashboard} = DashboardModel.create(params)
     end
 
     test "fails if organisation_id is not present", context do
+      user = insert(:user)
+
       params = %{
-        name: "Demo Dashboard"
+        name: "Demo Dashboard",
+        creator_id: user.id
       }
 
       assert {:error, changeset} = DashboardModel.create(params)
@@ -104,9 +109,11 @@ defmodule AcqdatCore.Model.DashboardManagement.DashboardTest do
 
     test "fails if name is not present", context do
       %{organisation: organisation} = context
+      user = insert(:user)
 
       params = %{
-        org_id: organisation.id
+        org_id: organisation.id,
+        creator_id: user.id
       }
 
       assert {:error, changeset} = DashboardModel.create(params)

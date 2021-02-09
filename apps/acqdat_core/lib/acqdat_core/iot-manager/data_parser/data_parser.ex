@@ -9,9 +9,7 @@ defmodule AcqdatCore.IotManager.DataParser do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SModel
 
   def start_parsing(data_dump) do
-    %{gateway_uuid: gateway_uuid, data: iot_data, inserted_timestamp: inserted_timestamp} =
-      data_dump
-
+    %{gateway_uuid: gateway_uuid, data: iot_data} = data_dump
     {:ok, gateway} = GModel.get(%{uuid: gateway_uuid})
 
     mapped_parameters = fetch_mapped_parameters(gateway.id)
@@ -25,18 +23,20 @@ defmodule AcqdatCore.IotManager.DataParser do
         parse_data(key_mapped_parameters, value, acc)
       end
     end)
-    |> persist_data(gateway.org.id, gateway.project.id, inserted_timestamp)
+    |> persist_data(gateway.org.id, gateway.project.id)
   end
 
   ######### persist data private helpers #############
 
-  defp persist_data(iot_data, org_id, project_id, inserted_timestamp) do
+  defp persist_data(iot_data, org_id, project_id) do
     Enum.map(iot_data, fn {key, data} ->
-      data_manifest(key, data, org_id, project_id, inserted_timestamp)
+      data_manifest(key, data, org_id, project_id)
     end)
   end
 
-  defp data_manifest(:gateway_data, data, org_id, project_id, inserted_timestamp) do
+  # TODO: inserted_timestamp needs to come from data dump it's being set here.
+
+  defp data_manifest(:gateway_data, data, org_id, project_id) do
     gateway_data =
       Enum.reduce(data, [], fn {key, parameters}, acc ->
         params = %{
@@ -44,7 +44,7 @@ defmodule AcqdatCore.IotManager.DataParser do
           org_id: org_id,
           project_id: project_id,
           parameters: parameters,
-          inserted_timestamp: inserted_timestamp,
+          inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
         }
 
@@ -57,7 +57,8 @@ defmodule AcqdatCore.IotManager.DataParser do
     AlertCreation.gateway_alert(data)
   end
 
-  defp data_manifest(:sensor_data, data, org_id, project_id, inserted_timestamp) do
+  # TODO: inserted_timestamp needs to come from data dump it's being set here.
+  defp data_manifest(:sensor_data, data, org_id, project_id) do
     sensor_data =
       Enum.reduce(data, [], fn {key, parameters}, acc ->
         params = %{
@@ -65,7 +66,7 @@ defmodule AcqdatCore.IotManager.DataParser do
           org_id: org_id,
           project_id: project_id,
           parameters: parameters,
-          inserted_timestamp: inserted_timestamp,
+          inserted_timestamp: DateTime.truncate(DateTime.utc_now(), :second),
           inserted_at: DateTime.truncate(DateTime.utc_now(), :second)
         }
 

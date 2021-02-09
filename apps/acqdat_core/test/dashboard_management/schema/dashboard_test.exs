@@ -15,7 +15,8 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
 
       params = %{
         name: "Demo Dashboard",
-        org_id: organisation.id
+        org_id: organisation.id,
+        creator_id: 1
       }
 
       %{valid?: validity} = Dashboard.changeset(%Dashboard{}, params)
@@ -42,12 +43,15 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
       changeset = Dashboard.changeset(%Dashboard{}, params)
 
       {:error, result_changeset} = Repo.insert(changeset)
-      assert %{name: ["can't be blank"]} == errors_on(result_changeset)
+
+      assert %{name: ["can't be blank"], creator_id: ["can't be blank"]} ==
+               errors_on(result_changeset)
     end
 
     test "returns error if organisation assoc constraint not satisfied" do
       params = %{
         name: "Demo Dashboard",
+        creator_id: 1,
         org_id: -1
       }
 
@@ -60,9 +64,12 @@ defmodule AcqdatCore.Schema.DashboardManagement.DashboardTest do
     test "returns error if unique name constraint not satisified", %{
       organisation: organisation
     } do
+      user = insert(:user)
+
       params = %{
         name: "Demo Dashboard",
-        org_id: organisation.id
+        org_id: organisation.id,
+        creator_id: user.id
       }
 
       changeset = Dashboard.changeset(%Dashboard{}, params)
