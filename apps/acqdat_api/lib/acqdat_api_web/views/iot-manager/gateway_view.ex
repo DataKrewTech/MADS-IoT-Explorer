@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
   alias AcqdatApiWeb.EntityManagement.SensorView
   alias AcqdatCore.Repo
 
-  @http_url System.get_env("HTTP_URL" || "https://datakrewtech.com/iot/")
+  @http_url System.get_env("HTTP_URL") || "https://datakrewtech.com/iot/"
 
   def render("index.json", gateway) do
     %{
