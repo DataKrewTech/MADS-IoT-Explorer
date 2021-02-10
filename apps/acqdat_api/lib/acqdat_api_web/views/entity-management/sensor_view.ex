@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
   alias AcqdatApiWeb.EntityManagement.{SensorView, SensorTypeView}
   alias AcqdatApiWeb.IotManager.GatewayView
   alias AcqdatCore.Model.EntityManagement.Sensor
+  alias AcqdatCore.Repo
 
   def render("sensor.json", %{sensor: sensor}) do
     %{
@@ -32,6 +33,8 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
   end
 
   def render("sensor_hierarchy_tree.json", %{sensor: sensor}) do
+    sensor = sensor |> Repo.preload([:gateway])
+
     %{
       type: "Sensor",
       id: sensor.id,

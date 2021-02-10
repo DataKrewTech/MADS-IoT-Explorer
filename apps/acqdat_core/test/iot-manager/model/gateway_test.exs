@@ -3,6 +3,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.IotManager.Gateway
+  alias AcqdatCore.Schema.IotManager.Gateway, as: GSchema
   alias AcqdatCore.Schema.EntityManagement.Sensor
   alias AcqdatCore.Repo
 
@@ -118,6 +119,53 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
     end
   end
 
+  describe "update/2" do
+    setup do
+      org = insert(:organisation)
+      project = insert(:project, org: org)
+      gateway = insert(:gateway, org: org, project: project)
+      sensors = insert_list(4, :sensor, org: org, project: project)
+      [sensors: sensors, gateway: gateway]
+    end
+
+    test "updating mapped parameters of a gateway to attach sensor", context do
+      %{sensors: [sensor1, sensor2, sensor3, sensor4], gateway: gateway} = context
+      gateway = gateway |> Repo.preload([:sensors])
+      mapped_parameters = create_mapped_parameters(sensor1, sensor2)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+      sensor4 = Repo.get!(Sensor, sensor4.id)
+
+      assert sensor1.gateway_id == gateway.id
+      assert sensor2.gateway_id == gateway.id
+      assert sensor3.gateway_id !== gateway.id
+      assert sensor4.gateway_id !== gateway.id
+    end
+
+    test "updating mapped parameters of a gateway to attach sensor which already has some sensor attached to it.",
+         context do
+      %{sensors: [sensor1, sensor2, sensor3, sensor4], gateway: gateway} = context
+      gateway = gateway |> Repo.preload([:sensors])
+      Gateway.associate_sensors(gateway, [sensor1.id, sensor2.id])
+      gateway = Repo.get!(GSchema, gateway.id) |> Repo.preload([:sensors])
+      mapped_parameters = create_mapped_parameters(sensor3, sensor4)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+      sensor4 = Repo.get!(Sensor, sensor4.id)
+      assert sensor1.gateway_id !== gateway.id
+      assert sensor2.gateway_id !== gateway.id
+      assert sensor3.gateway_id == gateway.id
+      assert sensor4.gateway_id == gateway.id
+    end
+  end
+
   describe "associate_sensors/1 " do
     setup do
       org = insert(:organisation)
@@ -171,5 +219,22 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor3.gateway_id == gateway.id
       assert sensor4.gateway_id == gateway.id
     end
+  end
+
+  defp create_mapped_parameters(sensor1, sensor2) do
+    %{
+      "sensor 1 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor1.id,
+        "type" => "value",
+        "value" => sensor1.uuid
+      },
+      "sensor 2 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor2.id,
+        "type" => "value",
+        "value" => sensor2.uuid
+      }
+    }
   end
 end
