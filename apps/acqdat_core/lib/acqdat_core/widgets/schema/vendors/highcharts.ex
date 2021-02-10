@@ -38,7 +38,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                align: %{data_type: :string, default_value: "left", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["left", "right", "center", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             color_axis: %{
@@ -70,7 +74,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               properties: %{
                 enabled: %{data_type: :boolean, default_value: false, user_controlled: false},
                 layout: %{data_type: :string, default_value: "right", user_controlled: true},
-                align: %{data_type: :string, default_value: "right", user_controlled: true},
+                align: %{
+                  data_type: :select,
+                  default_value: ["right", "left", "center", "top", "bottom"],
+                  user_controlled: true
+                },
                 verticalAlign: %{
                   data_type: :string,
                   default_value: "middle",
@@ -172,7 +180,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
                 style: %{data_type: :object, default_value: %{}, user_controlled: false},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["center", "right", "left", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             time: %{
@@ -189,7 +201,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
                 style: %{data_type: :object, default_value: %{}, user_controlled: false},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["center", "right", "left", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             tooltip: %{

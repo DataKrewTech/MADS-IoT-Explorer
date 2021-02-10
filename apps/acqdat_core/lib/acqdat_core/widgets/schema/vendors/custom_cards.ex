@@ -16,7 +16,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
                   default_value: "#ffffff",
                   user_controlled: true
                 },
-                font: %{data_type: :string, default_value: "#ffffff", user_controlled: true}
+                fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },
             title: %{
@@ -24,7 +24,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["left", "right", "center", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             unit: %{
@@ -32,7 +36,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["left", "right", "center", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             icon: %{
@@ -40,7 +48,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["left", "right", "center", "top", "bottom"],
+                  user_controlled: true
+                }
               }
             },
             description: %{
@@ -48,7 +60,13 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                align: %{data_type: :string, default_value: "center", user_controlled: true}
+                align: %{
+                  data_type: :select,
+                  default_value: ["left", "right", "center", "top", "bottom"],
+                  user_controlled: true
+                },
+                fontSize: %{data_type: :integer, default_value: 14, user_controlled: true},
+                fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },
             series: %{

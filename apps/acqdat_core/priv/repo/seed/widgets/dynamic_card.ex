@@ -10,11 +10,11 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
   @custom_card_key_widget_settings %{
     card: %{
       visual: %{
-        card: [type: %{value: "dynamic card"}, backgroundColor: %{}, font: %{}],
+        card: [type: %{value: "dynamic card"}, backgroundColor: %{}, fontColor: %{}],
         title: [text: %{}, align: %{}],
         unit: [text: %{}, align: %{}],
         icon: [text: %{}, align: %{}],
-        description: [text: %{}, align: %{}]
+        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
       },
       data: %{
         series: %{

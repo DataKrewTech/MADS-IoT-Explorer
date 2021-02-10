@@ -10,9 +10,10 @@ defmodule AcqdatCore.Seed.Widgets.ImageCard do
   @custom_card_key_widget_settings %{
     card: %{
       visual: %{
-        card: [type: %{value: "image card"}, backgroundColor: %{}, font: %{}],
+        card: [type: %{value: "image card"}, backgroundColor: %{}, fontColor: %{}],
         title: [text: %{}, align: %{}],
-        icon: [text: %{}, align: %{}]
+        icon: [text: %{}, align: %{}],
+        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
       }
     }
   }
