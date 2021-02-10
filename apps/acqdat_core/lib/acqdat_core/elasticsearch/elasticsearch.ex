@@ -298,8 +298,15 @@ defmodule AcqdatCore.ElasticSearch do
     query =
       case Map.has_key?(params, "page_size") do
         true ->
-          %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
-          user_indexing_query(org_id, from, page_size)
+          case Map.has_key?(params, "from") do
+            true ->
+              %{"page_size" => page_size, "from" => from, "org_id" => org_id} = params
+              user_indexing_query(org_id, from, page_size)
+
+            false ->
+              %{"page_size" => page_size, "org_id" => org_id} = params
+              user_indexing_query(org_id, 0, page_size)
+          end
 
         false ->
           %{"org_id" => org_id} = params
