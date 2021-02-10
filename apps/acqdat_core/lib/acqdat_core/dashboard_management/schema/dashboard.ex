@@ -101,9 +101,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard.Settings do
     field(:thumbnail_url, :string)
     field(:timezone, :string)
     field(:panels_order, :map)
+    field(:selected_panel_color, :string)
   end
 
-  @permitted ~w(background_color sidebar_color client_name thumbnail_url panels_order timezone)a
+  @permitted ~w(background_color sidebar_color client_name thumbnail_url panels_order timezone selected_panel_color)a
 
   def changeset(%__MODULE__{} = settings, params) do
     settings |> cast(params, @permitted)

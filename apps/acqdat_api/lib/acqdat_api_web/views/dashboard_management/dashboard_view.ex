@@ -68,7 +68,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       sidebar_color: settings.sidebar_color,
       thumbnail_url: settings.thumbnail_url,
       panels_order: settings.panels_order,
-      timezone: settings.timezone
+      timezone: settings.timezone,
+      selected_panel_color: settings.selected_panel_color
     }
   end
 end
