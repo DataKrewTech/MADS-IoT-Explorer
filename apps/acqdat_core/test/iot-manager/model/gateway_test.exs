@@ -164,6 +164,25 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor3.gateway_id == gateway.id
       assert sensor4.gateway_id == gateway.id
     end
+
+    test "updating mapped parameters of a gateway incluiding data of already attached sensor",
+         context do
+      %{sensors: [sensor1, sensor2, sensor3, sensor4], gateway: gateway} = context
+      gateway = gateway |> Repo.preload([:sensors])
+      Gateway.associate_sensors(gateway, [sensor1.id, sensor2.id])
+      gateway = Repo.get!(GSchema, gateway.id) |> Repo.preload([:sensors])
+      mapped_parameters = create_multiple_mapped_parameters(sensor1, sensor2, sensor3, sensor4)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+      sensor4 = Repo.get!(Sensor, sensor4.id)
+      assert sensor1.gateway_id == gateway.id
+      assert sensor2.gateway_id == gateway.id
+      assert sensor3.gateway_id == gateway.id
+      assert sensor4.gateway_id == gateway.id
+    end
   end
 
   describe "associate_sensors/1 " do
@@ -234,6 +253,35 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
         "entity_id" => sensor2.id,
         "type" => "value",
         "value" => sensor2.uuid
+      }
+    }
+  end
+
+  defp create_multiple_mapped_parameters(sensor1, sensor2, sensor3, sensor4) do
+    %{
+      "sensor 1 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor1.id,
+        "type" => "value",
+        "value" => sensor1.uuid
+      },
+      "sensor 2 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor2.id,
+        "type" => "value",
+        "value" => sensor2.uuid
+      },
+      "sensor 3 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor3.id,
+        "type" => "value",
+        "value" => sensor3.uuid
+      },
+      "sensor 4 testing parameter" => %{
+        "entity" => "sensor",
+        "entity_id" => sensor4.id,
+        "type" => "value",
+        "value" => sensor4.uuid
       }
     }
   end
