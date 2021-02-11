@@ -13,7 +13,8 @@ defmodule AcqdatCore.Seed.Widgets.ImageCard do
         card: [type: %{value: "image card"}, backgroundColor: %{}, fontColor: %{}],
         title: [text: %{}, align: %{}],
         icon: [text: %{}, align: %{}],
-        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
+        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}],
+        subtitle: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
       }
     }
   }

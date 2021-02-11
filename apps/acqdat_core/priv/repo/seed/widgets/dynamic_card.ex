@@ -14,7 +14,8 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
         title: [text: %{}, align: %{}],
         unit: [text: %{}, align: %{}],
         icon: [text: %{}, align: %{}],
-        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
+        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}],
+        subtitle: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
       },
       data: %{
         series: %{
