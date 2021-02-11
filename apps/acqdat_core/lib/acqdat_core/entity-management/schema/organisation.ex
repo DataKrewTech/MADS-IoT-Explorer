@@ -58,6 +58,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> common_changeset()
+    |> add_apps_changeset(params[:app_ids] || [])
   end
 
   def common_changeset(changeset) do
