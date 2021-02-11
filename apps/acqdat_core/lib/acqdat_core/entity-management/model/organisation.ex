@@ -12,6 +12,7 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
   end
 
   def update(org, params) do
+    org = org |> Repo.preload([:apps])
     changeset = Organisation.update_changeset(org, params)
     Repo.update(changeset)
   end
