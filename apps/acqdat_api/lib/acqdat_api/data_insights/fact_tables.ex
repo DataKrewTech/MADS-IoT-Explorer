@@ -1,6 +1,6 @@
 defmodule AcqdatApi.DataInsights.FactTables do
   import Ecto.Query
-  alias AcqdatCore.Model.DataInsights.{FactTables, PivotTables}
+  alias AcqdatCore.Model.DataInsights.{FactTables, Visualizations}
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
@@ -13,7 +13,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     data = FactTables.get_all(params)
 
     tot_pivot_count =
-      PivotTables.get_all_count_for_project(%{project_id: project_id, org_id: org_id})
+      Visualizations.get_all_count_for_project(%{project_id: project_id, org_id: org_id})
 
     Map.merge(data, %{total_pivot_tables: tot_pivot_count})
   end

@@ -1,13 +1,12 @@
-defmodule AcqdatApi.DataInsights.PivotTables do
-  alias AcqdatCore.Model.DataInsights.{PivotTables, FactTables}
+defmodule AcqdatApi.DataInsights.Visualizations do
+  alias AcqdatCore.Model.DataInsights.{Visualizations, FactTables}
   alias AcqdatApi.DataInsights.PivotTableGenWorker
   alias Ecto.Multi
   alias AcqdatCore.Repo
-  alias AcqdatCore.Model.DataInsights.PivotTables, as: PivotTableModel
   import Ecto.Query
 
-  defdelegate get_all(params), to: PivotTableModel
-  defdelegate delete(pivot_table), to: PivotTableModel
+  defdelegate get_all(params), to: Visualizations
+  defdelegate delete(pivot_table), to: Visualizations
 
   def fetch_fact_table_headers(%{fact_table_id: fact_table_id} = pivot_table) do
     res = FactTables.get_fact_table_headers(fact_table_id)
@@ -18,7 +17,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
     res_name = :crypto.strong_rand_bytes(5) |> Base.url_encode64() |> binary_part(0, 5)
     pivot_table_name = "#{project_name}_pivot_table_#{fact_tables_id}_#{res_name}"
 
-    PivotTables.create(%{
+    Visualizations.create(%{
       name: pivot_table_name,
       org_id: org_id,
       project_id: project_id,
@@ -30,7 +29,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
   def create(pivot_table_name, org_id, fact_tables_id, %{name: project_name, id: project_id}, %{
         id: creator_id
       }) do
-    PivotTables.create(%{
+    Visualizations.create(%{
       name: pivot_table_name,
       org_id: org_id,
       project_id: project_id,
@@ -57,7 +56,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
       ) do
     Multi.new()
     |> Multi.run(:persist_to_db, fn _, _changes ->
-      PivotTableModel.update(pivot_table, %{
+      Visualizations.update(pivot_table, %{
         org_id: org_id,
         project_id: project_id,
         fact_table_id: fact_tables_id,
@@ -80,7 +79,7 @@ defmodule AcqdatApi.DataInsights.PivotTables do
   end
 
   def fetch_n_gen_pivot(pivot_table_id) do
-    case PivotTableModel.get_by_id(pivot_table_id) do
+    case Visualizations.get_by_id(pivot_table_id) do
       {:ok, pivot_table} ->
         gen_pivot_data(pivot_table)
 

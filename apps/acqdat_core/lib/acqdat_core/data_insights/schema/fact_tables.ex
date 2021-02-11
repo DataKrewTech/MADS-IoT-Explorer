@@ -14,7 +14,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
 
   use AcqdatCore.Schema
   alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
-  alias AcqdatCore.DataInsights.Schema.PivotTables
+  alias AcqdatCore.DataInsights.Schema.Visualizations
   alias AcqdatCore.Schema.RoleManagement.User
 
   @typedoc """
@@ -47,7 +47,7 @@ defmodule AcqdatCore.DataInsights.Schema.FactTables do
     belongs_to(:project, Project, on_replace: :delete)
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:creator, User, on_replace: :raise)
-    has_many(:pivot_tables, PivotTables, foreign_key: :fact_table_id)
+    has_many(:pivot_tables, Visualizations, foreign_key: :fact_table_id)
 
     timestamps(type: :utc_datetime)
   end

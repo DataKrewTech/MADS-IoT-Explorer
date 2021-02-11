@@ -1,8 +1,8 @@
-defmodule AcqdatCore.DataInsights.Schema.PivotTables do
+defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   @moduledoc """
 
-  Pivot Tables are used for representing cosolidated or accumulative data in tablular or 2D format after grouping.
-  Pivot Table is child of FactTable
+  Visualizations are used for representing cosolidated or accumulative data in visual/widget forms after grouping.
+  Visualizations is child of FactTable
 
   A Pivot has four important properties along with others:
   - `name`
@@ -18,7 +18,7 @@ defmodule AcqdatCore.DataInsights.Schema.PivotTables do
   alias AcqdatCore.Schema.RoleManagement.User
 
   @typedoc """
-  `name`: Pivot Table name
+  `name`: Visualizations name
   `uuid`: unique number
   `filters`: holds filters metadata
   `columns`: holds columns metadata
@@ -28,7 +28,7 @@ defmodule AcqdatCore.DataInsights.Schema.PivotTables do
 
   @type t :: %__MODULE__{}
 
-  schema("acqdat_pivot_tables") do
+  schema("acqdat_visualizations") do
     field(:name, :string, null: false)
     field(:slug, :string, null: false)
     field(:uuid, :string, null: false)
