@@ -453,6 +453,63 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       assert length(res.data) == 20
     end
 
+    test "returns sensor data with timestamp, if user's input contains only a sensor_type(EnergyMtr) with metadata",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        energy_mtr_type: energy_mtr_type,
+        fact_table: fact_table
+      } = context
+
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Current",
+          "date_from" =>
+            "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
+          "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
+          "pos" => 1
+        },
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Energy",
+          "date_from" =>
+            "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
+          "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
+          "pos" => 1
+        },
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Voltage",
+          "date_from" =>
+            "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
+          "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
+          "pos" => 1
+        }
+      ]
+
+      uniq_sensor_types = Enum.uniq_by(user_list, fn sensor_type -> sensor_type["id"] end)
+
+      res =
+        FactTableCon.compute_sensors(
+          fact_table.id,
+          user_list,
+          uniq_sensor_types
+        )
+
+      assert res.total != 0
+
+      assert Enum.sort(res.headers) ==
+               Enum.sort(["Current", "Energy", "Voltage", "entity_dateTime"])
+    end
+
     defp gen_n_compute_fact_table(org_id, project, user_list, fact_table_id) do
       topology_map = Topology.gen_topology(org_id, project)
       parent_tree = NaryTree.from_map(topology_map)

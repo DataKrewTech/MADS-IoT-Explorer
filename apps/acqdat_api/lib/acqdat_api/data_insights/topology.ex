@@ -205,67 +205,7 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     output =
       if length(uniq_sensor_types) == 1 do
-        [%{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to} | _] =
-          uniq_sensor_types
-
-        metadata_list = Enum.map(sensor_types, fn sensor_type -> sensor_type["metadata_name"] end)
-
-        sensor_ids =
-          from(sensor in Sensor,
-            where: sensor.sensor_type_id == ^sensor_type_id,
-            select: sensor.id
-          )
-          |> Repo.all()
-
-        date_from = from_unix(date_from)
-        date_to = from_unix(date_to)
-
-        query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-        # query = SensorData.fetch_sensors_values_n_timeseries(query, metadata_list)
-        data = SensorData.fetch_sensors_data(query, metadata_list) |> Repo.all()
-
-        rows_len = length(metadata_list)
-
-        res =
-          Enum.reduce(data, [], fn entity, acc3 ->
-            empty_row = List.duplicate(nil, rows_len + 1)
-            indx_pos = Enum.find_index(metadata_list, fn x -> x == "name" end)
-
-            computed_row =
-              if indx_pos do
-                computed_row =
-                  List.replace_at(
-                    empty_row,
-                    indx_pos,
-                    entity.name
-                  )
-
-                pos = Enum.find_index(metadata_list, fn x -> x == entity.param_name end)
-
-                computed_row =
-                  List.replace_at(
-                    computed_row,
-                    pos,
-                    entity.value
-                  )
-
-                computed_row =
-                  List.replace_at(
-                    computed_row,
-                    rows_len - 1,
-                    entity.time
-                  )
-              else
-                empty_row
-              end
-
-            acc3 ++ computed_row
-          end)
-
-        %{
-          headers: metadata_list ++ "entity_dateTime",
-          data: res
-        }
+        FactTableGenWorker.process({fact_table_id, entities_list, uniq_sensor_types})
       else
         output =
           {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}

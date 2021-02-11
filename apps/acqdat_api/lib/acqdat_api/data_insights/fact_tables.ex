@@ -68,6 +68,73 @@ defmodule AcqdatApi.DataInsights.FactTables do
     %{data: List.flatten(res.rows)}
   end
 
+  def compute_sensors(fact_table_id, sensor_types, uniq_sensor_types) do
+    [%{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to} | _] =
+      uniq_sensor_types
+
+    metadata_list = Enum.map(sensor_types, fn sensor_type -> sensor_type["metadata_name"] end)
+
+    sensor_ids =
+      from(sensor in Sensor,
+        where: sensor.sensor_type_id == ^sensor_type_id,
+        select: sensor.id
+      )
+      |> Repo.all()
+
+    date_from = from_unix(date_from)
+    date_to = from_unix(date_to)
+
+    query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
+    data = SensorData.fetch_sensors_data(query, metadata_list) |> Repo.all()
+
+    rows_len = length(metadata_list)
+
+    res =
+      Enum.reduce(data, [], fn entity, acc3 ->
+        empty_row = List.duplicate(nil, rows_len + 1)
+        indx_pos = Enum.find_index(metadata_list, fn x -> x == "name" end)
+
+        computed_row =
+          if indx_pos, do: List.replace_at(empty_row, indx_pos, entity.name), else: empty_row
+
+        pos = Enum.find_index(metadata_list, fn x -> x == entity.param_name end)
+
+        computed_row =
+          if pos, do: List.replace_at(computed_row, pos, entity.value), else: computed_row
+
+        computed_row =
+          if entity.time,
+            do: List.replace_at(computed_row, rows_len, entity.time),
+            else: computed_row
+
+        acc3 ++ [computed_row]
+      end)
+
+    headers = (metadata_list ++ ["entity_dateTime"]) |> Enum.map_join(",", &"\"#{&1}\"")
+
+    if res == [] do
+      %{error: "No data present for the specified user inputs"}
+    else
+      table_body = res |> convert_table_data_to_text
+
+      fact_table_name = "fact_table_#{fact_table_id}"
+
+      try do
+        create_fact_table_view(fact_table_name, headers, table_body)
+
+        data =
+          Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [],
+            timeout: :infinity
+          )
+
+        %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
+      rescue
+        error in Postgrex.Error ->
+          {:error, error.postgres.message}
+      end
+    end
+  end
+
   def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
     {subtree, node_tracker} = traverse_n_gen_subtree(parent_tree, root_node, entities_list, [])
 

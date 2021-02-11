@@ -71,27 +71,45 @@ defmodule AcqdatApi.DataInsights.TopologyTest do
       assert data.num_rows == 6
     end
 
-    # test "returns sensor data with timestamp, if user's input contains only one sensor_type(EnergyMtr) with metadata",
-    #      context do
-    #   %{org_id: org_id, project: project, energy_mtr_type: energy_mtr_type, fact_table: fact_table} = context
+    test "returns sensor data with timestamp, if user's input contains only one sensor_type(EnergyMtr) with metadata",
+         context do
+      %{
+        org_id: org_id,
+        project: project,
+        energy_mtr_type: energy_mtr_type,
+        fact_table: fact_table
+      } = context
 
-    #   user_list = [
-    #     %{
-    #       "id" => energy_mtr_type.id,
-    #       "name" => "Energy Meter",
-    #       "type" => "SensorType",
-    #       "metadata_name" => "Current",
-    #       "date_from" => "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
-    #       "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
-    #       "pos" => 1
-    #     }
-    #   ]
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Current",
+          "date_from" =>
+            "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
+          "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}",
+          "pos" => 1
+        }
+      ]
 
-    #   Topology.gen_sub_topology(fact_table.id, org_id, project, "fact table 1.1", fact_table, user_list, %{})
+      {:ok, _} =
+        Topology.gen_sub_topology(
+          fact_table.id,
+          org_id,
+          project,
+          "fact table 1.1",
+          fact_table,
+          user_list,
+          %{}
+        )
 
-    #   # assert Map.has_key?(data, "Energy Meter")
-    #   # assert length(data["Energy Meter"]) != 0
-    # end
+      query = "SELECT * FROM fact_table_#{fact_table.id}"
+
+      data = Ecto.Adapters.SQL.query!(Repo, query, [])
+
+      assert data.num_rows != 0
+    end
 
     test "returns asset data, if user's input contains only one asset_type(Building)", context do
       %{org_id: org_id, project: project, building_type: building_type, fact_table: fact_table} =
