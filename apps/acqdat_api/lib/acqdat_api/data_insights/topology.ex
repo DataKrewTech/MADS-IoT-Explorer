@@ -86,7 +86,14 @@ defmodule AcqdatApi.DataInsights.Topology do
   # NOTE: this validate_entities will get executed if there is only one sensor_type is present in user input
   defp validate_entities(fact_table_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == 1 and length(sensor_types) == length(entities_list) do
-    [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = sensor_types
+    [
+      %{
+        "id" => id,
+        "name" => name,
+        "metadata_name" => metadata_name,
+        "metadata_id" => metadata_id
+      }
+    ] = sensor_types
 
     output =
       if metadata_name == "name" do
@@ -111,7 +118,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         date_to = from_unix(date_to)
 
         query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-        query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_name])
+        query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_id])
 
         %{
           headers: ["#{name}_#{metadata_name}", "#{name}_#{metadata_name}_dateTime"],
@@ -146,7 +153,14 @@ defmodule AcqdatApi.DataInsights.Topology do
   # NOTE: this validate_entities will get executed if there is only one asset_type is present in user input
   defp validate_entities(fact_table_id, {asset_types, _}, entities_list, _)
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
-    [%{"id" => id, "name" => name, "metadata_name" => metadata_name}] = asset_types
+    [
+      %{
+        "id" => id,
+        "name" => name,
+        "metadata_name" => metadata_name,
+        "metadata_id" => metadata_id
+      }
+    ] = asset_types
 
     {headers, data} =
       if metadata_name == "name" do
@@ -164,7 +178,7 @@ defmodule AcqdatApi.DataInsights.Topology do
           from(asset in Asset,
             where: asset.asset_type_id == ^id,
             cross_join: c in fragment("unnest(?)", asset.metadata),
-            where: fragment("?->>'name'", c) in ^[metadata_name],
+            where: fragment("?->>'uuid'", c) in ^[metadata_id],
             select: [
               asset.name,
               fragment("?->>'value'", c)
@@ -221,7 +235,7 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     if length(uniq_asset_types) == 1 do
       [%{"id" => asset_type_id} | _] = uniq_asset_types
-      metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_name"] end)
+      metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_id"] end)
       res = AssetModel.fetch_asset_metadata(asset_type_id, metadata_list)
 
       data =
