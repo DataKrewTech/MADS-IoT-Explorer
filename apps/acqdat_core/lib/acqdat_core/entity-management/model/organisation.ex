@@ -13,6 +13,7 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
 
   def update(org, params) do
     org = org |> Repo.preload([:apps])
+    params = string_to_atom(params)
     changeset = Organisation.update_changeset(org, params)
     Repo.update(changeset)
   end
@@ -25,6 +26,10 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
       org ->
         {:ok, org}
     end
+  end
+
+  defp string_to_atom(params) do
+    for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do
