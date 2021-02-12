@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Organisation
   alias AcqdatApi.EntityManagement.Organisation
+  alias AcqdatApiWeb.EntityManagement.OrganisationErrorHelper
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
 
   defdelegate get_apps(data), to: OrgModel
@@ -18,11 +19,11 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -46,11 +47,11 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -72,11 +73,11 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -94,11 +95,11 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -144,11 +145,11 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 
