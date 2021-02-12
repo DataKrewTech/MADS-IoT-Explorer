@@ -120,12 +120,32 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       role_id: user_details.role_id,
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(user_details.role, RoleView, "role.json"),
+      user_group: render_many(user_details.user_group, UserView, "user_group.json"),
       org:
         render_one(
           user_details.org,
           OrganisationView,
           "org.json"
         )
+    }
+  end
+
+  def render("user_group.json", %{user: user}) do
+    group = user.user_group |> Repo.preload(:policies)
+
+    %{
+      id: group.id,
+      name: group.name,
+      policies: render_many(group.policies, UserView, "policy.json")
+    }
+  end
+
+  def render("policy.json", %{user: policy}) do
+    %{
+      id: policy.id,
+      action: policy.action,
+      app: policy.app,
+      feature: policy.feature
     }
   end
 

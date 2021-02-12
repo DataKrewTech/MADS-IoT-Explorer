@@ -7,7 +7,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   import Ecto.Query
   alias Comeonin.Argon2
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
-  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting}
+  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting, GroupUser}
   alias AcqdatCore.Repo
 
   @password_min_length 8
@@ -29,6 +29,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:role, Role)
     has_one(:user_setting, UserSetting)
+    has_many(:user_group, GroupUser)
     many_to_many(:assets, Asset, join_through: "asset_user", on_replace: :delete)
     many_to_many(:apps, App, join_through: "app_user", on_replace: :delete)
 

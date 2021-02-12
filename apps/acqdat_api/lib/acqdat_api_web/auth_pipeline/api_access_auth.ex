@@ -10,10 +10,18 @@ defmodule AcqdatApiWeb.ApiAccessAuth do
 
   def call(conn, _params) do
     user_id = Guardian.Plug.current_resource(conn)
-    {:ok, user} = User.get(String.to_integer(user_id))
-    user = user |> Repo.preload([:role])
 
-    case user.role.id == 1 and user.role.name == "admin" do
+    user =
+      case is_nil(user_id) do
+        false ->
+          {:ok, user} = User.get(String.to_integer(user_id))
+          user |> Repo.preload([:role])
+
+        true ->
+          nil
+      end
+
+    case user == nil or (user.role.id == 1 and user.role.name == "admin") do
       true ->
         conn
 
