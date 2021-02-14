@@ -438,11 +438,12 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       asset in Asset,
       join: c in fragment("unnest(?)", asset.metadata),
       where:
-        asset.asset_type_id == ^asset_type_id and fragment("?->>'name'", c) in ^metadata_names,
+        asset.asset_type_id == ^asset_type_id and fragment("?->>'uuid'", c) in ^metadata_names,
       select: %{
         id: asset.id,
         name: asset.name,
         value: fragment("?->>'value'", c),
+        metadata_uuid: fragment("?->>'uuid'", c),
         metadata_name: fragment("?->>'name'", c)
       }
     )

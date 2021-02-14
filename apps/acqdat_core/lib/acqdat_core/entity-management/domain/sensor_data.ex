@@ -508,14 +508,15 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     from(
       data in subquery(subquery),
       cross_join: c in fragment("unnest(?)", data.parameters),
-      where: fragment("?->>'name'", c) in ^param_uuids,
+      where: fragment("?->>'uuid'", c) in ^param_uuids,
       select: %{
         parent_id: data.sensor_parent_id,
         time: data.inserted_timestamp,
         id: data.sensor_id,
         name: data.sensor_name,
         value: fragment("?->>'value'", c),
-        param_name: fragment("?->>'name'", c)
+        param_name: fragment("?->>'name'", c),
+        param_uuid: fragment("?->>'uuid'", c)
       }
     )
   end
@@ -524,13 +525,14 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     from(
       data in subquery(subquery),
       cross_join: c in fragment("unnest(?)", data.parameters),
-      where: fragment("?->>'name'", c) in ^param_uuids,
+      where: fragment("?->>'uuid'", c) in ^param_uuids,
       select: %{
         time: data.inserted_timestamp,
         id: data.sensor_id,
         name: data.sensor_name,
         value: fragment("?->>'value'", c),
-        param_name: fragment("?->>'name'", c)
+        param_name: fragment("?->>'name'", c),
+        param_uuid: fragment("?->>'uuid'", c)
       }
     )
   end
@@ -554,7 +556,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     from(
       data in subquery(subquery),
       cross_join: c in fragment("unnest(?)", data.parameters),
-      where: fragment("?->>'name'", c) in ^param_uuids,
+      where: fragment("?->>'uuid'", c) in ^param_uuids,
       select: [
         fragment("?->>'value'", c),
         data.inserted_timestamp

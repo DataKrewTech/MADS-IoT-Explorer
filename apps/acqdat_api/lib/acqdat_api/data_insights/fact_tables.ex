@@ -76,6 +76,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     metadata_list = Enum.map(sensor_types, fn sensor_type -> sensor_type["metadata_name"] end)
 
+    metadata_ids = Enum.map(sensor_types, fn sensor_type -> sensor_type["metadata_id"] end)
+
     sensor_ids =
       from(sensor in Sensor,
         where: sensor.sensor_type_id == ^sensor_type_id,
@@ -87,7 +89,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     date_to = from_unix(date_to)
 
     query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-    data = SensorData.fetch_sensors_data(query, metadata_list) |> Repo.all()
+    data = SensorData.fetch_sensors_data(query, metadata_ids) |> Repo.all()
 
     rows_len = length(metadata_list)
 
@@ -171,14 +173,15 @@ defmodule AcqdatApi.DataInsights.FactTables do
       end
 
     res = fetch_data_using_dynamic_query(subtree, node, data, user_list)
+
     output = Map.merge(%{"#{node.id}" => data}, res)
 
     fact_table_name = "fact_table_#{fact_table_id}"
 
-    fact_table_representation(fact_table_name, output, subtree)
+    fact_table_representation(fact_table_name, output, subtree, user_list)
   end
 
-  def fact_table_representation(fact_table_name, output, subtree) do
+  def fact_table_representation(fact_table_name, output, subtree, user_list) do
     {headers, rows_len} = output |> parse_table_headers_map(subtree)
 
     tree_elem = output[subtree.root]
@@ -199,7 +202,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     if data == [] do
       %{error: "No data present for the specified user inputs"}
     else
-      table_headers = output |> gen_fact_table_headers(subtree)
+      table_headers = gen_fact_table_headers(user_list)
       table_body = data |> convert_table_data_to_text
 
       create_fact_table_view(fact_table_name, table_headers, table_body)
@@ -230,7 +233,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           if parent_entity[:metadata_name] do
             List.replace_at(
               computed_row,
-              headers[child_node.parent][parent_entity.metadata_name],
+              headers[child_node.parent][parent_entity.metadata_uuid],
               parent_entity.value
             )
           else
@@ -248,7 +251,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           if entity[:metadata_name] do
             List.replace_at(
               computed_row,
-              headers[child_entity][entity.metadata_name],
+              headers[child_entity][entity.metadata_uuid],
               entity.value
             )
           else
@@ -260,13 +263,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
             computed_row =
               List.replace_at(
                 computed_row,
-                headers[child_entity][entity.param_name],
+                headers[child_entity][entity.param_uuid],
                 entity.value
               )
 
             List.replace_at(
               computed_row,
-              headers[child_entity]["#{entity.param_name}_dateTime"],
+              headers[child_entity]["#{entity.param_uuid}_dateTime"],
               entity.time
             )
           else
@@ -343,28 +346,19 @@ defmodule AcqdatApi.DataInsights.FactTables do
     end)
   end
 
-  def gen_fact_table_headers(output, subtree) do
+  def gen_fact_table_headers(user_list) do
     headers =
-      Map.keys(output)
-      |> Enum.reduce([], fn x, acc ->
-        node = NaryTree.get(subtree, x)
+      user_list
+      |> Enum.reduce([], fn entity, acc ->
+        res =
+          if entity["type"] == "SensorType" and entity["metadata_name"] != "name" do
+            ["#{entity["name"]} #{entity["metadata_name"]}"] ++
+              ["#{entity["name"]} #{entity["metadata_name"]}_dateTime"]
+          else
+            ["#{entity["name"]} #{entity["metadata_name"]}"]
+          end
 
-        if node.content != ["name"] && node.content != :empty do
-          res =
-            if node.type == "SensorType" do
-              Enum.reduce(node.content, [], fn ele, sum ->
-                if ele == "name",
-                  do: sum ++ ["#{node.name}_#{ele}"],
-                  else: sum ++ ["#{node.name}_#{ele}", "#{node.name}_#{ele}_dateTime"]
-              end)
-            else
-              Enum.map(node.content, fn z -> "#{node.name}_#{z}" end)
-            end
-
-          acc ++ res
-        else
-          acc ++ [node.name]
-        end
+        acc ++ res
       end)
 
     Enum.map_join(headers, ",", &"\"#{&1}\"")
@@ -411,7 +405,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
               if entity[:metadata_name] do
                 List.replace_at(
                   computed_row,
-                  headers[child_entity][entity.metadata_name],
+                  headers[child_entity][entity.metadata_uuid],
                   entity.value
                 )
               else
@@ -423,13 +417,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 computed_row =
                   List.replace_at(
                     computed_row,
-                    headers[child_entity][entity.param_name],
+                    headers[child_entity][entity.param_uuid],
                     entity.value
                   )
 
                 List.replace_at(
                   computed_row,
-                  headers[child_entity]["#{entity.param_name}_dateTime"],
+                  headers[child_entity]["#{entity.param_uuid}_dateTime"],
                   entity.time
                 )
               else
@@ -484,13 +478,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
             from(asset in Asset,
               where: asset.asset_type_id == ^id and asset.parent_id in ^entities,
               cross_join: c in fragment("unnest(?)", asset.metadata),
-              where: fragment("?->>'name'", c) in ^content,
+              where: fragment("?->>'uuid'", c) in ^content,
               select: %{
                 id: asset.id,
                 name: asset.name,
                 parent_id: asset.parent_id,
                 value: fragment("?->>'value'", c),
-                metadata_name: fragment("?->>'name'", c)
+                metadata_name: fragment("?->>'name'", c),
+                metadata_uuid: fragment("?->>'uuid'", c)
               }
             )
           else
@@ -519,13 +514,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 | _
               ] = sensor_entity
 
-              parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
+              # parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
+              parameter_ids = Enum.map(sensor_entity, fn entity -> entity["metadata_id"] end)
 
               date_from = from_unix(date_from)
               date_to = from_unix(date_to)
 
               query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-              SensorData.fetch_sensors_data_with_parent_id(query, parameters)
+              SensorData.fetch_sensors_data_with_parent_id(query, parameter_ids)
             else
               subquery
             end
@@ -590,7 +586,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
                     | _
                   ] = sensor_entity
 
-                  parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
+                  # parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
+                  parameter_ids = Enum.map(sensor_entity, fn entity -> entity["metadata_id"] end)
 
                   date_from = from_unix(date_from)
                   date_to = from_unix(date_to)
@@ -598,7 +595,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
                   query =
                     SensorData.fetch_sensor_data_btw_time_intv(entity_ids, date_from, date_to)
 
-                  output = SensorData.fetch_sensors_data(query, parameters) |> Repo.all()
+                  output = SensorData.fetch_sensors_data(query, parameter_ids) |> Repo.all()
                   Enum.map(output, fn x -> Map.merge(%{parent_id: asset.id}, x) end)
                 end
 
@@ -620,7 +617,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     {data, metadata} =
       Enum.reduce(entities_list, {[], []}, fn x, {acc1, acc2} ->
         if "#{x["id"]}" == tree_node.id && x["type"] == tree_node.type do
-          {acc1 ++ [x], acc2 ++ [x["metadata_name"]]}
+          {acc1 ++ [x], acc2 ++ [x["metadata_id"]]}
         else
           {acc1, acc2}
         end
