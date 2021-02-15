@@ -54,7 +54,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
         name: "Home",
         org_id: dashboard.org_id,
         dashboard_id: dashboard.id,
-        filter_metadata: %{from_date: from_date}
+        filter_metadata: %{from_date: from_date()}
       })
     end)
     |> run_transaction()

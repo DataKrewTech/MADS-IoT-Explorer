@@ -103,7 +103,10 @@ defmodule AcqdatCore.MixProject do
       {:virta, in_umbrella: true},
 
       # Elixir implementation of the generic tree data structure
-      {:nary_tree, git: "https://github.com/BandanaPandey/nary_tree.git"}
+      {:nary_tree, git: "https://github.com/BandanaPandey/nary_tree.git"},
+
+      # redis
+      {:redix, ">= 0.0.0"}
     ]
   end
 

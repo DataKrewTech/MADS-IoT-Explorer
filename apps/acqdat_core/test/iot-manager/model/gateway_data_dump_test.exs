@@ -66,5 +66,23 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
       {:error, result} = GatewayDataDump.create(params)
       assert result == "Gateway not found"
     end
+
+    test "error when data with same timestamp inserted", context do
+      %{org: org, project: project, dump_data: data_dump} = context
+      gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
+
+      params = %{
+        org_uuid: org.uuid,
+        project_uuid: project.uuid,
+        gateway_uuid: gateway.uuid,
+        data: data_dump
+      }
+      assert {:ok, result} = GatewayDataDump.create(params)
+      ## insert the data with same timestamp again
+      assert {:error, changeset} = GatewayDataDump.create(params)
+      assert %{
+        inserted_timestamp: ["duplicate data with same timestamp inserted"]
+      } == errors_on(changeset)
+    end
   end
 end
