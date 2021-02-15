@@ -314,6 +314,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                       user_controlled: false
                     }
                   }
+                },
+                stops: %{
+                  data_type: :list,
+                  user_controlled: true,
+                  properties: %{}
                 }
               }
             },

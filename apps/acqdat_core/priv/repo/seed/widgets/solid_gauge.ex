@@ -13,7 +13,14 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
         chart: [type: %{value: "solidgauge"}, backgroundColor: %{}, plotBackgroundColor: %{}],
         title: [text: %{}, align: %{}],
         yAxis: [title: [text: %{},  y: %{data_type: :integer, value: -70, properties: %{}}], min: %{data_type: :integer, value: 0, properties: %{}},
-                max: %{data_type: :integer, value: 200, properties: %{}}],
+                max: %{data_type: :integer, value: 200, properties: %{}},
+                stops: %{
+                  data_type: :list,
+                  value: [[0.1, "#55BF3B"], # green
+                          [0.5, "#DDDF0D"], #yellow
+                          [0.9, "#DF5353"]], #red
+                  properties: %{}
+                }],
         credits: [enabled: %{value: false}],
         pane: [startAngle: %{data_type: :integer, value: -90, properties: %{}},
                endAngle: %{data_type: :integer, value: 90, properties: %{}},
@@ -58,7 +65,11 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
             y: -70,
           },
           min: 0,
-          max: 5
+          max: 5,
+          stops: [[0.1, "#55BF3B"],
+                  [0.5, "#DDDF0D"],
+                  [0.9, "#DF5353"]
+          ]
         },
         pane: %{
         center: ["50%", "85%"],
