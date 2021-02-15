@@ -34,17 +34,7 @@ defmodule AcqdatApi.EntityManagement.Sensor do
       ElasticSearch.insert_sensor("sensors", sensor)
     end)
 
-    {:ok,
-     %{
-       id: sensor.id,
-       name: sensor.name,
-       uuid: sensor.uuid,
-       sensor_type_id: sensor.sensor_type_id,
-       parent_id: sensor.parent_id,
-       parent_type: sensor.parent_type,
-       metadata: sensor.metadata,
-       description: sensor.description
-     }}
+    {:ok, sensor}
   end
 
   defp verify_sensor({:error, sensor}) do
