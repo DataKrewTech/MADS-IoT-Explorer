@@ -103,6 +103,21 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
+  def fetch_uniq_metadata_name_by_metadata_uuid(asset_type_id, metadata_uuids) do
+    query =
+      from(asset in AssetType,
+        cross_join: c in fragment("unnest(?)", asset.metadata),
+        where: fragment("?->>'uuid'", c) in ^metadata_uuids and asset.id == ^asset_type_id,
+        group_by: fragment("?->>'uuid'", c),
+        select: %{
+          name: fragment("ARRAY_AGG(DISTINCT ?->>'name')", c),
+          uuid: fragment("?->>'uuid'", c)
+        }
+      )
+
+    Repo.all(query)
+  end
+
   defp asset_present?(asset_type) do
     query =
       from(asset in Asset,

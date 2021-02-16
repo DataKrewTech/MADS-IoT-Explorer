@@ -27,7 +27,7 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
     Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
   end
 
-  def get_by_id(id) when is_integer(id) do
+  def get_by_id(id) do
     case Repo.get(FactTables, id) do
       nil ->
         {:error, "FactTables not found"}

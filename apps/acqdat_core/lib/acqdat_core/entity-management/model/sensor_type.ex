@@ -94,6 +94,22 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
     end
   end
 
+  def fetch_uniq_param_name_by_param_uuid(sensor_type_id, parameter_uuids) do
+    query =
+      from(sensor_type in SensorType,
+        cross_join: c in fragment("unnest(?)", sensor_type.parameters),
+        where:
+          fragment("?->>'uuid'", c) in ^parameter_uuids and sensor_type.id == ^sensor_type_id,
+        group_by: fragment("?->>'uuid'", c),
+        select: %{
+          name: fragment("ARRAY_AGG(DISTINCT ?->>'name')", c),
+          uuid: fragment("?->>'uuid'", c)
+        }
+      )
+
+    Repo.all(query)
+  end
+
   defp check_for_parameters_and_metadata(params) do
     Map.has_key?(params, "parameters") or Map.has_key?(params, "metadata")
   end

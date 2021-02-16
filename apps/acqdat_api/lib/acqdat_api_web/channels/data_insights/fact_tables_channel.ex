@@ -31,8 +31,7 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
         },
         socket
       ) do
-    data =
-      FactTables.fetch_paginated_fact_table("fact_table_#{fact_table_id}", page_number, page_size)
+    data = FactTables.fetch_paginated_fact_table(fact_table_id, page_number, page_size)
 
     broadcast!(socket, "out_put_res", %{data: data})
     {:reply, :ok, socket}
