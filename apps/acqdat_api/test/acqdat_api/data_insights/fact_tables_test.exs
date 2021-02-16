@@ -388,6 +388,7 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
           "id" => building_type.id,
           "name" => "Building",
           "type" => "AssetType",
+          "metadata_id" => "name",
           "metadata_name" => "name",
           "pos" => 3
         },

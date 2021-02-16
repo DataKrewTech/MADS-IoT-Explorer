@@ -23,7 +23,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def fetch_fact_table_headers(%{id: fact_table_id} = fact_table) do
-    headers = gen_fact_table_headers(fact_table.columns_metadata, fact_table.headers_metadata)
+    headers =
+      if fact_table.headers_metadata do
+        gen_fact_table_headers(fact_table.columns_metadata, fact_table.headers_metadata)
+      else
+        res = FactTables.get_fact_table_headers(fact_table_id)
+        List.flatten(res.rows)
+      end
+
     Map.put(fact_table, :fact_table_headers, headers)
   end
 
@@ -500,8 +507,6 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
 
-    headers = gen_fact_table_headers(fact_table.columns_metadata, fact_table.headers_metadata)
-
     data =
       Ecto.Adapters.SQL.query!(
         Repo,
@@ -509,6 +514,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
         [],
         timeout: :infinity
       )
+
+    headers =
+      if fact_table.headers_metadata do
+        gen_fact_table_headers(fact_table.columns_metadata, fact_table.headers_metadata)
+      else
+        data.columns
+      end
 
     %{headers: headers, data: data.rows, total: total_no_of_rec(fact_table_name)}
   end
