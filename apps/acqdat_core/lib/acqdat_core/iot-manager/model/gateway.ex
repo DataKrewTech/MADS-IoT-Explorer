@@ -308,7 +308,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
       {:ok, _message} ->
         {:ok, "Gateway Sensor List updated"}
 
-      {:error, _message} ->
+      {:error, message} ->
         {:error, "Some error occurred while updating list"}
     end
   end
