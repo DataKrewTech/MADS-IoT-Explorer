@@ -34,12 +34,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         else
           {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "status_code" => 404,
-              "title" => message,
-              "detail" => message
-            })
+            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch_error, message))
         end
 
       404 ->
@@ -58,14 +53,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         with {:ok, hits} <- ElasticSearch.gateway_indexing(params) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
-          {:error, _message} ->
+          {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => "elasticsearch is not running"
-            })
+            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch_error, message))
         end
 
       404 ->
@@ -204,7 +194,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
               ImageDeletion.delete_operation(gateway.image_url, "gateway")
             end
 
-            ElasticSearch.delete_data("pro", gateway)
+            Task.start_link(fn ->
+              ElasticSearch.delete_data("pro", gateway)
+            end)
 
             conn
             |> put_status(200)

@@ -50,7 +50,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       data = %{}
       conn = post(conn, Routes.gateway_path(conn, :create, org.id, project.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -129,7 +135,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -173,7 +185,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -200,7 +218,14 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       conn = get(conn, Routes.gateway_path(conn, :show, gateway.org_id, gateway.project_id, -1))
 
       result = conn |> json_response(404)
-      assert %{"errors" => %{"message" => "Resource not found"}} == result
+
+      assert %{
+               "detail" =>
+                 "Either Gateway or Project or Organisation with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             } == result
     end
   end
 
@@ -291,7 +316,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 

@@ -26,7 +26,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       conn = get(conn, Routes.dashboard_path(conn, :show, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "dashboard with invalid dashboard id", %{conn: conn, dashboard: dashboard} do
@@ -40,8 +46,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
           Routes.dashboard_path(conn, :show, dashboard.org_id, params.id)
         )
 
-      result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => "dashboard with this id not found"}}
+      result = conn |> json_response(404)
+
+      assert result == %{
+               "detail" => "Dashboard with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "dashboard with valid id", %{conn: conn, dashboard: dashboard} do
@@ -106,7 +118,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       conn = put(conn, Routes.dashboard_path(conn, :update, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "dashboard with invalid dashboard id", %{conn: conn, dashboard: dashboard} do
@@ -121,7 +139,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Dashboard with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -165,7 +189,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
       conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "dashboard with invalid dashboard id", %{conn: conn} do
@@ -176,7 +206,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       conn = delete(conn, Routes.dashboard_path(conn, :delete, 1, params.id))
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Dashboard with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -208,7 +244,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       data = %{}
       conn = post(conn, Routes.dashboard_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", %{conn: conn} do
@@ -221,11 +263,11 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -309,7 +351,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -396,7 +444,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -429,7 +483,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "recent dashboard with valid dashboard id", %{

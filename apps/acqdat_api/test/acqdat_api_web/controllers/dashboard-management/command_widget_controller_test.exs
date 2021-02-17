@@ -83,8 +83,13 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
         )
         |> json_response(400)
 
-      assert %{"errors" => %{"message" => %{"error" => %{"gateway" => ["does not exist"]}}}} ==
-               result
+      assert %{
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"gateway" => ["does not exist"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             } == result
     end
   end
 
