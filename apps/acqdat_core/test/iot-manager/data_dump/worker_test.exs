@@ -31,23 +31,34 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
         data: params
       }
 
-      GatewayDataDump.create(dump_params)
 
       [dump_params: dump_params]
     end
 
     test "logs error if duplicate_timestamp", context do
-      pid = start_supervised!(Worker)
-      result = Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
-
       %{dump_params: dump_params} = context
-      result = GenServer.cast(pid, {:data_dump, dump_params})
-      require IEx
-      IEx.pry
+
+      GatewayDataDump.create(dump_params)
+
+      assert {:noreply, {:error, result}} = Worker.handle_cast(
+          {:data_dump, dump_params}, %{})
+      assert %{
+        inserted_timestamp: ["duplicate data with same timestamp inserted"]
+      } == result
     end
 
-    test "logs error if invalid_timestamp" do
+    test "logs error if invalid_timestamp", context do
+      %{dump_params: dump_params} = context
+      data = dump_params.data
+      updated_data = Map.put(data, "timestamp", 1_596_115_581_000)
 
+      ## change timestamp to include invalid unix value
+      dump_params = Map.put(dump_params, :data, updated_data)
+
+      result = Worker.handle_cast(
+          {:data_dump, dump_params}, %{})
+      require IEx
+      IEx.pry
     end
   end
 

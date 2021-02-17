@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.IotManager.GatewayDataDump
 
-  describe "create/1" do
+  describe "create/1 " do
     setup do
       org = insert(:organisation)
       project = insert(:project, org: org)
