@@ -121,7 +121,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_id])
 
         %{
-          headers: ["#{name}_#{metadata_name}", "#{name}_#{metadata_name}_dateTime"],
+          headers: ["#{name} #{metadata_name}", "#{name} #{metadata_name}_dateTime"],
           data: Repo.all(query)
         }
       end
@@ -130,6 +130,21 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     output =
       if output[:data] != [] do
+        headers_metadata =
+          if metadata_name == "name",
+            do: %{"#{id}" => %{"#{metadata_id}" => 0}},
+            else: %{"#{id}" => %{"#{metadata_id}" => 0, "#{metadata_id}_dateTime" => 1}}
+
+        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+
+        {:ok, _} =
+          FactTables.update(fact_table, %{
+            headers_metadata: %{
+              "rows_len" => length(output[:headers]),
+              "headers" => headers_metadata
+            }
+          })
+
         data = FactTablesCon.convert_table_data_to_text(output[:data])
 
         fact_table_name = "fact_table_#{fact_table_id}"
@@ -180,13 +195,12 @@ defmodule AcqdatApi.DataInsights.Topology do
             cross_join: c in fragment("unnest(?)", asset.metadata),
             where: fragment("?->>'uuid'", c) in ^[metadata_id],
             select: [
-              asset.name,
               fragment("?->>'value'", c)
             ]
           )
           |> Repo.all()
 
-        headers = (["name"] ++ [metadata_name]) |> Enum.map_join(",", &"\"#{&1}\"")
+        headers = [metadata_name] |> Enum.map_join(",", &"\"#{&1}\"")
         {headers, data1}
       end
 
@@ -199,6 +213,15 @@ defmodule AcqdatApi.DataInsights.Topology do
         FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
 
         data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+
+        headers_metadata = %{"#{id}" => %{"#{metadata_id}" => 0}}
+
+        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+
+        {:ok, _} =
+          FactTables.update(fact_table, %{
+            headers_metadata: %{"rows_len" => 1, "headers" => headers_metadata}
+          })
 
         %{
           headers: data.columns,
@@ -236,6 +259,12 @@ defmodule AcqdatApi.DataInsights.Topology do
     if length(uniq_asset_types) == 1 do
       [%{"id" => asset_type_id} | _] = uniq_asset_types
       metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_id"] end)
+
+      metadata_list =
+        if Enum.member?(metadata_list, "name"),
+          do: ["name"] ++ (metadata_list -- ["name"]),
+          else: ["name"] ++ metadata_list
+
       res = AssetModel.fetch_asset_metadata(asset_type_id, metadata_list)
 
       data =
@@ -251,6 +280,24 @@ defmodule AcqdatApi.DataInsights.Topology do
 
       output =
         if data != [] do
+          headers_metadata = %{
+            "#{asset_type_id}" =>
+              Stream.with_index(metadata_list, 0)
+              |> Enum.reduce(%{}, fn {v, k}, acc ->
+                Map.put(acc, v, k)
+              end)
+          }
+
+          {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+
+          {:ok, _} =
+            FactTables.update(fact_table, %{
+              headers_metadata: %{
+                "rows_len" => length(metadata_list),
+                "headers" => headers_metadata
+              }
+            })
+
           headers =
             (["name"] ++ List.flatten(Enum.map(first_metadata, fn x -> Map.keys(x) end)))
             |> Enum.map_join(",", &"\"#{&1}\"")

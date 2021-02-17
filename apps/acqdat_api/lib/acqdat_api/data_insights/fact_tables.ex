@@ -80,8 +80,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def compute_sensors(fact_table_id, sensor_types, uniq_sensor_types) do
-    [%{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to} | _] =
-      uniq_sensor_types
+    [
+      %{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to, "name" => name}
+      | _
+    ] = uniq_sensor_types
 
     metadata_list = Enum.map(sensor_types, fn sensor_type -> sensor_type["metadata_name"] end)
 
@@ -100,7 +102,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
     data = SensorData.fetch_sensors_data(query, metadata_ids) |> Repo.all()
 
-    rows_len = length(metadata_list)
+    rows_len = length(metadata_ids)
 
     res =
       Enum.reduce(data, [], fn entity, acc3 ->
@@ -122,6 +124,23 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
         acc3 ++ [computed_row]
       end)
+
+    headers = metadata_ids ++ ["entity_dateTime"]
+
+    headers_metadata = %{
+      "#{sensor_type_id}" =>
+        Stream.with_index(headers, 0)
+        |> Enum.reduce(%{}, fn {v, k}, acc ->
+          Map.put(acc, v, k)
+        end)
+    }
+
+    {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+
+    {:ok, _} =
+      FactTables.update(fact_table, %{
+        headers_metadata: %{"rows_len" => length(headers), "headers" => headers_metadata}
+      })
 
     headers = (metadata_list ++ ["entity_dateTime"]) |> Enum.map_join(",", &"\"#{&1}\"")
 
@@ -405,11 +424,22 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 "#{entity["name"]} #{param_name}"
               )
 
-            List.replace_at(
-              acc,
-              pos + 1,
-              "#{entity["name"]} #{param_name}_dateTime"
-            )
+            pos = headers["#{entity["id"]}"]["#{entity["metadata_id"]}_dateTime"]
+            pos_dateTime = headers["#{entity["id"]}"]["entity_dateTime"]
+
+            if pos_dateTime do
+              List.replace_at(
+                acc,
+                pos_dateTime,
+                "entity_dateTime"
+              )
+            else
+              List.replace_at(
+                acc,
+                pos,
+                "#{entity["name"]} #{param_name}_dateTime"
+              )
+            end
           end
         end
     end)
