@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
   @moduledoc """
   Holds seeds for DynamicCard widgets.
   """
+  use AcqdatCore.Seed.Helpers.CustomCardUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema

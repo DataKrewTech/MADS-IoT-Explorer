@@ -28,7 +28,7 @@ defmodule AcqdatCore.Seed.Widget do
   end
 
   def update_visual_settings() do
-    highcharts = %{
+    charts = %{
       "Area Range" => {AreaTimeseries, :area},
       "area" => {Area, :area},
       "bar" => {Bar, :bar},
@@ -39,16 +39,13 @@ defmodule AcqdatCore.Seed.Widget do
       "pie" => {Pie, :pie},
       "solidgauge" => {SolidGauge, :solidgauge},
       "Stacked Column" => {StackedColumn, :column},
-      "Stock Single line series" => {StockSingleLine, :line}
-    }
-
-    custom_widget = %{
+      "Stock Single line series" => {StockSingleLine, :line},
       "Dynamic Card" => {DynamicCard, :card},
       "Image Card" => {ImageCard, :card},
       "Static Card" => {StaticCard, :card}
     }
 
-    Enum.each(highcharts, fn {label, value} ->
+    Enum.each(charts, fn {label, value} ->
       {module, widget_key} = value
       module.update_visual_settings(label, widget_key)
     end)
