@@ -15,6 +15,14 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectErrorHelper do
     }
   end
 
+  def error_message(:elasticsearch, %{error: %{reason: message}}) do
+    %{
+      title: "ElasticSearch Indexing Problem",
+      error: message,
+      source: nil
+    }
+  end
+
   def error_message(:elasticsearch, message) do
     %{
       title: "Problem with elasticsearch",

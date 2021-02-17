@@ -34,7 +34,13 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
         })
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "search with valid params", %{conn: conn, project: project} do
@@ -105,7 +111,13 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
         })
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "index with valid params and multiple entries", %{
