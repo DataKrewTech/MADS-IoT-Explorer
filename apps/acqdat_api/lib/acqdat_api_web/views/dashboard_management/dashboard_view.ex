@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
   alias AcqdatCore.Repo
 
   def render("dashboard.json", %{dashboard: dashboard}) do
-    dashboard = Repo.preload(dashboard, [:panels, :dashboard_export])
+    dashboard = Repo.preload(dashboard, [:panels, :dashboard_export, :creator])
 
     %{
       id: dashboard.id,
@@ -18,9 +18,18 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       opened_on: dashboard.opened_on,
       settings: render_one(dashboard.settings, DashboardView, "settings.json"),
       avatar: dashboard.avatar,
+      creator: render_one(dashboard.creator, DashboardView, "creator.json"),
       panels: render_many(dashboard.panels, PanelView, "panel.json"),
       exported_url:
         render_one(dashboard.dashboard_export, DashboardView, "exported_dashboard.json")
+    }
+  end
+
+  def render("creator.json", %{dashboard: creator}) do
+    %{
+      email: creator.email,
+      first_name: creator.first_name,
+      last_name: creator.last_name
     }
   end
 
