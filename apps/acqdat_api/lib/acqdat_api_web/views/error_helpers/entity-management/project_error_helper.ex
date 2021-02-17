@@ -22,4 +22,20 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectErrorHelper do
       source: nil
     }
   end
+
+  def error_message(asset_types: {message, _}) do
+    %{
+      title: "Asset Type attachment constraint",
+      error: "Asset Types are attached to this project. This is a restricted action.",
+      source: message
+    }
+  end
+
+  def error_message(sensor_types: {message, _}) do
+    %{
+      title: "Sensor Type attachment constraint",
+      error: "Sensor Types are attached to this project. This is a restricted action.",
+      source: message
+    }
+  end
 end

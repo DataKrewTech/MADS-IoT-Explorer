@@ -144,7 +144,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            send_error(conn, 400, message.error)
         end
 
       404 ->
@@ -175,7 +175,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
             |> render("show.json", %{project: project})
 
           {:error, project} ->
-            error = extract_changeset_error(project)
+            error = ProjectErrorHelper.error_message(project.errors)
 
             conn
             |> send_error(400, error)

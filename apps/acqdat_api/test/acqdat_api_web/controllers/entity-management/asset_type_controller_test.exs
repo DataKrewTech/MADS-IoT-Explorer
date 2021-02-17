@@ -39,7 +39,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       data = %{}
       conn = post(conn, Routes.asset_type_path(conn, :create, org.id, project.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if sent params are not unique", %{conn: conn, org: org} do
@@ -57,9 +63,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{"error" => %{"name" => ["asset type already exists"]}}
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["asset type already exists"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
 
@@ -69,11 +77,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -142,7 +150,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{"message" => "There are assets associated with this Asset Type"}
+               "detail" => "There are assets associated with this Asset Type",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Asset is associated with this asset type"
              }
     end
 
@@ -164,7 +175,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
         put(conn, Routes.asset_type_path(conn, :update, org.id, project.id, asset_type.id), data)
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -210,10 +227,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" =>
-                   "There are assets associated with this Asset Type. Please delete Asset first."
-               }
+               "detail" =>
+                 "There are assets associated with this Asset Type. Please delete Asset first.",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Asset is associated with this asset type"
              }
     end
 
@@ -237,7 +255,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

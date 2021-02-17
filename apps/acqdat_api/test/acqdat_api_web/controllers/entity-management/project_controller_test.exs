@@ -43,7 +43,13 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
 
       conn = post(conn, Routes.project_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if sent params are not unique", %{conn: conn} do
@@ -58,9 +64,11 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{"error" => %{"name" => ["unique name under organisation"]}}
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["unique name under organisation"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
 
@@ -69,12 +77,11 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"],
-                   "creator_id" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"creator_id" => ["can't be blank"], "name" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -158,7 +165,13 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
 
       conn = get(conn, Routes.archived_projects_path(conn, :archived, org.id, params))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -187,7 +200,13 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       data = Map.put(%{}, :name, "Water Project")
       conn = put(conn, Routes.project_path(conn, :update, project.org_id, project.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -212,9 +231,11 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{"asset_types" => ["asset_types are attached to this project"]}
-               }
+               "detail" =>
+                 "Asset Types are attached to this project. This is a restricted action.",
+               "source" => "asset_types are attached to this project",
+               "status_code" => 400,
+               "title" => "Asset Type attachment constraint"
              }
     end
 
@@ -230,9 +251,11 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{"sensor_types" => ["sensor_types are attached to this project"]}
-               }
+               "detail" =>
+                 "Sensor Types are attached to this project. This is a restricted action.",
+               "source" => "sensor_types are attached to this project",
+               "status_code" => 400,
+               "title" => "Sensor Type attachment constraint"
              }
     end
 
@@ -246,7 +269,13 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
 
       conn = delete(conn, Routes.project_path(conn, :delete, project.org_id, project.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

@@ -66,7 +66,9 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
       nil ->
         case Asset.update_asset(conn.assigns.asset, params) do
           {:ok, asset} ->
-            ElasticSearch.update_asset("assets", asset)
+            Task.start_link(fn ->
+              ElasticSearch.update_asset("assets", asset)
+            end)
 
             conn
             |> put_status(200)
@@ -97,12 +99,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
         else
           {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "status_code" => 404,
-              "title" => message,
-              "detail" => message
-            })
+            |> send_error(404, AssetErrorHelper.error_message(:elasticsearch_error, message))
         end
 
       404 ->
@@ -151,12 +148,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
         else
           {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "status_code" => 404,
-              "title" => message,
-              "detail" => message
-            })
+            |> send_error(404, AssetErrorHelper.error_message(:elasticsearch_error, message))
         end
 
       404 ->

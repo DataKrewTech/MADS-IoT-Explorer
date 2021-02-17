@@ -22,4 +22,12 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeErrorHelper do
       source: nil
     }
   end
+
+  def error_message(:elasticsearch_error, message) do
+    %{
+      title: "There is some problem with elasticsearch.",
+      error: message,
+      source: nil
+    }
+  end
 end

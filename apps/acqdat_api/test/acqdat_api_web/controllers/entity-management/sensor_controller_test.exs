@@ -51,7 +51,13 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
       data = %{}
       conn = post(conn, Routes.sensor_path(conn, :create, 1, 1), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -128,7 +134,13 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -169,7 +181,13 @@ defmodule AcqdatApiWeb.EntityManagement.SensorControllerTest do
         delete(conn, Routes.sensor_path(conn, :delete, asset.org_id, asset.project_id, sensor.id))
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

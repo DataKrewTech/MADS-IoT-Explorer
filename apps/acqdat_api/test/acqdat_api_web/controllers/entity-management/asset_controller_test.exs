@@ -26,7 +26,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       conn = get(conn, Routes.assets_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "asset with invalid asset id", %{conn: conn} do
@@ -36,7 +42,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       conn = get(conn, Routes.assets_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Either Asset or Project or Organisation with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "asset with valid id", %{conn: conn, asset: asset} do
@@ -74,7 +86,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       conn = put(conn, Routes.assets_path(conn, :update, 1, 1, 1, params))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "updated asset successfully", %{conn: conn, asset: asset} do
@@ -155,28 +173,14 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       data = %{}
       conn = post(conn, Routes.assets_path(conn, :create, org.id, project.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
-
-    # test "fails if sent params are not unique", %{conn: conn, org: org, user: user} do
-    #   asset_manifest = build(:asset)
-    #   data = %{
-    #     name: asset_manifest.name,
-    #     mapped_parameters: asset_manifest.mapped_parameters,
-    #     metadata: asset_manifest.metadata,
-    #     creator_id: user.id
-    #   }
-
-    #   conn = post(conn, Routes.assets_path(conn, :create, org.id), data)
-    #   conn = post(conn, Routes.assets_path(conn, :create, org.id), data)
-    #   response = conn |> json_response(400)
-
-    #   assert response == %{
-    #            "errors" => %{
-    #              "message" => %{"error" => %{"name" => ["asset already exists"]}}
-    #            }
-    #          }
-    # end
 
     test "fails if required params are missing", %{conn: conn, org: org} do
       asset = insert(:asset)
@@ -191,11 +195,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "creator_id" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"creator_id" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -226,7 +230,13 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         delete(conn, Routes.assets_path(conn, :delete, org.id, asset.project.id, asset.id), %{})
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

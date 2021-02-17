@@ -20,7 +20,13 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationControllerTest do
 
       conn = get(conn, Routes.organisation_path(conn, :show, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "organisation with invalid organisation id", %{conn: conn} do
@@ -30,7 +36,13 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationControllerTest do
 
       conn = get(conn, Routes.organisation_path(conn, :show, params.id))
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Organisation with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "organisation with valid id", %{conn: conn, org: org} do
