@@ -165,11 +165,10 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     end)
   end
 
-
   def set_mapped_keys_from_vendor(key, value, metadata) when is_tuple(value) do
-    %VisualSettings{
-      key: key,
-      data_type: metadata.data_type,
+    %{
+      key: to_string(key),
+      data_type: to_string(metadata.data_type),
       user_controlled: metadata.user_controlled,
       value: set_default_or_given_value(key, value, metadata),
       source: %{},
@@ -181,9 +180,9 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
   end
 
   def set_mapped_keys_from_vendor(key, value, metadata) when is_list(value) do
-    %VisualSettings{
-      key: key,
-      data_type: metadata.data_type,
+    %{
+      key: to_string(key),
+      data_type: to_string(metadata.data_type),
       user_controlled: metadata.user_controlled,
       value: set_default_or_given_value(key, value, metadata),
       source: %{},
@@ -195,13 +194,13 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
   end
 
   def set_mapped_keys_from_vendor(key, value, metadata) when is_map(value) do
-    %VisualSettings{
-      key: key,
-      data_type: metadata.data_type,
+    %{
+      key: to_string(key),
+      data_type: to_string(metadata.data_type),
       user_controlled: metadata.user_controlled,
       source: %{},
       value: set_default_or_given_value(key, value, metadata),
-      properties: properties_parsing(value, metadata)
+      properties: mapped_properties_parsing(value, metadata)
     }
   end
 
