@@ -84,6 +84,10 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
   def update_changeset(%__MODULE__{} = widget, params) do
     widget
     |> cast(params, @permitted)
+    |> cast_embed(:visual_settings, with: &VisualSettings.changeset/2)
+    |> cast_embed(:data_settings, with: &DataSettings.changeset/2)
+    |> validate_required(@required)
+    |> validate_inclusion(:classification, @classifications)
   end
 end
 

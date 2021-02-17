@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
   @moduledoc """
   Holds seeds for Line widgets.
   """
+  use AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -40,6 +41,7 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
       }
     }
   }
+
 
   @high_chart_value_settings %{
     line: %{
@@ -112,4 +114,5 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
       default_values: data
     }
   end
+
 end

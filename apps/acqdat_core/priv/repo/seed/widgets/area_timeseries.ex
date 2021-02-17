@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.AreaTimeseries do
   @moduledoc """
   Holds seeds for Area widgets.
   """
+  use AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -120,4 +121,5 @@ defmodule AcqdatCore.Seed.Widgets.AreaTimeseries do
       default_values: data
     }
   end
+
 end

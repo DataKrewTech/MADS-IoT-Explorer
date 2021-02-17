@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.GaugeSeries do
   @moduledoc """
   Holds seeds for gauge-series widgets.
   """
+  use AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -71,6 +72,7 @@ defmodule AcqdatCore.Seed.Widgets.GaugeSeries do
       }
     }
   }
+
 
   @high_chart_value_settings %{
     gauge: %{
@@ -153,4 +155,5 @@ defmodule AcqdatCore.Seed.Widgets.GaugeSeries do
       default_values: data
     }
   end
+
 end

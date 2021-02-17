@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
   @moduledoc """
   Holds seeds for Basic Column widgets.
   """
+  use AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -38,6 +39,7 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
       }
     }
   }
+
 
   @high_chart_value_settings %{
     column: %{
@@ -100,4 +102,5 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
       default_values: data
     }
   end
+
 end

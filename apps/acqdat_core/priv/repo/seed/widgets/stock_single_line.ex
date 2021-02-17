@@ -2,6 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
   @moduledoc """
   Holds seeds for Line widgets.
   """
+  use AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -92,4 +93,5 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
       default_values: data
     }
   end
+
 end

@@ -153,4 +153,68 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     {:ok, widget_type} = Repo.insert(changeset)
     widget_type
   end
+
+  ############### changes done to handle update ######################
+  # The above functions create schemas/structs which are good for insert however
+  # update only takes map as input the below functions does the same work
+  # however they return maps instead of structs.
+
+  def do_update_settings(%{visual: settings}, :visual, vendor_struct) do
+    Enum.map(settings, fn {key, value} ->
+      set_mapped_keys_from_vendor(key, value, Map.get(vendor_struct, key))
+    end)
+  end
+
+
+  def set_mapped_keys_from_vendor(key, value, metadata) when is_tuple(value) do
+    %VisualSettings{
+      key: key,
+      data_type: metadata.data_type,
+      user_controlled: metadata.user_controlled,
+      value: set_default_or_given_value(key, value, metadata),
+      source: %{},
+      properties: Enum.map(value,
+        fn {child_key, child_value} ->
+          set_mapped_keys_from_vendor(child_key, child_value, metadata.properties[child_key])
+      end)
+    }
+  end
+
+  def set_mapped_keys_from_vendor(key, value, metadata) when is_list(value) do
+    %VisualSettings{
+      key: key,
+      data_type: metadata.data_type,
+      user_controlled: metadata.user_controlled,
+      value: set_default_or_given_value(key, value, metadata),
+      source: %{},
+      properties: Enum.map(value,
+        fn {child_key, child_value} ->
+          set_mapped_keys_from_vendor(child_key, child_value, metadata.properties[child_key])
+      end)
+    }
+  end
+
+  def set_mapped_keys_from_vendor(key, value, metadata) when is_map(value) do
+    %VisualSettings{
+      key: key,
+      data_type: metadata.data_type,
+      user_controlled: metadata.user_controlled,
+      source: %{},
+      value: set_default_or_given_value(key, value, metadata),
+      properties: properties_parsing(value, metadata)
+    }
+  end
+
+  def mapped_properties_parsing(prop, metadata) do
+    if Map.has_key?(prop, :properties) do
+      Enum.map(prop.properties,
+        fn {child_key, child_value} ->
+          set_mapped_keys_from_vendor(child_key, child_value, metadata.properties[child_key])
+      end)
+    else
+      []
+    end
+  end
+
+
 end

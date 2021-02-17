@@ -84,4 +84,5 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
       default_values: data
     }
   end
+
 end
