@@ -6,10 +6,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
 
   A Pivot has four important properties along with others:
   - `name`
-  - `filters`
-  - `columns`
-  - `rows`
-  - `values`
+  - `module`
+  - `type`
+  - `visual_settings`
+  - `data_settings`
   """
 
   use AcqdatCore.Schema
@@ -20,10 +20,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   @typedoc """
   `name`: Visualizations name
   `uuid`: unique number
-  `filters`: holds filters metadata
-  `columns`: holds columns metadata
-  `rows`: holds rows metadata
-  `values`: holds values metadata
+  `module`: module name of visualization type
+  `type`: type of visualization
+  `visual_settings`: holds visual related settings
+  `data_settings`: holds data related settings
   """
 
   @type t :: %__MODULE__{}

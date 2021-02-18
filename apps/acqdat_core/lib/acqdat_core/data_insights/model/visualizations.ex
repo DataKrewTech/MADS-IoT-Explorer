@@ -9,57 +9,33 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
     Repo.insert(changeset)
   end
 
-  def update(%Visualizations{} = visualization, params) do
-    changeset = Visualizations.update_changeset(visualization, params)
-    Repo.update(changeset)
-  end
-
-  def delete(visualization) do
-    Repo.delete(visualization)
-  end
-
-  def get_by_id(id) when is_integer(id) do
+  def get(id) when is_integer(id) do
     case Repo.get(Visualizations, id) do
       nil ->
-        {:error, "Pivot Table not found"}
+        {:error, "Visualization not found"}
 
-      visualization ->
-        {:ok, visualization}
+      visualizations ->
+        {:ok, visualizations}
     end
   end
 
-  def get_all(%{
-        page_size: page_size,
-        page_number: page_number,
-        project_id: project_id,
-        org_id: org_id,
-        fact_tables_id: fact_tables_id
-      }) do
-    query =
-      from(visualization in Visualizations,
-        preload: [:creator],
-        where:
-          visualization.org_id == ^org_id and
-            visualization.project_id == ^project_id and
-            visualization.fact_table_id == ^fact_tables_id,
-        order_by: visualization.name
-      )
+  def get_all_visualization_types() do
+    values = VisualizationsModuleSchemaEnum.__valid_values__()
 
-    query |> Repo.paginate(page: page_number, page_size: page_size)
+    values
+    |> Stream.filter(fn value -> is_atom(value) end)
+    |> Enum.map(fn module ->
+      %{
+        name: module.visualization_name,
+        type: module.visualization_type,
+        module: module,
+        visual_settings: module.visual_settings,
+        data_settings: module.data_settings
+      }
+    end)
   end
 
-  def get_all_count_for_project(%{
-        project_id: project_id,
-        org_id: org_id
-      }) do
-    query =
-      from(visualization in Visualizations,
-        where:
-          visualization.org_id == ^org_id and
-            visualization.project_id == ^project_id,
-        select: count(visualization.id)
-      )
-
-    Repo.one(query)
+  def delete(visualizations) do
+    Repo.delete(visualizations)
   end
 end
