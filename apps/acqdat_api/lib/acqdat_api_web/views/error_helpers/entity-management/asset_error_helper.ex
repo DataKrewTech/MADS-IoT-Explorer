@@ -47,7 +47,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetErrorHelper do
     }
   end
 
-  def error_message(:elasticsearch_error, message) do
+  def error_message(:elasticsearch, message) do
     %{
       title: "There is some problem with elasticsearch.",
       error: message,

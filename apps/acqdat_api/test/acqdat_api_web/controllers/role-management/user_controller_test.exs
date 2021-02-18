@@ -21,13 +21,25 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       conn = get(conn, Routes.user_path(conn, :show, org.id, 1))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "user with invalid organisation id", %{conn: conn, user: _user, org: org} do
       conn = get(conn, Routes.user_path(conn, :show, org.id, -1))
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Either User or Organisation with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "user with valid id", %{conn: conn, user: user} do
@@ -50,13 +62,25 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       conn = delete(conn, Routes.user_path(conn, :delete, org.id, 1))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "user with invalid organisation id", %{conn: conn, user: _user, org: org} do
       conn = delete(conn, Routes.user_path(conn, :delete, -1, 1))
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Either User or Organisation with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "user with valid id", %{conn: conn, user: user} do
@@ -91,7 +115,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       data = %{}
       conn = put(conn, Routes.user_assets_path(conn, :assets, org.id, user.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if assets params are not present", context do
@@ -101,7 +131,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       conn = put(conn, Routes.user_assets_path(conn, :assets, org.id, user.id), params)
       response = conn |> json_response(400)
-      assert response == %{"errors" => %{"message" => %{"assets" => ["can't be blank"]}}}
+
+      assert response == %{
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"assets" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
 
     test "update user's assets", context do
@@ -384,7 +421,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       data = %{}
       conn = put(conn, Routes.user_apps_path(conn, :apps, org.id, user.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if assets params are not present", context do
@@ -394,7 +437,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       conn = put(conn, Routes.user_apps_path(conn, :apps, org.id, user.id), params)
       response = conn |> json_response(400)
-      assert response == %{"errors" => %{"message" => %{"apps" => ["can't be blank"]}}}
+
+      assert response == %{
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"apps" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
 
     test "update user's apps", context do
@@ -444,7 +494,12 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       conn = post(conn, Routes.user_path(conn, :create, org.id), data)
       result = conn |> json_response(400)
 
-      assert result["errors"] == %{"message" => %{"error" => "Invitation is Invalid"}}
+      assert result == %{
+               "detail" => "Invitation is Invalid",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Error with creation of user"
+             }
     end
 
     test "user created when valid token is provided", context do
@@ -494,7 +549,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       conn = post(conn, Routes.user_path(conn, :create, org.id), data)
 
       response = conn |> json_response(400)
-      assert response["errors"] == %{"message" => %{"error" => "Invalid Invitation Token"}}
+
+      assert response == %{
+               "detail" => "Invalid Invitation Token",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Error with creation of user"
+             }
     end
 
     test "existing user created when valid token is provided", context do

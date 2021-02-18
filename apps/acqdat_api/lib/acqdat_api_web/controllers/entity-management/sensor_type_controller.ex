@@ -16,7 +16,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, SensorTypeErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, SensorTypeErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorTypeController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, SensorTypeErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, SensorTypeErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->

@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   alias AcqdatApi.RoleManagement.User
   alias AcqdatCore.ElasticSearch
   alias AcqdatApi.Image
+  alias AcqdatApiWeb.RoleManagement.UserErrorHelper
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.RoleManagement.User
 
@@ -22,16 +23,17 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
           |> render("user_details.json", %{user_details: user})
         else
           {:show, {:error, message}} ->
-            send_error(conn, 400, message)
+            conn
+            |> send_error(400, UserErrorHelper.error_message(:resource_not_found))
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -61,16 +63,16 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             send_error(conn, 400, error)
 
           {:create, {:error, error}} ->
-            send_error(conn, 400, error)
+            send_error(conn, 400, UserErrorHelper.error_message(:create_user_error, error.error))
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -82,21 +84,16 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
         else
           {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "status_code" => 404,
-              "title" => message,
-              "detail" => message
-            })
+            |> send_error(404, UserErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -122,11 +119,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -152,11 +149,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -166,43 +163,20 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
         with {:ok, hits} <- ElasticSearch.user_indexing(params) do
           conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
-          {:error, _message} ->
+          {:error, message} ->
             conn
-            |> put_status(404)
-            |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => "elasticsearch is not running"
-            })
+            |> send_error(404, UserErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
-
-  # def index(conn, params) do
-  #   changeset = verify_index_params(params)
-
-  #   case conn.status do
-  #     nil ->
-  #       {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-  #       {:list, user} = {:list, User.get_all(data, [:org, :role, :user_setting])}
-
-  #       conn
-  #       |> put_status(200)
-  #       |> render("index.json", user)
-
-  #     404 ->
-  #       conn
-  #       |> send_error(404, "Resource Not Found")
-  #   end
-  # end
 
   def update(conn, params) do
     case conn.status do
@@ -226,11 +200,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -254,11 +228,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
   end
 

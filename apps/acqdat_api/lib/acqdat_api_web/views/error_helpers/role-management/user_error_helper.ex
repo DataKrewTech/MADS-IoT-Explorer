@@ -1,8 +1,16 @@
-defmodule AcqdatApiWeb.IotManager.GatewayErrorHelper do
+defmodule AcqdatApiWeb.RoleManagement.UserErrorHelper do
+  def error_message(:create_user_error, message) do
+    %{
+      title: "Error with creation of user",
+      error: message,
+      source: nil
+    }
+  end
+
   def error_message(:resource_not_found) do
     %{
       title: "Invalid entity ID",
-      error: "Either Gateway or Project or Organisation with this ID doesn't exists",
+      error: "Either User or Organisation with this ID doesn't exists",
       source: nil
     }
   end
@@ -25,7 +33,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayErrorHelper do
 
   def error_message(:elasticsearch, message) do
     %{
-      title: "There is some problem with elasticsearch.",
+      title: "Problem with elasticsearch",
       error: message,
       source: nil
     }

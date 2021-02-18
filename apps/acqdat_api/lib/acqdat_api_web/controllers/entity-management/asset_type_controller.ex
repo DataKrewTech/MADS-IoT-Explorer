@@ -51,7 +51,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, AssetTypeErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, AssetTypeErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
@@ -72,7 +72,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, AssetTypeErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, AssetTypeErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->

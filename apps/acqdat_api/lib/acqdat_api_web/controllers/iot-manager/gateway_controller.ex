@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApi.ImageDeletion
   alias AcqdatCore.ElasticSearch
-  alias AcqdatApiWeb.EntityManagement.GatewayErrorHelper
+  alias AcqdatApiWeb.IotManager.GatewayErrorHelper
   alias AcqdatCore.Model.IotManager.GatewayDataDump
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.IotManager.Gateway
@@ -34,7 +34,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
@@ -55,7 +55,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         else
           {:error, message} ->
             conn
-            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch_error, message))
+            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
