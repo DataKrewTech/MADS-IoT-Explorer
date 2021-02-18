@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DashboardManagement.Panel
   alias AcqdatApi.DashboardManagement.Panel
+  alias AcqdatApiWeb.DashboardManagement.PanelErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadPanel when action in [:update, :delete]
@@ -21,11 +22,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, PanelErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, PanelErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -49,11 +50,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, PanelErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, PanelErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -64,6 +65,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
         case Panel.get_with_widgets(id) do
           {:error, message} ->
+            message = PanelErrorHelper.error_message(:resource_not_found)
             send_error(conn, 400, message)
 
           {:ok, panel} ->
@@ -74,11 +76,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, PanelErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, PanelErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -104,11 +106,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, PanelErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, PanelErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -134,11 +136,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, PanelErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, PanelErrorHelper.error_message(:unauthorized))
     end
   end
 end

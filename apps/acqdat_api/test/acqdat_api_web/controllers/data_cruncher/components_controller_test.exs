@@ -22,7 +22,13 @@ defmodule AcqdatApiWeb.DataCruncher.ComponentsControllerTest do
 
       conn = get(conn, Routes.components_path(conn, :index, org.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

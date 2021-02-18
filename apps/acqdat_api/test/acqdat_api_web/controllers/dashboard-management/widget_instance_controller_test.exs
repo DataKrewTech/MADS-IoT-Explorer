@@ -39,7 +39,13 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "widget_instance with invalid widget_instance id", %{
@@ -65,7 +71,13 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
         )
 
       result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => "widget instance with this id not found"}}
+
+      assert result == %{
+               "detail" => "Widget Instance with this ID does not exists",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "widget_instance with valid id", %{
@@ -325,7 +337,13 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       data = %{}
       conn = post(conn, Routes.create_widget_instances_path(conn, :create, 1, 1, 1), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", %{
@@ -346,11 +364,11 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "label" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"label" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end

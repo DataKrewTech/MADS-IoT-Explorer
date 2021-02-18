@@ -26,7 +26,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
 
       conn = get(conn, Routes.user_tasks_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "task with invalid task id", %{conn: conn, task: task} do
@@ -41,7 +47,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
         )
 
       result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => "task not found"}}
+
+      assert result == %{
+               "detail" => "Task with this ID does not exists",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "task with valid id", %{conn: conn, task: task} do
@@ -101,7 +113,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
 
       conn = delete(conn, Routes.user_tasks_path(conn, :delete, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "task with invalid task id", %{conn: conn} do
@@ -112,7 +130,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn = delete(conn, Routes.user_tasks_path(conn, :delete, 1, 1, params.id))
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Task with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -195,7 +219,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

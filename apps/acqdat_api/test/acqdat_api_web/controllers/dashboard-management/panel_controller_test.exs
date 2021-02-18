@@ -26,7 +26,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
 
       conn = get(conn, Routes.panel_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "panel with invalid panel id", %{conn: conn, panel: panel} do
@@ -41,7 +47,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
         )
 
       result = conn |> json_response(400)
-      assert result == %{"errors" => %{"message" => "panel with this id not found"}}
+
+      assert result == %{
+               "detail" => "Panel with this ID does not exists",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "panel with valid id", %{conn: conn, panel: panel} do
@@ -107,7 +119,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
 
       conn = put(conn, Routes.panel_path(conn, :update, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "panel with invalid panel id", %{conn: conn, panel: panel} do
@@ -122,7 +140,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Panel with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -171,7 +195,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
 
       conn = delete(conn, Routes.panel_path(conn, :delete, 1, 1, params.id))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "panel with invalid panel id", %{conn: conn, panel: panel} do
@@ -182,7 +212,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       conn = delete(conn, Routes.panel_path(conn, :delete, 1, panel.dashboard_id, params.id))
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Panel with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -215,7 +251,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       data = %{}
       conn = post(conn, Routes.panel_path(conn, :create, org.id, 1), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", %{conn: conn} do
@@ -229,11 +271,11 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -296,7 +338,13 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

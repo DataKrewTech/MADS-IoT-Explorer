@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DataCruncher.Tasks
   alias AcqdatApi.DataCruncher.Task
+  alias AcqdatApiWeb.DataCruncher.DataCruncherErrorHelper
   alias AcqdatCore.Repo
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
@@ -31,11 +32,11 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DataCruncherErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -63,11 +64,11 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DataCruncherErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -85,11 +86,11 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DataCruncherErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -100,7 +101,8 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
         case Task.get(task_id) do
           {:error, message} ->
-            send_error(conn, 400, message)
+            conn
+            |> send_error(400, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
           {:ok, task} ->
             conn
@@ -110,11 +112,11 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DataCruncherErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -140,11 +142,11 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DataCruncherErrorHelper.error_message(:unauthorized))
     end
   end
 end

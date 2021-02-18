@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DashboardManagement.WidgetInstance
   alias AcqdatApi.DashboardManagement.WidgetInstance
+  alias AcqdatApiWeb.DashboardManagement.WidgetInstanceErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadPanel
@@ -29,11 +30,11 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetInstanceErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetInstanceErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -52,11 +53,11 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetInstanceErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetInstanceErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -67,7 +68,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
 
         case WidgetInstance.get_by_filter(id, params) do
           {:error, message} ->
-            send_error(conn, 400, message)
+            conn
+            |> send_error(400, WidgetInstanceErrorHelper.error_message(:resource_not_found))
 
           {:ok, widget_instance} ->
             conn
@@ -77,11 +79,11 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetInstanceErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetInstanceErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -107,11 +109,11 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetInstanceErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetInstanceErrorHelper.error_message(:unauthorized))
     end
   end
 end
