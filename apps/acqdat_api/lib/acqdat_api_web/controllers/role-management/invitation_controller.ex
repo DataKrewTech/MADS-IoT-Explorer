@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.RoleManagement.Invitation
   alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
+  alias AcqdatApiWeb.RoleManagement.InvitationErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:create, :update, :index, :delete]
   plug AcqdatApiWeb.Plug.LoadInvitation when action in [:update, :delete]
@@ -24,11 +25,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, InvitationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, InvitationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -49,11 +50,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
       404 ->
         conn
-        |> send_error(404, "User already exists with this email address")
+        |> send_error(404, InvitationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, InvitationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -83,11 +84,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
       404 ->
         conn
-        |> send_error(404, "User already exists with this email address")
+        |> send_error(404, InvitationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, InvitationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -112,11 +113,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, InvitationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, InvitationErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -138,11 +139,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, InvitationErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, InvitationErrorHelper.error_message(:unauthorized))
     end
   end
 

@@ -24,7 +24,13 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
       data = %{}
       conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "invitation create", context do
@@ -66,7 +72,13 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
       data = %{}
       conn = post(conn, Routes.invitation_path(conn, :index, org.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "invitation index", %{conn: conn} do
@@ -114,7 +126,13 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
         delete(conn, Routes.invitation_path(conn, :delete, invitation.org_id, invitation.id), %{})
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -153,7 +171,13 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
         put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{})
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end
