@@ -117,7 +117,7 @@ defmodule AcqdatApi.DataInsights.Visualizations do
      }}
   end
 
-  defp pivot_with_cube(fact_table_name, rows, values, filters) do
+  def pivot_with_cube(fact_table_name, rows, values, filters) do
     rows_data = Enum.map(rows, fn x -> x["name"] end)
 
     # "Apartment" <> '' and "Building" <> ''
@@ -159,7 +159,7 @@ defmodule AcqdatApi.DataInsights.Visualizations do
     end
   end
 
-  defp pivot_with_crosstab(fact_table_name, rows, columns, values, filters) do
+  def pivot_with_crosstab(fact_table_name, rows, columns, values, filters) do
     [column | _] = columns
     column_name = "\"#{column["name"]}\""
     [value | _] = values
@@ -347,18 +347,18 @@ defmodule AcqdatApi.DataInsights.Visualizations do
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(AVG(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{filter_data1} and #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(AVG(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     end
   end
@@ -381,18 +381,18 @@ defmodule AcqdatApi.DataInsights.Visualizations do
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(SUM(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{filter_data1} and #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(SUM(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{value_name} is not null and length(#{value_name}) > 0 
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     end
   end
@@ -415,18 +415,18 @@ defmodule AcqdatApi.DataInsights.Visualizations do
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(MIN(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{filter_data1} and #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(MIN(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     end
   end
@@ -449,18 +449,18 @@ defmodule AcqdatApi.DataInsights.Visualizations do
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
              ROUND(MAX(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name} 
+            where #{filter_data1} and #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
       """
         SELECT "#{rows_data}",
             time_bucket('#{group_int} #{group_by}'::VARCHAR::INTERVAL, to_timestamp("#{col_name}", 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(MAX(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
-            FROM #{fact_table_name} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
-        rows_data
-      }", "datetime_data"
+            FROM #{fact_table_name}
+            where #{value_name} is not null and length(#{value_name}) > 0
+            GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     end
   end
