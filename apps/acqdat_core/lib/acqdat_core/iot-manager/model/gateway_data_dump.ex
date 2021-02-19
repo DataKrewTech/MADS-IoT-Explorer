@@ -5,6 +5,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
   alias AcqdatCore.Model.IotManager.Gateway
   alias AcqdatCore.Model.Helper, as: ModelHelper
 
+  @spec create(map) :: {:ok, GatewayDataDump.t()} | {:error, Ecto.Changeset.t()}
   def create(params) do
     parse_params_and_insert(params)
   end
@@ -46,9 +47,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
     inserted_timestamp = set_timestamp(gateway.timestamp_mapping, params.data)
     params = Map.put(params, :inserted_timestamp, inserted_timestamp)
     changeset = GatewayDataDump.changeset(%GatewayDataDump{}, params)
-    result = Repo.insert(changeset)
-    require IEx
-    IEx.pry
+    Repo.insert(changeset)
   end
 
   defp has_gateway_with_uuid({:error, message}, _params) do

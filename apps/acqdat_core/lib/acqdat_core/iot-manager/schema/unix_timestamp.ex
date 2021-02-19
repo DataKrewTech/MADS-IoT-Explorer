@@ -10,22 +10,31 @@ defmodule AcqdatCore.Schema.IotManager.EctoType.UnixTimestamp do
   def type, do: :utc_datetime
 
   def cast(timestamp) when is_integer(timestamp) do
-    {:ok, timestamp}
+    check_validity(DateTime.from_unix(timestamp))
   end
 
   def cast(timestamp) when is_binary(timestamp) do
-    {:ok, String.to_integer(timestamp)}
+    timestamp = String.to_integer(timestamp)
+    check_validity(DateTime.from_unix(timestamp))
   end
 
   def cast(_), do: :error
 
   def dump(value) do
-    {:ok, date} = DateTime.from_unix(value)
-    Type.dump(:utc_datetime, date)
+    Type.dump(:utc_datetime, value)
   end
 
   def load(value) do
     {:ok, date} = Type.load(:utc_datetime, value)
     {:ok, DateTime.to_unix(date)}
+  end
+
+  ########################## private functions ##################
+  defp check_validity({:ok, timestamp}) do
+    {:ok, timestamp}
+  end
+
+  defp check_validity({:error, _message}) do
+    {:error, message: "invalid unix timestamp"}
   end
 end
