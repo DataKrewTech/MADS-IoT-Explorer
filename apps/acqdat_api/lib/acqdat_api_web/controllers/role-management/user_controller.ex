@@ -60,6 +60,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
           |> render("user_details_without_user_setting.json", %{user_details: user})
         else
           {:extract, {:error, error}} ->
+            error = extract_changeset_error(error)
             send_error(conn, 400, error)
 
           {:create, {:error, error}} ->

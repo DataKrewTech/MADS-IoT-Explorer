@@ -24,7 +24,7 @@
 #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
 #       result = result = conn |> post("/tl-mgmt/tool-transaction", %{}) |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     @tag tool_count: 2
@@ -139,7 +139,7 @@
 #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
 #       result = result = conn |> post("/tl-mgmt/employees", %{}) |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     @tag employee_count: 2
@@ -178,7 +178,7 @@
 #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
 #       result = result = conn |> post("/tl-mgmt/verify-tool", %{}) |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     @tag tool_count: 0
@@ -248,7 +248,7 @@
 #       result =
 #         result = conn |> post("/tl-mgmt/employee-tool-issue-status", %{}) |> json_response(403)
 
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     test "error if params misisng", context do
@@ -341,7 +341,7 @@
 #         |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
 #       result = result = conn |> post("/tl-mgmt/tool-box-status", %{}) |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     @tag tool_count: 3

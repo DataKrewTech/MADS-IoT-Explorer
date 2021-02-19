@@ -37,7 +37,7 @@
 #       data = %{}
 #       conn = post(conn, Routes.digital_twin_path(conn, :create), data)
 #       result = conn |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 
 #     test "fails if sent params are not unique", %{conn: conn} do
@@ -126,7 +126,7 @@
 #       data = Map.put(%{}, :name, "Water Plant")
 #       conn = put(conn, Routes.digital_twin_path(conn, :update, digital_twin.id), data)
 #       result = conn |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 #   end
 
@@ -153,7 +153,7 @@
 
 #       conn = delete(conn, Routes.digital_twin_path(conn, :delete, digital_twin.id), %{})
 #       result = conn |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 #   end
 
@@ -241,7 +241,7 @@
 
 #       conn = get(conn, Routes.digital_twin_path(conn, :index, params))
 #       result = conn |> json_response(403)
-#       assert result == %{"errors" => %{"message" => "Unauthorized"}}
+#       assert result == %{"detail" => "You are not allowed to perform this action.", "source" => nil, "status_code" => 403, "title" => "Unauthorized"}
 #     end
 #   end
 # end

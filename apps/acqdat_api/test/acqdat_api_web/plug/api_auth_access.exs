@@ -31,7 +31,13 @@ defmodule AcqdatApiWeb.ApiAccessAuthTest do
 
       conn = get(conn, Routes.sensor_path(conn, :show, org.id, project.id, sensor.id))
       response = conn |> json_response(401)
-      assert response == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert response == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 

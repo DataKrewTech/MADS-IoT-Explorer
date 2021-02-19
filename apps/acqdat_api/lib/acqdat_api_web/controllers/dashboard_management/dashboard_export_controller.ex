@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
   alias AcqdatApi.DashboardManagement.Dashboard
+  alias AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper
   import AcqdatApiWeb.Validators.DashboardExport.DashboardExport
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
@@ -35,11 +36,11 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -60,16 +61,20 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             send_error(conn, 400, error)
 
           {:update, {:error, message}} ->
-            send_error(conn, 400, message)
+            send_error(
+              conn,
+              400,
+              DashboardExportErrorHelper.error_message(:updation_error, message)
+            )
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -82,11 +87,11 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -97,9 +102,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
         |> put_status(200)
         |> render("exported.json", %{dashboard_export: conn.assigns.exported_dashboard})
 
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
       401 ->
         conn
-        |> send_error(401, "Unauthorized link")
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -116,13 +125,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             |> render("show.json", %{panel: panel})
         end
 
-      401 ->
-        conn
-        |> send_error(401, "Unauthorized link")
-
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -145,12 +154,16 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
 
           nil ->
             conn
-            |> send_error(401, "Unauthorized link")
+            |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
         end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized link")
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
     end
   end
 

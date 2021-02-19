@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
   alias AcqdatCore.Model.Widgets.User, as: UserWidgetModel
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
+  alias AcqdatApiWeb.Widgets.UserWidgetErrorHelper
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Widgets.User
 
@@ -20,38 +21,23 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
              {:create, {:ok, _user_widget}} <- {:create, User.create(data)} do
           conn
           |> put_status(200)
-          |> json(%{
-            "success" => true,
-            "error" => false,
-            "message" => "Widget Added Successfully"
-          })
+          |> json(UserWidgetErrorHelper.confirm_message(:widget_added))
         else
-          {:extract, {:error, _error}} ->
-            conn
-            |> put_status(400)
-            |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => "Widget could not be Added"
-            })
+          {:extract, {:error, error}} ->
+            error = extract_changeset_error(error)
+            send_error(conn, 400, error)
 
-          {:create, {:error, _message}} ->
-            conn
-            |> put_status(400)
-            |> json(%{
-              "success" => false,
-              "error" => true,
-              "message" => "Widget could not be Added"
-            })
+          {:create, {:error, message}} ->
+            send_error(conn, 400, message.error)
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserWidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserWidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -69,11 +55,11 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, UserWidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, UserWidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -106,21 +92,4 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
         |> put_status(404)
     end
   end
-
-  # TODO it will be used for future user endpoints
-  # defp verify_user(
-  #        %{params: %{"user_id" => user_id}} = conn,
-  #        _params
-  #      ) do
-  #   {user_id, _} = Integer.parse(user_id)
-
-  #   case UserModel.get(user_id) do
-  #     {:ok, user} ->
-  #       assign(conn, :user, user)
-
-  #     {:error, _message} ->
-  #       conn
-  #       |> put_status(404)
-  #   end
-  # end
 end

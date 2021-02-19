@@ -267,4 +267,27 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       {:error, error} -> send_error(conn, 400, error)
     end
   end
+
+  ############################# private functions ###########################
+  defp check_exported_dashboard(true, params, exported_dashboard) do
+    case check_password(params["password"], exported_dashboard.password) do
+      false ->
+        nil
+
+      true ->
+        Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+    end
+  end
+
+  defp check_exported_dashboard(false, params, exported_dashboard) do
+    Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
+  end
+
+  defp check_password(password, db_password) do
+    if password == db_password do
+      true
+    else
+      false
+    end
+  end
 end

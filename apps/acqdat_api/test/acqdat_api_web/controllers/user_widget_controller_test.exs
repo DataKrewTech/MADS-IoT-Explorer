@@ -18,9 +18,10 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       response = conn |> json_response(200)
 
       assert response == %{
-               "error" => false,
-               "message" => "Widget Added Successfully",
-               "success" => true
+               "detail" => "This is successfully added to your workspace.",
+               "source" => nil,
+               "status_code" => 200,
+               "title" => "Widget Added"
              }
     end
 
@@ -34,7 +35,13 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       data = %{}
       conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, user.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if sent params are not unique", %{conn: conn, user: user, org: org} do
@@ -50,9 +57,11 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "error" => true,
-               "message" => "Widget could not be Added",
-               "success" => false
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["has already been taken"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
 
@@ -64,7 +73,14 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
       conn = post(conn, Routes.user_widgets_path(conn, :create, org.id, user.id, params), %{})
 
       response = conn |> json_response(404)
-      assert response == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert response == %{
+               "detail" =>
+                 "Either widget or user with this ID doesn't exists or you don't have access to it.",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -111,7 +127,13 @@ defmodule AcqdatApiWeb.UserWidgetControllerTest do
 
       conn = get(conn, Routes.user_widgets_path(conn, :index, org.id, user.id, params), %{})
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 end

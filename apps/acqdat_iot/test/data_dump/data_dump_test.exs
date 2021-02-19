@@ -49,7 +49,16 @@ defmodule AcqdatIotWeb.DataDump do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "errors" => %{
+                 "message" => %{
+                   "error" => "You are not allowed to perform this action.",
+                   "source" => nil,
+                   "title" => "Unauthorized Access"
+                 }
+               }
+             }
     end
   end
 

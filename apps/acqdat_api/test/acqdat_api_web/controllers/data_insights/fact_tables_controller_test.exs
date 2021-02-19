@@ -35,7 +35,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
       data = %{}
       conn = post(conn, Routes.fact_tables_path(conn, :create, org.id, project.id), data)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", %{conn: conn, org: org, project: project} do
@@ -46,11 +52,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -124,7 +130,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -161,7 +173,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fact_table with invalid fact_table id", %{conn: conn, fact_table: fact_table} do
@@ -182,7 +200,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Fact Table with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "fact_table with valid id", %{conn: conn, fact_table: fact_table} do
@@ -259,7 +283,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fact_table with invalid fact_table id", %{conn: conn, fact_table: fact_table} do
@@ -280,7 +310,13 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Fact Table with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 end

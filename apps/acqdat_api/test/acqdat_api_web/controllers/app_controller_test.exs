@@ -18,7 +18,13 @@ defmodule AcqdatApiWeb.AppControllerTest do
       data = %{}
       conn = get(conn, Routes.app_path(conn, :index, data))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "app index", %{conn: conn} do

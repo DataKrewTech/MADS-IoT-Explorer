@@ -1,6 +1,7 @@
 defmodule AcqdatIotWeb.DataParser.DataDumpController do
   use AcqdatIotWeb, :controller
   alias AcqdatCore.IotManager.DataDump.Worker.Server
+  alias AcqdatApiWeb.EntityManagement.AssetErrorHelper
   import AcqdatIoTWeb.Helpers
 
   plug AcqdatIoTWeb.Plug.LoadProject
@@ -28,7 +29,7 @@ defmodule AcqdatIotWeb.DataParser.DataDumpController do
 
       404 ->
         conn
-        |> send_error(404, "Unauthorized")
+        |> send_error(404, AssetErrorHelper.error_message(:unauthorized))
     end
   end
 

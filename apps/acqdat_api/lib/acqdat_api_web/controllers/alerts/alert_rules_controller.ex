@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesController do
   """
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApi.Alerts.AlertRules
+  alias AcqdatApiWeb.Alerts.AlertRuleErrorHelper
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Alerts.AlertRules
 
@@ -23,19 +24,21 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesController do
           |> render("alert_rules.json", %{alert_rules: alert_rules})
         else
           {:extract, {:error, error}} ->
+            error = extract_changeset_error(error)
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            error = extract_changeset_error(message)
+            send_error(conn, 400, error)
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertRuleErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertRuleErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -59,11 +62,11 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertRuleErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertRuleErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -87,11 +90,11 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertRuleErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertRuleErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -109,11 +112,11 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertRuleErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertRuleErrorHelper.error_message(:unauthorized))
     end
   end
 end

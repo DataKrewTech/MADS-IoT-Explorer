@@ -6,4 +6,20 @@ defmodule AcqdatApiWeb.AuthErrorHelper do
       source: nil
     }
   end
+
+  def error_message(:token_error, %ArgumentError{message: message}) do
+    %{
+      title: "Invalid token",
+      error: message,
+      source: nil
+    }
+  end
+
+  def error_message(:token_error, message) do
+    %{
+      title: "Invalid credentials",
+      error: message,
+      source: nil
+    }
+  end
 end

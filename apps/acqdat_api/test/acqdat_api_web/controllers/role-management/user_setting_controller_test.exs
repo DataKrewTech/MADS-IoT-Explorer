@@ -26,7 +26,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
       conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", context do
@@ -42,12 +48,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "data_settings" => ["can't be blank"],
-                   "visual_settings" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{
+                 "data_settings" => ["can't be blank"],
+                 "visual_settings" => ["can't be blank"]
+               },
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
 
@@ -94,7 +102,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
       conn = post(conn, Routes.user_settings_path(conn, :create, org.id, 1), data)
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", context do
@@ -122,12 +136,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "data_settings" => ["can't be blank"],
-                   "visual_settings" => ["can't be blank"]
-                 }
-               }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{
+                 "data_settings" => ["can't be blank"],
+                 "visual_settings" => ["can't be blank"]
+               },
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
 

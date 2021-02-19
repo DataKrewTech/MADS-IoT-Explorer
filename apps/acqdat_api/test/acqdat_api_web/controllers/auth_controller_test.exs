@@ -23,7 +23,13 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       data = %{email: user.email, password: "acb124"}
       conn = post(conn, Routes.auth_path(conn, :sign_in), data)
       response = conn |> json_response(401)
-      assert response == %{"errors" => %{"message" => "unauthenticated"}}
+
+      assert response == %{
+               "detail" => "Username and password is incorrect.",
+               "source" => nil,
+               "status_code" => 401,
+               "title" => "Invalid credentials"
+             }
     end
 
     test "error if missing params", context do
@@ -33,7 +39,11 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{"message" => %{"password" => ["can't be blank"]}}
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"password" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end
@@ -77,9 +87,10 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       result = conn |> json_response(401)
 
       assert %{
-               "errors" => %{
-                 "message" => "Invalid Credentials"
-               }
+               "detail" => "Username and password is incorrect.",
+               "source" => nil,
+               "status_code" => 401,
+               "title" => "Invalid credentials"
              } == result
     end
 
@@ -94,7 +105,13 @@ defmodule AcqdatApiWeb.AuthControllerTest do
 
       conn = post(conn, Routes.auth_path(conn, :validate_credentials, org.id), params)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -153,7 +170,13 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "returns error if access token garbage", context do
@@ -169,12 +192,10 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       result = conn |> json_response(400)
 
       assert %{
-               "errors" => %{
-                 "message" => %{
-                   "__exception__" => true,
-                   "message" => "argument error: [\"avcbd123489u\"]"
-                 }
-               }
+               "detail" => "argument error: [\"avcbd123489u\"]",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Invalid token"
              } == result
     end
 
@@ -184,7 +205,13 @@ defmodule AcqdatApiWeb.AuthControllerTest do
       conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 

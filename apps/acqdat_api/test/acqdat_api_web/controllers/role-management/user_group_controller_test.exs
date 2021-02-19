@@ -36,7 +36,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
 
       conn = post(conn, Routes.user_group_path(conn, :create, org.id), group)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -78,7 +84,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
 
       conn = get(conn, Routes.user_group_path(conn, :index, org.id), params)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -113,7 +125,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
 
       conn = put(conn, Routes.user_group_path(conn, :update, org.id, rgroup1["id"]), group2)
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -148,7 +166,13 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
 
       conn = delete(conn, Routes.user_group_path(conn, :delete, org.id, rgroup1["id"]))
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 

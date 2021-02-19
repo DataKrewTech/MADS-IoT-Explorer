@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   alias AcqdatCore.Model.Widgets.WidgetType, as: WTModel
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
+  alias AcqdatApiWeb.Widgets.WidgetErrorHelper
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
@@ -27,11 +28,11 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -49,11 +50,11 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -81,19 +82,21 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
           |> render("widget.json", %{widget: widget})
         else
           {:extract, {:error, error}} ->
+            error = extract_changeset_error(error)
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            error = extract_changeset_error(message)
+            send_error(conn, 400, error)
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -114,11 +117,11 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Widget Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -167,11 +170,11 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Widget Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -181,12 +184,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     else
       {:error, message} ->
         conn
-        |> put_status(404)
-        |> json(%{
-          "status_code" => 404,
-          "title" => message,
-          "detail" => message
-        })
+        |> send_error(404, WidgetErrorHelper.error_message(:elasticsearch, message))
     end
   end
 
@@ -214,11 +212,11 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
 
       404 ->
         conn
-        |> send_error(404, "Widget Not Found")
+        |> send_error(404, WidgetErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, WidgetErrorHelper.error_message(:unauthorized))
     end
   end
 

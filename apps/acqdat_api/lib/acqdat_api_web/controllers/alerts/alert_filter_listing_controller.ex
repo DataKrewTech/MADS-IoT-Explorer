@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.Alerts.AlertFilterListingController do
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApi.Alerts.AlertRules
   alias AcqdatApi.Alerts.AlertFilterListing
+  alias AcqdatApiWeb.Alerts.AlertErrorHelper
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Alerts.AlertFilterListing
 
@@ -24,11 +25,11 @@ defmodule AcqdatApiWeb.Alerts.AlertFilterListingController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertErrorHelper.error_message(:unauthorized))
     end
   end
 

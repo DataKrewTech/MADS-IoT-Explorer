@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DataInsights.FactTables
   alias AcqdatApi.DataInsights.{FactTables, Topology}
+  alias AcqdatApiWeb.DataInsights.FactTablesErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
@@ -22,7 +23,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -79,11 +84,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -103,7 +108,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -118,7 +127,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -157,7 +170,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -183,7 +200,11 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, FactTablesErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, FactTablesErrorHelper.error_message(:unauthorized))
     end
   end
 end

@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Alerts.Alert
   alias AcqdatApi.Alerts.Alert
+  alias AcqdatApiWeb.Alerts.AlertErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadAlert when action in [:update, :delete, :show]
@@ -30,11 +31,11 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -58,11 +59,11 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -80,11 +81,11 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, AlertErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, AlertErrorHelper.error_message(:unauthorized))
     end
   end
 end

@@ -76,10 +76,12 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
           |> render("invite.json", message: message)
         else
           {:extract, {:error, error}} ->
+            error = extract_changeset_error(error)
             send_error(conn, 400, error)
 
           {:invite, {:error, message}} ->
-            send_error(conn, 400, message)
+            error = extract_changeset_error(message)
+            send_error(conn, 400, error)
         end
 
       404 ->
@@ -107,6 +109,8 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
             |> render("invite.json", %{message: message})
 
           {:error, error} ->
+            error = extract_changeset_error(error)
+
             conn
             |> send_error(400, error)
         end
@@ -133,6 +137,8 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
             |> render("invite.json", %{message: message})
 
           {:error, error} ->
+            error = extract_changeset_error(error)
+
             conn
             |> send_error(400, error)
         end
