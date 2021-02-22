@@ -21,6 +21,16 @@ defmodule AcqdatCore.Model.Widgets.Widget do
     end
   end
 
+  def get_by_label(label) do
+    case Repo.get_by(Widget, label: label) do
+      nil ->
+        {:error, "not found"}
+
+      widget ->
+        {:ok, widget}
+    end
+  end
+
   def delete_from_elasticsearch(widget_type) do
     query =
       from(widget in Widget,
@@ -61,6 +71,20 @@ defmodule AcqdatCore.Model.Widgets.Widget do
   def get_all_by_classification(%{}) do
     query =
       Widget
+      |> group_by([widget], widget.classification)
+      |> select([widget], %{
+        classification: widget.classification,
+        count: count(widget.id),
+        widgets: fragment("JSON_AGG(?)", widget)
+      })
+
+    query |> Repo.all()
+  end
+
+  def get_all_by_classification_not_standard(%{}) do
+    query =
+      Widget
+      |> where([widget], widget.classification != "standard")
       |> group_by([widget], widget.classification)
       |> select([widget], %{
         classification: widget.classification,

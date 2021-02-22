@@ -41,7 +41,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, widgets} = {:list, WidgetModel.get_all_by_classification(data)}
+        {:list, widgets} = {:list, WidgetModel.get_all_by_classification_not_standard(data)}
 
         conn
         |> put_status(200)
