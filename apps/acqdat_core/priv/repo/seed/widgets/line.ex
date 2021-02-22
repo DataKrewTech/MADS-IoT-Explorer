@@ -16,7 +16,7 @@ defmodule AcqdatCore.Seed.Widgets.Line do
         caption: [text: %{}, align: %{}],
         subtitle: [text: %{}, align: %{}],
         yAxis: [title: [text: %{}]],
-        credits: [enabled: %{value: false}],
+        credits: [enabled: %{value: false}]
       },
       data: %{
         series: %{

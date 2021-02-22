@@ -15,6 +15,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
         title: [text: %{}],
         rangeSelector: [selected: %{value: 1}],
         credits: [enabled: %{value: false}],
+        legend: [enabled: %{value: true}]
       },
       data: %{
         series: %{

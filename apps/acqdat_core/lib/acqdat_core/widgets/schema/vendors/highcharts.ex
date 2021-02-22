@@ -73,15 +73,19 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               user_controlled: false,
               properties: %{
                 enabled: %{data_type: :boolean, default_value: false, user_controlled: false},
-                layout: %{data_type: :string, default_value: "right", user_controlled: true},
+                layout: %{
+                  data_type: :select,
+                  default_value: ["right", "center", "left", "top", "bottom"],
+                  user_controlled: true
+                },
                 align: %{
                   data_type: :select,
-                  default_value: ["right", "left", "center", "top", "bottom"],
+                  default_value: ["center", "left", "right", "top", "bottom"],
                   user_controlled: true
                 },
                 verticalAlign: %{
-                  data_type: :string,
-                  default_value: "middle",
+                  data_type: :select,
+                  default_value: ["bottom", "center", "left", "right", "top"],
                   user_controlled: true
                 }
               }

@@ -18,6 +18,7 @@ defmodule AcqdatCore.Seed.Widgets.AreaTimeseries do
         yAxis: [title: [text: %{}]],
         xAxis: [type: %{value: "datetime"}, title: [text: %{value: "Date"}]],
         credits: [enabled: %{value: false}],
+        legend: [enabled: %{value: true}]
       },
       data: %{
         series: %{
