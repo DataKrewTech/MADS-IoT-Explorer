@@ -36,7 +36,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
   `data_settings`: holds data related settings for a widget
   """
 
-  @classifications ~w(timeseries latest standard)s
+  @classifications ~w(timeseries latest standard cards gauge)s
   @type t :: %__MODULE__{}
 
   schema("acqdat_widgets") do

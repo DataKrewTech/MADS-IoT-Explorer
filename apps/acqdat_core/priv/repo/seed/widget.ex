@@ -7,6 +7,7 @@ defmodule AcqdatCore.Seed.Widget do
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Widgets.Schema.Widget
+  alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
 
   def seed() do
     #Don't change the sequence it is important that widgets seeds this way.
@@ -25,6 +26,19 @@ defmodule AcqdatCore.Seed.Widget do
     BasicColumn.seed()
     StackedColumn.seed()
     WidgetHelpers.seed_in_elastic()
+  end
+
+  def update_classifications() do
+    Repo.transaction(fn ->
+      card_widgets = ["Image Card", "Static Card", "Dynamic Card"]
+      update_classifications_of_widgets(card_widgets, "cards")
+
+      gauge_widgets = ["solidgauge", "gauge"]
+      update_classifications_of_widgets(gauge_widgets, "gauge")
+
+      pie_widget = ["pie"]
+      update_classifications_of_widgets(pie_widget, "standard")
+    end)
   end
 
   def update_visual_settings() do
@@ -49,6 +63,16 @@ defmodule AcqdatCore.Seed.Widget do
       {module, widget_key} = value
       module.update_visual_settings(label, widget_key)
     end)
+  end
 
+  defp update_classifications_of_widgets(widgets, classification) do
+    Enum.each(widgets, fn name ->
+      case WidgetModel.get_by_label(name) do
+        {:ok, widget} ->
+          WidgetModel.update(widget, %{classification: classification})
+        _ ->
+          name
+      end
+    end)
   end
 end
