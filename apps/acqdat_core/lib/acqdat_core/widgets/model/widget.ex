@@ -11,7 +11,7 @@ defmodule AcqdatCore.Model.Widgets.Widget do
     Repo.insert(changeset)
   end
 
-  def get(id) when is_integer(id) do
+  def get(id) do
     case Repo.get(Widget, id) do
       nil ->
         {:error, "not found"}
