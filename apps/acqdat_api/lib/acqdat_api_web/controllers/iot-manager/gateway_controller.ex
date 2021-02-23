@@ -146,6 +146,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
       nil ->
         gateway = conn.assigns.gateway
         gateway = Gateway.load_associations(gateway)
+        tree_mapping = Gateway.tree_mapping(gateway.mapped_parameters)
+        gateway = Map.put_new(gateway, :tree_mapping, tree_mapping)
 
         conn
         |> put_status(200)
