@@ -10,7 +10,7 @@ defmodule AcqdatCore.Schema.IoTManager.GatewayError do
   alias AcqdatCore.Schema.IotManager.Gateway
 
   schema("acqdat_gateway_error") do
-    field(:data)
+    field(:data, :map)
     field(:error, :map)
 
     belongs_to(:gateway, Gateway,

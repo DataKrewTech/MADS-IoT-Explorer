@@ -10,7 +10,7 @@ defmodule AcqdatCore.Repo.Migrations.AddGatewayError do
         null: false
       )
 
-      timestamps(type: :timestamptz)
+      timestamps(type: :timestamptz, updated_at: false)
     end
   end
 end

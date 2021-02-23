@@ -3,6 +3,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.IotManager.GatewayDataDump
+  alias AcqdatCore.Schema.IoTManager.GatewayError
 
   describe "create/1 " do
     setup do
@@ -84,5 +85,44 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
         inserted_timestamp: ["duplicate data with same timestamp inserted"]
       } == errors_on(changeset)
     end
+  end
+
+  describe "delete_errors/1 " do
+
+    setup do
+      org = insert(:organisation)
+      project = insert(:project, org: org)
+      gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
+
+      ## insert errors older than a 7 days
+      time_now = DateTime.truncate(Timex.now(), :second)
+      errors = build_error_record(5, gateway.uuid, Timex.shift(time_now, days: -8))
+      {errors, _} = Repo.insert_all(GatewayError, errors)
+      [errors: errors, gateway: gateway]
+    end
+
+    test "deletes errors 7 days from current provided date", context do
+      %{errors: errors, gateway: gateway} = context
+
+      time_now = DateTime.truncate(Timex.now(), :second)
+
+      ## insert some more errors but keep them at 3 days
+      new_errors = build_error_record(3, gateway.uuid, Timex.shift(time_now, days: -3))
+      Repo.insert_all(GatewayError, new_errors)
+
+      {deleted, _} = GatewayDataDump.delete_errors(time_now)
+      assert deleted == errors
+    end
+  end
+
+  defp build_error_record(number, gateway_uuid, timestamp) do
+    Enum.map(0..number-1 , fn _ ->
+      %{
+        data: %{key1: 1, key2: 2},
+        error: %{inserted_timestamp: "invalid time"},
+        gateway_uuid: gateway_uuid,
+        inserted_at: timestamp
+      }
+    end)
   end
 end
