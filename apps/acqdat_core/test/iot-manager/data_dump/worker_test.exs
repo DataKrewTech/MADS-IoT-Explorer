@@ -42,9 +42,10 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
 
       assert {:noreply, {:error, result}} = Worker.handle_cast(
           {:data_dump, dump_params}, %{})
+
       assert %{
         inserted_timestamp: ["duplicate data with same timestamp inserted"]
-      } == result
+      } == result.error
     end
 
     test "logs error if invalid_timestamp", context do
@@ -57,12 +58,12 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
 
       assert {:noreply, {:error, result}} = Worker.handle_cast(
           {:data_dump, dump_params}, %{})
+
       assert %{
         inserted_timestamp: ["invalid unix timestamp"]
-      } == result
+      } == result.error
     end
   end
-
 
   describe "dump_test server " do
     setup do
@@ -102,6 +103,8 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
       {:noreply, {:ok, result}} = Worker.handle_cast(
           {:data_dump, dump_params}, %{})
 
+      # wait for inner genservers to finish their work
+      :timer.sleep(500)
       assert result.gateway_uuid == gateway.uuid
       assert result.data == dump_params.data
     end
