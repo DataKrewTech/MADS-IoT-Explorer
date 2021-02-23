@@ -47,28 +47,31 @@ defmodule AcqdatApi.IotManager.Gateway do
     end)
   end
 
-  defp return_uuid_and_parameter_name(key, %{type: "value", value: value}, acc) do
+  defp return_uuid_and_parameter_name(key, %{"type" => "value", "value" => value}, acc) do
     Map.put_new(acc, to_string(value), to_string(key))
   end
 
-  defp return_uuid_and_parameter_name(key, %{type: "object", value: value} = object_value, acc) do
-    key = to_string(key)
-    keys = Map.keys(value)
-    for k <- keys do
-      sk = "#{key}." <> to_string(k)
-      return_uuid_and_parameter_name(sk, Map.fetch!(value, k), acc)
-    end
+  defp return_uuid_and_parameter_name(
+         key,
+         %{"type" => "object", "value" => value} = object_value,
+         acc
+       ) do
+    Enum.reduce(value, acc, fn {inside_key, value}, rcc ->
+      key = to_string(key)
+      inside_key = to_string(inside_key)
+      return_uuid_and_parameter_name("#{key}." <> inside_key, value, rcc)
+    end)
   end
 
-  # defp return_uuid_and_parameter_name(key, %{type: "list", value: value} = list_value, acc) do
-  #   key = to_string(key)
-  #   list_of_value =
-  #   for k <- value do
-  #     return_uuid_and_parameter_name(key, k, acc)
-  #   end
-  #   traverse_and_return_correct_accumulator(list_of_value, acc)
-  # end
-
+  defp return_uuid_and_parameter_name(
+         key,
+         %{"type" => "list", "value" => value} = list_value,
+         acc
+       ) do
+    Enum.reduce(value, acc, fn value, rcc ->
+      return_uuid_and_parameter_name(key, value, rcc)
+    end)
+  end
 
   ############################# private functions ###############3
 
