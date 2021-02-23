@@ -4,6 +4,8 @@ defmodule AcqdatApi.ExtractRoutes do
   alias AcqdatCore.Repo
   use Agent
 
+  @neglect_routes ~w(AcqdatApiWeb Bamboo)s
+
   #   "DashboardManagement" => %{  //This is the application name
   #     "DashboardExport" => {  //This is the feature inside that application`
   #       "controller" => "DashboardExportController",
@@ -30,6 +32,7 @@ defmodule AcqdatApi.ExtractRoutes do
         create_map(route, acc)
       end)
 
+    routes = Map.drop(routes, @neglect_routes)
     create_policies(routes)
   end
 
