@@ -46,9 +46,11 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
   def delete_errors(timestamp) do
     previous_week_threshold = Timex.shift(timestamp, days: -7)
 
-    query = from(error in GatewayError,
-      where: error.inserted_at < ^previous_week_threshold
-    )
+    query =
+      from(error in GatewayError,
+        where: error.inserted_at < ^previous_week_threshold
+      )
+
     Repo.delete_all(query)
   end
 
@@ -76,5 +78,4 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDump do
   defp set_timestamp(key, data) do
     data[key]
   end
-
 end

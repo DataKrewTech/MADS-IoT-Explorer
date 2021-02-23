@@ -78,17 +78,18 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
         gateway_uuid: gateway.uuid,
         data: data_dump
       }
+
       assert {:ok, result} = GatewayDataDump.create(params)
       ## insert the data with same timestamp again
       assert {:error, changeset} = GatewayDataDump.create(params)
+
       assert %{
-        inserted_timestamp: ["duplicate data with same timestamp inserted"]
-      } == errors_on(changeset)
+               inserted_timestamp: ["duplicate data with same timestamp inserted"]
+             } == errors_on(changeset)
     end
   end
 
   describe "delete_errors/1 " do
-
     setup do
       org = insert(:organisation)
       project = insert(:project, org: org)
@@ -116,7 +117,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
   end
 
   defp build_error_record(number, gateway_uuid, timestamp) do
-    Enum.map(0..number-1 , fn _ ->
+    Enum.map(0..(number - 1), fn _ ->
       %{
         data: %{key1: 1, key2: 2},
         error: %{inserted_timestamp: "invalid time"},

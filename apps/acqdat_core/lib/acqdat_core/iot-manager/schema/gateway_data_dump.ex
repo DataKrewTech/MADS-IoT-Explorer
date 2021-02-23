@@ -67,6 +67,7 @@ defmodule AcqdatCore.Schema.IotManager.GatewayDataDump do
     |> assoc_constraint(:project)
     |> unique_constraint(:inserted_timestamp,
       name: :acqdat_gateway_data_dump_inserted_timestamp_gateway_uuid_index,
-      message: "duplicate data with same timestamp inserted")
+      message: "duplicate data with same timestamp inserted"
+    )
   end
 end

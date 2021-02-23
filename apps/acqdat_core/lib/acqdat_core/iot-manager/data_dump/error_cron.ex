@@ -14,7 +14,6 @@ defmodule AcqdatCore.IotManager.DataDump.ErrorCron do
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-
   ######################### server callbacks #######################
 
   def init(_) do
@@ -30,15 +29,14 @@ defmodule AcqdatCore.IotManager.DataDump.ErrorCron do
 
   # this callback triggers on any continue tuple
   def handle_continue(:schedule_next_run, state) do
-    next_run_delay =
-      calculate_next_cycle_delay(Timex.now())
+    next_run_delay = calculate_next_cycle_delay(Timex.now())
     Process.send_after(self(), :remove_errors, next_run_delay)
     {:noreply, state}
   end
 
   defp calculate_next_cycle_delay(now) do
     now
-    |> Timex.set([hour: 6, minute: 0, second: 0])
+    |> Timex.set(hour: 6, minute: 0, second: 0)
     |> maybe_shift_a_day(now)
     |> Timex.diff(now, :milliseconds)
   end
@@ -52,5 +50,4 @@ defmodule AcqdatCore.IotManager.DataDump.ErrorCron do
         Timex.shift(next_run, days: 1)
     end
   end
-
 end

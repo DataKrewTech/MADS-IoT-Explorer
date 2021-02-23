@@ -31,5 +31,4 @@ defmodule AcqdatCore.Schema.IoTManager.GatewayError do
     |> cast(params, @required)
     |> validate_required(@required)
   end
-
 end

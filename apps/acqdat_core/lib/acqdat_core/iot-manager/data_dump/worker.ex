@@ -43,5 +43,4 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
   defp log_data(error, params) do
     %{data: params.data, error: error, gateway_uuid: params.gateway_uuid}
   end
-
 end

@@ -456,5 +456,4 @@ defmodule AcqdatCore.Support.Factory do
       ]
     }
   end
-
 end

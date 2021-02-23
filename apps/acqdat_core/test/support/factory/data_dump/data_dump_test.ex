@@ -189,5 +189,4 @@ defmodule AcqdatCore.Test.Support.DataDumpTest do
 
     gateway |> Repo.preload([:org, :project])
   end
-
 end

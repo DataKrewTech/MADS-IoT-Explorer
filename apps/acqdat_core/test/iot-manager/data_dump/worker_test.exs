@@ -9,8 +9,7 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
     setup do
       org = insert(:organisation)
       project = insert(:project, org: org)
-      gateway = insert(:gateway, org: org, project: project,
-        timestamp_mapping: "timestamp")
+      gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
 
       params = %{
         "axis_object" => %{
@@ -31,7 +30,6 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
         data: params
       }
 
-
       [dump_params: dump_params]
     end
 
@@ -40,12 +38,11 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
 
       GatewayDataDump.create(dump_params)
 
-      assert {:noreply, {:error, result}} = Worker.handle_cast(
-          {:data_dump, dump_params}, %{})
+      assert {:noreply, {:error, result}} = Worker.handle_cast({:data_dump, dump_params}, %{})
 
       assert %{
-        inserted_timestamp: ["duplicate data with same timestamp inserted"]
-      } == result.error
+               inserted_timestamp: ["duplicate data with same timestamp inserted"]
+             } == result.error
     end
 
     test "logs error if invalid_timestamp", context do
@@ -56,12 +53,11 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
       ## change timestamp to include invalid unix value
       dump_params = Map.put(dump_params, :data, updated_data)
 
-      assert {:noreply, {:error, result}} = Worker.handle_cast(
-          {:data_dump, dump_params}, %{})
+      assert {:noreply, {:error, result}} = Worker.handle_cast({:data_dump, dump_params}, %{})
 
       assert %{
-        inserted_timestamp: ["invalid unix timestamp"]
-      } == result.error
+               inserted_timestamp: ["invalid unix timestamp"]
+             } == result.error
     end
   end
 
@@ -71,8 +67,7 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
 
       org = insert(:organisation)
       project = insert(:project, org: org)
-      gateway = insert(:gateway, org: org, project: project,
-        timestamp_mapping: "timestamp")
+      gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
 
       params = %{
         "axis_object" => %{
@@ -93,15 +88,13 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
         data: params
       }
 
-
       [dump_params: dump_params, gateway: gateway]
     end
 
     test "inserts the iot data and passes it to parser server", context do
       %{dump_params: dump_params, gateway: gateway} = context
 
-      {:noreply, {:ok, result}} = Worker.handle_cast(
-          {:data_dump, dump_params}, %{})
+      {:noreply, {:ok, result}} = Worker.handle_cast({:data_dump, dump_params}, %{})
 
       # wait for inner genservers to finish their work
       :timer.sleep(500)
@@ -109,5 +102,4 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
       assert result.data == dump_params.data
     end
   end
-
 end
