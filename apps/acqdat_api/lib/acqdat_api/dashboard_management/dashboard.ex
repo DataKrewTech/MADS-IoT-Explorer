@@ -12,6 +12,14 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
 
   defdelegate recent_dashboards(data), to: DashboardModel
 
+  def get_panels_data(%{"id" => id, "filter_metadata" => filter_metadata}) do
+    PanelModel.get_with_widgets(id, %{"filter_metadata" => filter_metadata})
+  end
+
+  def get_panels_data(%{"id" => id}) do
+    PanelModel.get_with_widgets(id)
+  end
+
   def get_all(%{type: "archived"} = data) do
     DashboardModel.get_all_archived(data)
   end

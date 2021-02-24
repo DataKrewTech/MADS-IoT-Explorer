@@ -25,22 +25,27 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     end
   end
 
-  def get_with_widgets(id) when is_integer(id) do
+  def get_with_widgets(id, %{"filter_metadata" => filter_metadata}) do
+    case Repo.get(Panel, id) do
+      nil ->
+        {:error, "panel with this id not found"}
+
+      panel ->
+        filter_params =
+          %{filter_metadata: transform_map(filter_metadata)} |> compute_filtered_params(panel)
+
+        fetch_panel_widgets_data(panel, filter_params)
+    end
+  end
+
+  def get_with_widgets(id) do
     case Repo.get(Panel, id) do
       nil ->
         {:error, "panel with this id not found"}
 
       panel ->
         filter_params = panel |> parse_filtered_params
-        widgets = WidgetInstanceModel.get_all_by_panel_id(panel.id, filter_params)
-        command_widgets = CommandWidget.get_all_by_panel_id(panel.id)
-
-        panel =
-          panel
-          |> Map.put(:widgets, widgets)
-          |> Map.put(:command_widgets, command_widgets)
-
-        {:ok, panel}
+        fetch_panel_widgets_data(panel, filter_params)
     end
   end
 
@@ -51,6 +56,43 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
   def delete_all(ids) when is_list(ids) do
     from(panel in Panel, where: panel.id in ^ids)
     |> Repo.delete_all()
+  end
+
+  defp fetch_panel_widgets_data(panel, filter_params) do
+    widgets = WidgetInstanceModel.get_all_by_panel_id(panel.id, filter_params)
+    command_widgets = CommandWidget.get_all_by_panel_id(panel.id)
+
+    panel =
+      panel
+      |> Map.put(:widgets, widgets)
+      |> Map.put(:command_widgets, command_widgets)
+
+    {:ok, panel}
+  end
+
+  defp compute_filtered_params(%{filter_metadata: user_filter_metadata}, %{
+         filter_metadata: panel_filter_metadata
+       }) do
+    from_date = user_filter_metadata[:from_date] || panel_filter_metadata.from_date
+    to_date = user_filter_metadata[:to_date] || panel_filter_metadata.to_date
+    aggregate_func = user_filter_metadata[:aggregate_func] || panel_filter_metadata.aggregate_func
+    group_interval = user_filter_metadata[:group_interval] || panel_filter_metadata.group_interval
+
+    group_interval_type =
+      user_filter_metadata[:group_interval_type] || panel_filter_metadata.group_interval_type
+
+    last = user_filter_metadata[:last] || panel_filter_metadata.last
+
+    parse_filtered_params(%{
+      filter_metadata: %{
+        from_date: from_date,
+        to_date: to_date,
+        aggregate_func: aggregate_func,
+        group_interval: group_interval,
+        group_interval_type: group_interval_type,
+        last: last
+      }
+    })
   end
 
   defp parse_filtered_params(%{
@@ -107,5 +149,9 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
   defp from_unix(datetime) do
     {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
     res
+  end
+
+  defp transform_map(map) do
+    for {key, val} <- map, into: %{}, do: {String.to_atom(key), val}
   end
 end

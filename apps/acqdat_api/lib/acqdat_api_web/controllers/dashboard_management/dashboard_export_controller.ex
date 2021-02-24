@@ -2,7 +2,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
-  alias AcqdatApi.DashboardManagement.Panel
   alias AcqdatApi.DashboardManagement.Dashboard
   import AcqdatApiWeb.Validators.DashboardExport.DashboardExport
 
@@ -104,12 +103,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, params) do
     case conn.status do
       nil ->
-        {id, _} = Integer.parse(id)
-
-        case Panel.get_with_widgets(id) do
+        case Dashboard.get_panels_data(params) do
           {:error, message} ->
             send_error(conn, 400, message)
 
