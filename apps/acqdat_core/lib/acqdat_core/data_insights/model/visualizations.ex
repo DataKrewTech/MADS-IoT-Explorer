@@ -38,4 +38,19 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
   def delete(visualizations) do
     Repo.delete(visualizations)
   end
+
+  def get_all_count_for_project(%{
+        project_id: project_id,
+        org_id: org_id
+      }) do
+    query =
+      from(visual in Visualizations,
+        where:
+          visual.org_id == ^org_id and
+            visual.project_id == ^project_id,
+        select: count(visual.id)
+      )
+
+    Repo.one(query)
+  end
 end

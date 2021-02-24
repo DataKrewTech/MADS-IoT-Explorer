@@ -8,14 +8,10 @@ defmodule AcqdatApi.DataInsights.Visualizations do
     case Visualizations.get(visualization_id) do
       {:ok, visualization} ->
         module = visualization.module
-
-        %{
-          visual_settings: module.visual_prop_gen(visualization),
-          data_settings: module.data_prop_gen(visualization)
-        }
+        module.data_prop_gen(visualization)
 
       {:error, message} ->
-        message
+        {:error, message}
     end
   end
 end

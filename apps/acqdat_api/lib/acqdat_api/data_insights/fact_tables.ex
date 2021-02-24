@@ -12,10 +12,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
   def get_all(%{project_id: project_id, org_id: org_id} = params) do
     data = FactTables.get_all(params)
 
-    tot_pivot_count =
+    tot_visual_count =
       Visualizations.get_all_count_for_project(%{project_id: project_id, org_id: org_id})
 
-    Map.merge(data, %{total_pivot_tables: tot_pivot_count})
+    Map.merge(data, %{total_pivot_tables: tot_visual_count})
   end
 
   def fetch_fact_table_headers(%{id: fact_table_id} = fact_table) do
