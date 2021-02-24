@@ -29,4 +29,10 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
       visualizations: render_many(types, VisualizationsView, "type_detail.json")
     }
   end
+
+  def render("visualization_data.json", %{visualization_data: visualization_data}) do
+    %{
+      visualization_data: visualization_data
+    }
+  end
 end

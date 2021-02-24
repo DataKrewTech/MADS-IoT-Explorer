@@ -47,9 +47,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsChannel do
     push(
       socket,
       "out_put_res_visualizations",
-      Phoenix.View.render(AcqdatApiWeb.DataInsights.PivotTablesView, "pivot_table_data.json", %{
-        pivot_table: data
-      })
+      Phoenix.View.render(
+        AcqdatApiWeb.DataInsights.VisualizationsView,
+        "visualization_data.json",
+        %{
+          visualization_data: data
+        }
+      )
     )
 
     {:noreply, socket}
