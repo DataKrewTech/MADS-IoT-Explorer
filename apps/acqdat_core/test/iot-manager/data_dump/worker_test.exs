@@ -1,5 +1,5 @@
 defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   alias AcqdatCore.IotManager.DataDump.Worker
