@@ -2,7 +2,8 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
-  alias AcqdatCore.DashboardExport.Schema.DashboardExport
+  alias AcqdatCore.DashboardManagement.Schema.Dashboard
+  alias AcqdatCore.Model.DashboardExport.DashboardExport, as: DashboardExportModel
   alias AcqdatCore.Repo
   import AcqdatCore.Support.Factory
 
@@ -201,6 +202,90 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       response = conn |> json_response(404)
 
       assert response == %{"errors" => %{"message" => "Resource Not Found"}}
+    end
+  end
+
+  describe "show/2" do
+    setup :setup_conn
+
+    setup do
+      panel = insert(:panel)
+
+      dashboard = Repo.get(Dashboard, panel.dashboard_id)
+
+      {:ok, private_dashboard_exp} =
+        DashboardExportModel.create(%{
+          token: UUID.uuid1(:hex),
+          is_secure: false,
+          dashboard_id: panel.dashboard_id,
+          dashboard_uuid: dashboard.uuid,
+          url: "url"
+        })
+
+      [panel: panel, dashboard: dashboard, private_dashboard_exp: private_dashboard_exp]
+    end
+
+    test "fails if invalid token in authorization header", %{
+      conn: conn,
+      panel: panel,
+      dashboard: dashboard
+    } do
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(conn, :show, dashboard.uuid, panel.id)
+        )
+
+      result = conn |> json_response(401)
+
+      assert result == %{"errors" => %{"message" => "Unauthorized link"}}
+    end
+
+    test "panel with invalid panel id", %{
+      conn: conn,
+      dashboard: dashboard,
+      private_dashboard_exp: private_dashboard_exp
+    } do
+      access_token = private_dashboard_exp.token
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{access_token}")
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(conn, :show, dashboard.uuid, -1)
+        )
+
+      result = conn |> json_response(404)
+      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+    end
+
+    test "panel with valid id", %{
+      conn: conn,
+      panel: panel,
+      dashboard: dashboard,
+      private_dashboard_exp: private_dashboard_exp
+    } do
+      access_token = private_dashboard_exp.token
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{access_token}")
+
+      conn =
+        get(
+          conn,
+          Routes.dashboard_export_path(conn, :show, dashboard.uuid, panel.id)
+        )
+
+      result = conn |> json_response(200)
+
+      refute is_nil(result)
+
+      assert Map.has_key?(result, "id")
+      assert Map.has_key?(result, "name")
     end
   end
 end
