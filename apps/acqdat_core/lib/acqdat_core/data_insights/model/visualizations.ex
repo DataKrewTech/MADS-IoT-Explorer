@@ -39,6 +39,26 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
     Repo.delete(visualizations)
   end
 
+  def get_all(%{
+        page_size: page_size,
+        page_number: page_number,
+        project_id: project_id,
+        org_id: org_id,
+        fact_tables_id: fact_tables_id
+      }) do
+    query =
+      from(visualization in Visualizations,
+        preload: [:creator],
+        where:
+          visualization.org_id == ^org_id and
+            visualization.project_id == ^project_id and
+            visualization.fact_table_id == ^fact_tables_id,
+        order_by: visualization.name
+      )
+
+    query |> Repo.paginate(page: page_number, page_size: page_size)
+  end
+
   def get_all_count_for_project(%{
         project_id: project_id,
         org_id: org_id

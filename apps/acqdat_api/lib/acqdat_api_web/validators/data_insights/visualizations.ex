@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.DataInsights.PivotTables do
+defmodule AcqdatApiWeb.Validators.DataInsights.Visualizations do
   use Params
 
   defparams(
