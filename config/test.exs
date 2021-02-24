@@ -29,7 +29,8 @@ config :acqdat_core, AcqdatCore.Repo,
   password: "postgres",
   database: "acqdat_core_test",
   hostname: System.get_env("DB_HOST", "localhost"),
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 50
 
 config :tirexs, :uri, System.get_env("ELASTIC_SEARCH_HOST", "http://localhost:9200")
 
