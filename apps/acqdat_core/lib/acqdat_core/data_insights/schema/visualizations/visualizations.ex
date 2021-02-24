@@ -4,7 +4,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   Visualizations are used for representing cosolidated or accumulative data in visual/widget forms after grouping.
   Visualizations is child of FactTable
 
-  A Pivot has four important properties along with others:
+  Visualizations has four important properties along with others:
   - `name`
   - `module`
   - `type`

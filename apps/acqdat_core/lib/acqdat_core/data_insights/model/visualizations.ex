@@ -9,7 +9,7 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
     Repo.insert(changeset)
   end
 
-  def get(id) when is_integer(id) do
+  def get(id) do
     case Repo.get(Visualizations, id) do
       nil ->
         {:error, "Visualization not found"}

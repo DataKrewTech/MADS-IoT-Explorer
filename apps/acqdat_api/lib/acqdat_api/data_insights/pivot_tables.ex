@@ -1,4 +1,4 @@
-defmodule AcqdatApi.DataInsights.Visualizations do
+defmodule AcqdatApi.DataInsights.PivotTables do
   alias AcqdatCore.Model.DataInsights.{Visualizations, FactTables}
   alias AcqdatApi.DataInsights.PivotTableGenWorker
   alias Ecto.Multi
