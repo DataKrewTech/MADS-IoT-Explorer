@@ -37,7 +37,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayDataDumpTest do
       }
 
       assert {:ok, result} = GatewayDataDump.create(params)
-      assert result.inserted_timestamp == data_dump["timestamp"]
+      assert result.inserted_timestamp |> DateTime.to_unix() == data_dump["timestamp"]
     end
 
     test "create when timestamp mapping not set", context do
