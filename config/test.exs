@@ -29,9 +29,10 @@ config :acqdat_core, AcqdatCore.Repo,
   password: "postgres",
   database: "acqdat_core_test",
   hostname: System.get_env("DB_HOST", "localhost"),
-  pool: Ecto.Adapters.SQL.Sandbox,
-  queue_target: 1500,
-  queue_interval: 1000
+  pool: Ecto.Adapters.SQL.Sandbox
+
+# queue_target: 1500,
+# queue_interval: 10000
 
 config :tirexs, :uri, System.get_env("ELASTIC_SEARCH_HOST", "http://localhost:9200")
 
