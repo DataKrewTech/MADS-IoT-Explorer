@@ -63,8 +63,6 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
 
   describe "dump_test server " do
     setup do
-      Ecto.Adapters.SQL.Sandbox.mode(AcqdatCore.Repo, {:shared, self()})
-
       org = insert(:organisation)
       project = insert(:project, org: org)
       gateway = insert(:gateway, org: org, project: project, timestamp_mapping: "timestamp")
