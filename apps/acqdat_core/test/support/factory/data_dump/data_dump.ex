@@ -95,8 +95,9 @@ defmodule AcqdatCore.Test.Support.DataDump do
   end
 
   def dump_iot_data(gateway) do
-    hour = Enum.random(0..10)
-    time = Timex.now() |> Timex.set(hour: hour)
+    hour = Enum.random(0..20)
+    minute = Enum.random(0..40)
+    time = Timex.now() |> Timex.set(hour: hour, minute: minute)
 
     %{
       gateway_uuid: gateway.uuid,
