@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadFact when action in [:update, :delete, :details]
+  plug AcqdatApiWeb.Plug.LoadFact when action in [:update, :delete, :details, :fetch_headers]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -19,6 +19,26 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
         conn
         |> put_status(200)
         |> render("index.json", fact_tables)
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def fetch_headers(conn, _params) do
+    case conn.status do
+      nil ->
+        case FactTables.get_fact_table_headers(conn.assigns.fact_table.id) do
+          {:error, message} ->
+            conn
+            |> send_error(404, message)
+
+          data ->
+            conn
+            |> put_status(200)
+            |> render("fact_table_headers.json", %{headers: List.flatten(data.rows)})
+        end
 
       404 ->
         conn
