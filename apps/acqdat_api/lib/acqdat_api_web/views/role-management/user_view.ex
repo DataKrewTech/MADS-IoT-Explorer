@@ -121,6 +121,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(user_details.role, RoleView, "role.json"),
       user_group: render_many(user_details.user_group, UserView, "user_group.json"),
+      policies: render_many(user_details.policies, UserView, "user_policy.json"),
       org:
         render_one(
           user_details.org,
@@ -141,6 +142,17 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   end
 
   def render("policy.json", %{user: policy}) do
+    %{
+      id: policy.id,
+      action: policy.action,
+      app: policy.app,
+      feature: policy.feature
+    }
+  end
+
+  def render("user_policy.json", %{user: policies}) do
+    policy = policies.policy
+
     %{
       id: policy.id,
       action: policy.action,
