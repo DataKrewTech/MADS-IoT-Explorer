@@ -14,14 +14,6 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsChannel do
     end
   end
 
-  def handle_out(
-        "out_put_res_visualizations",
-        %{data: {:ok, %{gen_pivot_data: gen_pivot_data}}},
-        socket
-      ) do
-    socket |> push_on_channel(gen_pivot_data)
-  end
-
   def handle_out("out_put_res_visualizations", %{data: {:ok, data}}, socket) do
     socket |> push_on_channel(data)
   end
