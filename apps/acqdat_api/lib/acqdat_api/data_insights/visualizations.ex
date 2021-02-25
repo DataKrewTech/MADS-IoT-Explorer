@@ -4,6 +4,7 @@ defmodule AcqdatApi.DataInsights.Visualizations do
   defdelegate get_all_visualization_types(), to: Visualizations
   defdelegate get_all(params), to: Visualizations
   defdelegate create(params), to: Visualizations
+  defdelegate delete(visualization), to: Visualizations
 
   def gen_data(visualization_id) do
     case Visualizations.get(visualization_id) do

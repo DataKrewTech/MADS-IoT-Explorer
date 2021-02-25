@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Plug.LoadVisualizations do
   def init(default), do: default
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(%{params: %{"pivot_table_id" => visual_id}} = conn, _params) do
+  def call(%{params: %{"visualization_id" => visual_id}} = conn, _params) do
     check_visualization(conn, visual_id)
   end
 
@@ -17,9 +17,9 @@ defmodule AcqdatApiWeb.Plug.LoadVisualizations do
   defp check_visualization(conn, visual_id) do
     case Integer.parse(visual_id) do
       {visual_id, _} ->
-        case Visualizations.get_by_id(visual_id) do
-          {:ok, pivot} ->
-            assign(conn, :pivot, pivot)
+        case Visualizations.get(visual_id) do
+          {:ok, visualizations} ->
+            assign(conn, :visualizations, visualizations)
 
           {:error, _message} ->
             conn
