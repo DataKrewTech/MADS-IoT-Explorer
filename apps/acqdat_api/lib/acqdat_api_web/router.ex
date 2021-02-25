@@ -198,6 +198,7 @@ defmodule AcqdatApiWeb.Router do
 
       resources "/fact_tables", FactTablesController, except: [:new, :edit] do
         get("/details", FactTablesController, :details)
+        get("/fetch_headers", FactTablesController, :fetch_headers)
 
         resources "/visualizations", VisualizationsController, except: [:new, :edit, :show]
       end

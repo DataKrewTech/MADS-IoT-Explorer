@@ -9,6 +9,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
   alias Ecto.Multi
   alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SD
 
+  defdelegate get_fact_table_headers(fact_table_id), to: FactTables
+
   def get_all(%{project_id: project_id, org_id: org_id} = params) do
     data = FactTables.get_all(params)
 
