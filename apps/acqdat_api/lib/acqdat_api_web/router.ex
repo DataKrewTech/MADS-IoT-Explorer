@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.Router do
       :exported_dashboard
     )
 
-    get(
+    post(
       "/details/:dashboard_uuid/panels/:id",
       DashboardManagement.DashboardExportController,
       :show

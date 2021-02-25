@@ -231,7 +231,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       dashboard: dashboard
     } do
       conn =
-        get(
+        post(
           conn,
           Routes.dashboard_export_path(conn, :show, dashboard.uuid, panel.id)
         )
@@ -253,7 +253,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
         |> put_req_header("authorization", "Bearer #{access_token}")
 
       conn =
-        get(
+        post(
           conn,
           Routes.dashboard_export_path(conn, :show, dashboard.uuid, -1)
         )
@@ -275,7 +275,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
         |> put_req_header("authorization", "Bearer #{access_token}")
 
       conn =
-        get(
+        post(
           conn,
           Routes.dashboard_export_path(conn, :show, dashboard.uuid, panel.id)
         )
