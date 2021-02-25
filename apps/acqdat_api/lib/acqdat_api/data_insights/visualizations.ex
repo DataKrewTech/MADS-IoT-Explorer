@@ -10,7 +10,14 @@ defmodule AcqdatApi.DataInsights.Visualizations do
     case Visualizations.get(visualization_id) do
       {:ok, visualization} ->
         module = visualization.module
-        module.data_prop_gen(visualization)
+
+        case module.data_prop_gen(visualization) do
+          {:ok, data} ->
+            {:ok, Map.put(visualization, :gen_data, data)}
+
+          {:error, message} ->
+            {:error, message}
+        end
 
       {:error, message} ->
         {:error, message}

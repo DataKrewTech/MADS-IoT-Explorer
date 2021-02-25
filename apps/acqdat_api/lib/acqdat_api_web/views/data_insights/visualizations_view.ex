@@ -30,9 +30,19 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
     }
   end
 
-  def render("visualization_data.json", %{visualization_data: visualization_data}) do
+  def render("visualization_data.json", %{visualization_data: visualization}) do
     %{
-      visualization_data: visualization_data
+      id: visualization.id,
+      name: visualization.name,
+      module: visualization.module,
+      project_id: visualization.project_id,
+      org_id: visualization.org_id,
+      slug: visualization.slug,
+      uuid: visualization.uuid,
+      visual_settings: visualization.visual_settings,
+      data_settings: visualization.data_settings,
+      created_at: visualization.inserted_at,
+      gen_data: visualization.gen_data
     }
   end
 
