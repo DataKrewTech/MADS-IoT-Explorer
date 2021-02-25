@@ -6,10 +6,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   @visualization_name "Lines"
 
   defstruct data_settings: %{
-              x_axis: [%{}],
-              y_axis: [%{}],
-              legend: [%{}],
-              filter: [%{}]
+              x_axis: [],
+              y_axis: [],
+              legend: [],
+              filter: []
             },
             visual_settings: %{}
 

@@ -7,10 +7,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
   @visualization_name "Pivot Table"
 
   defstruct data_settings: %{
-              filters: [%{}],
-              columns: [%{}],
-              rows: [%{}],
-              values: [%{}]
+              filters: [],
+              columns: [],
+              rows: [],
+              values: []
             },
             visual_settings: %{}
 
