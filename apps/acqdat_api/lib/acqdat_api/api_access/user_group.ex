@@ -21,8 +21,8 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
   def update(group, params) do
     params = for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
     policy_ids = Policy.extract_policies(params.actions)
-    present_policy_ids = UserGroup.policies(group.id)
-    policy_ids = Enum.uniq(policy_ids ++ present_policy_ids)
+    # present_policy_ids = UserGroup.policies(group.id)
+    # policy_ids = Enum.uniq(policy_ids ++ present_policy_ids)
     params = Map.put_new(params, :policy_ids, policy_ids)
     params = Map.put_new(params, :user_ids, [])
     verify_group(UserGroup.update(group, params))
