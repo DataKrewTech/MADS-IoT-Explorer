@@ -3,7 +3,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
   alias AcqdatApi.DataInsights.Visualizations
 
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
-  @visualization_type "Pivot Table"
+  @visualization_type "PivotTables"
   @visualization_name "Pivot Table"
 
   defstruct data_settings: %{
