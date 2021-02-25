@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadVisualizations when action in [:update, :delete, :show]
+  plug AcqdatApiWeb.Plug.LoadVisualizations when action in [:update, :delete]
 
   def fetch_all_types(conn, _params) do
     case conn.status do
@@ -66,6 +66,30 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
       401 ->
         conn
         |> send_error(401, "Unauthorized")
+    end
+  end
+
+  def update(conn, params) do
+    case conn.status do
+      nil ->
+        case Visualizations.update(conn.assigns.visualizations, params) do
+          {:error, %Ecto.Changeset{} = changeset} ->
+            error = extract_changeset_error(changeset)
+            send_error(conn, 400, error)
+
+          {:error, message} ->
+            conn
+            |> send_error(404, message)
+
+          {:ok, data} ->
+            conn
+            |> put_status(200)
+            |> render("create.json", %{visualization: data})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
     end
   end
 

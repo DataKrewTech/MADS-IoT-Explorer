@@ -9,6 +9,11 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
     Repo.insert(changeset)
   end
 
+  def update(%Visualizations{} = visualizations, params) do
+    changeset = Visualizations.update_changeset(visualizations, params)
+    Repo.update(changeset)
+  end
+
   def get(id) do
     case Repo.get(Visualizations, id) do
       nil ->
