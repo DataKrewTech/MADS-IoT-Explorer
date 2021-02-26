@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
-  plug AcqdatApiWeb.Plug.LoadVisualizations when action in [:update, :delete]
+  plug AcqdatApiWeb.Plug.LoadVisualizations when action in [:update, :delete, :show]
 
   def fetch_all_types(conn, _params) do
     case conn.status do
@@ -86,6 +86,19 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
             |> put_status(200)
             |> render("create.json", %{visualization: data})
         end
+
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  def show(conn, _params) do
+    case conn.status do
+      nil ->
+        conn
+        |> put_status(200)
+        |> render("create.json", %{visualization: conn.assigns.visualizations})
 
       404 ->
         conn
