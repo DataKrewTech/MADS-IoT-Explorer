@@ -6,7 +6,6 @@ defmodule AcqdatCore.Seed.Widget do
         StockSingleLine, DynamicCard, ImageCard, StaticCard, BasicColumn, StackedColumn, StockColumn}
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Repo
-  alias AcqdatCore.Widgets.Schema.Widget
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
 
   def seed() do
@@ -57,7 +56,8 @@ defmodule AcqdatCore.Seed.Widget do
       "Stock Single line series" => {StockSingleLine, :line},
       "Dynamic Card" => {DynamicCard, :card},
       "Image Card" => {ImageCard, :card},
-      "Static Card" => {StaticCard, :card}
+      "Static Card" => {StaticCard, :card},
+      "Stock Column" => {StockColumn, :column}
     }
 
     Enum.each(charts, fn {label, value} ->
