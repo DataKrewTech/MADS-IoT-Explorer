@@ -456,12 +456,12 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def create_fact_table_view(fact_table_name, table_headers, data) do
-    Ecto.Adapters.SQL.query!(Repo, "drop view if exists #{fact_table_name};", [],
+    Ecto.Adapters.SQL.query!(Repo, "drop table if exists #{fact_table_name};", [],
       timeout: :infinity
     )
 
     qry = """
-      CREATE OR REPLACE VIEW #{fact_table_name} AS
+      CREATE TABLE #{fact_table_name} AS
       SELECT * FROM(
       VALUES
       #{data}) as #{fact_table_name}(#{table_headers});
@@ -763,7 +763,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     fact_table_name = "fact_table_#{id}"
 
     qry = """
-      drop view if exists #{fact_table_name}
+      drop table if exists #{fact_table_name}
     """
 
     res = Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
