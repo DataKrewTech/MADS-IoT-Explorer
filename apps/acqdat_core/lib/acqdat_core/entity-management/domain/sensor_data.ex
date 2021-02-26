@@ -44,6 +44,27 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
         grp_interval,
         group_interval_type
       )
+      when aggregator == "no" and is_binary(param_uuid) do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      order_by: [desc: data.inserted_timestamp],
+      limit: 1,
+      select: %{
+        x: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
+        y: fragment("?->>'value'", c)
+      }
+    )
+  end
+
+  def latest_group_by_date_query(
+        subquery,
+        param_uuid,
+        aggregator,
+        grp_interval,
+        group_interval_type
+      )
       when aggregator == "sum" and is_binary(param_uuid) do
     grp_int = grp_interval |> compute_grp_interval(group_interval_type)
 
@@ -62,6 +83,30 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
             data.inserted_timestamp
           ),
         y: fragment("sum(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
+      }
+    )
+  end
+
+  def latest_group_by_date_query(
+        subquery,
+        param_uuids,
+        aggregator,
+        grp_interval,
+        group_interval_type,
+        limit_elem
+      )
+      when aggregator == "no" and is_list(param_uuids) do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuids),
+      group_by: [data.sensor_id, data.inserted_timestamp],
+      order_by: [desc: data.inserted_timestamp],
+      limit: ^limit_elem,
+      select: %{
+        time: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
+        id: data.sensor_id,
+        value: fragment("?->>'value'", c)
       }
     )
   end
@@ -334,6 +379,20 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
           ),
         y: fragment("avg(CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT))", c)
       }
+    )
+  end
+
+  def group_by_date_query(subquery, param_uuid, aggregator, grp_interval, group_interval_type)
+      when aggregator == "no" do
+    from(
+      data in subquery,
+      cross_join: c in fragment("unnest(?)", data.parameters),
+      where: fragment("?->>'uuid'=?", c, ^param_uuid),
+      order_by: [desc: data.inserted_timestamp],
+      select: [
+        fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
+        fragment("?->>'value'", c)
+      ]
     )
   end
 
