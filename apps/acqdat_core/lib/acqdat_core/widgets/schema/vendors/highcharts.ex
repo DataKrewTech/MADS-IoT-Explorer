@@ -482,11 +482,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          %{classification: classification},
          filter_metadata
        )
-       when classification == "latest" do
+       when classification == "timseries" do
     Enum.reduce(series_data, [], fn series, acc_data ->
-      nil
-      metadata = fetch_latest_axes_spec_data(series.axes, filter_metadata)
-
+      metadata = fetch_axes_specific_data(series.axes, filter_metadata)
       acc_data ++ [%{name: series.name, color: series.color, data: metadata}]
     end)
   end
@@ -496,9 +494,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
          %{classification: classification},
          filter_metadata
        )
-       when classification != "latest" do
+       when classification != "timseries" do
     Enum.reduce(series_data, [], fn series, acc_data ->
-      metadata = fetch_axes_specific_data(series.axes, filter_metadata)
+      nil
+      metadata = fetch_latest_axes_spec_data(series.axes, filter_metadata)
+
       acc_data ++ [%{name: series.name, color: series.color, data: metadata}]
     end)
   end
