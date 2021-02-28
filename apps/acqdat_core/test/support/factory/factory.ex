@@ -16,6 +16,9 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
   alias AcqdatCore.DataInsights.Schema.FactTables
+  alias AcqdatCore.Schema.RoleManagement.Policy
+  alias AcqdatCore.Schema.RoleManagement.UserPolicy
+  alias AcqdatCore.Schema.RoleManagement.UserGroup
 
   alias AcqdatCore.DashboardManagement.Schema.{
     Dashboard,
@@ -53,6 +56,21 @@ defmodule AcqdatCore.Support.Factory do
     ToolIssue,
     ToolReturn
   }
+
+  def policy_factory() do
+    %Policy{
+      app: sequence(:first_name, &"Tony-#{&1}"),
+      feature: sequence(:last_name, &"Stark-#{&1}"),
+      action: sequence(:email, &"ceo-#{&1}@stark.com")
+    }
+  end
+
+  def user_policy_factory() do
+    %UserPolicy{
+      user: build(:user),
+      policy: build(:policy)
+    }
+  end
 
   def user_factory() do
     %User{

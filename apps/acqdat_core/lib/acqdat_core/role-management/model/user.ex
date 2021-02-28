@@ -7,6 +7,9 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   alias AcqdatCore.Schema.RoleManagement.{User, App}
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
+  alias AcqdatCore.Model.RoleManagement.GroupUser
+  alias AcqdatCore.Model.RoleManagement.UserPolicy
+  alias Ecto.Multi
   import Ecto.Query
 
   @doc """
@@ -116,14 +119,41 @@ defmodule AcqdatCore.Model.RoleManagement.User do
 
   Expects `user` and update parameters as the arguments
   """
-  def update_user(%User{} = user, params) do
-    changeset = User.update_changeset(user, params)
+  def update_user(%User{} = user, %{"group_ids" => group_ids, "policies" => policies} = params) do
+    Multi.new()
+    |> Multi.run(:update_user_groups, fn _, _changes ->
+      GroupUser.update(user, group_ids)
+    end)
+    |> Multi.run(:update_user_policies, fn _, %{update_user_groups: user} ->
+      UserPolicy.update(user, policies)
+    end)
+    |> run_transaction(params)
+  end
 
-    case Repo.update(changeset) do
-      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
-      {:error, message} -> {:error, message}
+  defp run_transaction(multi_query, params) do
+    result = Repo.transaction(multi_query)
+
+    case result do
+      {:ok, %{update_user_groups: _user_policies, update_user_policies: user}} ->
+        changeset = User.update_changeset(user, params)
+
+        case Repo.update(changeset) do
+          {:ok, user} ->
+            {:ok, user |> Repo.preload([:role, :org])}
+
+          {:error, message} ->
+            {:error, message}
+        end
+
+      {:error, failed_operation, failed_value, _changes_so_far} ->
+        case failed_operation do
+          :update_user_groups -> {:error, failed_value}
+          :update_user_policies -> {:error, failed_value}
+        end
     end
+  end
 
+  def update_user(%User{} = user, params) do
     changeset = User.update_changeset(user, params)
 
     case Repo.update(changeset) do

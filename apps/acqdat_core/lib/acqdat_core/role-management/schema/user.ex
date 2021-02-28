@@ -8,7 +8,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   alias Comeonin.Argon2
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
   alias AcqdatCore.Schema.RoleManagement.UserPolicy
-  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting, GroupUser}
+  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting, GroupUser, UserGroup}
   alias AcqdatCore.Repo
 
   @password_min_length 8
