@@ -49,7 +49,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
       where: fragment("?->>'uuid'=?", c, ^param_uuid),
-      order_by: [desc: data.inserted_timestamp],
+      order_by: [asc: data.inserted_timestamp],
       limit: 1,
       select: %{
         x: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
@@ -101,7 +101,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       cross_join: c in fragment("unnest(?)", data.parameters),
       where: fragment("?->>'uuid'=?", c, ^param_uuids),
       group_by: [data.sensor_id, data.inserted_timestamp],
-      order_by: [desc: data.inserted_timestamp],
+      order_by: [asc: data.inserted_timestamp],
       limit: ^limit_elem,
       select: %{
         time: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
@@ -388,7 +388,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       data in subquery,
       cross_join: c in fragment("unnest(?)", data.parameters),
       where: fragment("?->>'uuid'=?", c, ^param_uuid),
-      order_by: [desc: data.inserted_timestamp],
+      order_by: [asc: data.inserted_timestamp],
       select: [
         fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
         fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
