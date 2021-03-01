@@ -53,7 +53,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       limit: 1,
       select: %{
         x: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
-        y: fragment("?->>'value'", c)
+        y: fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
       }
     )
   end
@@ -106,7 +106,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       select: %{
         time: fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
         id: data.sensor_id,
-        value: fragment("?->>'value'", c)
+        value: fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
       }
     )
   end
@@ -391,7 +391,7 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
       order_by: [desc: data.inserted_timestamp],
       select: [
         fragment("EXTRACT(EPOCH FROM ?)*1000", data.inserted_timestamp),
-        fragment("?->>'value'", c)
+        fragment("CAST(ROUND(CAST (?->>'value' AS NUMERIC), 2) AS FLOAT)", c)
       ]
     )
   end
