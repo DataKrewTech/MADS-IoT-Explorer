@@ -87,4 +87,13 @@ defmodule AcqdatCore.Model.RoleManagement.UserGroup do
       {:error, error} -> {:error, error}
     end
   end
+
+  def return_multipl_user_groups(group_ids) do
+    query =
+      from(group in UserGroup,
+        where: group.id in ^group_ids
+      )
+
+    Repo.all(query) |> Repo.preload(:policies)
+  end
 end
