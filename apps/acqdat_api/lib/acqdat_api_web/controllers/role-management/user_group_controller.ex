@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.ApiAccess.UserGroupController do
+defmodule AcqdatApiWeb.RoleManagement.UserGroupController do
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApi.ApiAccess.UserGroup
   import AcqdatApiWeb.Helpers

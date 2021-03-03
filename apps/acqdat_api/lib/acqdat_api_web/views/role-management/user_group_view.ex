@@ -1,6 +1,6 @@
-defmodule AcqdatApiWeb.ApiAccess.UserGroupView do
+defmodule AcqdatApiWeb.RoleManagement.UserGroupView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.ApiAccess.UserGroupView
+  alias AcqdatApiWeb.RoleManagement.UserGroupView
 
   def render("user_group.json", %{group: group}) do
     %{
