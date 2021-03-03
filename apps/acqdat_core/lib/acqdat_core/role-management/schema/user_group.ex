@@ -14,9 +14,9 @@ defmodule AcqdatCore.Schema.RoleManagement.UserGroup do
     field(:name, :string, null: false)
 
     # associations
-    belongs_to(:org, Organisation, on_replace: :delete)
-    many_to_many(:users, User, join_through: "acqdat_group_users", on_replace: :delete)
-    many_to_many(:policies, Policy, join_through: "acqdat_group_policies", on_replace: :delete)
+    belongs_to(:org, Organisation)
+    many_to_many(:users, User, join_through: "acqdat_group_users", on_delete: :delete_all)
+    many_to_many(:policies, Policy, join_through: "acqdat_group_policies", on_delete: :delete_all)
 
     timestamps(type: :utc_datetime)
   end
@@ -31,6 +31,13 @@ defmodule AcqdatCore.Schema.RoleManagement.UserGroup do
     |> common_changeset()
     |> put_group_users(params.user_ids)
     |> put_group_policies(params.policy_ids)
+  end
+
+  def normal_changeset(group, params) do
+    group
+    |> cast(params, @permitted)
+    |> validate_required(@permitted)
+    |> common_changeset()
   end
 
   def common_changeset(changeset) do

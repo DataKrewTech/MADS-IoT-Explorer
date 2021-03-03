@@ -23,6 +23,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationView do
 
   def render("invitation_with_preloads.json", %{invitation: invitation}) do
     user_group = UserGroup.return_multipl_user_groups(invitation.group_ids)
+
     %{
       id: invitation.id,
       email: invitation.email,
@@ -44,7 +45,9 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationView do
     }
   end
 
-  def render("policy.json", %{invitation: %{"action" => action, "app" => app, "feature" => feature}}) do
+  def render("policy.json", %{
+        invitation: %{"action" => action, "app" => app, "feature" => feature}
+      }) do
     %{
       action: action,
       app: app,

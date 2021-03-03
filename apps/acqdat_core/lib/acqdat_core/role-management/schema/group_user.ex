@@ -9,7 +9,7 @@ defmodule AcqdatCore.Schema.RoleManagement.GroupUser do
 
   schema("acqdat_group_users") do
     # associations
-    belongs_to(:user_group, UserGroup, on_replace: :delete)
+    belongs_to(:user_group, UserGroup)
     belongs_to(:user, User, on_replace: :delete)
   end
 

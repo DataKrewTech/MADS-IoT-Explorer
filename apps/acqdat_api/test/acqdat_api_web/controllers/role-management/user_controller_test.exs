@@ -262,6 +262,103 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       assert user_group_ids == [user_group1.id, user_group2.id]
       assert policy_ids == [policy3.id, new_policy1.id]
     end
+
+    test "adding user's to another group and then deleting that group", context do
+      %{user: user, policies: policies, conn: conn, org: org, user_policy: user_policy} = context
+      [policy1, policy2, policy3] = policies
+      policy_ids = extract_policy_ids(policies)
+      user_ids = [user.id]
+
+      params = %{
+        name: "User Group Testing 1",
+        org_id: org.id,
+        user_ids: user_ids,
+        policy_ids: [policy1.id, policy2.id]
+      }
+
+      {:ok, user_group1} = UserGroup.create(params)
+      new_policy = insert(:policy)
+      user1 = insert(:user, org: org)
+      user_ids = [user1.id]
+
+      params = %{
+        name: "User Group Testing 2",
+        org_id: org.id,
+        user_ids: user_ids,
+        policy_ids: [new_policy.id]
+      }
+
+      {:ok, user_group2} = UserGroup.create(params)
+      new_policy1 = insert(:policy)
+      policy3_temp = policy3 |> Map.from_struct() |> Map.drop([:__meta__, :id])
+      new_policy_temp = new_policy1 |> Map.from_struct() |> Map.drop([:__meta__, :id])
+
+      params = %{
+        group_ids: [user_group1.id, user_group2.id],
+        policies: [policy3_temp, new_policy_temp]
+      }
+
+      put(conn, Routes.user_path(conn, :update, org.id, user.id), params)
+      conn = delete(conn, Routes.user_group_path(conn, :delete, org.id, user_group2.id))
+      response = conn |> json_response(200)
+      user = Repo.get(User, user.id) |> Repo.preload([:policies, :user_group])
+      policy_ids = extract_policy_id_of_user(user.policies)
+      user_group_ids = extract_group_ids(user.user_group)
+      assert user_group_ids == [user_group1.id]
+      assert policy_ids == [policy3.id, new_policy1.id]
+    end
+
+    test "adding user's to another group and then updating that group", context do
+      %{user: user, policies: policies, conn: conn, org: org, user_policy: user_policy} = context
+      [policy1, policy2, policy3] = policies
+      policy_ids = extract_policy_ids(policies)
+      user_ids = [user.id]
+
+      params = %{
+        name: "User Group Testing 1",
+        org_id: org.id,
+        user_ids: user_ids,
+        policy_ids: [policy1.id, policy2.id]
+      }
+
+      {:ok, user_group1} = UserGroup.create(params)
+      new_policy = insert(:policy)
+      user1 = insert(:user, org: org)
+      user_ids = [user1.id]
+
+      params = %{
+        name: "User Group Testing 2",
+        org_id: org.id,
+        user_ids: user_ids,
+        policy_ids: [new_policy.id]
+      }
+
+      {:ok, user_group2} = UserGroup.create(params)
+      new_policy1 = insert(:policy)
+      policy3_temp = policy3 |> Map.from_struct() |> Map.drop([:__meta__, :id])
+      new_policy_temp = new_policy1 |> Map.from_struct() |> Map.drop([:__meta__, :id])
+
+      params = %{
+        group_ids: [user_group1.id, user_group2.id],
+        policies: [policy3_temp, new_policy_temp]
+      }
+
+      put(conn, Routes.user_path(conn, :update, org.id, user.id), params)
+
+      conn =
+        put(conn, Routes.user_group_path(conn, :update, org.id, user_group2.id), %{
+          name: "User Group Testing 3"
+        })
+
+      response = conn |> json_response(200)
+      user = Repo.get(User, user.id) |> Repo.preload([:policies, :user_group])
+      policy_ids = extract_policy_id_of_user(user.policies)
+      user_group_ids = extract_group_ids(user.user_group)
+      {:ok, update_user_group} = UserGroup.get(user_group2.id)
+      assert user_group_ids == [user_group1.id, user_group2.id]
+      assert policy_ids == [policy3.id, new_policy1.id]
+      assert update_user_group.name == "User Group Testing 3"
+    end
   end
 
   describe "apps/2" do
