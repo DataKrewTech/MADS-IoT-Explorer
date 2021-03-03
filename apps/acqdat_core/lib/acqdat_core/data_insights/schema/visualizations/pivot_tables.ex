@@ -77,7 +77,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
     Map.from_struct(__MODULE__).data_settings
   end
 
-  def pivot_with_cube(fact_table_name, rows, values, filters) do
+  defp pivot_with_cube(fact_table_name, rows, values, filters) do
     rows_data = Enum.map(rows, fn x -> x["name"] end)
 
     # "Apartment" <> '' and "Building" <> ''
@@ -119,7 +119,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
     end
   end
 
-  def pivot_with_crosstab(fact_table_name, rows, columns, values, filters) do
+  defp pivot_with_crosstab(fact_table_name, rows, columns, values, filters) do
     [column | _] = columns
     column_name = "\"#{column["name"]}\""
     [value | _] = values
