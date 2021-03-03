@@ -24,10 +24,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   def data_prop_gen(
         %{
           data_settings: %{
-            x_axes: x_axes,
-            y_axes: y_axes,
-            legends: legends,
-            filters: filters
+            "x_axes" => x_axes,
+            "y_axes" => y_axes,
+            "legends" => legends,
+            "filters" => filters
           },
           fact_table_id: fact_tables_id
         },
@@ -75,17 +75,17 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
 
   defp compute_and_gen_data(fact_table_name, x_axes, y_axes, legends, filters) do
     [x_axis | _] = x_axes
-    x_axis_col = "\"#{x_axis[:name]}\""
+    x_axis_col = "\"#{x_axis["name"]}\""
 
     [value | _] = y_axes
-    value_name = "\"#{value[:name]}\""
+    value_name = "\"#{value["name"]}\""
 
-    if x_axis[:action] == "group" do
+    if x_axis["action"] == "group" do
       values_data = y_axes_data(y_axes)
 
       """
-        select EXTRACT(EPOCH FROM (time_bucket('#{x_axis[:group_interval]} #{x_axis[:group_by]}'::VARCHAR::INTERVAL,
-        to_timestamp("#{x_axis[:name]}", 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{x_axis[:title]}\",
+        select EXTRACT(EPOCH FROM (time_bucket('#{x_axis["group_interval"]} #{x_axis["group_by"]}'::VARCHAR::INTERVAL,
+        to_timestamp("#{x_axis["name"]}", 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{x_axis["title"]}\",
         #{values_data}
         from #{fact_table_name}
         where #{value_name} <> '' 
@@ -107,23 +107,27 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
 
   defp y_axes_data(y_axes) do
     Enum.reduce(y_axes, "", fn value, acc ->
-      if Enum.member?(["sum", "avg", "min", "max"], value[:action]) do
-        "ROUND(#{value[:action]}(CAST(\"#{value[:name]}\" AS NUMERIC)), 2) as \"#{value[:title]}\""
+      if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
+        "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+          value["title"]
+        }\""
       else
-        "#{value[:action]}(distinct(\"#{value[:name]}\")) as \"#{value[:title]}\""
+        "#{value["action"]}(distinct(\"#{value["name"]}\")) as \"#{value["title"]}\""
       end
     end)
   end
 
   defp axes_data(y_axes, x_axes) do
     Enum.reduce(y_axes, x_axes, fn value, acc ->
-      if Enum.member?(["sum", "avg", "min", "max"], value[:action]) do
+      if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
         x_axes <>
           "," <>
-          "ROUND(#{value[:action]}(CAST(\"#{value[:name]}\" AS NUMERIC)), 2) as \"#{value[:title]}\""
+          "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+            value["title"]
+          }\""
       else
         x_axes <>
-          "," <> "#{value[:action]}(distinct(\"#{value[:name]}\")) as \"#{value[:title]}\""
+          "," <> "#{value["action"]}(distinct(\"#{value["name"]}\")) as \"#{value["title"]}\""
       end
     end)
   end
