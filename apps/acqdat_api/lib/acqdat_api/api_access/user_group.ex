@@ -23,8 +23,8 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
     params = for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
     policy_ids = Policy.extract_policies(actions)
     present_policy_ids = UserGroup.policies(group.id)
-    policy_ids_to_delete  = present_policy_ids -- policy_ids
-    policy_ids_to_add  = policy_ids -- present_policy_ids
+    policy_ids_to_delete = present_policy_ids -- policy_ids
+    policy_ids_to_add = policy_ids -- present_policy_ids
     total_policy_ids = (present_policy_ids -- policy_ids_to_delete) ++ policy_ids_to_add
     delete_policies(group, policy_ids_to_delete)
     add_policies(total_policy_ids, params, group)

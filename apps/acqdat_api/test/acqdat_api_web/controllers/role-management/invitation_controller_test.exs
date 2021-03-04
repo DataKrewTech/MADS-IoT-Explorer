@@ -131,7 +131,9 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
       %{invitation: invitation, conn: conn} = context
 
       conn =
-        put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{})
+        put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{
+          "invitation" => %{"group_ids" => [], "policies" => []}
+        })
 
       response = conn |> json_response(200)
 

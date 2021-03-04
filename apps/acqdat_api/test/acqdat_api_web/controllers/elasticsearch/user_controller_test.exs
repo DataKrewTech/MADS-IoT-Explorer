@@ -67,7 +67,9 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
                    "image" => nil,
                    "is_invited" => false,
                    "phone_number" => nil,
-                   "user_setting" => nil
+                   "user_setting" => nil,
+                   "policies" => [],
+                   "user_group" => []
                  }
                ],
                "total_entries" => 1
