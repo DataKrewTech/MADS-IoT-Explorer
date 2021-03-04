@@ -5,6 +5,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
   @visualization_type "PivotTables"
   @visualization_name "Pivot Table"
+  @icon_id "pivot-table"
 
   defstruct data_settings: %{
               filters: [],
@@ -65,6 +66,11 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
   @impl true
   def visualization_name() do
     @visualization_name
+  end
+
+  @impl true
+  def icon_id() do
+    @icon_id
   end
 
   @impl true

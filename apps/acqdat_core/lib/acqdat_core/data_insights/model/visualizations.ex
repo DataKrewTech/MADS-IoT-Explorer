@@ -34,6 +34,7 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
         name: module.visualization_name,
         type: module.visualization_type,
         module: module,
+        icon_id: module.icon_id,
         visual_settings: module.visual_settings,
         data_settings: module.data_settings
       }

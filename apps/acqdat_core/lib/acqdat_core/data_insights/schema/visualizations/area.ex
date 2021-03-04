@@ -4,6 +4,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
   @visualization_type "Area"
   @visualization_name "Area"
+  @icon_id "area-chart"
 
   defstruct data_settings: %{
               x_axes: [],
@@ -61,6 +62,11 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
   @impl true
   def visualization_name() do
     @visualization_name
+  end
+
+  @impl true
+  def icon_id() do
+    @icon_id
   end
 
   @impl true

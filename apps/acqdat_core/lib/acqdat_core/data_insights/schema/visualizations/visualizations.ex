@@ -38,6 +38,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   @callback data_settings() :: map
   @callback visualization_type() :: String.t()
   @callback visualization_name() :: String.t()
+  @callback icon_id() :: String.t()
 
   schema("acqdat_visualizations") do
     field(:name, :string, null: false)

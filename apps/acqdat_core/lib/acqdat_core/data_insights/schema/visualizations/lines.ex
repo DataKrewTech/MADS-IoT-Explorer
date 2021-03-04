@@ -4,6 +4,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
   @visualization_type "Lines"
   @visualization_name "Lines"
+  @icon_id "line-chart"
 
   defstruct data_settings: %{
               x_axes: [],
@@ -61,6 +62,11 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   @impl true
   def visualization_name() do
     @visualization_name
+  end
+
+  @impl true
+  def icon_id() do
+    @icon_id
   end
 
   @impl true

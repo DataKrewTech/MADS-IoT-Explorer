@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
       name: visualization.name,
       type: visualization.type,
       module: visualization.module,
+      icon_id: visualization.icon_id,
       visual_settings: visualization.visual_settings,
       data_settings: visualization.data_settings
     }
@@ -67,6 +68,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
       uuid: visualization.uuid,
       type: visualization.type,
       module: visualization.module,
+      icon_id: visualization.module.icon_id,
       visual_settings: visualization.visual_settings,
       data_settings: visualization.data_settings,
       created_at: visualization.inserted_at,
