@@ -18,7 +18,7 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
     verify_group(UserGroup.create(params))
   end
 
-  def update(group, %{actions: actions} = params) do
+  def update(group, %{"actions" => actions} = params) do
     params = for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
     policy_ids = Policy.extract_policies(actions)
     # present_policy_ids = UserGroup.policies(group.id)
