@@ -91,12 +91,15 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
     end
   end
 
-  def update(conn, _params) do
+  def update(
+        conn,
+        %{"invitation" => %{"group_ids" => group_ids, "policies" => policies}} = params
+      ) do
     invitation = conn.assigns[:invitation]
 
     case conn.status do
       nil ->
-        case Invitation.update(invitation, conn.assigns.current_user) do
+        case Invitation.update(invitation, conn.assigns.current_user, group_ids, policies) do
           {:ok, message} ->
             conn
             |> put_status(200)

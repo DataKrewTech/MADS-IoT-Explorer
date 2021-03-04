@@ -49,12 +49,14 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     }
   end
 
-  def update(invitation, current_user) do
+  def update(invitation, current_user, group_ids, policies) do
     reinvite_user(
       InvitationModel.update_invitation_token(invitation, %{
         "email" => invitation.email,
         "org_id" => invitation.org_id,
-        "token_valid" => true
+        "token_valid" => true,
+        "group_ids" => group_ids,
+        "policies" => policies
       }),
       current_user
     )
