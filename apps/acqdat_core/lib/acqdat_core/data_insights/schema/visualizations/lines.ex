@@ -171,7 +171,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   defp y_axes_data(y_axes) do
     Enum.reduce(y_axes, "", fn value, acc ->
       if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
-        "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+        "CAST(ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) AS FLOAT) as \"#{
           value["title"]
         }\""
       else
@@ -185,7 +185,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
       if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
         x_axes <>
           "," <>
-          "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+          "CAST(ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) AS FLOAT) as \"#{
             value["title"]
           }\""
       else
@@ -202,7 +202,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
           "," <>
           x_axes <>
           "," <>
-          "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{
+          "CAST(ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) AS FLOAT) as \"#{
             value["title"]
           }\""
       else
