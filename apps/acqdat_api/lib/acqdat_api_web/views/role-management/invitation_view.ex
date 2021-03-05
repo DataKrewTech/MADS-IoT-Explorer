@@ -22,7 +22,11 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationView do
   end
 
   def render("invitation_with_preloads.json", %{invitation: invitation}) do
-    user_group = UserGroup.return_multipl_user_groups(invitation.group_ids)
+    user_group =
+      case invitation.group_ids do
+        nil -> []
+        _ -> UserGroup.return_multiple_user_groups(invitation.group_ids)
+      end
 
     %{
       id: invitation.id,
