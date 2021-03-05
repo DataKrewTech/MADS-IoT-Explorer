@@ -57,7 +57,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
           [x_axis | _] = x_axes
 
           [value | _] = y_axes
-          %{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}
+          [%{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}]
         end
 
       {:ok,

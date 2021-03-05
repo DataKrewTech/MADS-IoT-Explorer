@@ -45,6 +45,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
 
       rows = output.rows
 
+      [x_axis | _] = x_axes
+
+      [value | _] = y_axes
+
       data =
         if length(legends) > 0 and length(rows) > 0 do
           [head | _] = output.columns
@@ -54,10 +58,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
 
           Enum.map(data, fn {key, value} -> %{name: "#{head} #{key}", data: value} end)
         else
-          [x_axis | _] = x_axes
-
-          [value | _] = y_axes
-          %{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}
+          [%{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}]
         end
 
       {:ok,

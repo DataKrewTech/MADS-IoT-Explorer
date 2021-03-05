@@ -39,6 +39,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   @callback visualization_type() :: String.t()
   @callback visualization_name() :: String.t()
   @callback icon_id() :: String.t()
+  # @callback chart_category() :: String.t()
 
   schema("acqdat_visualizations") do
     field(:name, :string, null: false)
@@ -48,6 +49,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
     field(:module, VisualizationsModuleSchemaEnum)
     field(:visual_settings, :map)
     field(:data_settings, :map)
+    field(:chart_category, :string)
 
     # associations
     belongs_to(:project, Project, on_replace: :delete)
@@ -59,7 +61,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations do
   end
 
   @required ~w(name module type project_id fact_table_id creator_id org_id slug uuid)a
-  @optional ~w(visual_settings data_settings)a
+  @optional ~w(visual_settings data_settings chart_category)a
   @permitted @required ++ @optional
 
   @spec changeset(
