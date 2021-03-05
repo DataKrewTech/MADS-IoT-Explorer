@@ -54,7 +54,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
 
           Enum.map(data, fn {key, value} -> %{name: "#{head} #{key}", data: value} end)
         else
-          rows
+          [x_axis | _] = x_axes
+
+          [value | _] = y_axes
+          %{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}
         end
 
       {:ok,
