@@ -19,7 +19,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
     if options[:chart_category] && options[:chart_category] == "highchart" do
       %{
         chart: %{
-          type: 'line'
+          type: "line"
         },
         xAxis: %{
           type: "category"
@@ -28,7 +28,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
     else
       %{
         chart: %{
-          type: 'line'
+          type: "line"
         }
       }
     end

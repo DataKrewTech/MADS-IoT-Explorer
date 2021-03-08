@@ -19,7 +19,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
     if options[:chart_category] && options[:chart_category] == "highchart" do
       %{
         chart: %{
-          type: 'area'
+          type: "area"
         },
         xAxis: %{
           type: "category"
@@ -28,7 +28,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
     else
       %{
         chart: %{
-          type: 'area'
+          type: "area"
         }
       }
     end
