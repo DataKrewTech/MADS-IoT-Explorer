@@ -15,10 +15,17 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
             visual_settings: %{}
 
   @impl true
-  def visual_prop_gen(visualization, _options \\ []) do
-    data = visualization.visual_settings
-
-    {:ok, "todo"}
+  def visual_prop_gen(visualization, options \\ %{}) do
+    if options[:chart_category] && options[:chart_category] == "highchart" do
+      %{
+        type: "area",
+        xAxis: %{
+          type: "category"
+        }
+      }
+    else
+      %{type: "area"}
+    end
   end
 
   @impl true
@@ -45,6 +52,10 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
 
       rows = output.rows
 
+      [x_axis | _] = x_axes
+
+      [value | _] = y_axes
+
       data =
         if length(legends) > 0 and length(rows) > 0 do
           [head | _] = output.columns
@@ -54,16 +65,16 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
 
           Enum.map(data, fn {key, value} -> %{name: "#{head} #{key}", data: value} end)
         else
-          [x_axis | _] = x_axes
-
-          [value | _] = y_axes
           [%{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}]
         end
+
+      chart_category = if x_axis["action"] == "group", do: "stock_chart", else: "highchart"
 
       {:ok,
        %{
          headers: output.columns,
-         data: data
+         data: data,
+         chart_category: chart_category
        }}
     rescue
       error in Postgrex.Error ->

@@ -14,7 +14,23 @@ defmodule AcqdatApi.DataInsights.Visualizations do
 
         case module.data_prop_gen(visualization) do
           {:ok, data} ->
-            {:ok, Map.put(visualization, :gen_data, data)}
+            if module.visualization_type == "PivotTables" do
+              {:ok, Map.put(visualization, :gen_data, data)}
+            else
+              case Visualizations.update(visualization, %{
+                     chart_category: data[:chart_category],
+                     visual_settings:
+                       module.visual_prop_gen(visualization, %{
+                         chart_category: data[:chart_category]
+                       })
+                   }) do
+                {:ok, visualization} ->
+                  {:ok, Map.put(visualization, :gen_data, data)}
+
+                {:error, message} ->
+                  {:error, message}
+              end
+            end
 
           {:error, message} ->
             {:error, message}
