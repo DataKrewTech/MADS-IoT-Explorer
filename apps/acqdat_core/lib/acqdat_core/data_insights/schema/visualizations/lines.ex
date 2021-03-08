@@ -18,13 +18,19 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   def visual_prop_gen(visualization, options \\ %{}) do
     if options[:chart_category] && options[:chart_category] == "highchart" do
       %{
-        type: "line",
+        chart: %{
+          type: 'line'
+        },
         xAxis: %{
           type: "category"
         }
       }
     else
-      %{type: "line"}
+      %{
+        chart: %{
+          type: 'line'
+        }
+      }
     end
   end
 

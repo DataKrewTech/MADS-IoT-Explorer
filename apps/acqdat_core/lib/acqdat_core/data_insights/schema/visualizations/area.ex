@@ -18,13 +18,19 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
   def visual_prop_gen(visualization, options \\ %{}) do
     if options[:chart_category] && options[:chart_category] == "highchart" do
       %{
-        type: "area",
+        chart: %{
+          type: 'area'
+        },
         xAxis: %{
           type: "category"
         }
       }
     else
-      %{type: "area"}
+      %{
+        chart: %{
+          type: 'area'
+        }
+      }
     end
   end
 
