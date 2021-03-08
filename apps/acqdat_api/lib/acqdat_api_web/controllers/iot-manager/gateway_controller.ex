@@ -91,6 +91,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
               ElasticSearch.update_gateway("pro", gateway)
             end)
 
+            tree_mapping = Gateway.tree_mapping(gateway.mapped_parameters)
+            gateway = Map.put_new(gateway, :tree_mapping, tree_mapping)
+
             conn
             |> put_status(200)
             |> render("show.json", %{gateway: gateway})
@@ -121,6 +124,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
           Task.start_link(fn ->
             ElasticSearch.insert_gateway("pro", gateway)
           end)
+
+          tree_mapping = Gateway.tree_mapping(gateway.mapped_parameters)
+          gateway = Map.put_new(gateway, :tree_mapping, tree_mapping)
 
           conn
           |> put_status(200)
@@ -249,6 +255,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
         case Gateway.associate_sensors(gateway, sensor_ids) do
           {:ok, _message} ->
             gateway = Gateway.load_associations(conn.assigns.gateway)
+            tree_mapping = Gateway.tree_mapping(gateway.mapped_parameters)
+            gateway = Map.put_new(gateway, :tree_mapping, tree_mapping)
 
             conn
             |> put_status(200)
