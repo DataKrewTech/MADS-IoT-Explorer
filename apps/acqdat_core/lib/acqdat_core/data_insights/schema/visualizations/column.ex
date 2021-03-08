@@ -16,30 +16,13 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Column do
             visual_settings: %{}
 
   @impl true
-  def visual_prop_gen(visualization, options \\ %{}) do
-    if options[:chart_category] && options[:chart_category] == "highchart" do
-      %{
-        chart: %{
-          type: "column"
-        },
-        xAxis: %{
-          type: "category"
-        },
-        legend: %{enabled: true}
-      }
-    else
-      %{
-        chart: %{
-          type: "column"
-        },
-        legend: %{enabled: true}
-      }
-    end
+  def visual_prop_gen(_visualization, options \\ %{}) do
+    DataGenerator.process_visual_data(options, "column")
   end
 
   @impl true
   def data_prop_gen(params, _options \\ []) do
-    DataGenerator.process(params)
+    DataGenerator.process_data(params)
   end
 
   @impl true

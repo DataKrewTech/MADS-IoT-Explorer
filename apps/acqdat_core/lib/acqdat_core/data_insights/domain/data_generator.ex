@@ -1,7 +1,15 @@
 defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
   alias AcqdatCore.Repo
 
-  def process(
+  def process_visual_data(options, type) do
+    visual_settings = %{chart: %{type: type}, legend: %{enabled: true}}
+
+    if options[:chart_category] && options[:chart_category] == "highchart",
+      do: Map.put(visual_settings, :xAxis, %{type: "category"}),
+      else: visual_settings
+  end
+
+  def process_data(
         %{
           data_settings: %{
             "x_axes" => x_axes,
