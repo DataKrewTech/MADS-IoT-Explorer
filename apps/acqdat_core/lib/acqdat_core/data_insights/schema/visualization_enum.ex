@@ -6,12 +6,14 @@ import EctoEnum
 defenum(VisualizationsModuleSchemaEnum,
   "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.PivotTables": 0,
   "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.Lines": 1,
-  "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.Area": 2
+  "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.Area": 2,
+  "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.Column": 3
 )
 
 # Creates an enum for different visualizations type
 defenum(VisualizationsModuleEnum,
   PivotTables: 0,
   Lines: 1,
-  Area: 2
+  Area: 2,
+  Column: 3
 )

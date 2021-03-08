@@ -23,13 +23,15 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
         },
         xAxis: %{
           type: "category"
-        }
+        },
+        legend: %{enabled: true}
       }
     else
       %{
         chart: %{
           type: "area"
-        }
+        },
+        legend: %{enabled: true}
       }
     end
   end

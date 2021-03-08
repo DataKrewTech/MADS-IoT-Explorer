@@ -1,10 +1,10 @@
-defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
+defmodule AcqdatCore.DataInsights.Schema.Visualizations.Column do
   use AcqdatCore.Schema
 
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
-  @visualization_type "Lines"
-  @visualization_name "Lines"
-  @icon_id "line-chart"
+  @visualization_type "Column"
+  @visualization_name "Column"
+  @icon_id "column-chart"
 
   defstruct data_settings: %{
               x_axes: [],
@@ -19,7 +19,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
     if options[:chart_category] && options[:chart_category] == "highchart" do
       %{
         chart: %{
-          type: "line"
+          type: "column"
         },
         xAxis: %{
           type: "category"
@@ -29,7 +29,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
     else
       %{
         chart: %{
-          type: "line"
+          type: "column"
         },
         legend: %{enabled: true}
       }
@@ -54,46 +54,36 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
     try do
       query = compute_and_gen_data(fact_table_name, x_axes, y_axes, legends, filters)
 
+      output = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
+
+      IO.inspect(output)
+
+      rows = output.rows
+
       [x_axis | _] = x_axes
 
       [value | _] = y_axes
 
+      data =
+        if length(legends) > 0 and length(rows) > 0 do
+          [head | _] = output.columns
+
+          data =
+            rows |> Enum.group_by(fn [legend | _] -> legend end, fn [_legend | data] -> data end)
+
+          Enum.map(data, fn {key, value} -> %{name: "#{head} #{key}", data: value} end)
+        else
+          [%{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}]
+        end
+
       chart_category = if x_axis["action"] == "group", do: "stock_chart", else: "highchart"
 
-      if length(y_axes) > 1 do
-        {:ok,
-         %{
-           headers: [],
-           data: query,
-           chart_category: chart_category
-         }}
-      else
-        output = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
-
-        IO.inspect(output)
-
-        rows = output.rows
-
-        data =
-          if length(legends) > 0 and length(rows) > 0 do
-            [head | _] = output.columns
-
-            data =
-              rows
-              |> Enum.group_by(fn [legend | _] -> legend end, fn [_legend | data] -> data end)
-
-            Enum.map(data, fn {key, value} -> %{name: "#{head} #{key}", data: value} end)
-          else
-            [%{name: "#{x_axis["title"]} vs #{value["title"]}", data: rows}]
-          end
-
-        {:ok,
-         %{
-           headers: output.columns,
-           data: data,
-           chart_category: chart_category
-         }}
-      end
+      {:ok,
+       %{
+         headers: output.columns,
+         data: data,
+         chart_category: chart_category
+       }}
     rescue
       error in Postgrex.Error ->
         {:error, error.postgres.message}
@@ -123,18 +113,6 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
   @impl true
   def data_settings() do
     Map.from_struct(__MODULE__).data_settings
-  end
-
-  defp compute_and_gen_data(fact_table_name, x_axes, y_axes, legends, filters)
-       when length(y_axes) > 1 do
-    [x_axis | _] = x_axes
-
-    Enum.reduce(y_axes, [], fn y_axis, acc ->
-      query = compute_and_gen_data(fact_table_name, x_axes, [y_axis], "", filters)
-
-      output = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
-      acc ++ [%{name: "#{x_axis["title"]} vs #{y_axis["title"]}", data: output.rows}]
-    end)
   end
 
   defp compute_and_gen_data(fact_table_name, x_axes, y_axes, legends, filters)
