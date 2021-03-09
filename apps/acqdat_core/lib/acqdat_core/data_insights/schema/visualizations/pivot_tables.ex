@@ -459,9 +459,9 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
 
   defp value_data_string(value) do
     if Enum.member?(["sum", "avg", "min", "max"], value["action"]) do
-      "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as #{value["title"]}"
+      "ROUND(#{value["action"]}(CAST(\"#{value["name"]}\" AS NUMERIC)), 2) as \"#{value["title"]}\""
     else
-      "#{value["action"]}(\"#{value["name"]}\") as #{value["title"]}"
+      "#{value["action"]}(\"#{value["name"]}\") as \"#{value["title"]}\""
     end
   end
 end

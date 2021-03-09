@@ -35,6 +35,22 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsChannel do
     {:reply, :ok, socket}
   end
 
+  defp push_on_channel(socket, %{error: message}) do
+    push(
+      socket,
+      "out_put_res_visualizations",
+      Phoenix.View.render(
+        AcqdatApiWeb.DataInsights.VisualizationsView,
+        "visualization_data_error.json",
+        %{
+          visualization_data: %{error: message}
+        }
+      )
+    )
+
+    {:noreply, socket}
+  end
+
   defp push_on_channel(socket, data) do
     push(
       socket,

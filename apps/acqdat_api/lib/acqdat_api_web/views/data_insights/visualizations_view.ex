@@ -48,6 +48,10 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
     }
   end
 
+  def render("visualization_data_error.json", %{visualization_data: visualization}) do
+    %{visualization: visualization}
+  end
+
   def render("creator.json", %{visualizations: creator}) do
     %{
       id: creator.id,
