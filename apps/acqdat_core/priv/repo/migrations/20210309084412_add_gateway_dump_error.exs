@@ -1,4 +1,4 @@
-defmodule AcqdatCore.Repo.Migrations.AddGatewayError do
+defmodule AcqdatCore.Repo.Migrations.AddGatewayDumpError do
   use Ecto.Migration
 
   def change do
@@ -12,5 +12,8 @@ defmodule AcqdatCore.Repo.Migrations.AddGatewayError do
 
       timestamps(type: :timestamptz, updated_at: false)
     end
+
+    create unique_index(:acqdat_gateway_data_dump,
+      [:inserted_timestamp, :gateway_uuid])
   end
 end
