@@ -10,6 +10,7 @@ defmodule AcqdatCore.Repo.Migrations.CreateVisualizationsTable do
       add(:type, VisualizationsModuleEnum.type(), null: false)
       add(:visual_settings, :map)
       add(:data_settings, :map)
+      add(:chart_category, :string)
 
       add(:org_id, references("acqdat_organisation", on_delete: :delete_all), null: false)
       add(:project_id, references("acqdat_projects", on_delete: :delete_all), null: false)
@@ -24,4 +25,3 @@ defmodule AcqdatCore.Repo.Migrations.CreateVisualizationsTable do
     create unique_index("acqdat_visualizations", [:fact_table_id, :name], name: :unique_visualization_name_per_fact_table)
   end
 end
-
