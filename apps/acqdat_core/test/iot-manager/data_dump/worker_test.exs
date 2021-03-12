@@ -39,7 +39,6 @@ defmodule AcqdatCore.IotManager.DataDump.WorkerTest do
       GatewayDataDump.create(dump_params)
 
       assert {:noreply, {:error, result}} = Worker.handle_cast({:data_dump, dump_params}, %{})
-
       assert %{
                inserted_timestamp: ["duplicate data with same timestamp inserted"]
              } == result.error
