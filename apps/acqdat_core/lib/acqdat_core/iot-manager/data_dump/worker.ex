@@ -43,7 +43,7 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
   defp log_data(error, params) do
     params = %{data: params.data, error: error, gateway_uuid: params.gateway_uuid}
     changeset = GatewayError.changeset(%GatewayError{}, params)
-    {:ok, data}= Repo.insert(changeset)
+    {:ok, data} = Repo.insert(changeset)
     data
   end
 end
