@@ -52,7 +52,12 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
         "name" => user.role.name
       }
 
-      organisation = %{"id" => user.org.id, "name" => user.org.name, "type" => "Organisation"}
+      organisation = %{
+        "id" => user.org.id,
+        "name" => user.org.name,
+        "type" => "Organisation",
+        "uuid" => user.org.uuid
+      }
 
       assert result == %{
                "users" => [

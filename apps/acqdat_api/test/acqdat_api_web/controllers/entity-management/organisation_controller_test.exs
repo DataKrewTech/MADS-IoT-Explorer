@@ -44,7 +44,8 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationControllerTest do
       assert result == %{
                "id" => org.id,
                "name" => org.name,
-               "type" => "Organisation"
+               "type" => "Organisation",
+               "uuid" => org.uuid
              }
     end
   end
