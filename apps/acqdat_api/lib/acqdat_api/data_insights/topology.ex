@@ -103,7 +103,7 @@ defmodule AcqdatApi.DataInsights.Topology do
             select: [sensor.name]
           )
 
-        %{headers: ["#{name}"], data: Repo.all(query)}
+        %{headers: [%{"#{name}" => "text"}], data: Repo.all(query)}
       else
         [%{"date_from" => date_from, "date_to" => date_to}] = sensor_types
 
@@ -121,12 +121,13 @@ defmodule AcqdatApi.DataInsights.Topology do
         query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_id])
 
         %{
-          headers: ["#{name} #{metadata_name}", "#{name} #{metadata_name}_dateTime"],
+          headers: [
+            %{"#{name} #{metadata_name}" => "numeric"},
+            %{"#{name} #{metadata_name}_dateTime" => "timestamp"}
+          ],
           data: Repo.all(query)
         }
       end
-
-    headers = output[:headers] |> Enum.map_join(",", &"\"#{&1}\"")
 
     output =
       if output[:data] != [] do
@@ -145,16 +146,26 @@ defmodule AcqdatApi.DataInsights.Topology do
             }
           })
 
-        data = FactTablesCon.convert_table_data_to_text(output[:data])
-
         fact_table_name = "fact_table_#{fact_table_id}"
 
-        FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+        FactTablesCon.create_fact_table(fact_table_name, output[:headers], output[:data])
 
         data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
+        columns =
+          Ecto.Adapters.SQL.query!(
+            Repo,
+            "select column_name, data_type from information_schema.columns where table_name = \'#{
+              fact_table_name
+            }\'",
+            [],
+            timeout: :infinity
+          )
+
+        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+
         %{
-          headers: data.columns,
+          headers: columns,
           data: data.rows,
           total: FactTablesCon.total_no_of_rec(fact_table_name)
         }
@@ -186,7 +197,7 @@ defmodule AcqdatApi.DataInsights.Topology do
           )
           |> Repo.all()
 
-        headers = "name"
+        headers = [%{"name" => "text"}]
         {headers, data1}
       else
         data1 =
@@ -200,17 +211,15 @@ defmodule AcqdatApi.DataInsights.Topology do
           )
           |> Repo.all()
 
-        headers = [metadata_name] |> Enum.map_join(",", &"\"#{&1}\"")
+        headers = [%{"#{metadata_name}" => "text"}]
         {headers, data1}
       end
 
     output =
       if data != [] do
-        data = FactTablesCon.convert_table_data_to_text(data)
-
         fact_table_name = "fact_table_#{fact_table_id}"
 
-        FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+        FactTablesCon.create_fact_table(fact_table_name, headers, data)
 
         data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
@@ -223,8 +232,20 @@ defmodule AcqdatApi.DataInsights.Topology do
             headers_metadata: %{"rows_len" => 1, "headers" => headers_metadata}
           })
 
+        columns =
+          Ecto.Adapters.SQL.query!(
+            Repo,
+            "select column_name, data_type from information_schema.columns where table_name = \'#{
+              fact_table_name
+            }\'",
+            [],
+            timeout: :infinity
+          )
+
+        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+
         %{
-          headers: data.columns,
+          headers: columns,
           data: data.rows,
           total: FactTablesCon.total_no_of_rec(fact_table_name)
         }
@@ -260,17 +281,25 @@ defmodule AcqdatApi.DataInsights.Topology do
       [%{"id" => asset_type_id} | _] = uniq_asset_types
       metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_id"] end)
 
+      metadata_list_names =
+        Enum.map(asset_types, fn asset_type -> asset_type["metadata_name"] end)
+
       metadata_list =
         if Enum.member?(metadata_list, "name"),
           do: ["name"] ++ (metadata_list -- ["name"]),
           else: ["name"] ++ metadata_list
 
+      {metadata_list, metadata_list_names} =
+        if Enum.member?(metadata_list, "name") do
+          {["name"] ++ (metadata_list -- ["name"]), ["name"] ++ (metadata_list_names -- ["name"])}
+        else
+          {["name"] ++ metadata_list, ["name"] ++ metadata_list_names}
+        end
+
       res = AssetModel.fetch_asset_metadata(asset_type_id, metadata_list)
 
       data =
         Enum.group_by(res, fn x -> x.name end, fn y -> %{"#{y.metadata_name}" => y.value} end)
-
-      [first_metadata | _] = Map.values(data)
 
       data =
         Enum.reduce(data, [], fn {key, metadatas}, acc1 ->
@@ -298,20 +327,28 @@ defmodule AcqdatApi.DataInsights.Topology do
               }
             })
 
-          headers =
-            (["name"] ++ List.flatten(Enum.map(first_metadata, fn x -> Map.keys(x) end)))
-            |> Enum.map_join(",", &"\"#{&1}\"")
-
-          data = FactTablesCon.convert_table_data_to_text(data)
+          headers = Enum.map(metadata_list_names, fn x -> %{"#{x}" => "text"} end)
 
           fact_table_name = "fact_table_#{fact_table_id}"
 
-          FactTablesCon.create_fact_table_view(fact_table_name, headers, data)
+          FactTablesCon.create_fact_table(fact_table_name, headers, data)
 
           data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
+          columns =
+            Ecto.Adapters.SQL.query!(
+              Repo,
+              "select column_name, data_type from information_schema.columns where table_name = \'#{
+                fact_table_name
+              }\'",
+              [],
+              timeout: :infinity
+            )
+
+          columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+
           %{
-            headers: data.columns,
+            headers: columns,
             data: data.rows,
             total: FactTablesCon.total_no_of_rec(fact_table_name)
           }

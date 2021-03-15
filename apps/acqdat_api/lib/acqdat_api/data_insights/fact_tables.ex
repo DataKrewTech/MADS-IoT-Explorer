@@ -142,24 +142,37 @@ defmodule AcqdatApi.DataInsights.FactTables do
         headers_metadata: %{"rows_len" => length(headers), "headers" => headers_metadata}
       })
 
-    headers = (metadata_list ++ ["entity_dateTime"]) |> Enum.map_join(",", &"\"#{&1}\"")
+    headers =
+      Enum.map(metadata_list, fn x ->
+        if x == "name", do: %{"#{x}" => "text"}, else: %{"#{x}" => "numeric"}
+      end) ++ [%{"entity_dateTime" => "timestamp"}]
 
     if res == [] do
       %{error: "No data present for the specified user inputs"}
     else
-      table_body = res |> convert_table_data_to_text
-
       fact_table_name = "fact_table_#{fact_table_id}"
 
       try do
-        create_fact_table_view(fact_table_name, headers, table_body)
+        create_fact_table(fact_table_name, headers, res)
 
         data =
           Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [],
             timeout: :infinity
           )
 
-        %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
+        columns =
+          Ecto.Adapters.SQL.query!(
+            Repo,
+            "select column_name, data_type from information_schema.columns where table_name = \'#{
+              fact_table_name
+            }\'",
+            [],
+            timeout: :infinity
+          )
+
+        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+
+        %{headers: columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
       rescue
         error in Postgrex.Error ->
           {:error, error.postgres.message}
@@ -238,19 +251,28 @@ defmodule AcqdatApi.DataInsights.FactTables do
     if data == [] do
       %{error: "No data present for the specified user inputs"}
     else
-      table_headers =
-        gen_fact_table_headers(user_list, headers_metadata) |> Enum.map_join(",", &"\"#{&1}\"")
+      table_headers = gen_fact_table_headers(user_list, headers_metadata)
 
-      table_body = data |> convert_table_data_to_text
-
-      create_fact_table_view(fact_table_name, table_headers, table_body)
+      create_fact_table(fact_table_name, table_headers, data)
 
       data =
         Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [],
           timeout: :infinity
         )
 
-      %{headers: data.columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
+      columns =
+        Ecto.Adapters.SQL.query!(
+          Repo,
+          "select column_name, data_type from information_schema.columns where table_name = \'#{
+            fact_table_name
+          }\'",
+          [],
+          timeout: :infinity
+        )
+
+      columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+
+      %{headers: columns, data: data.rows, total: total_no_of_rec(fact_table_name)}
     end
   end
 
@@ -396,7 +418,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           List.replace_at(
             acc,
             pos,
-            "#{entity["name"]} #{entity["metadata_name"]}"
+            %{"#{entity["name"]} #{entity["metadata_name"]}" => "text"}
           )
         else
           if entity["type"] == "AssetType" do
@@ -409,7 +431,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
             List.replace_at(
               acc,
               pos,
-              "#{entity["name"]} #{metadata_name}"
+              %{"#{entity["name"]} #{metadata_name}" => "text"}
             )
           else
             [%{name: [param_name]}] =
@@ -421,7 +443,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
               List.replace_at(
                 acc,
                 pos,
-                "#{entity["name"]} #{param_name}"
+                %{"#{entity["name"]} #{param_name}" => "numeric"}
               )
 
             pos = headers["#{entity["id"]}"]["#{entity["metadata_id"]}_dateTime"]
@@ -431,13 +453,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
               List.replace_at(
                 acc,
                 pos_dateTime,
-                "entity_dateTime"
+                %{"entity_dateTime" => "timestamp"}
               )
             else
               List.replace_at(
                 acc,
                 pos,
-                "#{entity["name"]} #{param_name}_dateTime"
+                %{"#{entity["name"]} #{param_name}_dateTime" => "timestamp"}
               )
             end
           end
@@ -445,29 +467,38 @@ defmodule AcqdatApi.DataInsights.FactTables do
     end)
   end
 
-  def convert_table_data_to_text(data) do
-    text_form =
-      Enum.reduce(data, "", fn ele, acc ->
-        acc <> "(" <> Enum.map_join(ele, ",", &"\'#{&1}\'") <> "),"
-      end)
-
-    {text_form, _} = String.split_at(text_form, -1)
-    text_form
-  end
-
-  def create_fact_table_view(fact_table_name, table_headers, data) do
+  def create_fact_table(fact_table_name, table_headers, data) do
     Ecto.Adapters.SQL.query!(Repo, "drop table if exists #{fact_table_name};", [],
       timeout: :infinity
     )
 
-    qry = """
-      CREATE TABLE #{fact_table_name} AS
-      SELECT * FROM(
-      VALUES
-      #{data}) as #{fact_table_name}(#{table_headers});
-    """
+    {qry_text, headers} = gen_fact_table_column(table_headers)
 
-    Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
+    {qry_text, _} = String.split_at(qry_text, -1)
+
+    {headers, _} = String.split_at(headers, -1)
+
+    gen_table(fact_table_name, qry_text)
+
+    data
+    |> Stream.chunk_every(500)
+    |> Stream.transform(
+      fn -> 0 end,
+      fn batched_data, acc ->
+        text_form = convert_table_data_to_text(batched_data)
+
+        qry = """
+          INSERT INTO #{fact_table_name}
+          (#{headers})
+          VALUES
+          #{text_form};
+        """
+
+        {[Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)], acc}
+      end,
+      fn _ -> nil end
+    )
+    |> Enum.to_list()
   end
 
   def fetch_children(parent_node, parent_entity, subtree, output, computed_row, headers) do
@@ -757,6 +788,35 @@ defmodule AcqdatApi.DataInsights.FactTables do
             end
           end)
     end
+  end
+
+  defp gen_fact_table_column(table_headers) do
+    Enum.reduce(table_headers, {"", ""}, fn entity, {acc, keys} ->
+      [key] = Map.keys(entity)
+      [value] = Map.values(entity)
+      acc = acc <> "\"#{key}\" #{value},"
+      keys = keys <> "\"#{key}\","
+      {acc, keys}
+    end)
+  end
+
+  defp gen_table(fact_table_name, qry_text) do
+    qry = """
+      CREATE TABLE #{fact_table_name}
+      (#{qry_text})
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
+  end
+
+  defp convert_table_data_to_text(data) do
+    text_form =
+      Enum.reduce(data, "", fn ele, acc ->
+        acc <> "(" <> Enum.map_join(ele, ",", &"\'#{&1}\'") <> "),"
+      end)
+
+    {text_form, _} = String.split_at(text_form, -1)
+    text_form
   end
 
   defp delete_temp_fact_table_view(%{id: id}) do
