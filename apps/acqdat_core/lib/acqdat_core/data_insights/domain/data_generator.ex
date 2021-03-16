@@ -101,10 +101,12 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
       """
         select #{legend_name},
         EXTRACT(EPOCH FROM (time_bucket('#{x_axis["group_interval"]} #{x_axis["group_by"]}'::VARCHAR::INTERVAL,
-        to_timestamp("#{x_axis["name"]}", 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{x_axis["title"]}\",
+        to_timestamp(cast("#{x_axis["name"]}" as TEXT, 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{
+        x_axis["title"]
+      }\",
         #{values_data}
         from #{fact_table_name}
-        where #{value_name} <> '' 
+        #{filters_query(filters)}
         group by 1, 2
         order by 1, 2
       """
@@ -114,7 +116,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
       """
         select #{values_data}
         from #{fact_table_name}
-        where #{value_name} <> '' 
+        #{filters_query(filters)}
         group by #{grouped_params} 
         order by #{grouped_params}
       """
@@ -133,10 +135,12 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
 
       """
         select EXTRACT(EPOCH FROM (time_bucket('#{x_axis["group_interval"]} #{x_axis["group_by"]}'::VARCHAR::INTERVAL,
-        to_timestamp("#{x_axis["name"]}", 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{x_axis["title"]}\",
+        to_timestamp(cast("#{x_axis["name"]}" as TEXT), 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{
+        x_axis["title"]
+      }\",
         #{values_data}
         from #{fact_table_name}
-        where #{value_name} <> '' 
+        #{filters_query(filters)}
         group by 1
         order by 1
       """
@@ -146,10 +150,64 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
       """
         select #{values_data}
         from #{fact_table_name}
-        where #{value_name} <> '' 
+        #{filters_query(filters)}
         group by #{x_axis_col} 
         order by #{x_axis_col}
       """
+    end
+  end
+
+  defp filters_query(filters) when length(filters) > 0 do
+    query =
+      Enum.reduce(filters, "", fn filter, acc ->
+        acc <> fetch_filter_action(filter) <> " AND "
+      end)
+
+    {query, _} = String.split_at(query, -4)
+    "where #{query}"
+  end
+
+  defp filters_query(filters) do
+    ""
+  end
+
+  defp fetch_filter_action(filter) do
+    case filter["action"] do
+      "equal" ->
+        "\"#{filter["name"]}\" = #{filter["values"]}"
+
+      "not equal" ->
+        "\"#{filter["name"]}\" <> #{filter["values"]}"
+
+      "less than" ->
+        "\"#{filter["name"]}\" < #{filter["values"]}"
+
+      "greater than" ->
+        "\"#{filter["name"]}\" > #{filter["values"]}"
+
+      "between" ->
+        [innerbound, outerbound] = filter["values"]
+        "\"#{filter["name"]}\" >= #{innerbound} AND \"#{filter["name"]}\" <= #{outerbound}"
+
+      "is null" ->
+        "\"#{filter["name"]}\" IS NULL"
+
+      "is not null" ->
+        "\"#{filter["name"]}\" IS NOT NULL"
+
+      "is" ->
+        values = filter["values"] |> Enum.map_join(",", fn k -> "\'#{k}\'" end)
+        "\"#{filter["name"]}\" IN (#{values})"
+
+      "is not" ->
+        values = filter["values"] |> Enum.map_join(",", fn k -> "\'#{k}\'" end)
+        "\"#{filter["name"]}\" NOT IN (#{values})"
+
+      "contains" ->
+        "\"#{filter["name"]}\" ILIKE ('%' || CAST ( \'#{filter["values"]}\' AS text ) || '%')"
+
+      "does not contain" ->
+        "NOT(\"#{filter["name"]}\" ILIKE ('%' || CAST ( \'#{filter["values"]}\' AS text ) || '%'))"
     end
   end
 
