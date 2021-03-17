@@ -1,4 +1,5 @@
 defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
+  import AcqdatCore.DataInsights.Domain.DataFilter
   alias AcqdatCore.Repo
 
   def process_visual_data(options, type) do
@@ -87,9 +88,6 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
     [x_axis | _] = x_axes
     x_axis_col = "\"#{x_axis["name"]}\""
 
-    [value | _] = y_axes
-    value_name = "\"#{value["name"]}\""
-
     [legend | _] = legends
     legend_name = "\"#{legend["name"]}\""
 
@@ -127,9 +125,6 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
     [x_axis | _] = x_axes
     x_axis_col = "\"#{x_axis["name"]}\""
 
-    [value | _] = y_axes
-    value_name = "\"#{value["name"]}\""
-
     if x_axis["action"] == "group" do
       values_data = y_axes_data(y_axes)
 
@@ -154,92 +149,6 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
         group by #{x_axis_col} 
         order by #{x_axis_col}
       """
-    end
-  end
-
-  defp filters_query(filters) when length(filters) > 0 do
-    query =
-      Enum.reduce(filters, "", fn filter, acc ->
-        acc <> fetch_filter_action(filter) <> " AND "
-      end)
-
-    {query, _} = String.split_at(query, -4)
-    "where #{query}"
-  end
-
-  defp filters_query(filters) do
-    ""
-  end
-
-  defp fetch_filter_action(filter) do
-    case filter["action"] do
-      "equal" ->
-        "\"#{filter["name"]}\" = #{filter["values"]}"
-
-      "not equal" ->
-        "\"#{filter["name"]}\" <> #{filter["values"]}"
-
-      "less than" ->
-        "\"#{filter["name"]}\" < #{filter["values"]}"
-
-      "greater than" ->
-        "\"#{filter["name"]}\" > #{filter["values"]}"
-
-      "between" ->
-        [innerbound, outerbound] = filter["values"]
-
-        if filter["type"] == "timestamp" do
-          "\"#{filter["name"]}\" >= CAST ( \'#{innerbound}\' AS timestamptz ) AND \"#{outerbound}\" <= CAST ( \'#{
-            filter["values"]
-          }\' AS timestamptz )"
-        else
-          "\"#{filter["name"]}\" >= #{innerbound} AND \"#{filter["name"]}\" <= #{outerbound}"
-        end
-
-      "is null" ->
-        "\"#{filter["name"]}\" IS NULL"
-
-      "is not null" ->
-        "\"#{filter["name"]}\" IS NOT NULL"
-
-      "is" ->
-        values = filter["values"] |> Enum.map_join(",", fn k -> "\'#{k}\'" end)
-        "\"#{filter["name"]}\" IN (#{values})"
-
-      "is not" ->
-        values = filter["values"] |> Enum.map_join(",", fn k -> "\'#{k}\'" end)
-        "\"#{filter["name"]}\" NOT IN (#{values})"
-
-      "contains" ->
-        "\"#{filter["name"]}\" ILIKE ('%' || CAST ( \'#{filter["values"]}\' AS text ) || '%')"
-
-      "does not contain" ->
-        "NOT(\"#{filter["name"]}\" ILIKE ('%' || CAST ( \'#{filter["values"]}\' AS text ) || '%'))"
-
-      "before" ->
-        "\"#{filter["name"]}\" < CAST ( \'#{filter["values"]}\' AS timestamptz )"
-
-      "after" ->
-        "\"#{filter["name"]}\" > CAST ( \'#{filter["values"]}\' AS timestamptz )"
-
-      "on" ->
-        "\"#{filter["name"]}\" = CAST ( \'#{filter["values"]}\' AS timestamptz )"
-
-      "last" ->
-        interval = "\'#{filter["values_by"]} #{filter["values"]}\'"
-
-        "(DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) < DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP )) AND
-        (DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) >= DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP - INTERVAL #{
-          interval
-        } ))"
-
-      "next" ->
-        interval = "\'#{filter["values_by"]} #{filter["values"]}\'"
-
-        "(DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) > DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP )) AND
-        (DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) <= DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP + INTERVAL #{
-          interval
-        } ))"
     end
   end
 
