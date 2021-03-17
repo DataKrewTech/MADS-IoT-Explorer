@@ -17,6 +17,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Widget do
         uuid: params.uuid,
         properties: params.properties,
         category: params.category,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         widget_type_id: params.widget_type_id
       )
   end

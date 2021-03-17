@@ -8,6 +8,7 @@ defmodule AcqdatCore.ElasticSearch do
         label: params.label,
         uuid: params.uuid,
         properties: params.properties,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         category: params.category
       )
     end
@@ -22,6 +23,7 @@ defmodule AcqdatCore.ElasticSearch do
           label: params.label,
           uuid: params.uuid,
           properties: params.properties,
+          inserted_at: DateTime.to_unix(params.inserted_at),
           category: params.category
         ]
       )
@@ -40,6 +42,7 @@ defmodule AcqdatCore.ElasticSearch do
         org_id: params.org_id,
         is_invited: params.is_invited,
         role_id: params.role_id,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         join_field: %{name: "user", parent: org.id}
       )
     end
@@ -362,13 +365,32 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   defp create_query(field, value, index) do
-    [search: [query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]]], index: "#{index}"]
+    [
+      search: [
+        query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ]
+      ],
+      index: "#{index}"
+    ]
   end
 
   defp create_query(field, value, index, size, from) do
     [
       search: [
         query: [match: ["#{field}": [query: "#{value}", fuzziness: 1]]],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ],
         size: size,
         from: from
       ],
@@ -393,6 +415,13 @@ defmodule AcqdatCore.ElasticSearch do
               ]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "organisation"
@@ -414,6 +443,13 @@ defmodule AcqdatCore.ElasticSearch do
                   ]
                 ]
               ]
+            ]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
             ]
           ]
         ],
@@ -449,6 +485,13 @@ defmodule AcqdatCore.ElasticSearch do
             ]
           ]
         ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ],
         size: size,
         from: from
       ],
@@ -480,6 +523,13 @@ defmodule AcqdatCore.ElasticSearch do
               ]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "#{index}"
@@ -500,6 +550,13 @@ defmodule AcqdatCore.ElasticSearch do
                   ]
                 ]
               ]
+            ]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
             ]
           ]
         ],
@@ -526,6 +583,13 @@ defmodule AcqdatCore.ElasticSearch do
               ]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "#{index}"
@@ -550,6 +614,13 @@ defmodule AcqdatCore.ElasticSearch do
               [match: [archived: flag]]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "org"
@@ -572,6 +643,13 @@ defmodule AcqdatCore.ElasticSearch do
               ],
               [parent_id: [type: "project", id: org_id]],
               [match: [archived: flag]]
+            ]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
             ]
           ]
         ],
@@ -606,6 +684,13 @@ defmodule AcqdatCore.ElasticSearch do
               ]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "pro"
@@ -637,6 +722,13 @@ defmodule AcqdatCore.ElasticSearch do
             ]
           ]
         ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ],
         size: page_size,
         from: from
       ],
@@ -652,6 +744,13 @@ defmodule AcqdatCore.ElasticSearch do
             must: [[parent_id: [type: "user", id: org_id]]]
           ]
         ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ],
         size: size,
         from: from
       ],
@@ -665,6 +764,13 @@ defmodule AcqdatCore.ElasticSearch do
         query: [
           bool: [
             must: [[parent_id: [type: "user", id: org_id]]]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
           ]
         ]
       ],
@@ -683,6 +789,13 @@ defmodule AcqdatCore.ElasticSearch do
             ]
           ]
         ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
+        ],
         size: size,
         from: from
       ],
@@ -696,6 +809,13 @@ defmodule AcqdatCore.ElasticSearch do
         query: [
           bool: [
             must: [[parent_id: [type: "project", id: org_id]], [match: [archived: flag]]]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
           ]
         ]
       ],
@@ -717,6 +837,13 @@ defmodule AcqdatCore.ElasticSearch do
                   ]
                 ]
               ]
+            ]
+          ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
             ]
           ]
         ],
@@ -743,6 +870,13 @@ defmodule AcqdatCore.ElasticSearch do
               ]
             ]
           ]
+        ],
+        sort: [
+          [
+            inserted_at: [
+              order: "desc"
+            ]
+          ]
         ]
       ],
       index: "pro"
@@ -758,6 +892,7 @@ defmodule AcqdatCore.ElasticSearch do
       last_name: params.last_name,
       org_id: params.org_id,
       is_invited: params.is_invited,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       role_id: params.role_id,
       join_field: %{name: "user", parent: org.id}
     )
@@ -777,6 +912,7 @@ defmodule AcqdatCore.ElasticSearch do
       start_date: params.start_date,
       creator_id: params.creator_id,
       metadata: params.metadata,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       join_field: %{name: "project", parent: params.org_id}
     )
   end
@@ -809,6 +945,7 @@ defmodule AcqdatCore.ElasticSearch do
         start_date: params.start_date,
         creator_id: params.creator_id,
         metadata: params.metadata,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         join_field: %{name: "project", parent: params.org_id}
       )
     end
@@ -836,6 +973,7 @@ defmodule AcqdatCore.ElasticSearch do
       streaming_data: params.streaming_data,
       mapped_parameters: params.mapped_parameters,
       timestamp_mapping: params.timestamp_mapping,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       join_field: %{name: "gateway", parent: params.project_id}
     )
   end
@@ -860,6 +998,7 @@ defmodule AcqdatCore.ElasticSearch do
         streaming_data: params.streaming_data,
         mapped_parameters: params.mapped_parameters,
         timestamp_mapping: params.timestamp_mapping,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         join_field: %{name: "gateway", parent: params.project_id}
       )
     end
@@ -878,6 +1017,7 @@ defmodule AcqdatCore.ElasticSearch do
       properties: params.properties,
       slug: params.slug,
       uuid: params.uuid,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       project_id: params.project_id
     )
   end
@@ -890,6 +1030,7 @@ defmodule AcqdatCore.ElasticSearch do
         properties: params.properties,
         slug: params.slug,
         uuid: params.uuid,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         project_id: params.project_id
       )
     end
@@ -910,6 +1051,7 @@ defmodule AcqdatCore.ElasticSearch do
       parent_id: params.parent_id,
       description: params.description,
       parent_type: params.parent_type,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       sensor_type_id: params.sensor_type_id
     )
   end
@@ -926,6 +1068,7 @@ defmodule AcqdatCore.ElasticSearch do
       sensor_type_present: params.sensor_type_present,
       sensor_type_uuid: params.sensor_type_uuid,
       metadata: params.metadata,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       parameters: params.parameters
     )
   end
@@ -941,6 +1084,7 @@ defmodule AcqdatCore.ElasticSearch do
       org_id: params.org_id,
       generated_by: params.generated_by,
       metadata: params.metadata,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       parameters: params.parameters
     )
   end

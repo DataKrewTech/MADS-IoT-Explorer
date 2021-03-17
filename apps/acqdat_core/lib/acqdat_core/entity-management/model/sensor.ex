@@ -41,7 +41,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     query =
       from(sensor in Sensor,
         where: sensor.id in ^sensor_ids,
-        preload: [:sensor_type]
+        preload: [:sensor_type],
+        order_by: [desc: :inserted_at]
       )
 
     Repo.all(query)

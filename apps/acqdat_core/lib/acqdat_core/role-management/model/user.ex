@@ -45,7 +45,8 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     query =
       from(user in User,
         where: user.id in ^user_ids,
-        preload: [:user_setting, :org, :role, user_group: :user_group, policies: :policy]
+        preload: [:user_setting, :org, :role, user_group: :user_group, policies: :policy],
+        order_by: [desc: :inserted_at]
       )
 
     Repo.all(query)
