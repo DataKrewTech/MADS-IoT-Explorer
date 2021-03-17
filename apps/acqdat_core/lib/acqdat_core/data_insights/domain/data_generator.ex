@@ -187,7 +187,14 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
 
       "between" ->
         [innerbound, outerbound] = filter["values"]
-        "\"#{filter["name"]}\" >= #{innerbound} AND \"#{filter["name"]}\" <= #{outerbound}"
+
+        if filter["type"] == "timestamp" do
+          "\"#{filter["name"]}\" >= CAST ( \'#{innerbound}\' AS timestamptz ) AND \"#{outerbound}\" <= CAST ( \'#{
+            filter["values"]
+          }\' AS timestamptz )"
+        else
+          "\"#{filter["name"]}\" >= #{innerbound} AND \"#{filter["name"]}\" <= #{outerbound}"
+        end
 
       "is null" ->
         "\"#{filter["name"]}\" IS NULL"
@@ -208,6 +215,31 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
 
       "does not contain" ->
         "NOT(\"#{filter["name"]}\" ILIKE ('%' || CAST ( \'#{filter["values"]}\' AS text ) || '%'))"
+
+      "before" ->
+        "\"#{filter["name"]}\" < CAST ( \'#{filter["values"]}\' AS timestamptz )"
+
+      "after" ->
+        "\"#{filter["name"]}\" > CAST ( \'#{filter["values"]}\' AS timestamptz )"
+
+      "on" ->
+        "\"#{filter["name"]}\" = CAST ( \'#{filter["values"]}\' AS timestamptz )"
+
+      "last" ->
+        interval = "\'#{filter["values_by"]} #{filter["values"]}\'"
+
+        "(DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) < DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP )) AND
+        (DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) >= DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP - INTERVAL #{
+          interval
+        } ))"
+
+      "next" ->
+        interval = "\'#{filter["values_by"]} #{filter["values"]}\'"
+
+        "(DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) > DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP )) AND
+        (DATE_TRUNC ( 'hour', \"#{filter["name"]}\" ) <= DATE_TRUNC ( 'hour', CURRENT_TIMESTAMP + INTERVAL #{
+          interval
+        } ))"
     end
   end
 
