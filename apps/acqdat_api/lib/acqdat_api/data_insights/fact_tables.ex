@@ -498,7 +498,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
       end,
       fn _ -> nil end
     )
-    |> Enum.to_list()
+    |> Stream.run()
   end
 
   def fetch_children(parent_node, parent_entity, subtree, output, computed_row, headers) do
