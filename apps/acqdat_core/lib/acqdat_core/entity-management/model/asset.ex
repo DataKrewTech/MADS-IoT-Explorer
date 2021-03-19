@@ -118,7 +118,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           ElasticSearch.update_asset("assets", asset)
         end)
 
-        {:ok, asset}
+        {:ok, asset |> Repo.preload(:asset_type)}
 
       {:error, error} ->
         {:error, error}

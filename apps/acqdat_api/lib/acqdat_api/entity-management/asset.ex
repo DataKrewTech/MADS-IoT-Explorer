@@ -38,7 +38,7 @@ defmodule AcqdatApi.EntityManagement.Asset do
   end
 
   defp verify_asset({:ok, asset}) do
-    {:ok, asset}
+    {:ok, asset |> Repo.preload([:asset_type])}
   end
 
   defp verify_asset({:error, asset}) do

@@ -51,7 +51,8 @@ defmodule AcqdatApi.EntityManagement.SensorType do
        project_id: sensor_type.project_id,
        uuid: sensor_type.uuid,
        org: sensor_type.org,
-       generated_by: sensor_type.generated_by
+       generated_by: sensor_type.generated_by,
+       inserted_at: sensor_type.inserted_at
      }}
   end
 

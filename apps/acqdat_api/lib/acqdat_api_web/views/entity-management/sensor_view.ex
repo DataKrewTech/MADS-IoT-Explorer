@@ -6,6 +6,22 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
   alias AcqdatCore.Repo
 
   def render("sensor.json", %{sensor: sensor}) do
+    [sensor] = Sensor.get_for_view([sensor.id])
+
+    %{
+      id: sensor.id,
+      name: sensor.name,
+      uuid: sensor.uuid,
+      parent_id: sensor.parent_id,
+      parent_type: sensor.parent_type,
+      sensor_type_id: sensor.sensor_type_id,
+      description: sensor.description,
+      sensor_type: render_one(sensor.sensor_type, SensorTypeView, "sensor_type.json"),
+      metadata: render_many(sensor.metadata, SensorView, "metadata.json")
+    }
+  end
+
+  def render("sensor_delete.json", %{sensor: sensor}) do
     %{
       id: sensor.id,
       name: sensor.name,

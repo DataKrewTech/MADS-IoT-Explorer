@@ -213,7 +213,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
             ElasticSearch.delete("sensors", sensor.id)
           end)
 
-          {:ok, sensor}
+          {:ok, sensor |> Repo.preload(:sensor_type)}
 
         {:error, message} ->
           {:error, message}

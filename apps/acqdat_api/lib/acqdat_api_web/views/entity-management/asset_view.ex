@@ -43,6 +43,23 @@ defmodule AcqdatApiWeb.EntityManagement.AssetView do
   end
 
   def render("asset.json", %{asset: asset}) do
+    [asset] = AssetModel.get_for_view([asset.id])
+
+    %{
+      type: "Asset",
+      id: asset.id,
+      name: asset.name,
+      description: asset.description,
+      properties: asset.properties,
+      parent_id: asset.parent_id,
+      asset_type_id: asset.asset_type_id,
+      creator_id: asset.creator_id,
+      metadata: render_many(asset.metadata, AssetView, "metadata.json"),
+      asset_type: render_one(asset.asset_type, AssetTypeView, "asset_type.json")
+    }
+  end
+
+  def render("asset_delete.json", %{asset: asset}) do
     %{
       type: "Asset",
       id: asset.id,

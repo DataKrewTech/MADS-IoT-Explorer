@@ -157,7 +157,7 @@ defmodule AcqdatApiWeb.EntityManagement.SensorController do
 
             conn
             |> put_status(200)
-            |> render("sensor.json", %{sensor: sensor})
+            |> render("sensor_delete.json", %{sensor: sensor})
 
           {:error, sensor} ->
             error = extract_changeset_error(sensor)

@@ -102,7 +102,8 @@ defmodule AcqdatApi.EntityManagement.AssetType do
        sensor_type_present: asset_type.sensor_type_present,
        sensor_type_uuid: asset_type.sensor_type_uuid,
        project_id: asset_type.project_id,
-       project: asset_type.project
+       project: asset_type.project,
+       inserted_at: asset_type.inserted_at
      }}
   end
 

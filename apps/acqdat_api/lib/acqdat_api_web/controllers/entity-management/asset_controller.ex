@@ -125,7 +125,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
 
             conn
             |> put_status(200)
-            |> render("asset.json", %{asset: conn.assigns.asset})
+            |> render("asset_delete.json", %{asset: conn.assigns.asset})
         end
 
       404 ->
