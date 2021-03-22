@@ -19,6 +19,15 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
+  def return_count() do
+    query =
+      from(p in Asset,
+        select: count(p.id)
+      )
+
+    Repo.one(query)
+  end
+
   def get_for_view(asset_ids) do
     query =
       from(asset in Asset,
