@@ -83,19 +83,27 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
   end
 
   def fetch_count(conn, %{"type" => entity}) do
-    name_convention = "Elixir.AcqdatCore.Model.EntityManagement." <> entity
-    module_name = String.to_atom(name_convention)
+    # name_convention = "Elixir.AcqdatCore.Model.EntityManagement." <> entity
+    # module_name = String.to_atom(name_convention)
+    try do
+      {:ok, module_name} = ModuleEnum.dump(entity)
 
-    case module_name.return_count() do
-      nil ->
-        conn
-        |> put_status(200)
-        |> json(%{"count" => 0})
+      case module_name.return_count() do
+        nil ->
+          conn
+          |> put_status(200)
+          |> json(%{"count" => 0})
 
-      count ->
+        count ->
+          conn
+          |> put_status(200)
+          |> json(%{"count" => count})
+      end
+    rescue
+      e in Ecto.ChangeError ->
         conn
-        |> put_status(200)
-        |> json(%{"count" => count})
+        |> put_status(400)
+        |> json(%{"message" => e.message})
     end
   end
 
