@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
           data ->
             conn
             |> put_status(200)
-            |> render("fact_table_headers.json", %{headers: List.flatten(data.rows)})
+            |> render("fact_table_headers.json", %{headers: data})
         end
 
       404 ->

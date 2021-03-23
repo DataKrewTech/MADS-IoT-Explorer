@@ -20,11 +20,13 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
 
   def get_fact_table_headers(fact_table_id) do
     query =
-      "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'fact_table_#{
+      "SELECT column_name, data_type FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'fact_table_#{
         fact_table_id
       }'"
 
-    Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
+    columns = Ecto.Adapters.SQL.query!(Repo, query, [], timeout: :infinity)
+
+    columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
   end
 
   def get_by_id(id) do
