@@ -159,7 +159,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         metadata: metadata,
         mapped_parameters: mapped_parameters,
         owner_id: owner_id,
-        properties: properties
+        properties: properties,
+        description: description
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
     try do
@@ -174,7 +175,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
           metadata: metadata,
           mapped_parameters: mapped_parameters,
           owner_id: owner_id,
-          properties: properties
+          properties: properties,
+          description: description
         })
         |> create(:root)
         |> AsNestedSet.execute(Repo)
@@ -386,7 +388,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
          creator_id: creator_id,
          owner_id: owner_id,
          properties: properties,
-         metadata: metadata
+         metadata: metadata,
+         description: description
        }) do
     %Asset{
       name: name,
@@ -399,6 +402,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       asset_type_id: asset_type_id,
       creator_id: creator_id,
       owner_id: owner_id,
+      description: description,
       properties: properties,
       metadata: metadata
     }

@@ -48,7 +48,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            send_error(conn, 400, message.error)
         end
 
       404 ->
@@ -193,6 +193,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
         conn
         |> put_status(404)
     end
+  end
+
+  defp check_asset_type(%{params: %{"asset_type_id" => nil}} = conn, _org_id) do
+    conn
+    |> put_status(404)
   end
 
   defp check_asset_type(%{params: %{"asset_type_id" => asset_type_id}} = conn, _org_id) do

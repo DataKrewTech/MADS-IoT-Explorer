@@ -18,7 +18,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetErrorHelper do
   def error_message(:resource_not_found) do
     %{
       title: "Invalid entity ID",
-      error: "Either Asset or Project or Organisation with this ID doesn't exists",
+      error: "Either Asset or Project or Organisation or Asset Type with this ID doesn't exists",
       source: nil
     }
   end

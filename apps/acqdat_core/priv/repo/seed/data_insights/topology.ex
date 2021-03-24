@@ -185,6 +185,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       mapped_parameters: [],
       owner_id: creator_id,
       properties: [],
+      description: "",
       metadata: generate_asset_metadata(asset_type, name)
     })
   end

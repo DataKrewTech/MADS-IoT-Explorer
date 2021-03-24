@@ -14,7 +14,7 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Asset do
       properties: {:array, :string},
       lft: :integer,
       parent_id: :integer,
-      name: :string,
+      name!: :string,
       project_id!: :integer,
       asset_type_id!: :integer
     })

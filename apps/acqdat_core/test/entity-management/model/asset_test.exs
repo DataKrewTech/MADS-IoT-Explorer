@@ -147,6 +147,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           metadata: [],
           mapped_parameters: [],
           owner_id: user.id,
+          description: "Something",
           properties: []
         })
 
@@ -259,6 +260,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           metadata: [],
           mapped_parameters: [],
           owner_id: asset.creator_id,
+          description: "Something",
           properties: []
         })
 
@@ -305,6 +307,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           metadata: [],
           mapped_parameters: [],
           owner_id: asset.creator_id,
+          description: "Something",
           properties: []
         })
 
@@ -337,6 +340,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
           metadata: [],
           mapped_parameters: [],
           owner_id: asset.creator_id,
+          description: "Something",
           properties: []
         })
 
