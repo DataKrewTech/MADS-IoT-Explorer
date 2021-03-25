@@ -35,7 +35,15 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
       |> Repo.all()
 
     Enum.reduce(widget_instances, [], fn widget, acc ->
-      widget = widget |> HighCharts.fetch_highchart_details(filter_params)
+      widget =
+        if widget.source_app != nil do
+          module = Module.safe_concat([widget.source_metadata["source_type"]])
+
+          module.fetch_series_data(widget)
+        else
+          widget |> HighCharts.fetch_highchart_details(filter_params)
+        end
+
       acc ++ [widget]
     end)
   end
