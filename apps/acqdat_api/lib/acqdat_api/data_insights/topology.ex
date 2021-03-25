@@ -3,7 +3,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatCore.Model.EntityManagement.SensorType, as: SensorTypeModel
   alias AcqdatCore.Model.EntityManagement.AssetType, as: AssetTypeModel
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
-  alias AcqdatApi.DataInsights.FactTableGenWorker
+  alias AcqdatApi.DataInsights.FactTableServer
   alias AcqdatCore.Model.DataInsights.FactTables
   alias NaryTree
   import AcqdatApiWeb.Helpers
@@ -15,7 +15,6 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias Ecto.Multi
   alias AcqdatApi.DataInsights.FactTables, as: FactTablesCon
 
-  @table :proj_topology
 
   def entities(data) do
     sensor_types = SensorTypeModel.get_all(data)
@@ -53,7 +52,7 @@ defmodule AcqdatApi.DataInsights.Topology do
         date_range_settings: date_range_settings
       })
     end)
-    |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: fact_table} ->
+    |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: _fact_table} ->
       parse_entities(id, entities_list, org_id, project)
       {:ok, "You'll receive fact table data on channel"}
     end)
@@ -80,7 +79,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   # NOTE: 1. execute_descendants will start a Genserver, which will do the asynchronous computation
   #          of subtree generation + subree validations + dynamic query building + fact table gen
   def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
-    FactTableGenWorker.process({id, parent_tree, root_node, entities_list, node_tracker})
+    FactTableServer.process({id, parent_tree, root_node, entities_list, node_tracker})
   end
 
   # NOTE: this validate_entities will get executed if there is only one sensor_type is present in user input
@@ -182,7 +181,7 @@ defmodule AcqdatApi.DataInsights.Topology do
     [
       %{
         "id" => id,
-        "name" => name,
+        "name" => _name,
         "metadata_name" => metadata_name,
         "metadata_id" => metadata_id
       }
@@ -261,9 +260,8 @@ defmodule AcqdatApi.DataInsights.Topology do
        when length(sensor_types) == length(entities_list) do
     uniq_sensor_types = Enum.uniq_by(sensor_types, fn sensor_type -> sensor_type["id"] end)
 
-    output =
       if length(uniq_sensor_types) == 1 do
-        FactTableGenWorker.process({fact_table_id, entities_list, uniq_sensor_types})
+        FactTableServer.process({fact_table_id, entities_list, uniq_sensor_types})
       else
         output =
           {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
@@ -386,8 +384,8 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   # NOTE: 1. this validate_entities will find root elem of the user provided input with the help of subtree
   #       2. this'll then call the Genserver flow for further fact_table processing
-  defp validate_entities(id, {asset_types, sensor_types}, entities_list, parent_tree) do
-    {entity_levels, {root_node, root_entity}, entity_map} =
+  defp validate_entities(id, {asset_types, _sensor_types}, entities_list, parent_tree) do
+    {_entity_levels, {root_node, root_entity}, entity_map} =
       Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
         node = NaryTree.get(parent_tree, "#{entity["id"]}")
         acc1 = acc1 ++ [node.level]
@@ -420,7 +418,7 @@ defmodule AcqdatApi.DataInsights.Topology do
     res
   end
 
-  defp run_under_transaction(multi, result_key) do
+  defp run_under_transaction(multi, _result_key) do
     multi
     |> Repo.transaction(timeout: :infinity)
     |> case do
