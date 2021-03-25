@@ -29,8 +29,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeController do
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
 
+          {:create, {:error, %{error: message}}} ->
+            send_error(conn, 400, message)
+
           {:create, {:error, message}} ->
-            send_error(conn, 400, message.error)
+            send_error(conn, 400, message)
         end
 
       404 ->
