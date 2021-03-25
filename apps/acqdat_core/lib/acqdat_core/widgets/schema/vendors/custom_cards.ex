@@ -1,6 +1,4 @@
 defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
-  alias AcqdatCore.Model.EntityManagement.SensorData
-
   @moduledoc """
     Embedded Schema of the settings of the widget with it keys and subkeys
   """

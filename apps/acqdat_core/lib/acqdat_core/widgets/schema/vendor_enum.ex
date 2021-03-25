@@ -5,12 +5,14 @@ import EctoEnum
 # contianing all the key definitions for a vendor.
 defenum(WidgetVendorSchemaEnum,
   "Elixir.AcqdatCore.Widgets.Schema.Vendors.HighCharts": 0,
-  "Elixir.AcqdatCore.Widgets.Schema.Vendors.CustomCards": 1
+  "Elixir.AcqdatCore.Widgets.Schema.Vendors.CustomCards": 1,
+  "Elixir.AcqdatCore.Widgets.Schema.Vendors.AnyChart": 2
 )
 
 # Creates an enum for different vendors for which widget
 # type is created.
 defenum(WidgetVendorEnum,
   HighCharts: 0,
-  CustomCards: 1
+  CustomCards: 1,
+  AnyChart: 2
 )
