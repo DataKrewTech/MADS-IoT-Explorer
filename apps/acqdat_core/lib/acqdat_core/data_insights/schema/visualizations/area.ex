@@ -22,7 +22,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Area do
 
   @impl true
   def data_prop_gen(params, _options \\ []) do
-    DataGenerator.process_data(params)
+    DataGenerator.process_data(params, "area")
   end
 
   @impl true

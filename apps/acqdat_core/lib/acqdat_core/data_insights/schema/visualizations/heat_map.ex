@@ -22,7 +22,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.HeatMap do
 
   @impl true
   def data_prop_gen(params, _options \\ []) do
-    DataGenerator.process_data(params)
+    DataGenerator.process_data(params, "heat_map")
   end
 
   @impl true
