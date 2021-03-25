@@ -18,5 +18,4 @@ defmodule AcqdatApi.DataInsights.FactTableSupervisor do
 
     Supervisor.init(children, strategy: :rest_for_one)
   end
-
 end

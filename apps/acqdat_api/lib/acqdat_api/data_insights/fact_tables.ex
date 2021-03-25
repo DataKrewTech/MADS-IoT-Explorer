@@ -482,10 +482,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     data
     |> Stream.chunk_every(500)
-    |> Stream.transform(
-      fn -> 0 end,
-      fn batched_data, acc ->
-        text_form = convert_table_data_to_text(batched_data)
+    |> Task.async_stream(
+      fn data ->
+        IO.puts("inside task async_stream batches")
+        text_form = convert_table_data_to_text(data)
 
         qry = """
           INSERT INTO #{fact_table_name}
@@ -494,9 +494,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
           #{text_form};
         """
 
-        {[Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)], acc}
+        Ecto.Adapters.SQL.query!(Repo, qry, [], timeout: :infinity)
       end,
-      fn _ -> nil end
+      max_concurrency: 4,
+      timeout: :infinity
     )
     |> Stream.run()
   end

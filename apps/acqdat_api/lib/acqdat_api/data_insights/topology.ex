@@ -15,7 +15,6 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias Ecto.Multi
   alias AcqdatApi.DataInsights.FactTables, as: FactTablesCon
 
-
   def entities(data) do
     sensor_types = SensorTypeModel.get_all(data)
     asset_types = AssetTypeModel.get_all(data)
@@ -260,14 +259,14 @@ defmodule AcqdatApi.DataInsights.Topology do
        when length(sensor_types) == length(entities_list) do
     uniq_sensor_types = Enum.uniq_by(sensor_types, fn sensor_type -> sensor_type["id"] end)
 
-      if length(uniq_sensor_types) == 1 do
-        FactTableServer.process({fact_table_id, entities_list, uniq_sensor_types})
-      else
-        output =
-          {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
+    if length(uniq_sensor_types) == 1 do
+      FactTableServer.process({fact_table_id, entities_list, uniq_sensor_types})
+    else
+      output =
+        {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
 
-        broadcast_to_channel(fact_table_id, output)
-      end
+      broadcast_to_channel(fact_table_id, output)
+    end
   end
 
   # NOTE: this validate_entities will get executed if there are multiple only asset_types present in user input

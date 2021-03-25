@@ -35,21 +35,21 @@ defmodule AcqdatApi.DataInsights.FactTableWorker do
          {fact_table_id, parent_tree, root_node, entities_list, node_tracker} = params
        )
        when tuple_size(params) == 5 do
-        FactTables.fetch_descendants(
-          fact_table_id,
-          parent_tree,
-          root_node,
-          entities_list,
-          node_tracker
-        )
+    FactTables.fetch_descendants(
+      fact_table_id,
+      parent_tree,
+      root_node,
+      entities_list,
+      node_tracker
+    )
   end
 
   defp execute_workflow({fact_table_id, entities_list, uniq_sensor_types} = params)
        when tuple_size(params) == 3 do
-      FactTables.compute_sensors(
-        fact_table_id,
-        entities_list,
-        uniq_sensor_types
-      )
+    FactTables.compute_sensors(
+      fact_table_id,
+      entities_list,
+      uniq_sensor_types
+    )
   end
 end
