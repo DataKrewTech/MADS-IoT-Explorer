@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.Plug.LoadVisualizations do
   def init(default), do: default
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
-  def call(%{params: %{"visualization_id" => visual_id}} = conn, _params) do
+  def call(%{params: %{"visualizations_id" => visual_id}} = conn, _params) do
     check_visualization(conn, visual_id)
   end
 

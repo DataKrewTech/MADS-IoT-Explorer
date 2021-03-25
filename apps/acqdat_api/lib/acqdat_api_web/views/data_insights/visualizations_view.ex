@@ -90,4 +90,16 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
       total_pages: visualizations.total_pages
     }
   end
+
+  def render("widget_show.json", %{visualization: widget}) do
+    %{
+      id: widget.id,
+      widget_id: widget.widget_id,
+      label: widget.label,
+      uuid: widget.uuid,
+      source_app: widget.source_app,
+      source_metadata: widget.source_metadata,
+      visual_properties: widget.visual_properties
+    }
+  end
 end

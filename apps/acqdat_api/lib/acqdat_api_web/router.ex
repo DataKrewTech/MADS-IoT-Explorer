@@ -201,7 +201,9 @@ defmodule AcqdatApiWeb.Router do
         get("/details", FactTablesController, :details)
         get("/fetch_headers", FactTablesController, :fetch_headers)
 
-        resources "/visualizations", VisualizationsController, except: [:new, :edit]
+        resources "/visualizations", VisualizationsController, except: [:new, :edit] do
+          post("/export", VisualizationsController, :export)
+        end
       end
 
       get("/visualizations/fetch_all_types", VisualizationsController, :fetch_all_types)

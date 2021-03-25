@@ -47,6 +47,8 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
     field(:widget_settings, :map)
     field(:uuid, :string)
     field(:visual_properties, :map)
+    field(:source_app, :string)
+    field(:source_metadata, :map)
 
     # embedded associations
     embeds_many(:series_data, SeriesData, on_replace: :delete)
@@ -59,7 +61,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.WidgetInstance do
   end
 
   @required ~w(label widget_id panel_id slug uuid)a
-  @optional ~w(widget_settings visual_properties)a
+  @optional ~w(widget_settings visual_properties source_app source_metadata)a
   @permitted @required ++ @optional
 
   @spec changeset(
