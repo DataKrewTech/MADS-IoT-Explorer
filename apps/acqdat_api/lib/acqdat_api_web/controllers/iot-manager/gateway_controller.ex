@@ -90,8 +90,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
             |> render("show.json", %{gateway: gateway})
 
           {:error, error} ->
-            conn
-            |> send_error(400, error)
+            response =
+              case is_map(error.error) do
+                false -> error
+                true -> error.error
+              end
+
+            send_error(conn, 400, response)
         end
 
       404 ->
@@ -127,7 +132,13 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            response =
+              case is_map(message.error) do
+                false -> message
+                true -> message.error
+              end
+
+            send_error(conn, 400, response)
         end
 
       404 ->
