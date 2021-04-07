@@ -27,7 +27,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   end
 
   def insert_asset(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       properties: params.properties,
@@ -39,7 +39,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   end
 
   defp insert_sensor(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       metadata: params.metadata,
@@ -57,7 +57,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   end
 
   defp insert_asset_type(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       slug: params.slug,
@@ -74,7 +74,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   end
 
   defp insert_sensor_type(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       slug: params.slug,

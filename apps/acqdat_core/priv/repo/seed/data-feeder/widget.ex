@@ -11,7 +11,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Widget do
   end
 
   defp insert_widget(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
         id: params.id,
         label: params.label,
         uuid: params.uuid,

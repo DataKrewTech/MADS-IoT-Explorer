@@ -3,7 +3,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def create(type, params) do
     create_function = fn ->
-      post("#{type}/_doc/#{params.id}",
+      post("#{type}/_doc/#{params.id}?refresh=true",
         id: params.id,
         label: params.label,
         uuid: params.uuid,
@@ -18,7 +18,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def update(type, params) do
     update_function = fn ->
-      post("#{type}/_update/#{params.id}",
+      post("#{type}/_update/#{params.id}?refresh=true",
         doc: [
           label: params.label,
           uuid: params.uuid,
@@ -34,7 +34,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def update_users(type, params, org) do
     update = fn ->
-      put("#{type}/_doc/#{params.id}?routing=#{org.id}",
+      put("#{type}/_doc/#{params.id}?routing=#{org.id}?refresh=true",
         id: params.id,
         email: params.email,
         first_name: params.first_name,
@@ -52,7 +52,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def delete_users(type, params) do
     delete = fn ->
-      delete("#{type}/_doc/#{params.id}?routing=#{params.org_id}")
+      delete("#{type}/_doc/#{params.id}?routing=#{params.org_id}?refresh=true")
     end
 
     retry(delete)
@@ -60,7 +60,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def delete(type, params) do
     delete_function = fn ->
-      delete("#{type}/_doc/#{params}")
+      delete("#{type}/_doc/#{params}?refresh=true")
     end
 
     retry(delete_function)
@@ -885,7 +885,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   # [ "#{field}": [query: "#{value}", fuzziness: 1]
   def create_user(type, params, org) do
-    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
+    post("#{type}/_doc/#{params.id}?routing=#{org.id}?refresh=true",
       id: params.id,
       email: params.email,
       first_name: params.first_name,
@@ -899,7 +899,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def create_project(type, params, org) do
-    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
+    post("#{type}/_doc/#{params.id}?routing=#{org.id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,
@@ -932,7 +932,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def update_project(type, params, org_id) do
     update = fn ->
-      post("#{type}/_doc/#{params.id}?routing=#{org_id}",
+      post("#{type}/_doc/#{params.id}?routing=#{org_id}?refresh=true",
         id: params.id,
         name: params.name,
         uuid: params.uuid,
@@ -954,7 +954,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def insert_gateway(type, params) do
-    post("#{type}/_doc/#{params.id}?routing=#{params.project_id}",
+    post("#{type}/_doc/#{params.id}?routing=#{params.project_id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,
@@ -980,7 +980,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def update_gateway(type, params) do
     update = fn ->
-      post("#{type}/_doc/#{params.id}?routing=#{params.project_id}",
+      post("#{type}/_doc/#{params.id}?routing=#{params.project_id}?refresh=true",
         id: params.id,
         name: params.name,
         uuid: params.uuid,
@@ -1011,7 +1011,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def insert_asset(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       properties: params.properties,
@@ -1024,7 +1024,7 @@ defmodule AcqdatCore.ElasticSearch do
 
   def update_asset(type, params) do
     update = fn ->
-      post("#{type}/_doc/#{params.id}",
+      post("#{type}/_doc/#{params.id}?refresh=true",
         id: params.id,
         name: params.name,
         properties: params.properties,
@@ -1039,7 +1039,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def insert_sensor(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       metadata: params.metadata,
@@ -1057,7 +1057,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def insert_asset_type(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       slug: params.slug,
@@ -1074,7 +1074,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   def insert_sensor_type(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       slug: params.slug,

@@ -22,7 +22,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
   end
 
   defp insert_organisation(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,
@@ -32,7 +32,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
   end
 
   defp create_project(type, params) do
-    post("#{type}/_doc/#{params.id}?routing=#{params.org_id}",
+    post("#{type}/_doc/#{params.id}?routing=#{params.org_id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,
@@ -60,7 +60,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
   end
 
   defp insert_pro(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
     id: params.id,
     name: params.name,
     uuid: params.uuid,
@@ -86,7 +86,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
   end
 
   defp insert_gateway(type, params) do
-    post("#{type}/_doc/#{params.id}?routing=#{params.project_id}",
+    post("#{type}/_doc/#{params.id}?routing=#{params.project_id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,

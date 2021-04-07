@@ -21,7 +21,7 @@ defmodule AcqdatCore.Seed.DataFeeder.OrgAndUser do
   end
 
   defp insert_organisation(type, params) do
-    post("#{type}/_doc/#{params.id}",
+    post("#{type}/_doc/#{params.id}?refresh=true",
       id: params.id,
       name: params.name,
       uuid: params.uuid,
@@ -31,7 +31,7 @@ defmodule AcqdatCore.Seed.DataFeeder.OrgAndUser do
   end
 
   defp create(type, params, org) do
-    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
+    post("#{type}/_doc/#{params.id}?routing=#{org.id}?refresh=true",
       id: params.id,
       email: params.email,
       first_name: params.first_name,
