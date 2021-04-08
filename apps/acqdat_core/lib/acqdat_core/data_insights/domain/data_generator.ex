@@ -99,7 +99,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
       """
         select #{legend_name},
         EXTRACT(EPOCH FROM (time_bucket('#{x_axis["group_interval"]} #{x_axis["group_by"]}'::VARCHAR::INTERVAL,
-        to_timestamp(cast("#{x_axis["name"]}" as TEXT, 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{
+        to_timestamp(cast("#{x_axis["name"]}" as TEXT), 'YYYY-MM-DD hh24:mi:ss'))))*1000 as \"#{
         x_axis["title"]
       }\",
         #{values_data}
