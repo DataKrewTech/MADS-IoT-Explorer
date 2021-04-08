@@ -69,7 +69,11 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       res = gen_n_compute_fact_table(org_id, project, user_list, fact_table.id)
 
       assert res.total == 7
-      assert Enum.sort(res.headers) == ["Apartment name", "Building name"]
+
+      assert Enum.sort(res.headers) == [
+               %{"Apartment name" => "text"},
+               %{"Building name" => "text"}
+             ]
     end
 
     test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment, EnergyMtr]",
@@ -113,7 +117,12 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       res = gen_n_compute_fact_table(org_id, project, user_list, fact_table.id)
 
       assert res.total == 7
-      assert Enum.sort(res.headers) == ["Apartment name", "Building name", "Energy Meter name"]
+
+      assert Enum.sort(res.headers) == [
+               %{"Apartment name" => "text"},
+               %{"Building name" => "text"},
+               %{"Energy Meter name" => "text"}
+             ]
     end
 
     test "should return valid data, if the user provided entities like this [Place, Apartment]",
@@ -148,7 +157,7 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       res = gen_n_compute_fact_table(org_id, project, user_list, fact_table.id)
 
       assert res.total == 7
-      assert Enum.sort(res.headers) == ["Apartment name", "Place name"]
+      assert Enum.sort(res.headers) == [%{"Apartment name" => "text"}, %{"Place name" => "text"}]
     end
 
     test "should return valid data, if the user provided input with two siblings and one parent like [Building, Apartment, Playground]",
@@ -192,7 +201,13 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       res = gen_n_compute_fact_table(org_id, project, user_list, fact_table.id)
 
       assert res.total == 10
-      assert Enum.sort(res.headers) == ["Apartment name", "Building name", "PlayGround name"]
+
+      assert Enum.sort(res.headers) == [
+               %{"Apartment name" => "text"},
+               %{"Building name" => "text"},
+               %{"PlayGround name" => "text"}
+             ]
+
       assert length(res.data) == 10
     end
 
@@ -338,11 +353,11 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
 
       assert Enum.sort(res.headers) ==
                Enum.sort([
-                 "Building name",
-                 "Building color",
-                 "Apartment name",
-                 "Apartment painted",
-                 "Occupancy Sensor name"
+                 %{"Apartment name" => "text"},
+                 %{"Apartment painted" => "text"},
+                 %{"Building color" => "text"},
+                 %{"Building name" => "text"},
+                 %{"Occupancy Sensor name" => "text"}
                ])
 
       assert length(res.data) == 7
@@ -438,13 +453,13 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
 
       assert Enum.sort(res.headers) ==
                Enum.sort([
-                 "Place name",
-                 "Building name",
-                 "Building color",
-                 "Apartment name",
-                 "Apartment painted",
-                 "Energy Meter name",
-                 "Occupancy Sensor name"
+                 %{"Apartment name" => "text"},
+                 %{"Apartment painted" => "text"},
+                 %{"Building color" => "text"},
+                 %{"Building name" => "text"},
+                 %{"Energy Meter name" => "text"},
+                 %{"Occupancy Sensor name" => "text"},
+                 %{"Place name" => "text"}
                ])
 
       assert length(res.data) == 7
@@ -491,9 +506,9 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
 
       assert Enum.sort(res.headers) ==
                Enum.sort([
-                 "Apartment name",
-                 "Energy Meter Current",
-                 "Energy Meter Current_dateTime"
+                 %{"Apartment name" => "text"},
+                 %{"Energy Meter Current" => "numeric"},
+                 %{"Energy Meter Current_dateTime" => "timestamp without time zone"}
                ])
 
       assert length(res.data) == 20
@@ -565,7 +580,12 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       assert res.total != 0
 
       assert Enum.sort(res.headers) ==
-               Enum.sort(["Current", "Energy", "Voltage", "entity_dateTime"])
+               Enum.sort([
+                 %{"Current" => "numeric"},
+                 %{"Energy" => "numeric"},
+                 %{"Voltage" => "numeric"},
+                 %{"entity_dateTime" => "timestamp without time zone"}
+               ])
     end
 
     defp gen_n_compute_fact_table(org_id, project, user_list, fact_table_id) do
