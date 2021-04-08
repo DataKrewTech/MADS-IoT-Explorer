@@ -726,8 +726,6 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     gen_table(fact_table_name, qry_text)
 
-    parent = self()
-
     data
     |> Stream.chunk_every(500)
     |> Task.async_stream(
@@ -741,7 +739,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           #{text_form};
         """
 
-        Ecto.Adapters.SQL.query!(Repo, qry, [], caller: parent)
+        Ecto.Adapters.SQL.query!(Repo, qry, [])
       end,
       max_concurrency: 4,
       timeout: :infinity

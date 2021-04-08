@@ -1,5 +1,5 @@
 defmodule AcqdatApi.DataInsights.FactTablesTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use AcqdatCore.DataCase
   alias AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory
   alias AcqdatCore.Model.EntityManagement.{Project, AssetType, SensorType}
