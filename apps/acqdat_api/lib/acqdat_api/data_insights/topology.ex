@@ -6,14 +6,8 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatApi.DataInsights.FactTableServer
   alias AcqdatCore.Model.DataInsights.FactTables
   alias NaryTree
-  import AcqdatApiWeb.Helpers
-  alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
-  alias AcqdatCore.Domain.EntityManagement.SensorData
-  alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Repo
-  import Ecto.Query
   alias Ecto.Multi
-  alias AcqdatApi.DataInsights.FactTables, as: FactTablesCon
 
   def entities(data) do
     sensor_types = SensorTypeModel.get_all(data)
