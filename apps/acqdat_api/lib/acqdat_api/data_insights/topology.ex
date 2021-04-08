@@ -77,181 +77,26 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   # NOTE: 1. execute_descendants will start a Genserver, which will do the asynchronous computation
   #          of subtree generation + subree validations + dynamic query building + fact table gen
-  def execute_descendants(id, parent_tree, root_node, entities_list, node_tracker) do
-    FactTableServer.process({id, parent_tree, root_node, entities_list, node_tracker})
+  def execute_descendants(type, params) do
+    FactTableServer.process({type, params})
   end
 
   # NOTE: this validate_entities will get executed if there is only one sensor_type is present in user input
   defp validate_entities(fact_table_id, {_, sensor_types}, entities_list, _)
        when length(sensor_types) == 1 and length(sensor_types) == length(entities_list) do
-    [
-      %{
-        "id" => id,
-        "name" => name,
-        "metadata_name" => metadata_name,
-        "metadata_id" => metadata_id
-      }
-    ] = sensor_types
-
-    output =
-      if metadata_name == "name" do
-        query =
-          from(sensor in Sensor,
-            where: sensor.sensor_type_id == ^id,
-            select: [sensor.name]
-          )
-
-        %{headers: [%{"#{name}" => "text"}], data: Repo.all(query)}
-      else
-        [%{"date_from" => date_from, "date_to" => date_to}] = sensor_types
-
-        sensor_ids =
-          from(sensor in Sensor,
-            where: sensor.sensor_type_id == ^id,
-            select: sensor.id
-          )
-          |> Repo.all()
-
-        date_from = from_unix(date_from)
-        date_to = from_unix(date_to)
-
-        query = SensorData.filter_by_date_query_wrt_parent(sensor_ids, date_from, date_to)
-        query = SensorData.fetch_sensors_values_n_timeseries(query, [metadata_id])
-
-        %{
-          headers: [
-            %{"#{name} #{metadata_name}" => "numeric"},
-            %{"#{name} #{metadata_name}_dateTime" => "timestamp"}
-          ],
-          data: Repo.all(query)
-        }
-      end
-
-    output =
-      if output[:data] != [] do
-        headers_metadata =
-          if metadata_name == "name",
-            do: %{"#{id}" => %{"#{metadata_id}" => 0}},
-            else: %{"#{id}" => %{"#{metadata_id}" => 0, "#{metadata_id}_dateTime" => 1}}
-
-        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
-
-        {:ok, _} =
-          FactTables.update(fact_table, %{
-            headers_metadata: %{
-              "rows_len" => length(output[:headers]),
-              "headers" => headers_metadata
-            }
-          })
-
-        fact_table_name = "fact_table_#{fact_table_id}"
-
-        FactTablesCon.create_fact_table(fact_table_name, output[:headers], output[:data])
-
-        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-
-        columns =
-          Ecto.Adapters.SQL.query!(
-            Repo,
-            "select column_name, data_type from information_schema.columns where table_name = \'#{
-              fact_table_name
-            }\'",
-            [],
-            timeout: :infinity
-          )
-
-        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
-
-        %{
-          headers: columns,
-          data: data.rows,
-          total: FactTablesCon.total_no_of_rec(fact_table_name)
-        }
-      else
-        %{error: "no data present"}
-      end
-
-    broadcast_to_channel(fact_table_id, output)
+    execute_descendants("one_sensor_type", %{
+      fact_table_id: fact_table_id,
+      sensor_types: sensor_types
+    })
   end
 
   # NOTE: this validate_entities will get executed if there is only one asset_type is present in user input
   defp validate_entities(fact_table_id, {asset_types, _}, entities_list, _)
        when length(asset_types) == 1 and length(asset_types) == length(entities_list) do
-    [
-      %{
-        "id" => id,
-        "name" => _name,
-        "metadata_name" => metadata_name,
-        "metadata_id" => metadata_id
-      }
-    ] = asset_types
-
-    {headers, data} =
-      if metadata_name == "name" do
-        data1 =
-          from(asset in Asset,
-            where: asset.asset_type_id == ^id,
-            select: [asset.name]
-          )
-          |> Repo.all()
-
-        headers = [%{"name" => "text"}]
-        {headers, data1}
-      else
-        data1 =
-          from(asset in Asset,
-            where: asset.asset_type_id == ^id,
-            cross_join: c in fragment("unnest(?)", asset.metadata),
-            where: fragment("?->>'uuid'", c) in ^[metadata_id],
-            select: [
-              fragment("?->>'value'", c)
-            ]
-          )
-          |> Repo.all()
-
-        headers = [%{"#{metadata_name}" => "text"}]
-        {headers, data1}
-      end
-
-    output =
-      if data != [] do
-        fact_table_name = "fact_table_#{fact_table_id}"
-
-        FactTablesCon.create_fact_table(fact_table_name, headers, data)
-
-        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-
-        headers_metadata = %{"#{id}" => %{"#{metadata_id}" => 0}}
-
-        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
-
-        {:ok, _} =
-          FactTables.update(fact_table, %{
-            headers_metadata: %{"rows_len" => 1, "headers" => headers_metadata}
-          })
-
-        columns =
-          Ecto.Adapters.SQL.query!(
-            Repo,
-            "select column_name, data_type from information_schema.columns where table_name = \'#{
-              fact_table_name
-            }\'",
-            [],
-            timeout: :infinity
-          )
-
-        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
-
-        %{
-          headers: columns,
-          data: data.rows,
-          total: FactTablesCon.total_no_of_rec(fact_table_name)
-        }
-      else
-        %{error: "no data present"}
-      end
-
-    broadcast_to_channel(fact_table_id, output)
+    execute_descendants("one_asset_type", %{
+      fact_table_id: fact_table_id,
+      asset_types: asset_types
+    })
   end
 
   # NOTE: this validate_entities will get executed if there are multiple only sensor_types present in user input
@@ -260,7 +105,11 @@ defmodule AcqdatApi.DataInsights.Topology do
     uniq_sensor_types = Enum.uniq_by(sensor_types, fn sensor_type -> sensor_type["id"] end)
 
     if length(uniq_sensor_types) == 1 do
-      FactTableServer.process({fact_table_id, entities_list, uniq_sensor_types})
+      execute_descendants("sensor_params", %{
+        fact_table_id: fact_table_id,
+        entities_list: entities_list,
+        uniq_sensor_types: uniq_sensor_types
+      })
     else
       output =
         {:error, "Please attach parent asset_type as all the user-entities are of SensorTypes."}
@@ -275,85 +124,11 @@ defmodule AcqdatApi.DataInsights.Topology do
     uniq_asset_types = Enum.uniq_by(asset_types, fn asset_type -> asset_type["id"] end)
 
     if length(uniq_asset_types) == 1 do
-      [%{"id" => asset_type_id} | _] = uniq_asset_types
-      metadata_list = Enum.map(asset_types, fn asset_type -> asset_type["metadata_id"] end)
-
-      metadata_list_names =
-        Enum.map(asset_types, fn asset_type -> asset_type["metadata_name"] end)
-
-      metadata_list =
-        if Enum.member?(metadata_list, "name"),
-          do: ["name"] ++ (metadata_list -- ["name"]),
-          else: ["name"] ++ metadata_list
-
-      {metadata_list, metadata_list_names} =
-        if Enum.member?(metadata_list, "name") do
-          {["name"] ++ (metadata_list -- ["name"]), ["name"] ++ (metadata_list_names -- ["name"])}
-        else
-          {["name"] ++ metadata_list, ["name"] ++ metadata_list_names}
-        end
-
-      res = AssetModel.fetch_asset_metadata(asset_type_id, metadata_list)
-
-      data =
-        Enum.group_by(res, fn x -> x.name end, fn y -> %{"#{y.metadata_name}" => y.value} end)
-
-      data =
-        Enum.reduce(data, [], fn {key, metadatas}, acc1 ->
-          acc1 ++
-            [[key] ++ List.flatten(Enum.map(metadatas, fn metadata -> Map.values(metadata) end))]
-        end)
-
-      output =
-        if data != [] do
-          headers_metadata = %{
-            "#{asset_type_id}" =>
-              Stream.with_index(metadata_list, 0)
-              |> Enum.reduce(%{}, fn {v, k}, acc ->
-                Map.put(acc, v, k)
-              end)
-          }
-
-          {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
-
-          {:ok, _} =
-            FactTables.update(fact_table, %{
-              headers_metadata: %{
-                "rows_len" => length(metadata_list),
-                "headers" => headers_metadata
-              }
-            })
-
-          headers = Enum.map(metadata_list_names, fn x -> %{"#{x}" => "text"} end)
-
-          fact_table_name = "fact_table_#{fact_table_id}"
-
-          FactTablesCon.create_fact_table(fact_table_name, headers, data)
-
-          data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
-
-          columns =
-            Ecto.Adapters.SQL.query!(
-              Repo,
-              "select column_name, data_type from information_schema.columns where table_name = \'#{
-                fact_table_name
-              }\'",
-              [],
-              timeout: :infinity
-            )
-
-          columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
-
-          %{
-            headers: columns,
-            data: data.rows,
-            total: FactTablesCon.total_no_of_rec(fact_table_name)
-          }
-        else
-          %{error: "no data present"}
-        end
-
-      broadcast_to_channel(fact_table_id, output)
+      execute_descendants("asset_metadatas", %{
+        fact_table_id: fact_table_id,
+        uniq_asset_types: uniq_asset_types,
+        asset_types: asset_types
+      })
     else
       {entity_levels, {root_node, root_entity}, entity_map} =
         Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
@@ -376,7 +151,13 @@ defmodule AcqdatApi.DataInsights.Topology do
       else
         node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
-        execute_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker)
+        execute_descendants("hybrid", %{
+          fact_table_id: fact_table_id,
+          parent_tree: parent_tree,
+          root_node: root_node,
+          entities_list: entities_list,
+          node_tracker: node_tracker
+        })
       end
     end
   end
@@ -398,7 +179,13 @@ defmodule AcqdatApi.DataInsights.Topology do
 
     node_tracker = Map.put(entity_map, "#{root_entity["type"]}_#{root_entity["id"]}", true)
 
-    execute_descendants(id, parent_tree, root_node, entities_list, node_tracker)
+    execute_descendants("hybrid", %{
+      fact_table_id: id,
+      parent_tree: parent_tree,
+      root_node: root_node,
+      entities_list: entities_list,
+      node_tracker: node_tracker
+    })
   end
 
   defp broadcast_to_channel(fact_table_id, output) do
@@ -409,12 +196,6 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   defp ets_proj_key(project) do
     "#{project.id}_#{project.version}"
-  end
-
-  defp from_unix(datetime) do
-    {datetime, _} = Integer.parse(datetime)
-    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
-    res
   end
 
   defp run_under_transaction(multi, _result_key) do
