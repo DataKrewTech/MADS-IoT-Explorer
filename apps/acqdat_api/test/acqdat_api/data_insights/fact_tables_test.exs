@@ -37,6 +37,164 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       ]
     end
 
+    test "returns sensor data, if user's input contains only one sensor_type(EnergyMtr)",
+         context do
+      %{
+        energy_mtr_type: energy_mtr_type,
+        fact_table: fact_table
+      } = context
+
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "name",
+          "metadata_id" => "name",
+          "pos" => 1
+        }
+      ]
+
+      res =
+        FactTableCon.gen_comp_sensor_data(%{fact_table_id: fact_table.id, sensor_types: user_list})
+
+      assert res.total == 6
+
+      assert res.headers == [%{"Energy Meter" => "text"}]
+    end
+
+    test "returns sensor data with timestamp, if user's input contains only one sensor_type(EnergyMtr) with metadata",
+         context do
+      %{
+        energy_mtr_type: energy_mtr_type,
+        fact_table: fact_table
+      } = context
+
+      current_param =
+        Enum.find(energy_mtr_type.parameters, fn parameter -> parameter.name == "Current" end)
+
+      user_list = [
+        %{
+          "id" => energy_mtr_type.id,
+          "name" => "Energy Meter",
+          "type" => "SensorType",
+          "metadata_name" => "Current",
+          "metadata_id" => current_param.uuid,
+          "pos" => 1,
+          "date_from" =>
+            "#{Timex.shift(Timex.now(), months: -1) |> DateTime.to_unix(:millisecond)}",
+          "date_to" => "#{Timex.now() |> DateTime.to_unix(:millisecond)}"
+        }
+      ]
+
+      res =
+        FactTableCon.gen_comp_sensor_data(%{fact_table_id: fact_table.id, sensor_types: user_list})
+
+      assert res.total == 78
+
+      assert res.headers == [
+               %{"Energy Meter Current" => "numeric"},
+               %{"Energy Meter Current_dateTime" => "timestamp without time zone"}
+             ]
+    end
+
+    test "returns asset data, if user's input contains only one asset_type(Building)", context do
+      %{building_type: building_type, fact_table: fact_table} = context
+
+      user_list = [
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "metadata_id" => "name",
+          "pos" => 1
+        }
+      ]
+
+      res =
+        FactTableCon.gen_comp_asset_data(%{fact_table_id: fact_table.id, asset_types: user_list})
+
+      assert res.total == 3
+
+      assert res.headers == [%{"name" => "text"}]
+    end
+
+    test "returns asset data, if user's input contains only one asset_type(Building) metadata",
+         context do
+      %{building_type: building_type, fact_table: fact_table} = context
+
+      color_param =
+        Enum.find(building_type.metadata, fn parameter -> parameter.name == "color" end)
+
+      user_list = [
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "color",
+          "metadata_id" => color_param.uuid,
+          "pos" => 1
+        }
+      ]
+
+      res =
+        FactTableCon.gen_comp_asset_data(%{fact_table_id: fact_table.id, asset_types: user_list})
+
+      assert res.total == 3
+
+      assert res.headers == [%{"color" => "text"}]
+    end
+
+    test "returns asset data, if user's input contains only one asset_type(Building) multiple metadata",
+         context do
+      %{building_type: building_type, fact_table: fact_table} = context
+
+      color_param =
+        Enum.find(building_type.metadata, fn parameter -> parameter.name == "color" end)
+
+      user_list = [
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "color",
+          "metadata_id" => color_param.uuid,
+          "pos" => 1
+        },
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "metadata_id" => "name",
+          "pos" => 2
+        }
+      ]
+
+      uniq_asset_types = [
+        %{
+          "id" => building_type.id,
+          "name" => "Building",
+          "type" => "AssetType",
+          "metadata_name" => "name",
+          "metadata_id" => "name",
+          "pos" => 2
+        }
+      ]
+
+      res =
+        FactTableCon.gen_comp_asset_metadata(%{
+          fact_table_id: fact_table.id,
+          asset_types: user_list,
+          uniq_asset_types: uniq_asset_types
+        })
+
+      assert res.total == 3
+
+      assert res.headers == [%{"name" => "text"}, %{"color" => "text"}]
+    end
+
     test "should return valid data, if the user provided input is a subtree of parent-entity tree like [Building, Apartment]",
          context do
       %{
@@ -517,8 +675,6 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
     test "returns sensor data with timestamp, if user's input contains only a sensor_type(EnergyMtr) with metadata",
          context do
       %{
-        org_id: org_id,
-        project: project,
         energy_mtr_type: energy_mtr_type,
         fact_table: fact_table
       } = context
