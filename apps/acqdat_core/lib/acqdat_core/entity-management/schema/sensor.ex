@@ -91,7 +91,10 @@ defmodule AcqdatCore.Schema.EntityManagement.Sensor do
     |> assoc_constraint(:project)
     |> assoc_constraint(:gateway)
     |> assoc_constraint(:sensor_type)
-    |> unique_constraint(:name, name: :acqdat_sensors_name_parent_id_project_id_index, message: "Sensor with same name already exists under this parent,under this project")
+    |> unique_constraint(:name,
+      name: :acqdat_sensors_name_parent_id_project_id_index,
+      message: "Sensor with same name already exists under this parent,under this project"
+    )
   end
 
   defp create_metadata_changeset(schema, params) do

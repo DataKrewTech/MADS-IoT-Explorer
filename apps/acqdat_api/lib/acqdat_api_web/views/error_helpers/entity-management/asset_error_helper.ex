@@ -7,7 +7,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetErrorHelper do
     }
   end
 
-  def error_message(:acqdat_asset_name_parent_id_org_id_index) do
+  def error_message(:acqdat_asset_name_parent_id_org_id_project_id_index) do
     %{
       title: "Name uniqueness error",
       error: "No two asset with same name can be under one parent",

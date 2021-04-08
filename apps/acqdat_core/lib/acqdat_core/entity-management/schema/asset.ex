@@ -117,8 +117,9 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
     |> unique_constraint(:slug, name: :acqdat_asset_slug_index)
     |> unique_constraint(:uuid, name: :acqdat_asset_uuid_index)
     |> unique_constraint(:name,
-      name: :acqdat_asset_name_parent_id_org_id_index,
-      message: "name already taken under this heirarchy"
+      name: :acqdat_asset_name_parent_id_org_id_project_id_index,
+      message:
+        "name already taken under this heirarchy for this particular organisation, project and parent it is getting attached to."
     )
   end
 
