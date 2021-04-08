@@ -30,10 +30,10 @@ defmodule AcqdatCore.DataInsights.Domain.DataFilter do
       "between" ->
         [innerbound, outerbound] = filter["values"]
 
-        if filter["type"] == "timestamp" do
-          "\"#{filter["name"]}\" >= CAST ( \'#{innerbound}\' AS timestamptz ) AND \"#{outerbound}\" <= CAST ( \'#{
-            filter["values"]
-          }\' AS timestamptz )"
+        if filter["type"] == "timestamp without time zone" do
+          "\"#{filter["name"]}\" >= CAST ( \'#{innerbound}\' AS timestamptz ) AND \"#{
+            filter["name"]
+          }\" <= CAST ( \'#{outerbound}\' AS timestamptz )"
         else
           "\"#{filter["name"]}\" >= #{innerbound} AND \"#{filter["name"]}\" <= #{outerbound}"
         end
