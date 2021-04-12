@@ -109,17 +109,15 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
 
       result = conn |> json_response(200)
 
-      assert result == %{
-               "description" => asset.description,
-               "id" => asset.id,
-               "name" => asset.name,
-               "properties" => asset.properties,
-               "metadata" => Enum.reverse(metadata),
-               "type" => "Asset",
-               "asset_type_id" => asset.asset_type_id,
-               "creator_id" => asset.creator_id,
-               "parent_id" => asset.parent_id
-             }
+      assert result["description"] == asset.description
+      assert result["id"] == asset.id
+      assert result["properties"] == asset.properties
+      assert result["name"] == asset.name
+      assert result["metadata"] == Enum.reverse(metadata)
+      assert result["type"] == "Asset"
+      assert result["asset_type_id"] == asset.asset_type_id
+      assert result["creator_id"] == asset.creator_id
+      assert result["parent_id"] == asset.parent_id
     end
   end
 
