@@ -158,7 +158,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     setup do
       widget = insert(:widget)
       [widget: widget] = Widget.seed_widget(widget)
-      :timer.sleep(2500)
+      :timer.sleep(5000)
 
       on_exit(fn ->
         Widget.delete_index()
