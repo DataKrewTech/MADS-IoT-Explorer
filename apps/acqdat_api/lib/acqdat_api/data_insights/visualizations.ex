@@ -89,7 +89,7 @@ defmodule AcqdatApi.DataInsights.Visualizations do
           }
         }
 
-        WidgetInstance.create(data)
+        AcqdatApi.DashboardManagement.WidgetInstance.create(data)
 
       {:error, _} ->
         {:error, "widget not found for the respective visualization"}

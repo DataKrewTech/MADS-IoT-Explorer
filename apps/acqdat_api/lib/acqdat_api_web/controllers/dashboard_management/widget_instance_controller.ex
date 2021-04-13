@@ -15,10 +15,10 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
         changeset = verify_params(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:create, {:ok, widget_inst}} <- {:create, WidgetInstance.create(data, conn)} do
+             {:create, {:ok, widget_inst}} <- {:create, WidgetInstance.create(data)} do
           conn
           |> put_status(200)
-          |> render("show.json", %{widget_instance: widget_inst})
+          |> render("create.json", %{widget_instance: widget_inst})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)

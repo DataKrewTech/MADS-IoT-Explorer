@@ -1,18 +1,27 @@
 defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   import AcqdatApiWeb.Helpers
+  alias Ecto.Multi
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.DashboardManagement.WidgetInstance, as: WidgetInstanceModel
+  alias AcqdatCore.Model.DashboardManagement.Panel, as: PanelModel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
   defdelegate delete(widget_instance), to: WidgetInstanceModel
   defdelegate get_by_filter(widget_id, params), to: WidgetInstanceModel
 
-  def create(attrs, conn) do
-    verify_widget(
+  def create(attrs) do
+    Multi.new()
+    |> Multi.run(:create_widget, fn _, _changes ->
       attrs
       |> widget_create_attrs()
       |> WidgetInstanceModel.create()
-    )
+    end)
+    |> Multi.run(:update_panel_widget_layout, fn _, %{create_widget: widget_instance} ->
+      widget_instance = widget_instance |> Repo.preload([:widget, :panel])
+      widget_layouts = compute_panel_widget_layout(widget_instance)
+      PanelModel.update(widget_instance.panel, %{widget_layouts: widget_layouts})
+    end)
+    |> run_transaction()
   end
 
   def update(widget_instance, attrs) do
@@ -21,6 +30,25 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
   end
 
   ############################# private functions ###########################
+
+  defp run_transaction(multi_query) do
+    result = Repo.transaction(multi_query)
+
+    case result do
+      {:ok, %{create_widget: widget_instance, update_panel_widget_layout: _panel}} ->
+        verify_widget({:ok, widget_instance})
+
+      {:error, failed_operation, failed_value, _changes_so_far} ->
+        case failed_operation do
+          :create_widget -> verify_error_changeset({:error, failed_value})
+          :update_panel_widget_layout -> verify_error_changeset({:error, failed_value})
+        end
+    end
+  end
+
+  defp verify_error_changeset({:error, changeset}) do
+    {:error, %{error: extract_changeset_error(changeset)}}
+  end
 
   defp widget_create_attrs(%{
          label: label,
@@ -40,6 +68,24 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
     }
   end
 
+  defp widget_create_attrs(%{
+         label: label,
+         panel_id: panel_id,
+         widget_id: widget_id,
+         source_app: source_app,
+         source_metadata: source_metadata,
+         visual_properties: visual_properties
+       }) do
+    %{
+      label: label,
+      panel_id: panel_id,
+      widget_id: widget_id,
+      source_app: source_app,
+      source_metadata: source_metadata,
+      visual_properties: visual_properties
+    }
+  end
+
   defp verify_widget({:ok, widget}) do
     widget = widget |> Repo.preload([:widget, :panel])
     filtered_params = widget |> parse_filtered_params
@@ -50,6 +96,58 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
 
   defp verify_widget({:error, widget}) do
     {:error, %{error: extract_changeset_error(widget)}}
+  end
+
+  defp compute_panel_widget_layout(widget_instance) do
+    {width, height, type} = fetch_widget_dimensional_data(widget_instance.widget.category)
+    widget_layouts = widget_instance.panel.widget_layouts
+
+    y_offset =
+      if widget_layouts != nil do
+        values = Map.values(widget_layouts)
+
+        max_elem =
+          values
+          |> Enum.reduce(0, fn data, acc ->
+            data["y"]
+
+            if acc > data["y"] do
+              acc
+            else
+              data["y"]
+            end
+          end)
+
+        max_elem + 4
+      else
+        0
+      end
+
+    computed_widget_layout = %{
+      "w" => width,
+      "h" => height,
+      "x" => 0,
+      "y" => y_offset,
+      "type" => type
+    }
+
+    Map.put(widget_layouts || %{}, "#{widget_instance.id}", computed_widget_layout)
+  end
+
+  defp fetch_widget_dimensional_data(widget_category) do
+    case widget_category do
+      ["card", "dynamic_card"] ->
+        {15, 20, "dynamic_card"}
+
+      ["card", "static_card"] ->
+        {15, 10, "static_card"}
+
+      ["card", "image_card"] ->
+        {15, 20, "image_card"}
+
+      _ ->
+        {25, 20, "highcharts"}
+    end
   end
 
   defp parse_filtered_params(%{
