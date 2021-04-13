@@ -51,7 +51,12 @@ defmodule AcqdatApi.DataInsights.Visualizations do
 
         case module.data_prop_gen(visualization) do
           {:ok, res} ->
-            Map.put(widget, :series, res.data)
+            data =
+              if widget.widget.category == ["pivot_table"],
+                do: [res.headers] ++ res.data,
+                else: res.data
+
+            Map.put(widget, :series, data)
 
           {:error, _} ->
             widget
@@ -112,6 +117,12 @@ defmodule AcqdatApi.DataInsights.Visualizations do
 
         {:Column, "stock_chart"} ->
           "Stacked Column"
+
+        {:HeatMap, "anychart"} ->
+          "HeatMap"
+
+        {:PivotTables, _} ->
+          "PivotTable"
 
         _ ->
           "default"

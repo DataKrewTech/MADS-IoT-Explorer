@@ -97,7 +97,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
        %{
          headers: res.columns,
          data: res.rows,
-         chart_category: "highchart"
+         chart_category: "anychart"
        }}
     rescue
       error in Postgrex.Error ->

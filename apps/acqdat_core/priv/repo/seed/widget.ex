@@ -3,7 +3,7 @@ defmodule AcqdatCore.Seed.Widget do
   Holds seeds for initial widgets.
   """
   alias AcqdatCore.Seed.Widgets.{Line, Area, Pie, Bar, LineTimeseries, AreaTimeseries, GaugeSeries, SolidGauge,
-        StockSingleLine, DynamicCard, ImageCard, StaticCard, BasicColumn, StackedColumn, StockColumn}
+        StockSingleLine, DynamicCard, ImageCard, StaticCard, BasicColumn, StackedColumn, StockColumn, HeatMap}
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
@@ -25,6 +25,7 @@ defmodule AcqdatCore.Seed.Widget do
     BasicColumn.seed()
     StackedColumn.seed()
     StockColumn.seed()
+    HeatMap.seed()
     WidgetHelpers.seed_in_elastic()
   end
 
@@ -57,7 +58,8 @@ defmodule AcqdatCore.Seed.Widget do
       "Dynamic Card" => {DynamicCard, :card},
       "Image Card" => {ImageCard, :card},
       "Static Card" => {StaticCard, :card},
-      "Stock Column" => {StockColumn, :column}
+      "Stock Column" => {StockColumn, :column},
+      "HeatMap" => {HeatMap, :heat_map}
     }
 
     Enum.each(charts, fn {label, value} ->
