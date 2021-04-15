@@ -257,19 +257,19 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       uuid: hits.uuid,
       id: hits.id,
       name: hits.name,
-      access_token: hits.access_token,
-      serializer: hits.serializer,
+      # access_token: hits.access_token,
+      # serializer: hits.serializer,
       channel: hits.channel,
       parent_id: hits.parent_id,
       parent_type: hits.parent_type,
       slug: hits.slug,
-      description: hits.description,
-      static_data: render_many(hits.static_data, GatewayView, "data.json"),
-      streaming_data: render_many(hits.streaming_data, GatewayView, "streaming_data.json"),
-      current_location: hits.current_location,
-      mapped_parameters: hits.mapped_parameters,
-      image_url: hits.image_url,
-      timestamp_mapping: hits.timestamp_mapping
+      # description: hits.description,
+      # static_data: render_many(hits.static_data, GatewayView, "data.json"),
+      # streaming_data: render_many(hits.streaming_data, GatewayView, "streaming_data.json"),
+      # current_location: hits.current_location,
+      # mapped_parameters: hits.mapped_parameters,
+      image_url: hits.image_url
+      # timestamp_mapping: hits.timestamp_mapping
     }
   end
 end

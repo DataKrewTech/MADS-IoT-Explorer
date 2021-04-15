@@ -87,26 +87,18 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
 
   defp insert_gateway(type, params) do
     post("#{type}/_doc/#{params.id}?routing=#{params.project_id}?refresh=true",
-      id: params.id,
-      name: params.name,
-      uuid: params.uuid,
-      slug: params.slug,
-      parent_type: params.parent_type,
-      parent_id: params.parent_id,
-      org_id: params.org_id,
-      project_id: params.project_id,
-      description: params.description,
-      access_token: params.access_token,
-      serializer: params.serializer,
-      current_location: params.current_location,
-      channel: params.channel,
-      image_url: params.image_url,
-      static_data: params.static_data,
-      inserted_at: DateTime.to_unix(params.inserted_at),
-      streaming_data: params.streaming_data,
-      mapped_parameters: params.mapped_parameters,
-      timestamp_mapping: params.timestamp_mapping,
-      join_field: %{name: "gateway", parent: params.project_id}
+    id: params.id,
+    name: params.name,
+    uuid: params.uuid,
+    slug: params.slug,
+    parent_type: params.parent_type,
+    parent_id: params.parent_id,
+    org_id: params.org_id,
+    project_id: params.project_id,
+    channel: params.channel,
+    image_url: params.image_url,
+    inserted_at: DateTime.to_unix(params.inserted_at),
+    join_field: %{name: "gateway", parent: params.project_id}
       )
   end
 end
