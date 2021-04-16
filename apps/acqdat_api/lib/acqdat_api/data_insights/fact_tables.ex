@@ -737,6 +737,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
           VALUES
           #{text_form};
         """
+
         Ecto.Adapters.SQL.query!(Repo, qry, [])
       end,
       max_concurrency: 4,
@@ -1050,6 +1051,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
       CREATE TABLE #{fact_table_name}
       (#{qry_text})
     """
+
     Ecto.Adapters.SQL.query!(Repo, qry, [])
   end
 
