@@ -58,12 +58,8 @@ defmodule AcqdatApiWeb.ElasticSearch.GatewayControllerTest do
 
       %{"gateways" => [rgateway]} = conn |> json_response(200)
 
-      assert rgateway["access_token"] == gateway.access_token
-
       assert rgateway["uuid"] == gateway.uuid
-
       assert rgateway["id"] == gateway.id
-
       assert rgateway["parent_id"] == gateway.parent_id
       assert rgateway["parent_type"] == gateway.parent_type
       assert rgateway["slug"] == gateway.slug
