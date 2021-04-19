@@ -83,7 +83,8 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
         )
         |> json_response(400)
 
-      assert %{"errors" => %{"message" => %{"gateway" => ["does not exist"]}}} == result
+      assert %{"errors" => %{"message" => %{"error" => %{"gateway" => ["does not exist"]}}}} ==
+               result
     end
   end
 
