@@ -236,7 +236,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
     }
   end
 
-   defp selective_rendering(%{channel: "http"} = gateway) do
+  defp selective_rendering(%{channel: "http"} = gateway) do
     %{
       path: create_url("http", gateway),
       access_token: gateway.access_token
