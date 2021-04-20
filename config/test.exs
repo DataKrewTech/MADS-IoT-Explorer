@@ -30,9 +30,9 @@ config :acqdat_core, AcqdatCore.Repo,
   database: "acqdat_core_test",
   hostname: System.get_env("DB_HOST", "localhost"),
   pool: Ecto.Adapters.SQL.Sandbox
-
-# queue_target: 1500,
-# queue_interval: 10000
+  # settings to be used if db connections are failing
+  # queue_target: 1500,
+  # queue_interval: 1000
 
 config :tirexs, :uri, System.get_env("ELASTIC_SEARCH_HOST", "http://localhost:9200")
 

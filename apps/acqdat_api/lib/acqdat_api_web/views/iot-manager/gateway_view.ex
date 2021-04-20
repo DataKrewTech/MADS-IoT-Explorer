@@ -248,7 +248,9 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       topic: create_url("mqtt", gateway),
       client_id: gateway.uuid,
       username: gateway.uuid,
-      auth_token: gateway.access_token
+      auth_token: gateway.access_token,
+      host: System.fetch_env!("MQTT_EXPOSED_HOSTNAME"),
+      port: System.fetch_env!("MQTT_EXPOSED_PORT")
     }
   end
 
