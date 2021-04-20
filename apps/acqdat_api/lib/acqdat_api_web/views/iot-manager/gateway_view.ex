@@ -97,35 +97,6 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
     }
   end
 
-  defp selective_rendering(%{channel: "http"} = gateway) do
-    %{
-      path: create_url("http", gateway),
-      access_token: gateway.access_token
-    }
-  end
-
-  defp create_url("http", gateway) do
-    @http_url <>
-      "orgs/" <>
-      "#{gateway.org_id}" <>
-      "/projects/" <> "#{gateway.project.id}" <> "/gateways/" <> "#{gateway.id}" <> "/data_dump"
-  end
-
-  defp create_url("mqtt", gateway) do
-    "org/" <>
-      "#{gateway.uuid}" <>
-      "/project/" <> "#{gateway.project.uuid}" <> "/gateway/" <> "#{gateway.uuid}"
-  end
-
-  defp selective_rendering(%{channel: "mqtt"} = gateway) do
-    %{
-      topic: create_url("mqtt", gateway),
-      client_id: gateway.uuid,
-      username: gateway.uuid,
-      auth_token: gateway.access_token
-    }
-  end
-
   def render("delete.json", %{gateway: gateway}) do
     %{
       type: "Gateway",
@@ -263,5 +234,34 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
       slug: hits.slug,
       image_url: hits.image_url
     }
+  end
+
+   defp selective_rendering(%{channel: "http"} = gateway) do
+    %{
+      path: create_url("http", gateway),
+      access_token: gateway.access_token
+    }
+  end
+
+  defp selective_rendering(%{channel: "mqtt"} = gateway) do
+    %{
+      topic: create_url("mqtt", gateway),
+      client_id: gateway.uuid,
+      username: gateway.uuid,
+      auth_token: gateway.access_token
+    }
+  end
+
+  defp create_url("http", gateway) do
+    @http_url <>
+      "orgs/" <>
+      "#{gateway.org_id}" <>
+      "/projects/" <> "#{gateway.project.id}" <> "/gateways/" <> "#{gateway.id}" <> "/data_dump"
+  end
+
+  defp create_url("mqtt", gateway) do
+    "org/" <>
+      "#{gateway.org.uuid}" <>
+      "/project/" <> "#{gateway.project.uuid}" <> "/gateway/" <> "#{gateway.uuid}"
   end
 end
