@@ -4,7 +4,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   alias AcqdatApi.DashboardExport.DashboardExport
   alias AcqdatApi.DashboardManagement.Dashboard
   alias AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper
-  import AcqdatApiWeb.Validators.DashboardExport.DashboardExport
+  alias AcqdatApiWeb.Validators.DashboardExport.DashboardExport, as: ExportValidator
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
   plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
@@ -18,7 +18,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        changeset = verify_params(params)
+        changeset = ExportValidator.from(params, with: &ExportValidator.verify_params/2)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, dashboard_export}} <-
@@ -48,7 +48,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
     case conn.status do
       nil ->
         exported_dashboard = conn.assigns.exported_dashboard
-        changeset = verify_update_params(params)
+        changeset = ExportValidator.from(params, with: &ExportValidator.verify_update_params/2)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:update, {:ok, dashboard_export}} <-
@@ -61,6 +61,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             send_error(conn, 400, error)
 
           {:update, {:error, message}} ->
+            require IEx
+            IEx.pry
             send_error(
               conn,
               400,
