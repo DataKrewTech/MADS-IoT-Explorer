@@ -1062,8 +1062,8 @@ defmodule AcqdatApi.DataInsights.FactTables do
         res =
           Stream.with_index(ele, 0)
           |> Enum.reduce("", fn {val, ind}, acc ->
-            if Enum.at(col_types, ind) == "numeric" and val == nil do
-              acc <> "\'0\',"
+            if Enum.at(col_types, ind) != "text" and val == nil do
+              acc <> "null,"
             else
               acc <> "\'#{val}\',"
             end

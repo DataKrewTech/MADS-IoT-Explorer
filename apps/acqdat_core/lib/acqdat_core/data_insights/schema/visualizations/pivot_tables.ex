@@ -151,6 +151,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
             column["name"]
           }" as TEXT), 'YYYY-MM-DD hh24:mi:ss'))
               from #{fact_table_name}
+              where #{column_name} is not null
               group by 1
               order by 1;
           """
@@ -235,7 +236,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
             SELECT *
             FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} where \"#{
             value["name"]
-          }\" is not null and #{filter_data}
+          }\" is not null and #{filter_data} and #{column_name} is not null
             group by #{rows_data}, #{column_name} order by #{rows_data}, #{column_name}',
             'select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and length(#{
             column_name
@@ -247,7 +248,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
             SELECT *
             FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} where \"#{
             value["name"]
-          }\" is not null
+          }\" is not null and #{column_name} is not null
             group by #{rows_data}, #{column_name} order by #{rows_data}, #{column_name}',
             'select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and length(#{
             column_name
