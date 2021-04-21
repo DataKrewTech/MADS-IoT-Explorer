@@ -5,7 +5,7 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
     password: :string
   }
 
-  import Ecto.Changeset, only: [cast: 3, validate_required: 2]
+  import Ecto.Changeset
 
   @params ~w(is_secure dashboard_id password)a
   @create_required ~w(is_secure dashboard_id)a
@@ -14,18 +14,20 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
     ch
     |> cast(params, @params)
     |> validate_required(@create_required)
-    |> selective_password_inclusion(params)
+    |> selective_password_inclusion()
   end
 
-  defp selective_password_inclusion(%Ecto.Changeset{valid?: true} = changeset, params) do
-    if params["is_secure"] == true  do
+  defp selective_password_inclusion(%Ecto.Changeset{valid?: true} = changeset) do
+    is_secure = get_field(changeset, :is_secure)
+
+    if is_secure == true  do
       validate_required(changeset, [:password])
     else
       changeset
     end
   end
 
-  defp selective_password_inclusion(%Ecto.Changeset{valid?: false} = changeset, _params) do
+  defp selective_password_inclusion(%Ecto.Changeset{valid?: false} = changeset) do
     changeset
   end
 
@@ -34,7 +36,7 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
     ch
     |> cast(params, @params)
     |> validate_required(@update_required)
-    |> selective_password_inclusion(params)
+    |> selective_password_inclusion()
   end
 
 end
