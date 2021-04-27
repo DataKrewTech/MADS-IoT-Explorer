@@ -6,6 +6,7 @@ defmodule AcqdatApiWeb.UserSocket do
   channel("tasks:*", AcqdatApiWeb.DataCruncher.TasksChannel)
   channel("project_fact_table:*", AcqdatApiWeb.DataInsights.TasksChannel)
   channel("visualizations:*", AcqdatApiWeb.DataInsights.VisualizationsChannel)
+  channel("panels:*", AcqdatApiWeb.DashboardManagement.PanelsChannel)
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
