@@ -22,6 +22,15 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
       PanelModel.update(widget_instance.panel, %{widget_layouts: widget_layouts})
     end)
     |> run_transaction()
+    |> broadcast_to_channel(attrs)
+  end
+
+  def broadcast_to_channel(data, %{panel_id: panel_id}) do
+    AcqdatApiWeb.Endpoint.broadcast("panels:#{panel_id}", "out_put_res", %{
+      data: data
+    })
+
+    data
   end
 
   def update(widget_instance, attrs) do

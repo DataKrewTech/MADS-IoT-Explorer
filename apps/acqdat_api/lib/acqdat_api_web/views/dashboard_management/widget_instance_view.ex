@@ -55,4 +55,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       source_details: series.source_metadata
     }
   end
+
+  def render("error_data.json", %{widget_instance: error_res}) do
+    error_res
+  end
 end
