@@ -25,14 +25,6 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
     |> broadcast_to_channel(attrs)
   end
 
-  def broadcast_to_channel(data, %{panel_id: panel_id}) do
-    AcqdatApiWeb.Endpoint.broadcast("panels:#{panel_id}", "out_put_res", %{
-      data: data
-    })
-
-    data
-  end
-
   def update(widget_instance, attrs) do
     WidgetInstanceModel.update(widget_instance, attrs)
     |> verify_widget()
@@ -157,6 +149,14 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
       _ ->
         {25, 20, "highcharts"}
     end
+  end
+
+  defp broadcast_to_channel(data, %{panel_id: panel_id}) do
+    AcqdatApiWeb.Endpoint.broadcast("panels:#{panel_id}", "out_put_res", %{
+      data: data
+    })
+
+    data
   end
 
   defp parse_filtered_params(%{

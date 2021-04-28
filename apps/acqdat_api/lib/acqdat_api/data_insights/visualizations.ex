@@ -100,10 +100,10 @@ defmodule AcqdatApi.DataInsights.Visualizations do
     # TODO: Need to handle for heat_map and pivot_table visualizations
     widget_label =
       case {visualization.type, visualization.chart_category} do
-        {:Line, "highchart"} ->
+        {:Lines, "highchart"} ->
           "line"
 
-        {:Line, "stock_chart"} ->
+        {:Lines, "stock_chart"} ->
           "Stock Single line series"
 
         {:Area, "highchart"} ->

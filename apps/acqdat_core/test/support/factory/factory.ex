@@ -15,7 +15,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.DigitalTwin
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.DashboardExport.Schema.DashboardExport
-  alias AcqdatCore.DataInsights.Schema.FactTables
+  alias AcqdatCore.DataInsights.Schema.{FactTables, Visualizations}
   alias AcqdatCore.Schema.RoleManagement.Policy
   alias AcqdatCore.Schema.RoleManagement.UserPolicy
   alias AcqdatCore.Schema.RoleManagement.UserGroup
@@ -332,6 +332,21 @@ defmodule AcqdatCore.Support.Factory do
       org: build(:organisation),
       project: build(:project),
       creator: build(:user)
+    }
+  end
+
+  def visualizations_factory() do
+    %Visualizations{
+      uuid: UUID.uuid1(:hex),
+      name: sequence(:fact_tables_name, &"Visualizations#{&1}"),
+      slug: sequence(:fact_tables_name, &"Visualizations#{&1}"),
+      org: build(:organisation),
+      project: build(:project),
+      creator: build(:user),
+      fact_table: build(:fact_tables),
+      type: "Lines",
+      module: "Elixir.AcqdatCore.DataInsights.Schema.Visualizations.Lines",
+      chart_category: "highchart"
     }
   end
 

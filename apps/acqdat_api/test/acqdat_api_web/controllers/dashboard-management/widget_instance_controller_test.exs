@@ -128,6 +128,14 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       response = conn |> json_response(200)
       assert Map.has_key?(response, "label")
       assert Map.has_key?(response, "id")
+      assert Map.has_key?(response["panel"]["widget_layouts"], "#{response["id"]}")
+
+      widget_dimension = response["panel"]["widget_layouts"]["#{response["id"]}"]
+      assert widget_dimension["h"] == 20
+      assert widget_dimension["w"] == 25
+      assert widget_dimension["x"] == 0
+      assert widget_dimension["y"] == 0
+      assert widget_dimension["type"] == "highcharts"
     end
 
     test "fails if authorization header not found", %{conn: conn} do
