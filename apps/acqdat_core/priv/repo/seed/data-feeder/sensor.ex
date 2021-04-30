@@ -8,6 +8,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
   import Tirexs.HTTP
 
   def seed_data!() do
+    create_index()
     sensors = Repo.all(Sensor)
     Enum.each(sensors, fn sensor ->
       insert_sensor("sensors", sensor)
@@ -24,6 +25,13 @@ defmodule AcqdatCore.Seed.DataFeeder.Sensor do
     Enum.each(sensor_types, fn sensor_type ->
       insert_sensor_type("sensor_types", sensor_type)
     end)
+  end
+
+  defp create_index() do
+    put("/assets")
+    put("/sensors")
+    put("/asset_types")
+    put("/sensor_types")
   end
 
   def insert_asset(type, params) do

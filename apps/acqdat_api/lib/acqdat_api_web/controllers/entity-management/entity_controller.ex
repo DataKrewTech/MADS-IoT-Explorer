@@ -23,8 +23,14 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
           |> put_status(200)
           |> render("organisation_tree.json", conn.assigns.org)
         else
-          {:update, {:error, error}} ->
-            send_error(conn, 400, error)
+          {:update, {:error, message}} ->
+            response =
+              case is_map(message.error) do
+                false -> message
+                true -> message.error
+              end
+
+            send_error(conn, 400, response)
         end
 
       404 ->

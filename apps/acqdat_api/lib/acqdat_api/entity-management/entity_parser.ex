@@ -5,6 +5,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   alias AcqdatCore.Schema.EntityManagement.{Project, Asset}
   alias AcqdatCore.Repo
+  alias AcqdatApiWeb.Helpers
 
   def update_project_hierarchy(
         current_user,
@@ -14,19 +15,24 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
     {org_id, _} = Integer.parse(org_id)
 
     validate_tree_hirerachy(
-      parse_n_update(entities, org_id, nil, type, params, current_user),
+      run_hierarchy_update_transaction(entities, org_id, nil, type, params, current_user),
       project
     )
   end
 
   ############################# private functions ###########################
+  defp run_hierarchy_update_transaction(entities, org_id, nil, type, params, current_user) do
+    Repo.transaction(fn ->
+      parse_n_update(entities, org_id, nil, type, params, current_user)
+    end)
+  end
 
   defp validate_tree_hirerachy({:ok, result}, project) do
     validate_parser_result(result, project)
   end
 
-  defp validate_tree_hirerachy({:error, :rollback}, _project) do
-    {:error, "Something went wrong. Please verify your hirerachy tree."}
+  defp validate_tree_hirerachy({:error, %Ecto.Changeset{} = changeset}, _project) do
+    {:error, %{error: Helpers.extract_changeset_error(changeset)}}
   end
 
   defp validate_tree_hirerachy({:error, message}, _project) do
@@ -73,45 +79,38 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
 
   defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity, current_user)
        when entities !== nil do
-    Repo.transaction(fn ->
-      try do
-        for entity <- entities do
-          result =
-            entity_seggr(entity, org_id, parent_id, parent_type, parent_entity, current_user)
+    for entity <- entities do
+      result =
+        entity_seggr(entity, org_id, parent_id, parent_type, parent_entity, current_user)
 
-          case result do
-            {:ok, {:delete_asset, _data}} ->
-              nil
+      case result do
+        {:ok, {:delete_asset, _data}} ->
+          nil
 
-            {:ok, parent_entity} ->
-              parse_n_update(
-                entity["entities"],
-                org_id,
-                entity["id"],
-                entity["type"],
-                parent_entity,
-                current_user
-              )
+        {:ok, parent_entity} ->
+          parse_n_update(
+            entity["entities"],
+            org_id,
+            entity["id"],
+            entity["type"],
+            parent_entity,
+            current_user
+          )
 
-            {:error, message} ->
-              throw(message)
+        {:error, message} ->
+          Repo.rollback(message)
 
-            _ ->
-              parse_n_update(
-                entity["entities"],
-                org_id,
-                entity["id"],
-                entity["type"],
-                nil,
-                current_user
-              )
-          end
-        end
-      catch
-        message ->
-          {:error, message}
+        _ ->
+          parse_n_update(
+            entity["entities"],
+            org_id,
+            entity["id"],
+            entity["type"],
+            nil,
+            current_user
+          )
       end
-    end)
+    end
   end
 
   defp parse_n_update(entities, _org_id, _parent_id, _parent_type, _parent_entity, _current_user)
