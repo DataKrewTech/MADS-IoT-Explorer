@@ -95,9 +95,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     case conn.status do
       nil ->
         %{assigns: %{project: project}} = conn
-        params = Map.put(params, "avatar", project.avatar)
-
-        params = extract_image(conn, project, params)
 
         case Project.update(project, params) do
           {:ok, project} ->
@@ -127,7 +124,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        params = add_avatar_to_params(conn, params)
         changeset = verify_project(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
@@ -164,10 +160,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
         case Project.delete(project) do
           {:ok, project} ->
-            if project.avatar != nil do
-              ImageDeletion.delete_operation(project.avatar, "project")
-            end
-
             ElasticSearch.delete_data("org", project)
 
             conn
@@ -209,40 +201,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
       401 ->
         conn
         |> send_error(401, ProjectErrorHelper.error_message(:unauthorized))
-    end
-  end
-
-  defp add_avatar_to_params(conn, params) do
-    params = Map.put(params, "avatar", "")
-
-    case is_nil(params["image"]) do
-      true ->
-        params
-
-      false ->
-        add_image_url(conn, params)
-    end
-  end
-
-  defp extract_image(conn, project, params) do
-    case is_nil(params["image"]) do
-      true ->
-        params
-
-      false ->
-        if project.avatar != nil do
-          ImageDeletion.delete_operation(project.avatar, "project")
-        end
-
-        add_image_url(conn, params)
-    end
-  end
-
-  defp add_image_url(conn, %{"image" => image} = params) do
-    with {:ok, image_name} <- Image.store({image, "project"}) do
-      Map.replace!(params, "avatar", Image.url({image_name, "project"}))
-    else
-      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end

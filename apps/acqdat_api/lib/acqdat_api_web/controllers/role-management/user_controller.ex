@@ -184,7 +184,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       nil ->
         %{assigns: %{user: user}} = conn
 
-        case User.update_user(user, add_avatar_to_params(conn, params)) do
+        case User.update_user(user, params) do
           {:ok, user} ->
             ElasticSearch.update_users("organisation", user, user.org)
 
@@ -234,28 +234,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       401 ->
         conn
         |> send_error(401, UserErrorHelper.error_message(:unauthorized))
-    end
-  end
-
-  defp add_avatar_to_params(conn, params) do
-    %{assigns: %{user: user}} = conn
-
-    params = Map.put(params, "avatar", user.avatar)
-
-    case is_nil(params["image"]) do
-      true ->
-        params
-
-      false ->
-        add_image_url(conn, params)
-    end
-  end
-
-  defp add_image_url(conn, %{"image" => image} = params) do
-    with {:ok, image_name} <- Image.store({image, "user"}) do
-      Map.replace!(params, "avatar", Image.url({image_name, "user"}))
-    else
-      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end

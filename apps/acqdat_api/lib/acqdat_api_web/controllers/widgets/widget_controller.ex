@@ -61,17 +61,7 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   def create(conn, params) do
     case conn.status do
       nil ->
-        params = Map.put(params, "image_url", "")
-
-        changeset =
-          case is_nil(params["image"]) do
-            true ->
-              verify_widget_params(params)
-
-            false ->
-              params = add_image_url(conn, params)
-              verify_widget_params(params)
-          end
+        changeset = verify_widget_params(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, widget}} <- {:create, Widget.create(data)} do
@@ -142,16 +132,6 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
     case conn.status do
       nil ->
         %{assigns: %{widget: widget}} = conn
-        params = Map.put(params, "image_url", widget.image_url)
-
-        params =
-          case is_nil(params["image"]) do
-            true ->
-              params
-
-            false ->
-              add_image_url(conn, params)
-          end
 
         case WidgetModel.update(widget, params) do
           {:ok, widget} ->
@@ -195,10 +175,6 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
           {:ok, widget} ->
             ElasticSearch.delete("widgets", widget.id)
 
-            Task.async(fn ->
-              ImageDeletion.delete_operation(widget.image_url, "widget")
-            end)
-
             conn
             |> put_status(200)
             |> render("widget.json", %{widget: widget})
@@ -230,14 +206,6 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
       {:error, _message} ->
         conn
         |> put_status(404)
-    end
-  end
-
-  defp add_image_url(conn, %{"image" => image} = params) do
-    with {:ok, image_name} <- Image.store({image, "widget"}) do
-      Map.replace!(params, "image_url", Image.url({image_name, "widget"}))
-    else
-      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end

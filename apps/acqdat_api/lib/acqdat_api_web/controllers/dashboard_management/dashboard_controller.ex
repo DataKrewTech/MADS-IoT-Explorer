@@ -37,7 +37,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     case conn.status do
       nil ->
         params =
-          add_avatar_to_params(conn, params)
+          params
           |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
 
         changeset = verify_create(params)
@@ -112,8 +112,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     case conn.status do
       nil ->
         dashboard = conn.assigns.dashboard
-        params = Map.put(params, "avatar", dashboard.avatar)
-        params = extract_image(conn, dashboard, params)
 
         case Dashboard.update(dashboard, params) do
           {:ok, dashboard} ->
@@ -147,10 +145,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       nil ->
         case Dashboard.delete(conn.assigns.dashboard) do
           {:ok, dashboard} ->
-            if dashboard.avatar != nil do
-              ImageDeletion.delete_operation(dashboard.avatar, "dashboard")
-            end
-
             conn
             |> put_status(200)
             |> render("dashboard.json", %{dashboard: dashboard})
@@ -236,41 +230,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       401 ->
         conn
         |> send_error(401, DashboardErrorHelper.error_message(:unauthorized))
-    end
-  end
-
-  ############################# private functions ###########################
-  defp add_avatar_to_params(conn, params) do
-    params = Map.put(params, "avatar", "")
-
-    case is_nil(params["image"]) do
-      true ->
-        params
-
-      false ->
-        add_image_url(conn, params)
-    end
-  end
-
-  defp extract_image(conn, dashboard, params) do
-    case is_nil(params["image"]) do
-      true ->
-        params
-
-      false ->
-        if dashboard.avatar != nil do
-          ImageDeletion.delete_operation(dashboard.avatar, "dashboard")
-        end
-
-        add_image_url(conn, params)
-    end
-  end
-
-  defp add_image_url(conn, %{"image" => image} = params) do
-    with {:ok, image_name} <- Image.store({image, "dashboard"}) do
-      Map.replace!(params, "avatar", Image.url({image_name, "dashboard"}))
-    else
-      {:error, error} -> send_error(conn, 400, error)
     end
   end
 
