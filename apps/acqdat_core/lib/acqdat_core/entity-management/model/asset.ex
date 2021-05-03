@@ -19,9 +19,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  def return_count() do
+  def return_count(%{"project_id" => project_id}) do
     query =
       from(p in Asset,
+        where: p.project_id == ^project_id,
         select: count(p.id)
       )
 

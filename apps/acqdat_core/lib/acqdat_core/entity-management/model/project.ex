@@ -12,7 +12,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     Repo.insert(changeset)
   end
 
-  def return_count() do
+  def return_count(_params) do
     query =
       from(p in Project,
         select: count(p.id)

@@ -21,9 +21,10 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
-  def return_count() do
+  def return_count(%{"project_id" => project_id}) do
     query =
       from(p in Sensor,
+        where: p.project_id == ^project_id,
         select: count(p.id)
       )
 

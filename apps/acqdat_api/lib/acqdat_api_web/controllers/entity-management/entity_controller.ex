@@ -88,13 +88,13 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
     end
   end
 
-  def fetch_count(conn, %{"type" => entity}) do
+  def fetch_count(conn, %{"type" => entity} = params) do
     # name_convention = "Elixir.AcqdatCore.Model.EntityManagement." <> entity
     # module_name = String.to_atom(name_convention)
     try do
       {:ok, module_name} = ModuleEnum.dump(entity)
 
-      case module_name.return_count() do
+      case module_name.return_count(params) do
         nil ->
           conn
           |> put_status(200)
