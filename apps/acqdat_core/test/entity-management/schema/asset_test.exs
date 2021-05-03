@@ -120,15 +120,36 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)
       assert result == :error
-      assert %{name: ["name already taken under this heirarchy"]} == errors_on(changeset)
+      assert %{name: ["name already taken under this hierarchy"]} == errors_on(changeset)
     end
 
-    # TODO: complete the test
-    # test "returns error if no parent but asset with same name under same org", %{
-    #   organisation: organisation
-    # } do
-    #   child_asset_1 = insert(:asset, org: organisation)
-    # end
+    test "returns error if no parent but asset with same name under same org", conn do
+      %{
+        organisation: organisation,
+        project: project,
+        user: user,
+        asset_type: asset_type
+      } = conn
+
+      child_asset_1 =
+        insert(:asset,
+          org: organisation,
+          project: project,
+          asset_type: asset_type,
+          parent_id: nil
+        )
+
+      params = %{
+        name: child_asset_1.name, org_id: organisation.id,
+        project_id: project.id, asset_type_id: asset_type.id, creator_id: user.id
+      }
+
+
+      changeset = Asset.changeset(%Asset{}, params)
+      {result, changeset} = Repo.insert(changeset)
+      require IEx
+      IEx.pry
+    end
 
     # TODO: complete the test
     # test "allows insertion of asset with same name under different parents" do
