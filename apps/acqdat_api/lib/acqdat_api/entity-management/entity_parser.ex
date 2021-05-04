@@ -36,7 +36,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   end
 
   defp validate_tree_hirerachy({:error, message}, _project) do
-    {:error, message}
+    {:error, %{error: message}}
   end
 
   defp validate_parser_result(result, project) do

@@ -152,7 +152,6 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   def add_as_root(%{
         name: name,
         org_id: org_id,
-        org_name: org_name,
         project_id: project_id,
         creator_id: creator_id,
         asset_type_id: asset_type_id,
@@ -163,21 +162,24 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         description: description
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
+
+    asset = asset_struct(%{
+      name: name,
+      org_id: org_id,
+      slug: random_string(12),
+      project_id: project_id,
+      creator_id: creator_id,
+      asset_type_id: asset_type_id,
+      metadata: metadata,
+      mapped_parameters: mapped_parameters,
+      owner_id: owner_id,
+      properties: properties,
+      description: description
+    })
+
     try do
       taxon =
-        asset_struct(%{
-          name: name,
-          org_id: org_id,
-          slug: org_name <> name <> to_string(project_id),
-          project_id: project_id,
-          creator_id: creator_id,
-          asset_type_id: asset_type_id,
-          metadata: metadata,
-          mapped_parameters: mapped_parameters,
-          owner_id: owner_id,
-          properties: properties,
-          description: description
-        })
+        asset
         |> create(:root)
         |> AsNestedSet.execute(Repo)
 
@@ -191,7 +193,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
         {:error, error.changeset}
 
       error in Ecto.ConstraintError ->
-        {:error, error}
+        {:error, handle_constraint_error(asset, error)}
     end
   end
 
@@ -245,6 +247,24 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   end
 
   ############################# private functions ###########################
+
+  defp handle_constraint_error(asset, error) do
+    changeset = asset.__struct__.changeset(asset, %{})
+    constraints = changeset.constraints
+
+    result = Enum.find(constraints, fn constraint ->
+        constraint.constraint == error.constraint
+    end)
+    %{
+      title: "Insufficient or not unique parameters",
+      error: result.error_message,
+      source: %{name: asset.name}
+    }
+  end
+
+  defp random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  end
 
   defp gen_asset_mapped_params(%{sensor_type: sensor_type} = sensor) do
     Enum.map(sensor_type.parameters, fn parameter ->

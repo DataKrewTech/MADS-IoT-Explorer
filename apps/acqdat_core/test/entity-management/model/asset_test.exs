@@ -228,18 +228,44 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       params = %{
         name: "asset demo",
         org_id: project.org_id,
-        org_name: org.name,
         project_id: project.id,
         asset_type_id: asset.asset_type_id,
         creator_id: asset.creator_id,
         metadata: [],
         mapped_parameters: [],
         owner_id: asset.creator_id,
-        properties: []
+        properties: [],
+        description: ""
       }
 
       assert {:ok, root_asset} = Asset.add_as_root(params)
       refute is_nil(root_asset)
+    end
+
+    test "returns error if two roots with same name are added", context do
+      %{org: org, project: project, asset: asset} = context
+
+      params = %{
+        name: "asset demo",
+        org_id: project.org_id,
+        project_id: project.id,
+        asset_type_id: asset.asset_type_id,
+        creator_id: asset.creator_id,
+        metadata: [],
+        mapped_parameters: [],
+        owner_id: asset.creator_id,
+        properties: [],
+        description: ""
+      }
+
+      assert {:ok, root_asset} = Asset.add_as_root(params)
+      ## inert another root with same name
+      assert {:error, response} = Asset.add_as_root(params)
+      assert response = %{
+        description: "name already taken by a root asset",
+        source: [name: "asset demo"],
+        title: "Insufficient or not unique parameters"
+      }
     end
   end
 

@@ -26,7 +26,7 @@ defmodule AcqdatApiWeb.Helpers do
       title: "Insufficient or not unique parameters",
       error:
         "Parameters provided to perform current action is either not valid or missing or not unique",
-      source: ectract_error(error)
+      source: extract_error(error)
     }
   end
 
@@ -44,7 +44,7 @@ defmodule AcqdatApiWeb.Helpers do
     |> put_view(AcqdatApiWeb.ErrorView)
   end
 
-  defp ectract_error(error) do
+  defp extract_error(error) do
     Enum.reduce(error, %{}, fn {key, value}, acc ->
       Map.merge(acc, %{"#{key}": reduce_error(value)})
     end)
