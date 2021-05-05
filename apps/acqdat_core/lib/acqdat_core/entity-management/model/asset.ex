@@ -248,6 +248,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   ############################# private functions ###########################
 
+  # The as_nested_set library inserts structs instead of changesets for root
+  # assets. As a result constraint exceptions are raised, however to be confirmant
+  # to the error structure decided, we have to return the error in the format
+  # show in the function shown below.
   defp handle_constraint_error(asset, error) do
     changeset = asset.__struct__.changeset(asset, %{})
     constraints = changeset.constraints

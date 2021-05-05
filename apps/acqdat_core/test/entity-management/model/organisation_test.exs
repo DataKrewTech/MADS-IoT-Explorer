@@ -36,7 +36,8 @@ defmodule AcqdatCore.Model.EntityManagement.OrganisationTest do
           metadata: [],
           mapped_parameters: [],
           owner_id: asset.creator_id,
-          properties: []
+          properties: [],
+          description: ""
         })
 
       [project: project]
