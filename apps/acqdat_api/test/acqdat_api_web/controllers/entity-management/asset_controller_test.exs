@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
+  alias AcqdatCore.Model.EntityManagement.Asset
   import AcqdatCore.Support.Factory
 
   describe "show/2" do
@@ -199,9 +200,10 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
       # try again with the same params
       conn = post(conn, Routes.assets_path(conn, :create, org.id, project.id), params)
       result = conn |> json_response(400)
+
       assert result == %{
         "detail" => "name already taken by a root asset",
-        "source" => %{"name" => "Building 1"},
+        "source" => %{"name" => ["name already taken by a root asset"]},
         "status_code" => 400,
         "title" => "Insufficient or not unique parameters"
       }
@@ -272,6 +274,96 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
     end
   end
 
+  describe "create/2 child assets " do
+    setup :setup_conn
+
+    setup do
+      org = insert(:organisation)
+      project = insert(:project)
+      asset_type = insert(:asset_type, org: org, project: project)
+      asset_type_child = insert(:asset_type, org: org, project: project)
+      user = insert(:user)
+
+      {:ok, root_asset} =
+        Asset.add_as_root(%{
+          name: "root asset",
+          org_id: org.id,
+          org_name: org.name,
+          project_id: project.id,
+          asset_type_id: asset_type.id,
+          creator_id: user.id,
+          metadata: [],
+          mapped_parameters: [],
+          owner_id: user.id,
+          description: "Something",
+          properties: []
+        })
+
+      [
+        parent_entity: root_asset, org: org, project: project,
+        asset_type: asset_type_child, user: user
+      ]
+    end
+
+    test "inserts asssets successfully", context do
+      %{
+        parent_entity: parent, org: org, project: project,
+        asset_type: asset_type, user: user, conn: conn
+      } = context
+
+      params = %{
+        "asset_type_id" => asset_type.id,
+        "creator_id" => user.id,
+        "description" => "",
+        "metadata" => [],
+        "name" => "Building 1",
+        "org_id" => org.id,
+        "parent_id" => parent.id,
+        "parent_type" => "Project",
+        "project_id" => project.id
+      }
+
+      conn =
+        post(conn, Routes.assets_path(conn, :create, org.id, project.id), params)
+      response = conn |> json_response(200)
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+    end
+
+    test "returns error if duplicate names", context do
+      %{
+        parent_entity: parent, org: org, project: project,
+        asset_type: asset_type, user: user, conn: conn
+      } = context
+
+      params = %{
+        "asset_type_id" => asset_type.id,
+        "creator_id" => user.id,
+        "description" => "",
+        "metadata" => [],
+        "name" => "Building 1",
+        "org_id" => org.id,
+        "parent_id" => parent.id,
+        "parent_type" => "Project",
+        "project_id" => project.id
+      }
+
+      post(conn, Routes.assets_path(conn, :create, org.id, project.id),
+        params)
+      conn = post(conn, Routes.assets_path(conn, :create, org.id, project.id),
+        params)
+      response = conn |> json_response(400)
+      assert response == %{
+        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
+        "source" => %{
+          "name" => ["name already taken under this hierarchy for this particular organisation, project and parent it is getting attached to."]
+        },
+        "status_code" => 400,
+        "title" => "Insufficient or not unique parameters"
+      }
+    end
+  end
+
   describe "delete/2" do
     setup :setup_conn
 
@@ -307,4 +399,5 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
              }
     end
   end
+
 end

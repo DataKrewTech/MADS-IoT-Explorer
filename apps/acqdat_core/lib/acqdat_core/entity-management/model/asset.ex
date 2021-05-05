@@ -249,8 +249,8 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
   ############################# private functions ###########################
 
   # The as_nested_set library inserts structs instead of changesets for root
-  # assets. As a result constraint exceptions are raised, however to be confirmant
-  # to the error structure decided, we have to return the error in the format
+  # assets as a result constraint exceptions are raised. To be confirmant
+  # to the same error structure as changesets, we have to return the error in the format
   # show in the function shown below.
   defp handle_constraint_error(asset, error) do
     changeset = asset.__struct__.changeset(asset, %{})
@@ -259,10 +259,11 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     result = Enum.find(constraints, fn constraint ->
         constraint.constraint == error.constraint
     end)
+
     %{
       title: "Insufficient or not unique parameters",
       error: result.error_message,
-      source: %{name: asset.name}
+      source: Map.put(%{}, result.field, [result.error_message])
     }
   end
 
