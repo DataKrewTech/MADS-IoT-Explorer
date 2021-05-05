@@ -45,7 +45,7 @@ defmodule AcqdatApi.EntityParserTest do
                  invalid_project_version_params(project)
                )
 
-      assert message == ["Please update your current tree version"]
+      assert message == %{error: "Please update your current tree version"}
     end
 
     test "successfully create asset tree with Sensors as descendants", %{
@@ -173,10 +173,9 @@ defmodule AcqdatApi.EntityParserTest do
       assert {:error, message} =
                EntityParser.update_project_hierarchy(current_user, project, params)
 
-      assert message ==
-               [
-                 "It contains time-series data. Please delete sensors data before deleting sensor."
-               ]
+      assert message == %{
+        error: "It contains time-series data. Please delete sensors data before deleting sensor."
+      }
     end
 
     test "successfully deletes respective leaf asset", %{
@@ -263,9 +262,9 @@ defmodule AcqdatApi.EntityParserTest do
       assert {:error, message} =
                EntityParser.update_project_hierarchy(current_user, project, params)
 
-      assert message == [
-               "Asset root asset tree contains sensors. Please delete associated sensors before deleting asset."
-             ]
+      assert message == %{
+        error: "Asset root asset tree contains sensors. Please delete associated sensors before deleting asset."
+      }
     end
 
     test "deletion of asset will not fail if it doesn't have sensors descendants", %{
@@ -443,7 +442,8 @@ defmodule AcqdatApi.EntityParserTest do
         asset_type_id: asset_type.id,
         mapped_parameters: [%{name: "demo", data_type: "temp", unit: "123"}],
         metadata: [%{name: "demo", data_type: "temp", unit: "123"}],
-        properties: ["temp", "current", "voltage"]
+        properties: ["temp", "current", "voltage"],
+        description: ""
       })
     end
 

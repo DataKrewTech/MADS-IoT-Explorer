@@ -46,8 +46,12 @@ defmodule AcqdatApi.EntityManagement.Asset do
     {:error, %{error: AssetErrorHelper.error_message(String.to_atom(constraint))}}
   end
 
-  defp verify_asset({:error, message}) do
-    {:error, extract_changeset_error(message)}
+  defp verify_asset({:error, %Ecto.Changeset{} = changeset}) do
+    {:error, extract_changeset_error(changeset)}
+  end
+
+  defp verify_asset({:error, error}) do
+    {:error, error}
   end
 
   defp prepare_asset(params) do

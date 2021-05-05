@@ -541,6 +541,7 @@ defmodule AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory do
       mapped_parameters: [],
       owner_id: creator_id,
       properties: [],
+      description: "",
       metadata: [
         %{
           name: "location",

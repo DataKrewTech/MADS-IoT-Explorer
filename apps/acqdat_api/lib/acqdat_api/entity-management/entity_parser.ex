@@ -67,8 +67,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   defp validate_result(result, data) when length(result) != 0 do
     for res <- result do
       if res != nil do
-        {:ok, list} = res
-        data ++ result_parsing(list)
+        data ++ result_parsing(res)
       end
     end
   end
