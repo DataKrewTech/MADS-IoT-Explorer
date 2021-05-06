@@ -1,6 +1,8 @@
 defmodule AcqdatApi.DataInsights.FactTable.Consumers.TopicGenerator do
   use GenServer
   use AMQP
+  alias AcqdatCore.Model.DataInsights.FactTables
+  alias AcqdatApi.DataInsights.FactTable.Consumers.DataSynching
 
   def start_link do
     GenServer.start_link(__MODULE__, [], [])
@@ -19,6 +21,7 @@ defmodule AcqdatApi.DataInsights.FactTable.Consumers.TopicGenerator do
     :ok = Basic.qos(chan, prefetch_count: 10)
     # Register the GenServer process as a consumer
     {:ok, _consumer_tag} = Basic.consume(chan, @queue)
+    IO.inspect(chan)
     {:ok, chan}
   end
 
@@ -61,9 +64,21 @@ defmodule AcqdatApi.DataInsights.FactTable.Consumers.TopicGenerator do
   end
 
   defp consume(channel, tag, redelivered, payload) do
-    IO.puts("perform something with payload")
-    payload = Poison.decode!(payload)
-    IO.inspect(payload)
+    params = Poison.decode!(payload)
+    # params = %{project_id: 6, entity_type: "SensorType", entity_id: "name"}
+    fact_tables_ids = FactTables.fetch_fetch_tables_id_by_columns_metadata(params)
+
+    DataSynching.start_link()
+    {:ok, conn} = AMQP.Connection.open()
+    {:ok, chan} = AMQP.Channel.open(conn)
+
+    Enum.map(fact_tables_ids, fn fact_table_id ->
+      AMQP.Basic.publish(chan, "data_synching1", "fact_tables.#{fact_table_id}", payload)
+    end)
+
+    # AMQP.Basic.publish chan, "data_synching1", "fact_tables.2", payload
+    # AMQP.Basic.publish chan, "gen_server_test_exchange", "", "5"
+    # IO.inspect(fact_tables_ids)
     :ok = Basic.ack(channel, tag)
   rescue
     # Requeue unless it's a redelivered message.
