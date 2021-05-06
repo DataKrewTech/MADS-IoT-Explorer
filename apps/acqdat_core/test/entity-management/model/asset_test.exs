@@ -431,7 +431,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       metadata: [],
       mapped_parameters: [],
       owner_id: creator_id,
-      properties: []
+      properties: [],
+      description: ""
     }
   end
 
@@ -445,7 +446,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       metadata: [],
       mapped_parameters: [],
       owner_id: creator_id,
-      properties: []
+      properties: [],
+      description: ""
     }
   end
 
