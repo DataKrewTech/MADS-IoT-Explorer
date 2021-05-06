@@ -37,7 +37,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         get(conn, Routes.visualizations_path(conn, :fetch_all_types, project.org_id, project.id))
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -115,7 +121,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fails if required params are missing", %{
@@ -140,16 +152,12 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
 
       response = conn |> json_response(400)
 
-      assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "name" => ["can't be blank"],
-                   "creator_id" => ["can't be blank"],
-                   "fact_table_id" => ["can't be blank"],
-                   "module" => ["can't be blank"],
-                   "type" => ["can't be blank"]
-                 }
-               }
+      assert response["source"] == %{
+               "name" => ["can't be blank"],
+               "creator_id" => ["can't be blank"],
+               "fact_table_id" => ["can't be blank"],
+               "module" => ["can't be blank"],
+               "type" => ["can't be blank"]
              }
     end
   end
@@ -234,7 +242,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
   end
 
@@ -291,7 +305,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fact_table with invalid visualizations id", %{
@@ -312,7 +332,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Visualization with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -370,7 +396,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "fact_table with invalid visualizations id", %{
@@ -391,7 +423,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Visualization with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 
@@ -466,7 +504,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(403)
-      assert result == %{"errors" => %{"message" => "Unauthorized"}}
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
     end
 
     test "export with invalid visualizations id", %{
@@ -488,7 +532,13 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"errors" => %{"message" => "Resource Not Found"}}
+
+      assert result == %{
+               "detail" => "Visualization with this ID doesn't exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
   end
 end

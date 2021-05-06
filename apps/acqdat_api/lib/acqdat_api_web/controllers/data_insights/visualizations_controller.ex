@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.DataInsights.Visualizations
   alias AcqdatApi.DataInsights.Visualizations
+  alias AcqdatApiWeb.DataInsights.VisualizationsErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser
   plug AcqdatApiWeb.Plug.LoadProject
@@ -19,7 +20,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -37,7 +42,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -61,11 +70,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -89,7 +98,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -102,7 +115,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -126,7 +143,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -150,7 +171,11 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, VisualizationsErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, VisualizationsErrorHelper.error_message(:unauthorized))
     end
   end
 end
