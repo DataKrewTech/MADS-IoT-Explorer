@@ -231,7 +231,8 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       dashboard = insert(:dashboard)
 
       data = %{
-        name: panel_manifest.name
+        name: panel_manifest.name,
+        icon: "home"
       }
 
       conn = post(conn, Routes.panel_path(conn, :create, org.id, dashboard.id), data)
@@ -291,10 +292,29 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       assert response == %{
                "detail" =>
                  "Parameters provided to perform current action is either not valid or missing or not unique",
-               "source" => %{"name" => ["can't be blank"]},
+               "source" => %{"name" => ["can't be blank"], "icon" => ["can't be blank"]},
                "status_code" => 400,
                "title" => "Insufficient or not unique parameters"
-             }
+      }
+    end
+
+    test "fails if icon param missing", %{conn: conn} do
+      org = insert(:organisation)
+      dashboard = insert(:dashboard)
+
+      data = %{name: "demo"}
+
+      conn = post(conn, Routes.panel_path(conn, :create, org.id, dashboard.id), data)
+
+      response = conn |> json_response(400)
+
+      assert response == %{
+        "detail" =>
+          "Parameters provided to perform current action is either not valid or missing or not unique",
+        "source" => %{"icon" => ["can't be blank"]},
+        "status_code" => 400,
+        "title" => "Insufficient or not unique parameters"
+      }
     end
   end
 

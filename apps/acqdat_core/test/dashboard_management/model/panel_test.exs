@@ -72,6 +72,7 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
 
       params = %{
         name: "Demo panel",
+        icon: "demo",
         org_id: organisation.id,
         dashboard_id: dashboard.id
       }
@@ -82,7 +83,8 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
     test "fails if organisation_id is not present", %{dashboard: dashboard} do
       params = %{
         name: "Demo panel",
-        dashboard_id: dashboard.id
+        dashboard_id: dashboard.id,
+        icon: "home"
       }
 
       assert {:error, changeset} = PanelModel.create(params)
@@ -92,6 +94,7 @@ defmodule AcqdatCore.Model.DashboardManagement.PanelTest do
     test "fails if dashboard_id is not present", %{organisation: organisation} do
       params = %{
         name: "Demo panel",
+        icon: "demo",
         org_id: organisation.id
       }
 
