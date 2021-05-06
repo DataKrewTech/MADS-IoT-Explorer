@@ -121,8 +121,10 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
       message:
         "name already taken under this hierarchy for this particular organisation, project and parent it is getting attached to."
     )
-    |> unique_constraint(:name, name: :asset_root_unique_name,
-      message: "name already taken by a root asset")
+    |> unique_constraint(:name,
+      name: :asset_root_unique_name,
+      message: "name already taken by a root asset"
+    )
   end
 
   defp mapped_parameters_changeset(schema, params) do

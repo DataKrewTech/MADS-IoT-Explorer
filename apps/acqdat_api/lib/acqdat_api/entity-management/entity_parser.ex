@@ -79,8 +79,7 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   defp parse_n_update(entities, org_id, parent_id, parent_type, parent_entity, current_user)
        when entities !== nil do
     for entity <- entities do
-      result =
-        entity_seggr(entity, org_id, parent_id, parent_type, parent_entity, current_user)
+      result = entity_seggr(entity, org_id, parent_id, parent_type, parent_entity, current_user)
 
       case result do
         {:ok, {:delete_asset, _data}} ->

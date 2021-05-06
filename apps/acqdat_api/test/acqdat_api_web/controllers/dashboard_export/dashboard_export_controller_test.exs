@@ -30,16 +30,18 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       assert Map.has_key?(response, "url")
     end
 
-    test "create private exported without password",  %{conn: conn, org: org, dashboard: dashboard} do
+    test "create private exported without password", %{conn: conn, org: org, dashboard: dashboard} do
       data = %{is_secure: true}
       conn = post(conn, Routes.dashboard_export_path(conn, :create, org.id, dashboard.id), data)
       result = conn |> json_response(400)
+
       assert %{
-        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
-        "source" => %{"password" => ["can't be blank"]},
-        "status_code" => 400,
-        "title" => "Insufficient or not unique parameters"
-      } == result
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"password" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             } == result
     end
   end
 
@@ -129,12 +131,13 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
 
       response = conn |> json_response(400)
 
-      assert response ==%{
-        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
-        "source" => %{"password" => ["can't be blank"]},
-        "status_code" => 400,
-        "title" => "Insufficient or not unique parameters"
-      }
+      assert response == %{
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"password" => ["can't be blank"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
   end
 
@@ -260,9 +263,12 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
 
       result = conn |> json_response(401)
 
-      assert result == %{"detail" => "You are not allowed to perform this action.",
-        "source" => nil, "status_code" => 401, "title" => "Unauthorized Access"
-      }
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 401,
+               "title" => "Unauthorized Access"
+             }
     end
 
     test "panel with invalid panel id", %{
@@ -283,9 +289,13 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
         )
 
       result = conn |> json_response(404)
-      assert result == %{"detail" => "Dashboard with this ID does not exists",
-        "source" => nil, "status_code" => 404, "title" => "Invalid entity ID"
-      }
+
+      assert result == %{
+               "detail" => "Dashboard with this ID does not exists",
+               "source" => nil,
+               "status_code" => 404,
+               "title" => "Invalid entity ID"
+             }
     end
 
     test "panel with valid id", %{

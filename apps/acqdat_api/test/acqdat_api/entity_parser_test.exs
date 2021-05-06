@@ -174,8 +174,9 @@ defmodule AcqdatApi.EntityParserTest do
                EntityParser.update_project_hierarchy(current_user, project, params)
 
       assert message == %{
-        error: "It contains time-series data. Please delete sensors data before deleting sensor."
-      }
+               error:
+                 "It contains time-series data. Please delete sensors data before deleting sensor."
+             }
     end
 
     test "successfully deletes respective leaf asset", %{
@@ -263,8 +264,9 @@ defmodule AcqdatApi.EntityParserTest do
                EntityParser.update_project_hierarchy(current_user, project, params)
 
       assert message == %{
-        error: "Asset root asset tree contains sensors. Please delete associated sensors before deleting asset."
-      }
+               error:
+                 "Asset root asset tree contains sensors. Please delete associated sensors before deleting asset."
+             }
     end
 
     test "deletion of asset will not fail if it doesn't have sensors descendants", %{

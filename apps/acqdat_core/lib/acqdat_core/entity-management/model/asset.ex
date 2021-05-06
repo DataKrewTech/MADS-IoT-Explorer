@@ -163,19 +163,20 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
       }) do
     # NOTE: function Ecto.Changeset.__as_nested_set_column_name__/1 is undefined or private
 
-    asset = asset_struct(%{
-      name: name,
-      org_id: org_id,
-      slug: random_string(12),
-      project_id: project_id,
-      creator_id: creator_id,
-      asset_type_id: asset_type_id,
-      metadata: metadata,
-      mapped_parameters: mapped_parameters,
-      owner_id: owner_id,
-      properties: properties,
-      description: description
-    })
+    asset =
+      asset_struct(%{
+        name: name,
+        org_id: org_id,
+        slug: random_string(12),
+        project_id: project_id,
+        creator_id: creator_id,
+        asset_type_id: asset_type_id,
+        metadata: metadata,
+        mapped_parameters: mapped_parameters,
+        owner_id: owner_id,
+        properties: properties,
+        description: description
+      })
 
     try do
       taxon =
@@ -256,9 +257,10 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     changeset = asset.__struct__.changeset(asset, %{})
     constraints = changeset.constraints
 
-    result = Enum.find(constraints, fn constraint ->
+    result =
+      Enum.find(constraints, fn constraint ->
         constraint.constraint == error.constraint
-    end)
+      end)
 
     %{
       title: "Insufficient or not unique parameters",

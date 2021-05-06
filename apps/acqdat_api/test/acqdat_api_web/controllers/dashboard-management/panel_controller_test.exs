@@ -250,11 +250,12 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelControllerTest do
       result = conn |> json_response(400)
 
       assert result == %{
-        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
-        "source" => %{"name" => ["unique panel name under dashboard"]},
-        "status_code" => 400,
-        "title" => "Insufficient or not unique parameters"
-      }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["unique panel name under dashboard"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
 
     test "fails if authorization header not found", %{conn: conn} do

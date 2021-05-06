@@ -120,8 +120,12 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
       changeset = Asset.changeset(%Asset{}, params)
       {result, changeset} = Repo.insert(changeset)
       assert result == :error
-      assert %{name: ["name already taken under this hierarchy for this particular organisation, project and parent it is getting attached to."]
-              }== errors_on(changeset)
+
+      assert %{
+               name: [
+                 "name already taken under this hierarchy for this particular organisation, project and parent it is getting attached to."
+               ]
+             } == errors_on(changeset)
     end
 
     test "returns error if two root assets with the same name", conn do
@@ -141,10 +145,12 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetTest do
         )
 
       params = %{
-        name: child_asset_1.name, org_id: organisation.id,
-        project_id: project.id, asset_type_id: asset_type.id, creator_id: user.id
+        name: child_asset_1.name,
+        org_id: organisation.id,
+        project_id: project.id,
+        asset_type_id: asset_type.id,
+        creator_id: user.id
       }
-
 
       changeset = Asset.changeset(%Asset{}, params)
       assert {:error, changeset} = Repo.insert(changeset)

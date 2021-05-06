@@ -20,7 +20,7 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
   defp selective_password_inclusion(%Ecto.Changeset{valid?: true} = changeset) do
     is_secure = get_field(changeset, :is_secure)
 
-    if is_secure == true  do
+    if is_secure == true do
       validate_required(changeset, [:password])
     else
       changeset
@@ -38,5 +38,4 @@ defmodule AcqdatApiWeb.Validators.DashboardExport.DashboardExport do
     |> validate_required(@update_required)
     |> selective_password_inclusion()
   end
-
 end

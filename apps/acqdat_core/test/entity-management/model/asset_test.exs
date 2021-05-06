@@ -261,11 +261,12 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
       assert {:ok, root_asset} = Asset.add_as_root(params)
       # insert another root with the same name
       assert {:error, response} = Asset.add_as_root(params)
+
       assert response == %{
-        title: "Insufficient or not unique parameters",
-        source: %{name: ["name already taken by a root asset"]},
-        error: "name already taken by a root asset"
-      }
+               title: "Insufficient or not unique parameters",
+               source: %{name: ["name already taken by a root asset"]},
+               error: "name already taken by a root asset"
+             }
     end
   end
 
