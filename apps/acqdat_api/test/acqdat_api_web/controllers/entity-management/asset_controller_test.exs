@@ -158,7 +158,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         asset_type: asset_type,
         project: project,
         org: org,
-        project: project,
         user: user,
         conn: conn
       } = context
@@ -186,7 +185,6 @@ defmodule AcqdatApiWeb.EntityManagement.AssetControllerTest do
         asset_type: asset_type,
         project: project,
         org: org,
-        project: project,
         user: user,
         conn: conn
       } = context
