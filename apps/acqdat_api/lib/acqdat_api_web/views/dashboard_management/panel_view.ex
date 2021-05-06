@@ -14,6 +14,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelView do
     %{
       id: panel.id,
       name: panel.name,
+      icon: panel.icon,
       description: panel.description,
       org_id: panel.org_id,
       dashboard_id: panel.dashboard_id,
@@ -35,6 +36,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelView do
     %{
       id: panel.id,
       name: panel.name,
+      icon: panel.icon,
       description: panel.description,
       org_id: panel.org_id,
       dashboard_id: panel.dashboard_id,

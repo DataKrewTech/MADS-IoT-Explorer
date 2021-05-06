@@ -15,6 +15,7 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.Panel do
       org_id!: :integer,
       dashboard_id!: :integer,
       name!: :string,
+      icon!: :string,
       description: :string,
       settings: :map,
       widget_layouts: :map,

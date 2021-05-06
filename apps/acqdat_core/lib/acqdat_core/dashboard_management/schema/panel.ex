@@ -26,6 +26,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel do
     field(:slug, :string, null: false)
     field(:settings, :map)
     field(:widget_layouts, :map)
+    field(:icon, :string, default: "home")
 
     # associations
     belongs_to(:org, Organisation, on_replace: :delete)
@@ -40,7 +41,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Panel do
   end
 
   @required_params ~w(uuid slug name org_id dashboard_id)a
-  @optional_params ~w(settings description widget_layouts)a
+  @optional_params ~w(settings description widget_layouts icon)a
   @permitted @optional_params ++ @required_params
 
   def changeset(%__MODULE__{} = panel, params) do
