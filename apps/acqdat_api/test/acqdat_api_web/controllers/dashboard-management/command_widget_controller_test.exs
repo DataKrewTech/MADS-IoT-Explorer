@@ -61,7 +61,7 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetControllerTest do
       assert result["gateway_id"] == params["gateway_id"]
     end
 
-    test "fails if error", context do
+    test "fails if missing gateway", context do
       %{panel: panel, conn: conn, org: org} = context
       module = "Elixir.AcqdatCore.DashboardManagement.Schema.CommandWidget.LEDControl"
       data_settings = setup_data()

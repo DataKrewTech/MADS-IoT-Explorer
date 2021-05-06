@@ -319,12 +319,10 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceControllerTest do
       response = conn |> json_response(400)
 
       assert response == %{
-               "errors" => %{
-                 "message" => %{
-                   "error" => %{"label" => ["unique widget label under dashboard's panel"]}
-                 }
-               }
-             }
+              "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
+              "source" => %{"label" => ["unique widget label under dashboard's panel"]},
+              "status_code" => 400, "title" => "Insufficient or not unique parameters"
+            }
     end
 
     test "fails if authorization header not found", %{conn: conn} do

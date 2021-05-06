@@ -25,7 +25,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            send_error(conn, 400, message.error)
         end
 
       404 ->

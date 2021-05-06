@@ -31,12 +31,8 @@ defmodule AcqdatApiWeb.DashboardManagement.CommandWidgetController do
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
 
-          {:create, {:error, %Ecto.Changeset{} = changeset}} ->
-            error = extract_changeset_error(changeset)
-            send_error(conn, 400, error)
-
           {:create, {:error, error}} ->
-            send_error(conn, 400, error)
+            send_error(conn, 400, error.error)
         end
 
       404 ->
