@@ -21,7 +21,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
-            send_error(conn, 400, message)
+            send_error(conn, 400, message.error)
         end
 
       404 ->
@@ -43,11 +43,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupController do
             |> put_status(200)
             |> render("user_group.json", %{group: group})
 
-          {:error, group} ->
-            error = extract_changeset_error(group)
-
+          {:error, message} ->
             conn
-            |> send_error(400, error)
+            |> send_error(400, message.error)
         end
 
       404 ->
