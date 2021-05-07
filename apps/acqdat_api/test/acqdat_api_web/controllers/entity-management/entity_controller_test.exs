@@ -218,6 +218,14 @@ defmodule AcqdatApiWeb.EntityManagement.EntityControllerTest do
       assert result["count"] == 0
     end
 
+    test "shows all the assets count", %{conn: conn} do
+      params = %{type: "Asset"}
+      conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
+      result = conn |> json_response(200)
+
+      assert result["count"] >= 1
+    end
+
     test "shows asset_type count per project", %{conn: conn, asset_type: asset_type} do
       params = %{type: "AssetType", project_id: asset_type.project_id}
       conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
@@ -233,6 +241,14 @@ defmodule AcqdatApiWeb.EntityManagement.EntityControllerTest do
       assert result["count"] == 0
     end
 
+    test "shows all asset_type count", %{conn: conn} do
+      params = %{type: "AssetType"}
+      conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
+      result = conn |> json_response(200)
+
+      assert result["count"] >= 1
+    end
+
     test "shows sensor count per project", %{conn: conn, sensor: sensor} do
       params = %{type: "Sensor", project_id: sensor.project_id}
       conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
@@ -246,19 +262,28 @@ defmodule AcqdatApiWeb.EntityManagement.EntityControllerTest do
       assert result["count"] == 0
     end
 
+    test "shows all sensors count", %{conn: conn} do
+      params = %{type: "Sensor"}
+      conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
+      result = conn |> json_response(200)
+
+      assert result["count"] >= 1
+    end
+
+    test "shows all sensor_types count", %{conn: conn} do
+      params = %{type: "SensorType"}
+      conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
+      result = conn |> json_response(200)
+
+      assert result["count"] >= 1
+    end
+
     test "shows sensor_type count per project", %{conn: conn, sensor_type: sensor_type} do
       params = %{type: "SensorType", project_id: sensor_type.project_id}
       conn = post(conn, Routes.entity_path(conn, :fetch_count), params)
       result = conn |> json_response(200)
 
-      assert result["count"] == 1
-
-      conn =
-        post(conn, Routes.entity_path(conn, :fetch_count), %{type: "SensorType", project_id: -1})
-
-      result = conn |> json_response(200)
-
-      assert result["count"] == 0
+      assert result["count"] >= 1
     end
 
     test "shows project count", %{conn: conn} do
