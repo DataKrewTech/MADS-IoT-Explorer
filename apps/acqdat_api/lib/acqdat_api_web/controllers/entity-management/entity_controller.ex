@@ -2,6 +2,7 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApi.EntityManagement.EntityParser
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
+  alias AcqdatApiWeb.EntityManagement.EntityErrorHelper
   import AcqdatApiWeb.Helpers
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:update_hierarchy]
@@ -35,11 +36,11 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, EntityErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, EntityErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -54,11 +55,11 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, EntityErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, EntityErrorHelper.error_message(:unauthorized))
     end
   end
 
@@ -75,16 +76,16 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
 
           {:error, _message} ->
             conn
-            |> put_status(404)
+            |> send_error(404, EntityErrorHelper.error_message(:resource_not_found))
         end
 
       404 ->
         conn
-        |> send_error(404, "Resource Not Found")
+        |> send_error(404, EntityErrorHelper.error_message(:resource_not_found))
 
       401 ->
         conn
-        |> send_error(401, "Unauthorized")
+        |> send_error(401, EntityErrorHelper.error_message(:unauthorized))
     end
   end
 
