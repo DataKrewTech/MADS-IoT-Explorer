@@ -19,6 +19,15 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     Repo.one(query)
   end
 
+  def return_count(_params) do
+    query =
+      from(p in AssetType,
+        select: count(p.id)
+      )
+
+    Repo.one(query)
+  end
+
   @spec get(integer) :: {:error, <<_::72>>} | {:ok, any}
   def get(id) when is_integer(id) do
     case Repo.get(AssetType, id) do
