@@ -43,13 +43,18 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
         changeset = verify_create(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:create, {:ok, dashboard}} <- {:create, Dashboard.create(data)} do
+             {:create, {:ok, dashboard}} <- {:create, Dashboard.create(data)},
+             {:update_image, {:ok, dashboard}} <-
+               {:update_image, update_image(conn, dashboard, params)} do
           conn
           |> put_status(200)
           |> render("show.json", %{dashboard: dashboard})
         else
           {:extract, {:error, error}} ->
             send_error(conn, 400, error)
+
+          {:update_image, {:error, message}} ->
+            send_error(conn, 400, message.error)
 
           {:create, {:error, message}} ->
             response =
@@ -112,6 +117,8 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     case conn.status do
       nil ->
         dashboard = conn.assigns.dashboard
+        params = Map.put(params, "avatar", dashboard.avatar)
+        params = extract_image(conn, dashboard, params)
 
         case Dashboard.update(dashboard, params) do
           {:ok, dashboard} ->
@@ -145,6 +152,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       nil ->
         case Dashboard.delete(conn.assigns.dashboard) do
           {:ok, dashboard} ->
+            if dashboard.avatar != nil do
+              ImageDeletion.delete_operation(dashboard.avatar, "dashboard/#{dashboard.id}")
+            end
+
             conn
             |> put_status(200)
             |> render("dashboard.json", %{dashboard: dashboard})
@@ -253,6 +264,47 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
       true
     else
       false
+    end
+  end
+
+  defp update_image(conn, dashboard, params) do
+    avatar =
+      if is_nil(params["image"]), do: "", else: upload_and_fetch_url(conn, params, dashboard.id)
+
+    Dashboard.update(dashboard, %{"avatar" => avatar})
+  end
+
+  defp upload_and_fetch_url(conn, %{"image" => image} = params, entity_id) do
+    scope = "dashboard/#{entity_id}"
+
+    with {:ok, image_name} <- Image.store({image, scope}) do
+      Image.url({image_name, scope})
+    else
+      {:error, error} -> send_error(conn, 400, error)
+    end
+  end
+
+  defp extract_image(conn, dashboard, params) do
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        if dashboard.avatar != nil do
+          ImageDeletion.delete_operation(dashboard.avatar, "dashboard/#{dashboard.id}")
+        end
+
+        add_image_url(conn, params, dashboard.id)
+    end
+  end
+
+  defp add_image_url(conn, %{"image" => image} = params, entity_id) do
+    scope = "dashboard/#{entity_id}"
+
+    with {:ok, image_name} <- Image.store({image, scope}) do
+      Map.replace!(params, "avatar", Image.url({image_name, scope}))
+    else
+      {:error, error} -> send_error(conn, 400, error)
     end
   end
 end

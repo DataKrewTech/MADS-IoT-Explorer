@@ -96,6 +96,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
       nil ->
         %{assigns: %{project: project}} = conn
 
+        params = Map.put(params, "avatar", project.avatar)
+
+        params = extract_image(conn, project, params)
+
         case Project.update(project, params) do
           {:ok, project} ->
             ElasticSearch.update_project("org", project, project.org_id)
@@ -124,10 +128,14 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   def create(conn, params) do
     case conn.status do
       nil ->
+        params = modify_params(conn, params)
+
         changeset = verify_project(params)
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:create, {:ok, project}} <- {:create, Project.create(data)} do
+             {:create, {:ok, project}} <- {:create, Project.create(data)},
+             {:update_image, {:ok, project}} <-
+               {:update_image, update_image(conn, project, params)} do
           Task.start_link(fn ->
             ElasticSearch.create_project("org", project, %{id: project.org_id})
           end)
@@ -140,6 +148,9 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
             send_error(conn, 400, error)
 
           {:create, {:error, message}} ->
+            send_error(conn, 400, message.error)
+
+          {:update_image, {:error, message}} ->
             send_error(conn, 400, message.error)
         end
 
@@ -160,6 +171,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
         case Project.delete(project) do
           {:ok, project} ->
+            if project.avatar != nil do
+              ImageDeletion.delete_operation(project.avatar, "project/#{project.id}")
+            end
+
             ElasticSearch.delete_data("org", project)
 
             conn
@@ -202,5 +217,71 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
         conn
         |> send_error(401, ProjectErrorHelper.error_message(:unauthorized))
     end
+  end
+
+  ############################# private functions ###########################
+
+  defp update_image(conn, project, params) do
+    avatar =
+      if is_nil(params["image"]), do: "", else: upload_and_fetch_url(conn, params, project.id)
+
+    Project.update(project, %{"avatar" => avatar})
+  end
+
+  defp upload_and_fetch_url(conn, %{"image" => image} = params, entity_id) do
+    scope = "project/#{entity_id}"
+
+    with {:ok, image_name} <- Image.store({image, scope}) do
+      Image.url({image_name, scope})
+    else
+      {:error, error} -> send_error(conn, 400, error)
+    end
+  end
+
+  defp modify_params(conn, params) do
+    params =
+      params
+      |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
+      |> parse_metadata_params()
+      |> Map.put("avatar", "")
+  end
+
+  defp extract_image(conn, project, params) do
+    params = params |> parse_metadata_params()
+
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        if project.avatar != nil do
+          ImageDeletion.delete_operation(project.avatar, "project/#{project.id}")
+        end
+
+        add_image_url(conn, params, project.id)
+    end
+  end
+
+  defp add_image_url(conn, %{"image" => image} = params, entity_id) do
+    scope = "project/#{entity_id}"
+
+    with {:ok, image_name} <- Image.store({image, scope}) do
+      Map.replace!(params, "avatar", Image.url({image_name, scope}))
+    else
+      {:error, error} -> send_error(conn, 400, error)
+    end
+  end
+
+  defp parse_metadata_params(%{"metadata" => metadata} = params) do
+    metadata =
+      case Poison.decode(metadata) do
+        {:ok, data} ->
+          data
+
+        _ ->
+          []
+      end
+
+    Map.put(params, "metadata", metadata)
   end
 end
