@@ -1025,11 +1025,11 @@ defmodule AcqdatApi.DataInsights.FactTables do
             if res != nil && acc1 != %{} && acc1 != [] do
               items = acc1[:children] ++ [data]
               acc1 = acc1 |> Map.put(:children, List.flatten(items))
-              acc2 = [acc2 | data2]
+              acc2 = acc2 ++ data2
               {acc1, acc2}
             else
-              acc2 = [acc2 | data2]
-              acc1 = [acc1 | data]
+              acc2 = acc2 ++ data2
+              acc1 = acc1 ++ data
               {acc1, acc2}
             end
           end)

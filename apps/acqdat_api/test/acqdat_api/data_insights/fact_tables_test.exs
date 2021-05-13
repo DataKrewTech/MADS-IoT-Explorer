@@ -750,7 +750,7 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
 
       {_entity_levels, {root_node, root_entity}, entity_map} =
         Enum.reduce(user_list, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
-          node = NaryTree.get(parent_tree, "#{entity["id"]}")
+          node = NaryTree.get(parent_tree, "#{entity["id"]}_#{entity["name"]}")
           acc1 = acc1 ++ [node.level]
 
           {acc2, acc4} =
