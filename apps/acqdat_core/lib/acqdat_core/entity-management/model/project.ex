@@ -118,7 +118,9 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
       )
 
     paginated_project_data =
-      query |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+      query
+      |> order_by(desc: :inserted_at)
+      |> Repo.paginate(page: page_number, page_size: page_size)
 
     project_data_with_preloads = paginated_project_data.entries |> Repo.preload(preloads)
 

@@ -64,7 +64,9 @@ defmodule AcqdatCore.Model.RoleManagement.UserGroup do
       )
 
     paginated_user_group_data =
-      query |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
+      query
+      |> order_by(desc: :inserted_at)
+      |> Repo.paginate(page: page_number, page_size: page_size)
 
     user_group_data_with_preloads = paginated_user_group_data.entries |> Repo.preload(preloads)
 

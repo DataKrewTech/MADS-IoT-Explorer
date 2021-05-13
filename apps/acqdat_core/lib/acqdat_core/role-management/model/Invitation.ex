@@ -47,7 +47,7 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
     paginated_invitation_data =
       Invitation
       |> where([invitation], invitation.org_id == ^org_id)
-      |> order_by(:email)
+      |> order_by(desc: :inserted_at)
       |> Repo.paginate(page: page_number, page_size: page_size)
 
     invitation_data_with_preloads =
