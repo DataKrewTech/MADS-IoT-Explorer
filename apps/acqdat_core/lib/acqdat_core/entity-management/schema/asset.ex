@@ -82,7 +82,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Asset do
   @optional_embedded_params ~w(name uuid parameter_uuid sensor_uuid)a
 
   @embedded_metadata_required ~w(name uuid data_type)a
-  @embedded_metadata_optional ~w(unit)a
+  @embedded_metadata_optional ~w(unit value)a
   @permitted_metadata @embedded_metadata_optional ++ @embedded_metadata_required
 
   @permitted_embedded @required_embedded_params ++ @optional_embedded_params
