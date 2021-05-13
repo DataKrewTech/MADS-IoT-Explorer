@@ -83,7 +83,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       background_color: settings.background_color,
       client_name: settings.client_name,
       sidebar_color: settings.sidebar_color,
-      thumbnail_url: settings.thumbnail_url,
+      client_logo: settings.client_logo,
       panels_order: settings.panels_order,
       timezone: settings.timezone,
       selected_panel_color: settings.selected_panel_color

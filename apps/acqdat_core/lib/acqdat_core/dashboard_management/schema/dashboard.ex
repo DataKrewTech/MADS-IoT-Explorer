@@ -102,13 +102,13 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard.Settings do
     field(:background_color, :string, default: "#f2f2f2")
     field(:sidebar_color, :string, default: "#1e3664")
     field(:client_name, :string)
-    field(:thumbnail_url, :string)
+    field(:client_logo, :string)
     field(:timezone, :string)
     field(:panels_order, :map)
     field(:selected_panel_color, :string, default: "#FFFFFF")
   end
 
-  @permitted ~w(background_color sidebar_color client_name thumbnail_url panels_order timezone selected_panel_color)a
+  @permitted ~w(background_color sidebar_color client_name client_logo panels_order timezone selected_panel_color)a
 
   def changeset(%__MODULE__{} = settings, params) do
     settings |> cast(params, @permitted)
