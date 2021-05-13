@@ -190,7 +190,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     grouped_data = Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
 
     Enum.reduce(grouped_data, [], fn {key, val}, acc ->
-      acc ++ [%{id: "#{key.id}", name: key.name, type: "SensorType"}]
+      acc ++ [%{id: "#{key.id}_#{key.name}", name: key.name, type: "SensorType"}]
     end)
   end
 
@@ -222,7 +222,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
         {key, value} = Enum.at(assets, 0)
 
         %{
-          id: "#{key.id}",
+          id: "#{key.id}_#{key.name}",
           name: key.name,
           type: "AssetType",
           children: Enum.uniq(List.flatten(value))
@@ -238,7 +238,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
       acc ++
         [
           %{
-            id: "#{key.id}",
+            id: "#{key.id}_#{key.name}",
             name: key.name,
             type: "AssetType",
             children: Enum.uniq(List.flatten(val))

@@ -429,7 +429,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
   def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
     {subtree, node_tracker} = traverse_n_gen_subtree(parent_tree, root_node, entities_list, [])
 
-    if Enum.sort(Enum.uniq(node_tracker)) == Enum.sort(entities_list) do
+    if Enum.sort(Enum.uniq(List.flatten(node_tracker))) == Enum.sort(entities_list) do
       subtree = NaryTree.from_map(subtree)
 
       try do
@@ -448,12 +448,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     # [_, id] = String.split(subtree.root, "_")
     # id = subtree.root
+    [asset_id | _] = String.split(node.id, "_")
+
     data =
       if node.content != :empty && node.content != ["name"] do
-        AssetModel.fetch_asset_metadata(node.id, node.content)
+        AssetModel.fetch_asset_metadata(asset_id, node.content)
       else
         from(asset in Asset,
-          where: asset.asset_type_id == ^node.id,
+          where: asset.asset_type_id == ^asset_id,
           select: map(asset, [:id, :name])
         )
         |> Repo.all()
@@ -657,7 +659,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
     user_list
     |> Enum.reduce(empty_headers, fn entity, acc ->
-      pos = headers["#{entity["id"]}"]["#{entity["metadata_id"]}"]
+      pos = headers["#{entity["id"]}_#{entity["name"]}"]["#{entity["metadata_id"]}"]
 
       res =
         if entity["metadata_name"] == entity["metadata_id"] do
@@ -692,8 +694,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
                 %{"#{entity["name"]} #{param_name}" => "numeric"}
               )
 
-            pos = headers["#{entity["id"]}"]["#{entity["metadata_id"]}_dateTime"]
-            pos_dateTime = headers["#{entity["id"]}"]["entity_dateTime"]
+            pos =
+              headers["#{entity["id"]}_#{entity["name"]}"]["#{entity["metadata_id"]}_dateTime"]
+
+            pos_dateTime = headers["#{entity["id"]}_#{entity["name"]}"]["entity_dateTime"]
 
             if pos_dateTime do
               List.replace_at(
@@ -834,6 +838,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
   def fetch_data_using_dynamic_query(subtree, tree_node, parent_data, user_list) do
     Enum.reduce(tree_node.children, %{}, fn id, acc ->
       node = NaryTree.get(subtree, id)
+      [id | _] = String.split(id, "_")
       entities = Enum.map(parent_data, fn entity -> entity[:id] end) |> Enum.uniq()
 
       query =
@@ -868,7 +873,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
             if sensor_ids != [] do
               sensor_entity =
                 Enum.filter(user_list, fn x ->
-                  "#{x["id"]}" == node.id && x["type"] == node.type
+                  "#{x["id"]}" == id && x["type"] == node.type
                 end)
 
               [
@@ -940,7 +945,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
                   sensor_entity =
                     Enum.filter(user_list, fn x ->
-                      "#{x["id"]}" == node.id && x["type"] == node.type
+                      "#{x["id"]}" == id && x["type"] == node.type
                     end)
 
                   [
@@ -978,18 +983,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   defp traverse_n_gen_subtree(tree, tree_node, entities_list, node_tracker) do
-    key = "#{tree_node.type}_#{tree_node.id}"
-
     {data, metadata} =
       Enum.reduce(entities_list, {[], []}, fn x, {acc1, acc2} ->
-        if "#{x["id"]}" == tree_node.id && x["type"] == tree_node.type do
+        if "#{x["id"]}_#{x["name"]}" == tree_node.id && x["type"] == tree_node.type do
           {acc1 ++ [x], acc2 ++ [x["metadata_id"]]}
         else
           {acc1, acc2}
         end
       end)
-
-    # data = Enum.find(entities_list, fn x -> "#{x.id}" == tree_node.id && x.type == tree_node.type end)
 
     node_tracker =
       if data && metadata != [] do
@@ -1024,11 +1025,11 @@ defmodule AcqdatApi.DataInsights.FactTables do
             if res != nil && acc1 != %{} && acc1 != [] do
               items = acc1[:children] ++ [data]
               acc1 = acc1 |> Map.put(:children, List.flatten(items))
-              acc2 = acc2 ++ data2
+              acc2 = [acc2 | data2]
               {acc1, acc2}
             else
-              acc2 = acc2 ++ data2
-              acc1 = acc1 ++ data
+              acc2 = [acc2 | data2]
+              acc1 = [acc1 | data]
               {acc1, acc2}
             end
           end)
