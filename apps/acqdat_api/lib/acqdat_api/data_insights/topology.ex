@@ -5,7 +5,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   alias AcqdatApiWeb.DataInsights.TopologyEtsConfig
   alias AcqdatApi.DataInsights.FactTableServer
   alias AcqdatCore.Model.DataInsights.FactTables
-  alias NaryTree
+  alias AcqdatApi.DataStructure.Trees.NaryTree
   alias AcqdatCore.Repo
   alias Ecto.Multi
 

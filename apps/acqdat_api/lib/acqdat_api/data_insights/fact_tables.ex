@@ -7,7 +7,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
   alias AcqdatCore.Schema.EntityManagement.{Asset, Sensor}
   alias AcqdatCore.Domain.EntityManagement.SensorData
   alias AcqdatCore.Repo
-  alias NaryTree
+  alias AcqdatApi.DataStructure.Trees.NaryTree
   alias Ecto.Multi
   alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SD
 

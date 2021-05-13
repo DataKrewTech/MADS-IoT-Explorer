@@ -4,7 +4,7 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
   alias AcqdatCore.Test.Support.DataInsights.EntitiesHirerachyFactory
   alias AcqdatCore.Model.EntityManagement.{Project, AssetType, SensorType}
   import AcqdatCore.Support.Factory
-  alias NaryTree
+  alias AcqdatApi.DataStructure.Trees.NaryTree
   alias AcqdatApi.DataInsights.Topology
   alias AcqdatApi.DataInsights.FactTables, as: FactTableCon
 

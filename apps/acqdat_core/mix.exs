@@ -102,9 +102,6 @@ defmodule AcqdatCore.MixProject do
       # flow based programming
       {:virta, in_umbrella: true},
 
-      # Elixir implementation of the generic tree data structure
-      {:nary_tree, git: "https://github.com/BandanaPandey/nary_tree.git"},
-
       # redis
       {:redix, ">= 0.0.0"}
     ]
