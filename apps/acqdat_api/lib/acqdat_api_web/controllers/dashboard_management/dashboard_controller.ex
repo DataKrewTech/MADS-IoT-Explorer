@@ -294,6 +294,15 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
 
     case is_nil(image_params) do
       true ->
+        params =
+          if type == "settings" do
+            update_in(params, ["settings", "client_logo"], fn _ ->
+              dashboard.settings.client_logo
+            end)
+          else
+            params
+          end
+
         {:ok, params}
 
       false ->
