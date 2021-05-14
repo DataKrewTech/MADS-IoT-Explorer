@@ -287,7 +287,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   defp update_and_delete_image(conn, dashboard, params, type) do
     {image_params, persisted_image} =
       if type == "settings" do
-        {params["settings"]["client_logo"], dashboard.settings.client_logo}
+        {params["settings"]["client_logo"], dashboard.settings && dashboard.settings.client_logo}
       else
         {params["image"], dashboard.avatar}
       end

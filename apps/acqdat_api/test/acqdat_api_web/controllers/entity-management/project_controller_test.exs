@@ -2,7 +2,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
-  alias AcqdatCore.ElasticSearch
   import AcqdatCore.Support.Factory
 
   describe "create/2" do
@@ -79,7 +78,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
       assert response == %{
                "detail" =>
                  "Parameters provided to perform current action is either not valid or missing or not unique",
-               "source" => %{"creator_id" => ["can't be blank"], "name" => ["can't be blank"]},
+               "source" => %{"name" => ["can't be blank"]},
                "status_code" => 400,
                "title" => "Insufficient or not unique parameters"
              }

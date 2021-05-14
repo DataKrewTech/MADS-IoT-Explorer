@@ -284,4 +284,8 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
     Map.put(params, "metadata", metadata)
   end
+
+  defp parse_metadata_params(params) do
+    params
+  end
 end
