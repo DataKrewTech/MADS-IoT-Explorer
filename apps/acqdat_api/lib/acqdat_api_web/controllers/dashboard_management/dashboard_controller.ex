@@ -151,7 +151,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
               ImageDeletion.delete_operation(dashboard.avatar, "dashboard_image/#{dashboard.id}")
             end
 
-            if dashboard.settings.client_logo != nil do
+            if dashboard.settings != nil && dashboard.settings.client_logo != nil do
               ImageDeletion.delete_operation(
                 dashboard.settings.client_logo,
                 "dashboard_settings/#{dashboard.id}"
@@ -297,7 +297,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
         params =
           if type == "settings" do
             update_in(params, ["settings", "client_logo"], fn _ ->
-              dashboard.settings.client_logo
+              dashboard.settings && dashboard.settings.client_logo
             end)
           else
             params
