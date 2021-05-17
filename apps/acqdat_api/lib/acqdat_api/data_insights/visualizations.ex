@@ -76,15 +76,16 @@ defmodule AcqdatApi.DataInsights.Visualizations do
     case fetch_widget(visualization) do
       {:ok, widget} ->
         visual_properties =
-          HighCharts.parse_properties(widget.visual_settings)
-          |> update_in(["title", "text"], &(&1 = title))
+          Map.merge(HighCharts.parse_properties(widget.visual_settings), %{
+            "title" => %{"text" => "#{title}"}
+          })
 
         data = %{
           label: title,
           panel_id: panel_id,
           widget_id: widget.id,
           source_app: "data_insights",
-          visual_properties: Map.merge(visual_properties, visualization.visual_settings),
+          visual_properties: Map.merge(visual_properties, visualization.visual_settings || %{}),
           source_metadata: %{
             source_type: "AcqdatApi.DataInsights.Visualizations",
             source_id: visualization.id

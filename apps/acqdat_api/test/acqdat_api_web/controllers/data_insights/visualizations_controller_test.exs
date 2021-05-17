@@ -477,6 +477,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsControllerTest do
       assert response["source_app"] == "data_insights"
       assert response["panel"]["id"] == panel.id
       assert response["widget_id"] == widget.id
+      assert response["visual_properties"]["title"]["text"] == "exported visualizations 1.1"
     end
 
     test "fails if invalid token in authorization header", %{
