@@ -57,4 +57,23 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
 
     query |> Repo.paginate(page: page_number, page_size: page_size)
   end
+
+  # params = %{project_id: 6, entity_type: "SensorType", entity_id: "name"}
+  def fetch_fetch_tables_id_by_columns_metadata(%{
+        "project_id" => project_id,
+        "entity_type" => entity_type,
+        "entity_id" => entity_id
+      }) do
+    # select: %{fact_table_id: ft.id, entity_id: fragment("?->>'metadata_id'", c), entity_type: ^entity_type}
+    from(ft in FactTables,
+      where: ft.project_id == ^project_id,
+      cross_join: c in fragment("unnest(?)", ft.columns_metadata),
+      where:
+        fragment("?->>'type'=?", c, ^entity_type) and
+          fragment("?->>'metadata_id'=?", c, ^entity_id),
+      group_by: [ft.id],
+      select: ft.id
+    )
+    |> Repo.all()
+  end
 end

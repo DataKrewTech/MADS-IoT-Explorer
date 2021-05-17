@@ -73,8 +73,8 @@ defmodule AcqdatCore.MixProject do
       # image uploading
       {:arc, "~> 0.11.0"},
       {:arc_ecto, "~> 0.11.0"},
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.1"},
       {:hackney, "~> 1.6"},
       {:sweet_xml, "~> 0.6"},
 
@@ -91,7 +91,7 @@ defmodule AcqdatCore.MixProject do
       {:ex_phone_number, "~> 0.2"},
 
       # elasticsearch
-      {:tirexs, "~> 0.8"},
+      {:tirexs, git: "https://github.com/BandanaPandey/tirexs.git"},
 
       # csv parsing
       {:nimble_csv, "~> 0.7"},

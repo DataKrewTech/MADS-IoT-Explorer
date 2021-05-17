@@ -67,7 +67,7 @@ defmodule AcqdatUmbrella.MixProject do
       {:ja_serializer, "~> 0.15"},
 
       # elasticsearch
-      {:tirexs, "~> 0.8"},
+      {:tirexs, git: "https://github.com/BandanaPandey/tirexs.git"},
 
       # logger
       {:gen_retry, "~> 1.2.0"},

@@ -36,6 +36,16 @@ services:
       - esdata01:/usr/share/elasticsearch/data
     ports:
       - 127.0.0.1:9200:9200
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
   
 volumes: 
   esdata01:
