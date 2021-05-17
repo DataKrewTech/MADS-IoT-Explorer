@@ -230,6 +230,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               data_type: :list,
               user_controlled: false,
               properties: %{
+                type: %{data_type: :string, default_value: "", user_controlled: false},
                 alignTricks: %{data_type: :boolean, default_value: true, user_controlled: false},
                 alternateGridColor: %{data_type: :color, default_value: "", user_controlled: true},
                 dateTimeLabelFormats: %{
