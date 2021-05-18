@@ -91,9 +91,17 @@ defmodule AcqdatCore.Model.RoleManagement.UserGroup do
   end
 
   def delete(%UserGroup{} = group) do
-    case Repo.delete(group) do
-      {:ok, group} -> {:ok, group |> Repo.preload([:policies, :users])}
-      {:error, error} -> {:error, error}
+    user = group |> Repo.preload([:policies, :users])
+
+    case List.first(user.users) do
+      nil ->
+        case Repo.delete(group) do
+          {:ok, group} -> {:ok, group |> Repo.preload([:policies, :users])}
+          {:error, error} -> {:error, error}
+        end
+
+      _user ->
+        {:error, %{message: "User group contains users"}}
     end
   end
 

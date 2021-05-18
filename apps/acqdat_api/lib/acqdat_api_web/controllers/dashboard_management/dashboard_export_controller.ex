@@ -61,9 +61,6 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             send_error(conn, 400, error)
 
           {:update, {:error, message}} ->
-            require IEx
-            IEx.pry()
-
             send_error(
               conn,
               400,

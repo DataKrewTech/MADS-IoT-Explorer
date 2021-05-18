@@ -25,12 +25,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
       # tries to create user group with same name
       conn = post(conn, Routes.user_group_path(conn, :create, org.id), group)
       response = conn |> json_response(400)
+
       assert response == %{
-        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
-        "source" => %{"name" => ["unique group name under organisation"]},
-        "status_code" => 400,
-        "title" => "Insufficient or not unique parameters"
-      }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["unique group name under organisation"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
 
     test "fails if invalid token in in authorization header", %{
@@ -131,12 +133,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
       # update one group with the properties of the other
       conn = put(conn, Routes.user_group_path(conn, :update, org.id, response["id"]), params)
       response = conn |> json_response(400)
+
       assert response == %{
-        "detail" => "Parameters provided to perform current action is either not valid or missing or not unique",
-        "source" => %{"name" => ["unique group name under organisation"]},
-        "status_code" => 400,
-        "title" => "Insufficient or not unique parameters"
-      }
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"name" => ["unique group name under organisation"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
+             }
     end
 
     test "fails if invalid token in in authorization header", %{

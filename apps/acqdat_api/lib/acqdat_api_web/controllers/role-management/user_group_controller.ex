@@ -111,6 +111,15 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupController do
             |> put_status(200)
             |> render("user_group.json", %{group: group})
 
+          {:error, %{message: message}} ->
+            conn
+            |> send_error(400, %{
+              title: message,
+              error:
+                "A user has been assigned to this user group. Need to remove before deleting it.",
+              source: nil
+            })
+
           {:error, message} ->
             error = extract_changeset_error(message)
 
