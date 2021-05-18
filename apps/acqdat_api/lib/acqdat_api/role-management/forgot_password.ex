@@ -13,7 +13,7 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
   @subject "Reset Password"
   @url Application.get_env(:acqdat_api, :mads_url)
   @access_time_hours 24
-  @from_address "no-reply@madsiot.com"
+  @from_address "mads@datakrew.com"
 
   def create(params) do
     %{

@@ -136,6 +136,18 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     {:error, %{error: extract_changeset_error(invitation)}}
   end
 
+  defp create_invitation({:user_exists, _invitation}, _invitation_details, _current_user) do
+    {:error,
+     %{
+       error: %{
+         error:
+           "Parameters provided to perform current action is either not valid or missing or not unique",
+         source: %{email: ["user with this email already exists"]},
+         title: "Insufficient or not unique parameters"
+       }
+     }}
+  end
+
   defp send_invite_email(invitation_details, current_user) do
     UserInvitationEmail.email(current_user, invitation_details)
     |> Mailer.deliver_now()

@@ -79,6 +79,9 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
             error = extract_changeset_error(error)
             send_error(conn, 400, error)
 
+          {:invite, {:error, %{error: message}}} ->
+            send_error(conn, 400, message)
+
           {:invite, {:error, message}} ->
             error = extract_changeset_error(message)
             send_error(conn, 400, error)

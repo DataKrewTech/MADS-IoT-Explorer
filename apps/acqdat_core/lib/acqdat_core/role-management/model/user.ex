@@ -208,4 +208,16 @@ defmodule AcqdatCore.Model.RoleManagement.User do
 
     Repo.one!(query) |> Repo.preload(:org)
   end
+
+  def verify_email(user) do
+    query =
+      from(user in User,
+        where: user.email == ^user
+      )
+
+    case List.first(Repo.all(query)) do
+      nil -> false
+      _user -> true
+    end
+  end
 end
