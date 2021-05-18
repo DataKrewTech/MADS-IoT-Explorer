@@ -87,8 +87,8 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
   def update_changeset(%__MODULE__{} = asset_type, params) do
     asset_type
     |> cast(params, @permitted)
-    |> cast_embed(:parameters, with: &parameters_changeset/2)
-    |> cast_embed(:metadata, with: &metadata_changeset/2)
+    |> cast_embed(:parameters, with: &update_parameters_changeset/2)
+    |> cast_embed(:metadata, with: &update_metadata_changeset/2)
     |> validate_required(@required_params)
     |> common_changeset()
   end
@@ -118,5 +118,25 @@ defmodule AcqdatCore.Schema.EntityManagement.AssetType do
     |> cast(params, @permitted_metadata)
     |> add_uuid()
     |> validate_required(@embedded_metadata_required)
+  end
+
+  defp update_parameters_changeset(schema, params) do
+    schema =
+      schema
+      |> cast(params, @permitted_embedded)
+
+    schema = if params[:uuid] == nil, do: add_uuid(schema), else: schema
+
+    validate_required(schema, @embedded_required_params)
+  end
+
+  defp update_metadata_changeset(schema, params) do
+    schema =
+      schema
+      |> cast(params, @permitted_metadata)
+
+    schema = if params[:uuid] == nil, do: add_uuid(schema), else: schema
+
+    validate_required(schema, @embedded_metadata_required)
   end
 end

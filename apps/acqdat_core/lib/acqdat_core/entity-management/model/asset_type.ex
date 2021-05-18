@@ -95,8 +95,8 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
           | {:error, Ecto.Changeset.t()}
           | {:error, String.t()}
   def update(asset_type, params) do
-    case is_nil(asset_present?(asset_type)) do
-      true ->
+    case can_update?(asset_type, params) do
+      {true, params} ->
         changeset = AssetType.update_changeset(asset_type, params)
 
         case Repo.update(changeset) do
@@ -104,8 +104,24 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
           {:error, error} -> {:error, error}
         end
 
-      false ->
+      {false, _} ->
         {:error, "There are assets associated with this Asset Type"}
+    end
+  end
+
+  def can_update?(asset_type, params) do
+    new_metadata_params =
+      Enum.filter(params["metadata"], fn param -> param["id"] == nil && param["uuid"] == nil end)
+
+    if length(new_metadata_params) > 0 do
+      {true,
+       %{
+         "metadata" =>
+           Enum.map(asset_type.metadata, fn metadata -> Map.from_struct(metadata) end) ++
+             new_metadata_params
+       }}
+    else
+      {is_nil(asset_present?(asset_type)), params}
     end
   end
 
