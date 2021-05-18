@@ -274,7 +274,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
 
   defp parse_metadata_params(%{"metadata" => metadata} = params) do
     metadata =
-      case Poison.decode(metadata) do
+      case Jason.decode(metadata) do
         {:ok, data} ->
           data
 
