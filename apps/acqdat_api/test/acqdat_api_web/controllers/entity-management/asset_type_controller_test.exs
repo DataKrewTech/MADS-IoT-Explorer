@@ -99,16 +99,14 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       asset_type = insert(:asset_type)
 
       data = %{
-        asset_type: %{
-          name: "Water Plant",
-          metadata: [
-            %{
-              name: "metdata",
-              data_type: "string",
-              uuid: "test uuid"
-            }
-          ]
-        }
+        name: "Water Plant",
+        metadata: [
+          %{
+            name: "metdata",
+            data_type: "string",
+            uuid: "test uuid"
+          }
+        ]
       }
 
       conn =
@@ -120,7 +118,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       assert Map.has_key?(response, "id")
     end
 
-    test "asset type update fails, if asset is already associated with this asset_type", %{
+    test "update asset_type metadata if the user appends new metadata", %{
       conn: conn,
       org: org,
       project: project
@@ -128,16 +126,37 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       asset = insert(:asset)
 
       data = %{
-        asset_type: %{
-          name: "Water Plant",
-          metadata: [
-            %{
-              name: "metdata",
-              data_type: "string",
-              uuid: "test uuid"
-            }
-          ]
-        }
+        name: "Water Plant",
+        metadata: [
+          %{
+            name: "metdata",
+            data_type: "string"
+          }
+        ]
+      }
+
+      conn =
+        put(
+          conn,
+          Routes.asset_type_path(conn, :update, org.id, project.id, asset.asset_type_id),
+          data
+        )
+
+      response = conn |> json_response(200)
+
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+    end
+
+    test "asset type name update fails, if asset is already associated with this asset_type", %{
+      conn: conn,
+      org: org,
+      project: project
+    } do
+      asset = insert(:asset)
+
+      data = %{
+        name: "Water Plant"
       }
 
       conn =

@@ -110,9 +110,9 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     end
   end
 
-  def validate_n_append_metadata(asset_type, params) do
+  def validate_n_append_metadata(asset_type, %{"metadata" => metadata} = params) do
     new_metadata_params =
-      Enum.filter(params["metadata"], fn param -> param["id"] == nil && param["uuid"] == nil end)
+      Enum.filter(metadata, fn param -> param["id"] == nil && param["uuid"] == nil end)
 
     if length(new_metadata_params) > 0 do
       params = %{
@@ -130,6 +130,10 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     else
       {:error, "There are assets associated with this Asset Type"}
     end
+  end
+
+  def validate_n_append_metadata(_asset_type, _params) do
+    {:error, "There are assets associated with this Asset Type"}
   end
 
   def delete(asset_type) do
