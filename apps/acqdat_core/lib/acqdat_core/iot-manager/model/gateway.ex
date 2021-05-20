@@ -147,15 +147,15 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end
   end
 
+  defp update_gateway(gateway, params) do
+    changeset = Gateway.update_changeset(gateway, params)
+    Repo.update(changeset)
+  end
+
   defp extract_sensor_ids_from_parameters(mapped_parameters) do
     Enum.reduce(mapped_parameters, [], fn {key, value}, acc ->
       acc ++ [value["entity_id"]]
     end)
-  end
-
-  defp update_gateway(gateway, params) do
-    changeset = Gateway.update_changeset(gateway, params)
-    Repo.update(changeset)
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do

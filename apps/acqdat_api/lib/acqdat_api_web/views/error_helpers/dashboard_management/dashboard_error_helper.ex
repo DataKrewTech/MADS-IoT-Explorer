@@ -28,7 +28,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper do
   def error_message(:resource_not_found) do
     %{
       title: "Invalid entity ID",
-      error: "Dashboard with this ID does not exists",
+      error: "Resource with this ID does not exists",
       source: nil
     }
   end

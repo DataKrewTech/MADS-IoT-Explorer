@@ -2,13 +2,18 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   use AcqdatApiWeb, :controller
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
-  alias AcqdatApi.DashboardManagement.Dashboard
+  alias AcqdatApi.DashboardManagement.{Dashboard, WidgetInstance}
   alias AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper
   alias AcqdatApiWeb.Validators.DashboardExport.DashboardExport, as: ExportValidator
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
   plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
-  plug AcqdatApiWeb.Plug.LoadPanel when action in [:show]
+
+  plug :put_view,
+       AcqdatApiWeb.DashboardManagement.WidgetInstanceView
+       when action in [:fetch_widget_instances]
+
+  plug AcqdatApiWeb.Plug.LoadPanel when action in [:show, :fetch_widget_instances]
 
   plug :put_view,
        AcqdatApiWeb.DashboardManagement.DashboardView when action in [:exported_dashboard]
@@ -155,6 +160,32 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
           nil ->
             conn
             |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
+        end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_widget_instances(conn, %{"id" => id} = params) do
+    case conn.status do
+      nil ->
+        {id, _} = Integer.parse(id)
+
+        case WidgetInstance.get_by_filter(id, params) do
+          {:error, message} ->
+            conn
+            |> send_error(400, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+          {:ok, widget_instance} ->
+            conn
+            |> put_status(200)
+            |> render("show.json", %{widget_instance: widget_instance})
         end
 
       404 ->

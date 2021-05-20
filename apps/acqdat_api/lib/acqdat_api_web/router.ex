@@ -42,6 +42,12 @@ defmodule AcqdatApiWeb.Router do
       DashboardManagement.DashboardExportController,
       :show
     )
+
+    get(
+      "/dashboards/:dashboard_uuid/panels/:panel_id/widget_instances/:id",
+      DashboardManagement.DashboardExportController,
+      :fetch_widget_instances
+    )
   end
 
   scope "/", AcqdatApiWeb do
