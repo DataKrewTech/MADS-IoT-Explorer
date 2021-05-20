@@ -133,6 +133,22 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end
   end
 
+  def get_all_if_metadata_present() do
+    from(gateway in Gateway,
+      where: not is_nil(gateway.mapped_parameters)
+    )
+    |> Repo.all()
+  end
+
+  def associate_gateway_and_sensor() do
+    gateways = get_all_if_metadata_present()
+
+    Enum.map(gateways, fn gateway ->
+      sensor_ids = extract_sensor_ids_from_parameters(gateway.mapped_parameters)
+      associate_sensors(gateway |> Repo.preload([:sensors]), sensor_ids)
+    end)
+  end
+
   defp update_gateway(gateway, %{"mapped_parameters" => mapped_parameters} = params) do
     sensor_ids = extract_sensor_ids_from_parameters(mapped_parameters)
     changeset = Gateway.update_changeset(gateway, params)

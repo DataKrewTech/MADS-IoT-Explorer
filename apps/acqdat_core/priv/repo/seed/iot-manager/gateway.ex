@@ -26,4 +26,8 @@ defmodule AcqdatCore.Seed.IoTManager.Gateway do
     Repo.insert!(changeset)
   end
 
+  def associate_sensor_and_gateways() do
+    AcqdatCore.Model.IotManager.Gateway.associate_gateway_and_sensor()
+  end
+
 end
