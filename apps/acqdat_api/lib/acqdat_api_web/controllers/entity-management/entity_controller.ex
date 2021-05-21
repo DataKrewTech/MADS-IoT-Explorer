@@ -93,18 +93,48 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
     # name_convention = "Elixir.AcqdatCore.Model.EntityManagement." <> entity
     # module_name = String.to_atom(name_convention)
     try do
-      {:ok, module_name} = ModuleEnum.dump(entity)
+      case entity == "ProjectArchived" or entity == "UserInvite" do
+        true ->
+          if entity == "ProjectArchived" do
+            case EntityParser.return_archived_count() do
+              nil ->
+                conn
+                |> put_status(200)
+                |> json(%{"count" => 0})
 
-      case module_name.return_count(params) do
-        nil ->
-          conn
-          |> put_status(200)
-          |> json(%{"count" => 0})
+              count ->
+                conn
+                |> put_status(200)
+                |> json(%{"count" => count})
+            end
+          else
+            case EntityParser.return_invite_count() do
+              nil ->
+                conn
+                |> put_status(200)
+                |> json(%{"count" => 0})
 
-        count ->
-          conn
-          |> put_status(200)
-          |> json(%{"count" => count})
+              count ->
+                conn
+                |> put_status(200)
+                |> json(%{"count" => count})
+            end
+          end
+
+        false ->
+          {:ok, module_name} = ModuleEnum.dump(entity)
+
+          case module_name.return_count() do
+            nil ->
+              conn
+              |> put_status(200)
+              |> json(%{"count" => 0})
+
+            count ->
+              conn
+              |> put_status(200)
+              |> json(%{"count" => count})
+          end
       end
     rescue
       e in Ecto.ChangeError ->

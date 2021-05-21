@@ -3,9 +3,13 @@ defmodule AcqdatApi.EntityManagement.EntityParser do
   alias AcqdatCore.Model.EntityManagement.Asset, as: AssetModel
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
+  alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
   alias AcqdatCore.Schema.EntityManagement.{Project, Asset}
   alias AcqdatCore.Repo
   alias AcqdatApiWeb.Helpers
+
+  defdelegate return_archived_count(), to: ProjectModel
+  defdelegate return_invite_count(), to: InvitationModel
 
   def update_project_hierarchy(
         current_user,

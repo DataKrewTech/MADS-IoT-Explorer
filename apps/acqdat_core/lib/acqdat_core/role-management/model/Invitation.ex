@@ -13,6 +13,15 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
     Repo.all(Invitation)
   end
 
+  def return_invite_count() do
+    query =
+      from(p in Invitation,
+        select: count(p.id)
+      )
+
+    Repo.one(query)
+  end
+
   def create_invitation(attrs \\ %{}) do
     case check_for_existing_user(attrs["email"]) do
       true ->
