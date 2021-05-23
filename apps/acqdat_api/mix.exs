@@ -58,7 +58,10 @@ defmodule AcqdatApi.MixProject do
 
       # sentry logging
       {:sentry, "~> 8.0"},
-      {:hackney, "~> 1.8"}
+      {:hackney, "~> 1.8"},
+
+      # writer for the MS Excel OpenXML format
+      {:elixlsx, "~> 0.4.2"}
     ]
   end
 end
