@@ -29,7 +29,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     Repo.one(query)
   end
 
-  def return_count(_params) do
+  def return_count("Asset") do
     query =
       from(p in Asset,
         select: count(p.id)

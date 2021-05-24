@@ -12,20 +12,19 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     Repo.insert(changeset)
   end
 
-
   def return_archived_count() do
     query =
       from(p in Project,
-        where: p.archived == true,
         select: count(p.id)
       )
 
     Repo.one(query)
   end
 
-  def return_count() do
+  def return_count("ProjectArchived") do
     query =
       from(p in Project,
+        where: p.archived == true,
         select: count(p.id)
       )
 
