@@ -43,11 +43,14 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
 
       conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
 
-      response = conn |> json_response(200)
+      response = conn |> json_response(400)
 
       assert response == %{
-               "status" =>
-                 "Sent invitation to the user successfully, they will receive email after sometime!"
+               "detail" =>
+                 "Parameters provided to perform current action is either not valid or missing or not unique",
+               "source" => %{"email" => ["user with this email already exists"]},
+               "status_code" => 400,
+               "title" => "Insufficient or not unique parameters"
              }
     end
   end

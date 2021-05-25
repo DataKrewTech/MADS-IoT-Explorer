@@ -337,12 +337,15 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
 
       put(conn, Routes.user_path(conn, :update, org.id, user.id), params)
       conn = delete(conn, Routes.user_group_path(conn, :delete, org.id, user_group2.id))
-      response = conn |> json_response(200)
-      user = Repo.get(User, user.id) |> Repo.preload([:policies, :user_group])
-      policy_ids = extract_policy_id_of_user(user.policies)
-      user_group_ids = extract_group_ids(user.user_group)
-      assert user_group_ids == [user_group1.id]
-      assert policy_ids == [policy3.id, new_policy1.id]
+      response = conn |> json_response(400)
+
+      assert response == %{
+               "detail" =>
+                 "A user has been assigned to this user group. Need to remove before deleting it.",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "User group contains users"
+             }
     end
 
     test "adding user's to another group and then updating that group", context do

@@ -13,7 +13,17 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
     Repo.all(Invitation)
   end
 
-  def return_count("UserInvite") do
+  def return_count(%{"type" => "UserInvite", "org_id" => org_id}) do
+    query =
+      from(p in Invitation,
+        where: p.org_id == ^org_id,
+        select: count(p.id)
+      )
+
+    Repo.one(query)
+  end
+
+  def return_count(%{"type" => "UserInvite"}) do
     query =
       from(p in Invitation,
         select: count(p.id)

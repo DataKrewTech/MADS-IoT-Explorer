@@ -9,7 +9,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     Repo.insert(changeset)
   end
 
-  def return_count(%{"project_id" => project_id}) do
+  def return_count(%{"type" => "AssetType", "project_id" => project_id}) do
     query =
       from(p in AssetType,
         where: p.project_id == ^project_id,
@@ -19,7 +19,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
     Repo.one(query)
   end
 
-  def return_count("AssetType") do
+  def return_count(%{"type" => "AssetType"}) do
     query =
       from(p in AssetType,
         select: count(p.id)

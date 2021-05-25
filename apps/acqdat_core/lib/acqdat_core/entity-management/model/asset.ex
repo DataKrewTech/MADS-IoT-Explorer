@@ -19,7 +19,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     end
   end
 
-  def return_count(%{"project_id" => project_id}) do
+  def return_count(%{"type" => "Asset", "project_id" => project_id}) do
     query =
       from(p in Asset,
         where: p.project_id == ^project_id,
@@ -29,7 +29,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
     Repo.one(query)
   end
 
-  def return_count("Asset") do
+  def return_count(%{"type" => "Asset"}) do
     query =
       from(p in Asset,
         select: count(p.id)

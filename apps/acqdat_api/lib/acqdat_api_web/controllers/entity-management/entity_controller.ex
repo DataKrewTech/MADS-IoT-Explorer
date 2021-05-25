@@ -95,7 +95,7 @@ defmodule AcqdatApiWeb.EntityManagement.EntityController do
     try do
       {:ok, module_name} = ModuleEnum.dump(entity)
 
-      case module_name.return_count(entity) do
+      case module_name.return_count(params) do
         nil ->
           conn
           |> put_status(200)
