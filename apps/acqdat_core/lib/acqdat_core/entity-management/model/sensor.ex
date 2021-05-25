@@ -32,7 +32,6 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   end
 
   def return_count("Sensor") do
-
     query =
       from(p in Sensor,
         select: count(p.id)
