@@ -222,7 +222,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       response = conn |> json_response(404)
 
       assert response == %{
-               "detail" => "Dashboard with this ID does not exists",
+               "detail" => "Resource with this ID does not exists",
                "source" => nil,
                "status_code" => 404,
                "title" => "Invalid entity ID"
@@ -291,7 +291,7 @@ defmodule AcqdatApiWeb.DashboardExport.DashboardExportControllerTest do
       result = conn |> json_response(404)
 
       assert result == %{
-               "detail" => "Dashboard with this ID does not exists",
+               "detail" => "Resource with this ID does not exists",
                "source" => nil,
                "status_code" => 404,
                "title" => "Invalid entity ID"
