@@ -298,7 +298,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
             if Enum.member?(input_params, "#{entity.sensor_id}_#{entity.param_uuid}") do
               [
                 ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
-                ["#{entity.sensor_name}_#{entity.param_name}" | header_names]
+                ["#{entity.sensor_name} #{entity.param_name}" | header_names]
               ]
             else
               [header_uuids, header_names]
