@@ -12,6 +12,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadUser
        when action in [:show, :update, :assets, :apps, :delete]
 
+  plug :check_for_member_role when action in [:delete]
+
   def show(conn, %{"id" => id}) do
     case conn.status do
       nil ->
@@ -259,6 +261,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             |> send_error(400, error)
         end
 
+      403 ->
+        conn
+        |> send_error(404, UserErrorHelper.error_message(:forbidden))
+
       404 ->
         conn
         |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
@@ -266,6 +272,22 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       401 ->
         conn
         |> send_error(401, UserErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  ################################################# Private Function ###################################################################
+
+  defp check_for_member_role(conn, _params) do
+    logged_in_user = Guardian.Plug.current_resource(conn)
+    {:ok, user} = User.get(String.to_integer(logged_in_user))
+
+    case user.role_id === 3 do
+      true ->
+        conn
+        |> put_status(403)
+
+      false ->
+        conn
     end
   end
 end
