@@ -222,6 +222,7 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
     get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
+    post "/dashboard_reports", DashboardManagement.DashboardController, :reports
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
       resources "/panels", PanelController, except: [:new, :edit]

@@ -4,6 +4,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.DashboardManagement.Dashboard, as: DashboardModel
   alias AcqdatCore.Model.DashboardManagement.Panel, as: PanelModel
+  alias AcqdatCore.Model.EntityManagement.Sensor
 
   defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
@@ -48,6 +49,16 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     }
 
     create_dashboard(dashboard_params)
+  end
+
+  def gen_report(%{"email_to" => email_to} = params) do
+    Task.async(fn ->
+      Sensor.fetch_sensor_by_parameters(params)
+      |> AcqdatCore.Mailer.DashboardReportEmail.email(email_to)
+      |> AcqdatCore.Mailer.deliver_now()
+    end)
+
+    {:ok, "You'll receive report on this #{email_to} email"}
   end
 
   ############################# private functions ###########################

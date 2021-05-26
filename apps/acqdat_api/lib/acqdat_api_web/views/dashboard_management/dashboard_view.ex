@@ -33,6 +33,12 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
     }
   end
 
+  def render("report.json", %{dashboard: message}) do
+    %{
+      message: message
+    }
+  end
+
   def render("index.json", dashboards) do
     %{
       dashboards: render_many(dashboards.entries, DashboardView, "dashboard.json"),

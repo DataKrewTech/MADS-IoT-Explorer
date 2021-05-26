@@ -243,11 +243,18 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
-  def fetch_sensor_by_parameters(params) do
+  def fetch_sensor_by_parameters(%{
+        "entities" => entities,
+        "date_from" => date_from,
+        "date_to" => date_to
+      }) do
     [input_params, param_uuids] =
-      Enum.reduce(params, [[], []], fn param, [acc1, acc2] ->
-        [["#{param.sensor_id}_#{param.param_uuid}" | acc1], [param.param_uuid | acc2]]
+      Enum.reduce(entities, [[], []], fn param, [acc1, acc2] ->
+        [["#{param["sensor_id"]}_#{param["param_uuid"]}" | acc1], [param["param_uuid"] | acc2]]
       end)
+
+    date_from = from_unix(date_from)
+    date_to = from_unix(date_to)
 
     input_params = Enum.uniq(input_params)
     param_uuids = Enum.uniq(param_uuids)
@@ -296,8 +303,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
         [%{name: gateway_name}] = Enum.filter(gateway_data, fn data -> data.id == gateway_id end)
 
-        date_from = Timex.shift(Timex.now(), months: -3)
-        date_to = Timex.now()
+        # date_from = Timex.shift(Timex.now(), months: -3)
+        # date_to = Timex.now()
 
         trans =
           Repo.transaction(
@@ -360,9 +367,15 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   end
 
   def write_to_xls({:ok, workbook}) do
-    path = Application.app_dir(:acqdat_core, "priv/downloads/gateways/data_#{Timex.now()}.xlsx")
+    path =
+      Application.app_dir(
+        :acqdat_api,
+        "priv/static/downloads/gateways/report_#{String.slice(UUID.uuid1(:hex), 0..6)}.xlsx"
+      )
 
     workbook |> Elixlsx.write_to(path)
+
+    path
   end
 
   defp has_iot_data?(sensor_id, project_id) do
@@ -373,5 +386,10 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
       )
 
     Repo.exists?(query)
+  end
+
+  defp from_unix(datetime) do
+    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
+    res
   end
 end
