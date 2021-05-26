@@ -303,9 +303,6 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
         [%{name: gateway_name}] = Enum.filter(gateway_data, fn data -> data.id == gateway_id end)
 
-        # date_from = Timex.shift(Timex.now(), months: -3)
-        # date_to = Timex.now()
-
         trans =
           Repo.transaction(
             fn ->
@@ -370,7 +367,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     path =
       Application.app_dir(
         :acqdat_api,
-        "priv/static/downloads/gateways/report_#{String.slice(UUID.uuid1(:hex), 0..6)}.xlsx"
+        "priv/static/reports/gateways/report_#{String.slice(UUID.uuid1(:hex), 0..6)}.xlsx"
       )
 
     workbook |> Elixlsx.write_to(path)
