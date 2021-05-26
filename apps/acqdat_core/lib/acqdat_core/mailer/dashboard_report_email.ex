@@ -12,6 +12,6 @@ defmodule AcqdatCore.Mailer.DashboardReportEmail do
     |> subject(@subject)
     |> put_attachment(Bamboo.Attachment.new(path))
     |> put_html_layout({AcqdatCore.EmailView, "email.html"})
-    |> render("data_cruncher_email.html")
+    |> render("dashboard_report_email.html")
   end
 end
