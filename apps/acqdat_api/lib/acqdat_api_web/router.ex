@@ -52,6 +52,10 @@ defmodule AcqdatApiWeb.Router do
     post "/dashboards/:dashboard_uuid/reports",
          DashboardManagement.DashboardExportController,
          :reports
+
+    get "/orgs/:org_id/hierarchy",
+        DashboardManagement.DashboardExportController,
+        :fetch_all_hierarchy
   end
 
   scope "/", AcqdatApiWeb do
