@@ -242,7 +242,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   def verify_email(user) do
     query =
       from(user in User,
-        where: user.email == ^user
+        where: user.email == ^user and user.is_deleted == false
       )
 
     case List.first(Repo.all(query)) do

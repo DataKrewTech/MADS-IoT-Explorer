@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadUser
        when action in [:show, :update, :assets, :apps, :delete]
 
-  plug :check_for_member_role when action in [:delete]
+  plug :check_for_member_role_and_self_deletion when action in [:delete]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -277,11 +277,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
   ################################################# Private Function ###################################################################
 
-  defp check_for_member_role(conn, _params) do
+  defp check_for_member_role_and_self_deletion(conn, _params) do
     logged_in_user = Guardian.Plug.current_resource(conn)
     {:ok, user} = User.get(String.to_integer(logged_in_user))
 
-    case user.role_id === 3 do
+    case user.role_id === 3 or user.id == String.to_integer(logged_in_user) do
       true ->
         conn
         |> put_status(403)
