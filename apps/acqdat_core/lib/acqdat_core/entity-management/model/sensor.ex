@@ -246,7 +246,8 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   def fetch_sensor_by_parameters(%{
         "entities" => entities,
         "date_from" => date_from,
-        "date_to" => date_to
+        "date_to" => date_to,
+        "email_to" => email_to
       }) do
     [input_params, param_uuids, sensor_ids] =
       Enum.reduce(entities, [[], [], []], fn param, [acc1, acc2, acc3] ->
@@ -285,9 +286,37 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
     gateway_ids = Map.keys(data_grouped_by_gateway)
 
-    gateway_data = Gateway.get_names_by_ids(gateway_ids)
+    if Enum.filter(gateway_ids, &(!is_nil(&1))) == [] do
+      {:error, "no gateways present for the specified sensors entities"}
+    else
+      Task.async(fn ->
+        compute_gateway_data(
+          data_grouped_by_gateway,
+          gateway_ids,
+          sensor_ids,
+          input_params,
+          date_from,
+          date_to
+        )
+        |> AcqdatCore.Mailer.DashboardReportEmail.email(email_to)
+        |> AcqdatCore.Mailer.deliver_now()
+      end)
 
+      {:ok, "You'll receive report on this #{email_to} email"}
+    end
+  end
+
+  defp compute_gateway_data(
+         data_grouped_by_gateway,
+         gateway_ids,
+         sensor_ids,
+         input_params,
+         date_from,
+         date_to
+       ) do
     workbook = {:ok, %Workbook{}}
+
+    gateway_data = Gateway.get_names_by_ids(gateway_ids)
 
     output =
       Enum.reduce(data_grouped_by_gateway, workbook, fn {gateway_id, value}, acc ->

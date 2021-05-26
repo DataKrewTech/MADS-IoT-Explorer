@@ -51,14 +51,8 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     create_dashboard(dashboard_params)
   end
 
-  def gen_report(%{"email_to" => email_to} = params) do
-    Task.async(fn ->
-      Sensor.fetch_sensor_by_parameters(params)
-      |> AcqdatCore.Mailer.DashboardReportEmail.email(email_to)
-      |> AcqdatCore.Mailer.deliver_now()
-    end)
-
-    {:ok, "You'll receive report on this #{email_to} email"}
+  def gen_report(params) do
+    Sensor.fetch_sensor_by_parameters(params)
   end
 
   ############################# private functions ###########################

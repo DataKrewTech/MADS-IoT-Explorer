@@ -256,7 +256,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
             |> render("report.json", %{dashboard: message})
 
           {:error, message} ->
-            send_error(conn, 400, message)
+            send_error(conn, 400, DashboardErrorHelper.error_message(:report_error, message))
         end
 
       404 ->

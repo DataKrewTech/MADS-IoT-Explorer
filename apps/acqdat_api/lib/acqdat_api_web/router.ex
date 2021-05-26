@@ -53,7 +53,7 @@ defmodule AcqdatApiWeb.Router do
          DashboardManagement.DashboardExportController,
          :reports
 
-    get "/orgs/:org_id/hierarchy",
+    get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
         DashboardManagement.DashboardExportController,
         :fetch_all_hierarchy
   end
