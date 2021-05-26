@@ -210,7 +210,11 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             |> render("report.json", %{dashboard_export: message})
 
           {:error, message} ->
-            send_error(conn, 400, message)
+            send_error(
+              conn,
+              400,
+              DashboardExportErrorHelper.error_message(:report_error, message)
+            )
         end
 
       404 ->
