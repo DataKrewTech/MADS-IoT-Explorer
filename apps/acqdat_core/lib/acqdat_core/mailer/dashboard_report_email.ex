@@ -2,7 +2,7 @@ defmodule AcqdatCore.Mailer.DashboardReportEmail do
   use Bamboo.Phoenix, view: AcqdatCore.EmailView
   import Bamboo.Email
 
-  @subject "Dashboard Report"
+  @subject "DataKrew Dashboard Report"
   @from_address "bandana@stack-avenue.com"
 
   def email(path, to_address) do

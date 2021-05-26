@@ -20,4 +20,10 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportView do
       is_secure: dashboard_export.is_secure
     }
   end
+
+  def render("report.json", %{dashboard_export: message}) do
+    %{
+      message: message
+    }
+  end
 end

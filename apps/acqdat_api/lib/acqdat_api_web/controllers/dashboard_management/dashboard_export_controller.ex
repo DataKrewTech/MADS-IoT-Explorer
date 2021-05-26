@@ -198,6 +198,29 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
     end
   end
 
+  def reports(conn, params) do
+    case conn.status do
+      nil ->
+        case Dashboard.gen_report(params) do
+          {:ok, message} ->
+            conn
+            |> put_status(200)
+            |> render("report.json", %{dashboard_export: message})
+
+          {:error, message} ->
+            send_error(conn, 400, message)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
+    end
+  end
+
   ############################# private functions ###########################
   defp check_exported_dashboard(true, params, exported_dashboard) do
     case check_password(params["password"], exported_dashboard.password) do

@@ -48,6 +48,10 @@ defmodule AcqdatApiWeb.Router do
       DashboardManagement.DashboardExportController,
       :fetch_widget_instances
     )
+
+    post "/dashboards/:dashboard_uuid/reports",
+         DashboardManagement.DashboardExportController,
+         :reports
   end
 
   scope "/", AcqdatApiWeb do
