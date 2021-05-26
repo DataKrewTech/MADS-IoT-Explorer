@@ -248,9 +248,13 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
         "date_from" => date_from,
         "date_to" => date_to
       }) do
-    [input_params, param_uuids] =
-      Enum.reduce(entities, [[], []], fn param, [acc1, acc2] ->
-        [["#{param["sensor_id"]}_#{param["param_uuid"]}" | acc1], [param["param_uuid"] | acc2]]
+    [input_params, param_uuids, sensor_ids] =
+      Enum.reduce(entities, [[], [], []], fn param, [acc1, acc2, acc3] ->
+        [
+          ["#{param["sensor_id"]}_#{param["param_uuid"]}" | acc1],
+          [param["param_uuid"] | acc2],
+          [param["sensor_id"] | acc3]
+        ]
       end)
 
     date_from = from_unix(date_from)
@@ -258,6 +262,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
 
     input_params = Enum.uniq(input_params)
     param_uuids = Enum.uniq(param_uuids)
+    sensor_ids = Enum.uniq(sensor_ids)
 
     sensors =
       from(
@@ -265,7 +270,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
         join: sensor_type in SensorType,
         on: sensor.sensor_type_id == sensor_type.id,
         cross_join: c in fragment("unnest(?)", sensor_type.parameters),
-        where: fragment("?->>'uuid'", c) in ^param_uuids,
+        where: sensor.id in ^sensor_ids and fragment("?->>'uuid'", c) in ^param_uuids,
         select: %{
           sensor_id: sensor.id,
           sensor_name: sensor.name,
@@ -288,16 +293,18 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
       Enum.reduce(data_grouped_by_gateway, workbook, fn {gateway_id, value}, acc ->
         {:ok, workbook} = acc
 
-        [sensor_ids, header_uuids, header_names] =
-          Enum.reduce(value, [[], [], []], fn entity, [sensor_ids, header_uuids, header_names] ->
-            [
-              [entity.sensor_id | sensor_ids],
-              ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
-              ["#{entity.sensor_name}_#{entity.param_name}" | header_names]
-            ]
+        [header_uuids, header_names] =
+          Enum.reduce(value, [[], []], fn entity, [header_uuids, header_names] ->
+            if Enum.member?(input_params, "#{entity.sensor_id}_#{entity.param_uuid}") do
+              [
+                ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
+                ["#{entity.sensor_name}_#{entity.param_name}" | header_names]
+              ]
+            else
+              [header_uuids, header_names]
+            end
           end)
 
-        sensor_ids = Enum.uniq(sensor_ids)
         header_uuids = Enum.uniq(header_uuids)
         header_names = Enum.uniq(header_names)
 
@@ -343,16 +350,9 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
             timeout: :infinity
           )
 
-        IO.puts("tras_ouput")
-        IO.inspect(trans)
-        [gateway_id: trans]
-
-        acc = trans
+        trans
       end)
       |> write_to_xls()
-
-    IO.puts("final_output")
-    IO.inspect(output)
   end
 
   def gen_xls_sheet(data, headers, gateway_name, workbook) do
