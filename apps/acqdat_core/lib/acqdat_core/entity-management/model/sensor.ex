@@ -386,6 +386,7 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
   end
 
   defp from_unix(datetime) do
+    {datetime, _} = Integer.parse(datetime)
     {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
     res
   end
