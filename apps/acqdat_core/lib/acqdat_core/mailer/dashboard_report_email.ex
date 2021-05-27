@@ -3,7 +3,7 @@ defmodule AcqdatCore.Mailer.DashboardReportEmail do
   import Bamboo.Email
 
   @subject "DataKrew Dashboard Report"
-  @from_address "bandana@stack-avenue.com"
+  @from_address "admin@datakrew.com"
 
   def email(path, to_address) do
     new_email()
