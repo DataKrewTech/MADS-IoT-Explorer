@@ -166,7 +166,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsController do
 
           {:error, message} ->
             conn
-            |> send_error(404, message)
+            |> send_error(400, VisualizationsErrorHelper.error_message(:export_error, message))
         end
 
       404 ->

@@ -14,4 +14,12 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsErrorHelper do
       source: nil
     }
   end
+
+  def error_message(:export_error, message) do
+    %{
+      title: "Problem while exporting visualizations",
+      error: message,
+      source: nil
+    }
+  end
 end
