@@ -118,17 +118,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
 
       update_asset_type(asset_type, params)
     else
-      if (params["name"] || params["description"]) &&
-           (params["name"] != asset_type.name || params["description"] != asset_type.description) do
-        params = %{
-          "name" => params["name"] || asset_type.name,
-          "description" => params["description"] || asset_type.description
-        }
-
-        update_asset_type(asset_type, params)
-      else
-        {:error, "There are assets associated with this Asset Type"}
-      end
+      {:error, "There are assets associated with this Asset Type"}
     end
   end
 
