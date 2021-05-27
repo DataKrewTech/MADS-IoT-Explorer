@@ -98,12 +98,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
   def update(asset_type, params) do
     case is_nil(asset_present?(asset_type)) do
       true ->
-        changeset = AssetType.update_changeset(asset_type, params)
-
-        case Repo.update(changeset) do
-          {:ok, asset_type} -> {:ok, asset_type |> Repo.preload(:org)}
-          {:error, error} -> {:error, error}
-        end
+        update_asset_type(asset_type, params)
 
       false ->
         validate_n_append_metadata(asset_type, params)
@@ -115,25 +110,39 @@ defmodule AcqdatCore.Model.EntityManagement.AssetType do
       Enum.filter(metadata, fn param -> param["id"] == nil && param["uuid"] == nil end)
 
     if length(new_metadata_params) > 0 do
-      params = %{
-        "metadata" =>
-          Enum.map(asset_type.metadata, fn metadata -> Map.from_struct(metadata) end) ++
-            new_metadata_params
-      }
+      metadata =
+        Enum.map(asset_type.metadata, fn metadata -> Map.from_struct(metadata) end) ++
+          new_metadata_params
 
-      changeset = AssetType.update_changeset(asset_type, params)
+      params = %{params | "metadata" => metadata}
 
-      case Repo.update(changeset) do
-        {:ok, asset_type} -> {:ok, asset_type |> Repo.preload(:org)}
-        {:error, error} -> {:error, error}
-      end
+      update_asset_type(asset_type, params)
     else
-      {:error, "There are assets associated with this Asset Type"}
+      if (params["name"] || params["description"]) &&
+           (params["name"] != asset_type.name || params["description"] != asset_type.description) do
+        params = %{
+          "name" => params["name"] || asset_type.name,
+          "description" => params["description"] || asset_type.description
+        }
+
+        update_asset_type(asset_type, params)
+      else
+        {:error, "There are assets associated with this Asset Type"}
+      end
     end
   end
 
-  def validate_n_append_metadata(_asset_type, _params) do
-    {:error, "There are assets associated with this Asset Type"}
+  def validate_n_append_metadata(asset_type, params) do
+    update_asset_type(asset_type, params)
+  end
+
+  defp update_asset_type(asset_type, params) do
+    changeset = AssetType.update_changeset(asset_type, params)
+
+    case Repo.update(changeset) do
+      {:ok, asset_type} -> {:ok, asset_type |> Repo.preload(:org)}
+      {:error, error} -> {:error, error}
+    end
   end
 
   def delete(asset_type) do
