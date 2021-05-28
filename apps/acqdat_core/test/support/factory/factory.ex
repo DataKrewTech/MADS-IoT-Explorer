@@ -253,24 +253,28 @@ defmodule AcqdatCore.Support.Factory do
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
           data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
-          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}"),
+          uuid: UUID.uuid1(:hex)
         },
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
           data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
-          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}"),
+          uuid: UUID.uuid1(:hex)
         }
       ],
       metadata: [
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
           data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
-          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}"),
+          uuid: UUID.uuid1(:hex)
         },
         %{
           name: sequence(:asset_type_name, &"AssetTypeParam#{&1}"),
           data_type: sequence(:asset_type_name, &"AssetTypeDataType#{&1}"),
-          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}")
+          unit: sequence(:asset_type_name, &"AssetTypeUnit#{&1}"),
+          uuid: UUID.uuid1(:hex)
         }
       ]
     }
