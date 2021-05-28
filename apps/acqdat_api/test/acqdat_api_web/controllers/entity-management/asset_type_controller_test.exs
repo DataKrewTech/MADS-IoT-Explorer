@@ -148,15 +148,16 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
       assert Map.has_key?(response, "id")
     end
 
-    test "asset type name update fails, if asset is already associated with this asset_type", %{
-      conn: conn,
-      org: org,
-      project: project
-    } do
+    test "asset type name should be updated even, if asset is already associated with this asset_type",
+         %{
+           conn: conn,
+           org: org,
+           project: project
+         } do
       asset = insert(:asset)
 
       data = %{
-        name: "Water Plant"
+        name: "updated Water Plant"
       }
 
       conn =
@@ -166,14 +167,11 @@ defmodule AcqdatApiWeb.EntityManagement.AssetTypeControllerTest do
           data
         )
 
-      response = conn |> json_response(400)
+      response = conn |> json_response(200)
 
-      assert response == %{
-               "detail" => "There are assets associated with this Asset Type",
-               "source" => nil,
-               "status_code" => 400,
-               "title" => "Asset is associated with this asset type"
-             }
+      assert Map.has_key?(response, "name")
+      assert Map.has_key?(response, "id")
+      assert response["name"] == "updated Water Plant"
     end
 
     test "fails if invalid token in authorization header", %{
