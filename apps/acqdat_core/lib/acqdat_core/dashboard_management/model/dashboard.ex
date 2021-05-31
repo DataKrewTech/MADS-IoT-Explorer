@@ -11,6 +11,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
   end
 
   def update(dashboard, params) do
+    dashboard = dashboard |> Repo.preload([:panels])
     changeset = Dashboard.update_changeset(dashboard, params)
     Repo.update(changeset)
   end

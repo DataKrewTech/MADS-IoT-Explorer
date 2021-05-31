@@ -61,6 +61,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> common_changeset()
+    |> cast_assoc(:panels, with: &Panel.changeset/2)
   end
 
   @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()
