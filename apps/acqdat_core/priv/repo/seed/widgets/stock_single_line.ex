@@ -11,8 +11,11 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
   @highchart_key_widget_settings %{
     line: %{
       visual: %{
-        chart: [type: %{value: "line"}],
+        chart: [type: %{value: "line"}, backgroundColor: %{}, plotBackgroundColor: %{}],
         title: [text: %{}],
+        caption: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}],
+        yAxis: [title: [text: %{}]],
         rangeSelector: [selected: %{value: 1}],
         credits: [enabled: %{value: false}],
         legend: [enabled: %{value: true}]
@@ -23,6 +26,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
+            color: %{data_type: :color, value: %{data: "#000000"}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: false}, properties: %{}}
           }
         },

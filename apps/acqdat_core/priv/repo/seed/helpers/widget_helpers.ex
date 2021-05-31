@@ -165,6 +165,32 @@ defmodule AcqdatCore.Seed.Helpers.WidgetHelpers do
     end)
   end
 
+  def do_update_settings(%{data: settings}, :data, vendor_struct) do
+    Enum.map(settings, fn {key, value} ->
+      set_mapped_data_keys(key, value)
+    end)
+  end
+
+  def set_mapped_data_keys(key, %{properties: properties} = value) when properties == %{} do
+    %{
+      key: to_string(key),
+      value: value.value,
+      data_type: to_string(value.data_type),
+      properties: []
+    }
+  end
+
+  def set_mapped_data_keys(key, value) do
+    %{
+      key: to_string(key),
+      data_type: to_string(value.data_type),
+      value: value.value,
+      properties: Enum.map(value.properties, fn {key, value} ->
+        set_mapped_data_keys(key, value)
+      end)
+    }
+  end
+
   def set_mapped_keys_from_vendor(key, value, metadata) when is_tuple(value) do
     %{
       key: to_string(key),

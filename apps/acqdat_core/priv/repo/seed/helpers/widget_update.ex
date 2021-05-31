@@ -25,6 +25,14 @@ defmodule AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers do
         changeset = WidgetSchema.update_changeset(widget, %{visual_settings: visual_settings})
         Repo.update!(changeset)
       end
+
+      def update_data_settings(label, key) do
+        widget = Repo.get_by(WidgetSchema, %{label: label})
+        widget_settings = @highchart_key_widget_settings[key]
+        data_settings = WidgetHelpers.do_update_settings(widget_settings, :data, %HighCharts{})
+        changeset = WidgetSchema.update_changeset(widget, %{data_settings: data_settings})
+        Repo.update!(changeset)
+      end
     end
   end
 
