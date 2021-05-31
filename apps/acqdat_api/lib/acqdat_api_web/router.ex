@@ -125,6 +125,7 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
 
+    get "/users/:user_id/organisations", RoleManagement.UserController, :user_organisation
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
       resources "/tasks", DataCruncher.TasksController,
         only: [:create, :index, :show, :update, :delete]

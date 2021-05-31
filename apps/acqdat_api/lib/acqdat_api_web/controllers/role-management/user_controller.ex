@@ -10,7 +10,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadOrg when action in [:search_users, :index]
 
   plug AcqdatApiWeb.Plug.LoadUser
-       when action in [:show, :update, :assets, :apps, :delete]
+       when action in [:show, :update, :assets, :apps, :delete, :user_organisation]
 
   def show(conn, %{"id" => id}) do
     case conn.status do
@@ -75,6 +75,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
         conn
         |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
+  end
+
+  def user_organisation(conn, params) do
+
   end
 
   def search_users(conn, params) do
