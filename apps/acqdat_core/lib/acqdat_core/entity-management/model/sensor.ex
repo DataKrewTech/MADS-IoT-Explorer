@@ -1,8 +1,11 @@
 defmodule AcqdatCore.Model.EntityManagement.Sensor do
-  alias AcqdatCore.Schema.EntityManagement.{Sensor, SensorsData}
+  alias AcqdatCore.Schema.EntityManagement.{Sensor, SensorsData, SensorType}
+  alias AcqdatCore.Domain.EntityManagement.SensorData, as: SensorDataDomain
   alias AcqdatCore.Repo
   alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.Helper, as: ModelHelper
+  alias Elixlsx.{Workbook, Sheet}
+  alias AcqdatCore.Model.IotManager.Gateway
   import Ecto.Query
 
   def create(params) do
@@ -240,6 +243,167 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
+  def fetch_sensor_by_parameters(%{
+        "entities" => entities,
+        "date_from" => date_from,
+        "date_to" => date_to,
+        "email_to" => email_to
+      }) do
+    [input_params, param_uuids, sensor_ids] =
+      Enum.reduce(entities, [[], [], []], fn param, [acc1, acc2, acc3] ->
+        [
+          ["#{param["sensor_id"]}_#{param["param_uuid"]}" | acc1],
+          [param["param_uuid"] | acc2],
+          [param["sensor_id"] | acc3]
+        ]
+      end)
+
+    date_from = from_unix(date_from)
+    date_to = from_unix(date_to)
+
+    input_params = Enum.uniq(input_params)
+    param_uuids = Enum.uniq(param_uuids)
+    sensor_ids = Enum.uniq(sensor_ids)
+
+    sensors =
+      from(
+        sensor in Sensor,
+        join: sensor_type in SensorType,
+        on: sensor.sensor_type_id == sensor_type.id,
+        cross_join: c in fragment("unnest(?)", sensor_type.parameters),
+        where: sensor.id in ^sensor_ids and fragment("?->>'uuid'", c) in ^param_uuids,
+        select: %{
+          sensor_id: sensor.id,
+          sensor_name: sensor.name,
+          gateway_id: sensor.gateway_id,
+          param_name: fragment("?->>'name'", c),
+          param_uuid: fragment("?->>'uuid'", c)
+        }
+      )
+      |> Repo.all()
+
+    data_grouped_by_gateway = Enum.group_by(sensors, fn sensor -> sensor.gateway_id end)
+
+    gateway_ids = Map.keys(data_grouped_by_gateway)
+
+    if Enum.filter(gateway_ids, &(!is_nil(&1))) == [] do
+      {:error, "no gateways present for the specified sensors entities"}
+    else
+      Task.async(fn ->
+        compute_gateway_data(
+          data_grouped_by_gateway,
+          gateway_ids,
+          sensor_ids,
+          input_params,
+          date_from,
+          date_to
+        )
+        |> AcqdatCore.Mailer.DashboardReportEmail.email(email_to)
+        |> AcqdatCore.Mailer.deliver_now()
+      end)
+
+      {:ok, "You'll receive report on this #{email_to} email"}
+    end
+  end
+
+  defp compute_gateway_data(
+         data_grouped_by_gateway,
+         gateway_ids,
+         sensor_ids,
+         input_params,
+         date_from,
+         date_to
+       ) do
+    workbook = {:ok, %Workbook{}}
+
+    gateway_data = Gateway.get_names_by_ids(gateway_ids)
+
+    output =
+      Enum.reduce(data_grouped_by_gateway, workbook, fn {gateway_id, value}, acc ->
+        {:ok, workbook} = acc
+
+        [header_uuids, header_names] =
+          Enum.reduce(value, [[], []], fn entity, [header_uuids, header_names] ->
+            if Enum.member?(input_params, "#{entity.sensor_id}_#{entity.param_uuid}") do
+              [
+                ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
+                ["#{entity.sensor_name} #{entity.param_name}" | header_names]
+              ]
+            else
+              [header_uuids, header_names]
+            end
+          end)
+
+        header_uuids = Enum.uniq(header_uuids)
+        header_names = Enum.uniq(header_names)
+
+        [%{name: gateway_name}] = Enum.filter(gateway_data, fn data -> data.id == gateway_id end)
+
+        trans =
+          Repo.transaction(
+            fn ->
+              SensorDataDomain.filter_by_date_query_wrt_format(sensor_ids, date_from, date_to)
+              |> Repo.stream(max_rows: 1000)
+              |> Stream.map(fn grouped_data ->
+                [timestamp, sensor_data] = grouped_data
+                rows_len = length(header_uuids)
+
+                empty_row = List.duplicate(nil, rows_len)
+
+                res =
+                  Enum.reduce(sensor_data, [], fn {sensor_id, params}, acc ->
+                    res =
+                      Enum.reduce(params, empty_row, fn param, acc1 ->
+                        indx_pos =
+                          Enum.find_index(header_uuids, fn x ->
+                            x == "#{sensor_id}_#{param["uuid"]}"
+                          end)
+
+                        if indx_pos != nil,
+                          do: List.replace_at(acc1, indx_pos, param["value"]),
+                          else: acc1
+                      end)
+                  end)
+
+                res =
+                  if res != empty_row do
+                    ["#{timestamp}" | res]
+                  end
+
+                res
+              end)
+              |> Enum.filter(&(!is_nil(&1)))
+              |> Enum.to_list()
+              |> gen_xls_sheet(header_names, gateway_name, workbook)
+            end,
+            timeout: :infinity
+          )
+
+        trans
+      end)
+      |> write_to_xls()
+  end
+
+  def gen_xls_sheet(data, headers, gateway_name, workbook) do
+    headers = ["#{gateway_name} timestamp" | headers]
+
+    sheet = %Sheet{name: "GatewayData of #{gateway_name}", rows: [headers] ++ data}
+
+    Workbook.append_sheet(workbook, sheet)
+  end
+
+  def write_to_xls({:ok, workbook}) do
+    path =
+      Application.app_dir(
+        :acqdat_api,
+        "priv/static/reports/gateways/report_#{String.slice(UUID.uuid1(:hex), 0..6)}.xlsx"
+      )
+
+    workbook |> Elixlsx.write_to(path)
+
+    path
+  end
+
   defp has_iot_data?(sensor_id, project_id) do
     query =
       from(
@@ -248,5 +412,11 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
       )
 
     Repo.exists?(query)
+  end
+
+  defp from_unix(datetime) do
+    {datetime, _} = Integer.parse(datetime)
+    {:ok, res} = datetime |> DateTime.from_unix(:millisecond)
+    res
   end
 end

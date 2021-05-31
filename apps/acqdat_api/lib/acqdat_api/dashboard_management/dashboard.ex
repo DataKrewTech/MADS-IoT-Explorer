@@ -4,6 +4,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.DashboardManagement.Dashboard, as: DashboardModel
   alias AcqdatCore.Model.DashboardManagement.Panel, as: PanelModel
+  alias AcqdatCore.Model.EntityManagement.Sensor
 
   defdelegate get_with_panels(dashboard_id), to: DashboardModel
   defdelegate update(dashboard, data), to: DashboardModel
@@ -48,6 +49,10 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     }
 
     create_dashboard(dashboard_params)
+  end
+
+  def gen_report(params) do
+    Sensor.fetch_sensor_by_parameters(params)
   end
 
   ############################# private functions ###########################

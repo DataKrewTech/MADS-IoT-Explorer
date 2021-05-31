@@ -25,6 +25,21 @@ defmodule AcqdatCore.Domain.EntityManagement.SensorData do
     )
   end
 
+  def filter_by_date_query_wrt_format(entity_ids, date_from, date_to) when is_list(entity_ids) do
+    from(
+      data in SensorsData,
+      where:
+        data.sensor_id in ^entity_ids and data.inserted_timestamp >= ^date_from and
+          data.inserted_timestamp <= ^date_to,
+      group_by: data.inserted_timestamp,
+      select: [
+        data.inserted_timestamp,
+        fragment("array_agg((sensor_id, parameters))")
+      ],
+      order_by: [asc: data.inserted_timestamp]
+    )
+  end
+
   def filter_by_date_query_wrt_parent(entity_ids, date_from, date_to) when is_list(entity_ids) do
     from(
       data in SensorsData,

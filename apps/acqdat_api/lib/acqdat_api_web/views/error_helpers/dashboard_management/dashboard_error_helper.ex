@@ -22,6 +22,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardErrorHelper do
       source: nil
     }
   end
+
+  def error_message(:report_error, message) do
+    %{
+      title: "Problem while generating Report",
+      error: message,
+      source: nil
+    }
+  end
 end
 
 defmodule AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper do
@@ -29,6 +37,14 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper do
     %{
       title: "Invalid entity ID",
       error: "Resource with this ID does not exists",
+      source: nil
+    }
+  end
+
+  def error_message(:report_error, message) do
+    %{
+      title: "Problem while generating Report",
+      error: message,
       source: nil
     }
   end

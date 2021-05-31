@@ -3,11 +3,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
   import AcqdatApiWeb.Helpers
   alias AcqdatApi.DashboardExport.DashboardExport
   alias AcqdatApi.DashboardManagement.{Dashboard, WidgetInstance}
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatApiWeb.DashboardManagement.DashboardExportErrorHelper
   alias AcqdatApiWeb.Validators.DashboardExport.DashboardExport, as: ExportValidator
 
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:create]
   plug :put_view, AcqdatApiWeb.DashboardManagement.PanelView when action in [:show]
+  plug :put_view, AcqdatApiWeb.EntityManagement.EntityView when action in [:fetch_all_hierarchy]
 
   plug :put_view,
        AcqdatApiWeb.DashboardManagement.WidgetInstanceView
@@ -186,6 +188,59 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
             conn
             |> put_status(200)
             |> render("show.json", %{widget_instance: widget_instance})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def reports(conn, params) do
+    case conn.status do
+      nil ->
+        case Dashboard.gen_report(params) do
+          {:ok, message} ->
+            conn
+            |> put_status(200)
+            |> render("report.json", %{dashboard_export: message})
+
+          {:error, message} ->
+            send_error(
+              conn,
+              400,
+              DashboardExportErrorHelper.error_message(:report_error, message)
+            )
+        end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardExportErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_all_hierarchy(conn, %{"org_id" => org_id}) do
+    case conn.status do
+      nil ->
+        {org_id, _} = Integer.parse(org_id)
+
+        case OrgModel.fetch_hierarchy_by_all_projects(org_id) do
+          {:ok, org} ->
+            conn
+            |> put_status(200)
+            |> render("organisation_tree.json", %{org: org})
+
+          {:error, _message} ->
+            conn
+            |> send_error(404, DashboardExportErrorHelper.error_message(:resource_not_found))
         end
 
       404 ->

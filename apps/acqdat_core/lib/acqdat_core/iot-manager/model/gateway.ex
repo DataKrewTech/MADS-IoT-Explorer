@@ -85,6 +85,17 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     end
   end
 
+  def get_names_by_ids(gateway_ids) when is_list(gateway_ids) do
+    from(gateway in Gateway,
+      where: gateway.id in ^gateway_ids,
+      select: %{
+        id: gateway.id,
+        name: gateway.name
+      }
+    )
+    |> Repo.all()
+  end
+
   def child_gateways(root) do
     child_gateways_query(root)
     |> Repo.all()

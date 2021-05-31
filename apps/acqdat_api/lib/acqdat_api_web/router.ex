@@ -48,6 +48,14 @@ defmodule AcqdatApiWeb.Router do
       DashboardManagement.DashboardExportController,
       :fetch_widget_instances
     )
+
+    post "/dashboards/:dashboard_uuid/reports",
+         DashboardManagement.DashboardExportController,
+         :reports
+
+    get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
+        DashboardManagement.DashboardExportController,
+        :fetch_all_hierarchy
   end
 
   scope "/", AcqdatApiWeb do
@@ -223,6 +231,7 @@ defmodule AcqdatApiWeb.Router do
 
     resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
     get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
+    post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
 
     scope "/dashboards/:dashboard_id", DashboardManagement do
       resources "/panels", PanelController, except: [:new, :edit]
