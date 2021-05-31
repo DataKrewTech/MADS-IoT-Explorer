@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.StockColumn do
     column: %{
       visual: %{
         chart: [type: %{value: "column"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}],
+        title: [text: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         yAxis: [title: [text: %{}]],
         rangeSelector: [selected: %{value: 1}],
         credits: [enabled: %{value: false}],

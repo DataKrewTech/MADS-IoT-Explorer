@@ -12,7 +12,7 @@ defmodule AcqdatCore.Seed.Widgets.ImageCard do
     card: %{
       visual: %{
         card: [type: %{value: "image card"}, backgroundColor: %{}, fontColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, fontSize: %{}, fontColor: %{}],
         icon: [text: %{}, align: %{}],
         description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}],
         subtitle: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]

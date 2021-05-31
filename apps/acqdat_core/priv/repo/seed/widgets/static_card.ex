@@ -12,7 +12,7 @@ defmodule AcqdatCore.Seed.Widgets.StaticCard do
     card: %{
       visual: %{
         card: [type: %{value: "static card"}, backgroundColor: %{}, fontColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, fontSize: %{}, fontColor: %{}],
         description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}],
         subtitle: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
       }

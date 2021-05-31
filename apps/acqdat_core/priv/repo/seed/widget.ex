@@ -62,7 +62,7 @@ defmodule AcqdatCore.Seed.Widget do
       "HeatMap" => {HeatMap, :heat_map}
     }
 
-    Enum.each(chart_mappings, fn {label, value} ->
+    Enum.each(charts, fn {label, value} ->
       {module, widget_key} = value
       module.update_visual_settings(label, widget_key)
     end)

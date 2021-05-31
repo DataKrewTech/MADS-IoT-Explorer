@@ -183,7 +183,14 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                style: %{data_type: :object, default_value: %{}, user_controlled: false},
+                style: %{
+                  data_type: :object,
+                  user_controlled: false,
+                  properties: %{
+                    color: %{data_type: :color, default_value: "#333333", user_controlled: true},
+                    fontSize: %{data_type: :string, default_value: "18px", user_controlled: true}
+                  }
+                },
                 align: %{
                   data_type: :select,
                   default_value: ["center", "right", "left", "top", "bottom"],
@@ -204,7 +211,14 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
               user_controlled: false,
               properties: %{
                 text: %{data_type: :string, default_value: "", user_controlled: true},
-                style: %{data_type: :object, default_value: %{}, user_controlled: false},
+                style: %{
+                  data_type: :object,
+                  user_controlled: false,
+                  properties: %{
+                    color: %{data_type: :color, default_value: "#333333", user_controlled: true},
+                    fontSize: %{data_type: :string, default_value: "18px", user_controlled: true}
+                  }
+                },
                 align: %{
                   data_type: :select,
                   default_value: ["center", "right", "left", "top", "bottom"],

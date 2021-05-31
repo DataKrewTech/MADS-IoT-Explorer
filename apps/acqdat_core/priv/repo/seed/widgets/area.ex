@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.Area do
     area: %{
       visual: %{
         chart: [type: %{value: "area"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         yAxis: [title: [text: %{}]],
         credits: [enabled: %{value: false}],
       },

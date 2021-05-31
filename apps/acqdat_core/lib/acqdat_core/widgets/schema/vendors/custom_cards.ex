@@ -26,7 +26,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
                   data_type: :select,
                   default_value: ["left", "right", "center", "top", "bottom"],
                   user_controlled: true
-                }
+                },
+                fontSize: %{data_type: :integer, default_value: 14, user_controlled: true},
+                fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },
             unit: %{

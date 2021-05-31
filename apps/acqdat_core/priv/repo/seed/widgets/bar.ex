@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.Bar do
     bar: %{
       visual: %{
         chart: [type: %{value: "bar"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         yAxis: [title: [text: %{}]],
         credits: [enabled: %{value: false}],
       },

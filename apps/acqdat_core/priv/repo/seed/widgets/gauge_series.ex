@@ -12,7 +12,7 @@ defmodule AcqdatCore.Seed.Widgets.GaugeSeries do
     gauge: %{
       visual: %{
         chart: [type: %{value: "gauge"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
         yAxis: [title: [text: %{}], min: %{data_type: :integer, value: 0, properties: %{}},
                 max: %{data_type: :integer, value: 200, properties: %{}},
                 tickPixelInterval: %{data_type: :integer, value: 30, properties: %{}},
