@@ -119,7 +119,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
     end
   end
 
-  describe "update/2" do
+  describe "update/2 " do
     setup do
       org = insert(:organisation)
       project = insert(:project, org: org)
@@ -182,6 +182,10 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor2.gateway_id == gateway.id
       assert sensor3.gateway_id == gateway.id
       assert sensor4.gateway_id == gateway.id
+    end
+
+    test "with nesteed parameter mapping" do
+
     end
   end
 
