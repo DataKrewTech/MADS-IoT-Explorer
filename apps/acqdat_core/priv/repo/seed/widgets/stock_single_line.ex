@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
     line: %{
       visual: %{
         chart: [type: %{value: "line"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
+        title: [text: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "14px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, style: [color: %{value: "#333333"}, fontSize: %{value: "18px"}]],
+        subtitle: [text: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
         yAxis: [title: [text: %{}]],
         xAxis: [type: %{value: "datetime"}, title: [text: %{value: "Date"}]],
         rangeSelector: [selected: %{value: 1}],
