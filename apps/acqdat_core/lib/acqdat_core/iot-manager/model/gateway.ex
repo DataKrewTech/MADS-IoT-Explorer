@@ -180,9 +180,27 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   defp extract_sensor_ids_from_parameters(mapped_parameters) do
-    Enum.reduce(mapped_parameters, [], fn {key, value}, acc ->
-      acc ++ [value["entity_id"]]
+    Enum.reduce(mapped_parameters, [], fn {_key, value}, acc ->
+      filter_from_parameters(value, acc)
     end)
+  end
+
+  defp filter_from_parameters(%{"type" => "object", "value" => parameters}, acc) do
+    result = Enum.reduce(parameters, [], fn {_key, value}, accumulator ->
+      filter_from_parameters(value, accumulator)
+    end)
+    acc ++ result
+  end
+
+  defp filter_from_parameters(%{"type" => "list", "value" => value}, acc) do
+    ids = Enum.map(value, fn params ->
+      params["entity_id"]
+    end)
+    acc ++ ids
+  end
+
+  defp filter_from_parameters(%{"type" => "value", "entity_id" => entity_id}, acc) do
+    [entity_id | acc]
   end
 
   def get_all(%{page_size: page_size, page_number: page_number}) do

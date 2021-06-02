@@ -185,8 +185,17 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
     end
 
     test "with nesteed parameter mapping", context do
-      %{sensors: sensors, gateway: gateway} = context
-      mapped_parameters = create_nested_parameters(sensors)
+      %{sensors: [sensor1, sensor2, sensor3, _], gateway: gateway} = context
+      mapped_parameters = create_nested_parameters(sensor1, sensor2, sensor3)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+
+      assert sensor1.gateway_id == gateway.id
+      assert sensor2.gateway_id == gateway.id
+      assert sensor3.gateway_id == gateway.id
     end
   end
 
@@ -291,8 +300,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
     }
   end
 
-  defp create_nested_parameters(sensors) do
-    [sensor1, sensor2, sensor3, _] = sensors
+  defp create_nested_parameters(sensor1, sensor2, sensor3) do
     [param1, param2] = sensor1.sensor_type.parameters
     [param3, param4] = sensor2.sensor_type.parameters
     [param5, param6] = sensor3.sensor_type.parameters
