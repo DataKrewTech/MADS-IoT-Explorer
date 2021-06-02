@@ -2,7 +2,7 @@ defmodule AcqdatApiWeb.AuthErrorHelper do
   def error_message(:unauthorized) do
     %{
       title: "Invalid credentials",
-      error: "Username and password is incorrect.",
+      error: "Credentials are incorrect.",
       source: nil
     }
   end

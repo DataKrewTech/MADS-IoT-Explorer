@@ -5,7 +5,7 @@ defmodule AcqdatApi.Account do
 
   alias AcqdatCore.Domain.Account
   alias AcqdatApiWeb.Guardian
-  alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Schema.RoleManagement.UserSetting
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -19,9 +19,9 @@ defmodule AcqdatApi.Account do
   """
   @spec sign_in(map) :: {:ok, map} | {:error, String.t()}
   def sign_in(params) do
-    %{email: email, password: password} = params
+    %{email: email, password: password, org_id: org_id} = params
 
-    verify_account(Account.authenticate(email, password))
+    verify_account(Account.authenticate(email, password, org_id))
   end
 
   @doc """
@@ -56,9 +56,13 @@ defmodule AcqdatApi.Account do
     end
   end
 
-  def validate_credentials(%User{email: email}, %{password: password}) do
-    Account.authenticate(email, password)
+  def validate_credentials(params, %{password: password}) do
+    Account.authenticate(params.email, password)
   end
+
+  # def validate_credentials(%UserSetting{email: email}, %{password: password}) do
+  #   Account.authenticate(email, password)
+  # end
 
   ############## private functions #####################
 

@@ -2,7 +2,7 @@ defmodule AcqdatCore.Domain.Account do
   @moduledoc """
   Exposes domain functions for authentication.
   """
-  alias AcqdatCore.Model.RoleManagement.User
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
   alias Acqdat.Schema.RoleManagement.User, as: UserSchema
   alias Comeonin.Argon2
 
@@ -11,12 +11,12 @@ defmodule AcqdatCore.Domain.Account do
 
   Returns user struct if found else returns not_found.
   """
-  @spec authenticate(String.t(), String.t()) ::
+  @spec authenticate(String.t(), String.t(), Integer.t()) ::
           {:ok, UserSchema.t()}
           | {:error, :not_found}
-  def authenticate(email, password) do
+  def authenticate(email, password, org_id) do
     email
-    |> User.get()
+    |> UserCredentials.get_by_email_n_org(org_id)
     |> verify_email(password)
   end
 
@@ -31,7 +31,7 @@ defmodule AcqdatCore.Domain.Account do
   defp verify_email(user, password) do
     case user.is_deleted do
       false ->
-        verify_password(user, Argon2.checkpw(password, user.password_hash))
+        verify_password(user, Argon2.checkpw(password, user.user_credentials.password_hash))
 
       true ->
         Argon2.dummy_checkpw()

@@ -8,7 +8,8 @@ defmodule AcqdatApiWeb.Validators.Auth do
   defparams(
     verify_login_credentials(%{
       email!: :string,
-      password!: :string
+      password!: :string,
+      org_id!: :integer
     })
   )
 

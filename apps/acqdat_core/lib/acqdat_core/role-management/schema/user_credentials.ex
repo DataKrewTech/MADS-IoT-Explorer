@@ -2,10 +2,8 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
   @moduledoc """
   Models a user credentials in acqdat.
   """
-
-  # |> validate_confirmation(:password)
-  #   |> validate_length(:password, min: @password_min_length)
   use AcqdatCore.Schema
+  alias Comeonin.Argon2
   alias AcqdatCore.Schema.RoleManagement.User
 
   @password_min_length 8
@@ -17,6 +15,8 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     field(:email, :string)
     field(:phone_number, :string)
     field(:password_hash, :string)
+    field(:password, :string, virtual: true)
+    field(:password_confirmation, :string, virtual: true)
 
     # associations
     has_many(:user, User)
@@ -24,8 +24,8 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(first_name email password_hash)a
-  @optional ~w(phone_number last_name)a
+  @required ~w(first_name email password password_confirmation)a
+  @optional ~w(phone_number last_name password_hash)a
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = user_cred, params) do
@@ -39,6 +39,9 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     changeset
     |> unique_constraint(:email, name: :acqdat_user_credentials_email_index)
     |> validate_format(:email, ~r/@/)
+    |> validate_confirmation(:password)
+    |> validate_length(:password, min: @password_min_length)
+    |> put_pass_hash()
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do

@@ -5,7 +5,6 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
 
   use AcqdatCore.Schema
   import Ecto.Query
-  alias Comeonin.Argon2
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
   alias AcqdatCore.Schema.RoleManagement.UserPolicy
   alias AcqdatCore.Schema.RoleManagement.UserCredentials
