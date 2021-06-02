@@ -5,7 +5,6 @@ defmodule AcqdatApi.Account do
 
   alias AcqdatCore.Domain.Account
   alias AcqdatApiWeb.Guardian
-  alias AcqdatCore.Schema.RoleManagement.UserSetting
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -56,13 +55,9 @@ defmodule AcqdatApi.Account do
     end
   end
 
-  def validate_credentials(params, %{password: password}) do
-    Account.authenticate(params.email, password)
+  def validate_credentials(params, %{password: password, org_id: org_id}) do
+    Account.authenticate(params.user_credentials.email, password, org_id)
   end
-
-  # def validate_credentials(%UserSetting{email: email}, %{password: password}) do
-  #   Account.authenticate(email, password)
-  # end
 
   ############## private functions #####################
 

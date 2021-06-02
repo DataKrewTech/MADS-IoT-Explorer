@@ -43,6 +43,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.RoleManagement.{
     User,
     UserSetting,
+    UserCredentials,
     Role,
     App,
     Invitation
@@ -74,12 +75,18 @@ defmodule AcqdatCore.Support.Factory do
 
   def user_factory() do
     %User{
+      role: build(:role),
+      org: build(:organisation),
+      user_credentials: build(:user_credentials)
+    }
+  end
+
+  def user_credentials_factory() do
+    %UserCredentials{
       first_name: sequence(:first_name, &"Tony-#{&1}"),
       last_name: sequence(:last_name, &"Stark-#{&1}"),
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
-      password_hash: "NOTASECRET",
-      role: build(:role),
-      org: build(:organisation)
+      password_hash: "NOTASECRET"
     }
   end
 

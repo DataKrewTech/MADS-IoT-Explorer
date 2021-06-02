@@ -4,6 +4,7 @@ defmodule AcqdatApiWeb.AuthController do
   import AcqdatApiWeb.Validators.Auth
   alias AcqdatApi.Account
   alias AcqdatApiWeb.AuthErrorHelper
+  alias AcqdatCore.Repo
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:validate_credentials]
 
@@ -63,7 +64,7 @@ defmodule AcqdatApiWeb.AuthController do
 
   def validate_credentials(conn, params) do
     changeset = verify_validate_params(params)
-    current_user = conn.assigns.current_user
+    current_user = conn.assigns.current_user |> Repo.preload([:user_credentials])
 
     with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
          {:validate, {:ok, user}} <- {:validate, Account.validate_credentials(current_user, data)} do
