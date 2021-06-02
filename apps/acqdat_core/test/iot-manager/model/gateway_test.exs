@@ -184,8 +184,9 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor4.gateway_id == gateway.id
     end
 
-    test "with nesteed parameter mapping" do
-
+    test "with nesteed parameter mapping", context do
+      %{sensors: sensors, gateway: gateway} = context
+      mapped_parameters = create_nested_parameters(sensors)
     end
   end
 
@@ -286,6 +287,67 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
         "entity_id" => sensor4.id,
         "type" => "value",
         "value" => sensor4.uuid
+      }
+    }
+  end
+
+  defp create_nested_parameters(sensors) do
+    [sensor1, sensor2, sensor3, _] = sensors
+    [param1, param2] = sensor1.sensor_type.parameters
+    [param3, param4] = sensor2.sensor_type.parameters
+    [param5, param6] = sensor3.sensor_type.parameters
+
+    %{
+      "axis_object" => %{
+        "type" => "object",
+        "value" => %{
+          "x_axis" => %{
+            "type" => "value",
+            "entity" => "sensor",
+            "entity_id" => sensor1.id,
+            "value" => param1.uuid
+          },
+          "z_axis" => %{
+            "type" => "list",
+            "value" => [
+              %{
+                "type" => "value",
+                "entity" => "sensor",
+                "entity_id" => sensor1.id,
+                "value" => param2.uuid
+              },
+              %{
+                "type" => "value",
+                "entity" => "sensor",
+                "entity_id" => sensor2.id,
+                "value" => param3.uuid
+              }
+            ]
+          },
+          "lambda" => %{
+            "type" => "object",
+            "value" => %{
+              "alpha" => %{
+                "type" => "value",
+                "entity" => "sensor",
+                "entity_id" => sensor2.id,
+                "value" => param4.uuid
+              },
+              "beta" => %{
+                "type" => "value",
+                "entity" => "sensor",
+                "entity_id" => sensor3.id,
+                "value" => param5.uuid
+              }
+            }
+          }
+        }
+      },
+      "y_axis" => %{
+        "type" => "value",
+        "entity" => "sensor",
+        "entity_id" => sensor3.id,
+        "value" => param6.uuid
       }
     }
   end
