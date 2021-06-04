@@ -1,6 +1,7 @@
 defmodule AcqdatApi.EntityManagement.Organisation do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
+  alias AcqdatCore.Model.RoleManagement.Role
   alias Ecto.Multi
   alias AcqdatCore.ElasticSearch
   import Tirexs.HTTP
@@ -36,10 +37,13 @@ defmodule AcqdatApi.EntityManagement.Organisation do
         OrgModel.create(params)
       end)
       |> Multi.run(:create_user, fn _, %{create_organisation: organisation} ->
+        role_id = Role.get_role_id("manager")
+
         user_details =
           params.user_details
           |> Map.put_new("org_id", organisation.id)
           |> Map.put_new("is_invited", false)
+          |> Map.replace!("role_id", role_id)
 
         UserModel.create(user_details)
       end)

@@ -18,6 +18,8 @@ defmodule AcqdatApi.RoleManagement.User do
   defdelegate update_user(user, params), to: UserModel
   defdelegate get_all(data, preloads), to: UserModel
   defdelegate get(user_id), to: UserModel
+
+  defdelegate get_organisation(user_id), to: UserModel
   defdelegate delete(user), to: UserModel
 
   def set_asset(user, %{assets: assets}) do
