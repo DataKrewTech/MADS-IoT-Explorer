@@ -13,40 +13,29 @@ defmodule AcqdatApi.RoleManagement.Invitation do
   def create(attrs, current_user) do
     invitation_details = invitation_details_attrs(attrs, current_user)
 
-    create_invitation(
-      InvitationModel.create_invitation(invitation_details),
-      invitation_details,
-      current_user
-    )
-  end
+    org_ids = UserModel.fetch_user_orgs_by_email(invitation_details["email"])
 
-  defp invitation_details_attrs(
-         %{
-           email: email,
-           apps: apps,
-           assets: assets,
-           org_id: org_id,
-           role_id: role_id,
-           group_ids: group_ids,
-           policies: policies
-         },
-         current_user
-       ) do
-    app_ids = Enum.map(apps || [], & &1["id"])
-    asset_ids = Enum.map(assets || [], & &1["id"])
+    if org_ids == [] do
+      create_invitation(
+        InvitationModel.create_invitation(invitation_details),
+        invitation_details,
+        current_user
+      )
+    else
+      {org_id, _} = Integer.parse(invitation_details["org_id"])
 
-    %{
-      "email" => email,
-      "app_ids" => app_ids,
-      "asset_ids" => asset_ids,
-      "group_ids" => group_ids,
-      "policies" => policies,
-      "inviter_email" => current_user.email,
-      "inviter_name" => "#{current_user.first_name} #{current_user.last_name}",
-      "inviter_id" => current_user.id,
-      "org_id" => org_id,
-      "role_id" => role_id
-    }
+      if Enum.member?(org_ids, org_id) do
+        create_invitation({:user_exists, ""}, "", "")
+      else
+        invitation_details = Map.put(invitation_details, "type", "existing_user")
+
+        create_invitation(
+          InvitationModel.create_invitation(invitation_details),
+          invitation_details,
+          current_user
+        )
+      end
+    end
   end
 
   def update(invitation, current_user, group_ids, policies) do
@@ -72,6 +61,36 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     {:error, %{error: extract_changeset_error(invitation)}}
   end
 
+  defp invitation_details_attrs(
+         %{
+           email: email,
+           apps: apps,
+           assets: assets,
+           org_id: org_id,
+           role_id: role_id,
+           group_ids: group_ids,
+           policies: policies
+         },
+         current_user
+       ) do
+    app_ids = Enum.map(apps || [], & &1["id"])
+    asset_ids = Enum.map(assets || [], & &1["id"])
+
+    %{
+      "email" => email,
+      "app_ids" => app_ids,
+      "asset_ids" => asset_ids,
+      "group_ids" => group_ids,
+      "policies" => policies,
+      "inviter_email" => current_user.user_credentials.email,
+      "inviter_name" =>
+        "#{current_user.user_credentials.first_name} #{current_user.user_credentials.last_name}",
+      "inviter_id" => current_user.id,
+      "org_id" => org_id,
+      "role_id" => role_id
+    }
+  end
+
   defp reinvitation_details_parsing(
          %Invitation{
            asset_ids: asset_ids,
@@ -87,8 +106,9 @@ defmodule AcqdatApi.RoleManagement.Invitation do
       "email" => email,
       "app_ids" => app_ids,
       "asset_ids" => asset_ids,
-      "inviter_email" => current_user.email,
-      "inviter_name" => "#{current_user.first_name} #{current_user.last_name}",
+      "inviter_email" => current_user.user_credentials.email,
+      "inviter_name" =>
+        "#{current_user.user_credentials.first_name} #{current_user.user_credentials.last_name}",
       "inviter_id" => current_user.id,
       "org_id" => org_id,
       "role_id" => role_id,
@@ -142,7 +162,7 @@ defmodule AcqdatApi.RoleManagement.Invitation do
        error: %{
          error:
            "Parameters provided to perform current action is either not valid or missing or not unique",
-         source: %{email: ["user with this email already exists"]},
+         source: %{email: ["user with this email already exists for the specified organisation"]},
          title: "Insufficient or not unique parameters"
        }
      }}

@@ -41,14 +41,6 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
   Validates identity and returns user_credentials
   """
   def get_by_email_n_org(email, org_id) do
-    # query = from(
-    #   cred in UserCredentials,
-    #   join: users in User,
-    #   on:
-    #     cred.id == users.user_credentials_id and cred.email == ^email and
-    #     users.org_id == ^org_id
-    # )
-
     query =
       from(
         user in User,

@@ -33,15 +33,9 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
   end
 
   def create_invitation(attrs \\ %{}) do
-    case check_for_existing_user(attrs["email"]) do
-      true ->
-        {:user_exists, "User already exists"}
-
-      false ->
-        %Invitation{}
-        |> Invitation.changeset(attrs)
-        |> Repo.insert()
-    end
+    %Invitation{}
+    |> Invitation.changeset(attrs)
+    |> Repo.insert()
   end
 
   def update_invitation(%Invitation{} = invitation, attrs \\ %{}) do

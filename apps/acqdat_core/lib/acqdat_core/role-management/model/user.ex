@@ -4,7 +4,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   """
 
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
-  alias AcqdatCore.Schema.RoleManagement.{User, App}
+  alias AcqdatCore.Schema.RoleManagement.{User, UserCredentials, App}
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Model.RoleManagement.GroupUser
@@ -32,7 +32,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case Repo.get(User, id) |> Repo.preload([:user_setting]) do
+    case Repo.get(User, id) |> Repo.preload([:user_setting, :user_credentials]) do
       nil ->
         {:error, "not found"}
 
@@ -207,6 +207,20 @@ defmodule AcqdatCore.Model.RoleManagement.User do
       )
 
     Repo.one!(query) |> Repo.preload(:org)
+  end
+
+  def fetch_user_orgs_by_email(email) do
+    query =
+      from(
+        user in User,
+        join: cred in UserCredentials,
+        on:
+          cred.id == user.user_credentials_id and cred.email == ^email and
+            user.is_deleted == false,
+        select: user.org_id
+      )
+
+    Repo.all(query)
   end
 
   def verify_email(user) do

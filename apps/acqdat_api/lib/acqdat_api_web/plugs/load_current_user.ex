@@ -7,7 +7,9 @@ defmodule AcqdatApiWeb.Plug.LoadCurrentUser do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    user = Repo.get(User, Guardian.Plug.current_resource(conn))
+    user =
+      Repo.get(User, Guardian.Plug.current_resource(conn)) |> Repo.preload([:user_credentials])
+
     assign(conn, :current_user, user)
   end
 end
