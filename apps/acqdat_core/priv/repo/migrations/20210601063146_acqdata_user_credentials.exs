@@ -53,14 +53,6 @@ defmodule AcqdatCore.Repo.Migrations.AcqdataUserCredentials do
   end
 
   def down do
-    transfer_user_credentials_data_to_user()
-    drop index(:users, [:user_credentials_id])
-    drop unique_index("acqdat_user_credentials", [:email])
-    alter table("users") do
-      remove(:user_credentials_id)
-    end
-    drop table("acqdat_user_credentials")
-
     alter table("users") do
       add(:first_name, :string)
       add(:last_name, :string)
@@ -68,14 +60,31 @@ defmodule AcqdatCore.Repo.Migrations.AcqdataUserCredentials do
       add(:password_hash, :string)
       add(:phone_number, :string)
     end
+    transfer_user_credentials_data_to_user()
+    drop index(:users, [:user_credentials_id])
+    drop unique_index("acqdat_user_credentials", [:email])
+    alter table("users") do
+      remove(:user_credentials_id)
+    end
+    drop table("acqdat_user_credentials")
   end
 
   defp transfer_user_credentials_data_to_user() do
     query =
       from(usr in UserCredentials,
       select: usr)
-
-    user_credentials =
+      require IEx
+      IEx.pry
+   query
+    |> Repo.all()
+    |> Enum.each(fn user ->
+      params = [first_name: user.first_name, last_name: user.last_name, email: user.email, password_hash: user.password_hash, phone_number: user.phone_number]
+      query = from(usr in TempUser,
+        where: usr.user_credentials_id == ^user.id,
+        select: usr)
+      query
+      |> Repo.update_all(set: params)
+    end)
   end
 
   defp create_user_credentials([first_name, last_name, email, password_hash, phone_number]) do
