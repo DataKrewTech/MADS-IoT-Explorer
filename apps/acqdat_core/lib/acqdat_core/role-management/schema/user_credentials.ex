@@ -24,8 +24,10 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     timestamps(type: :utc_datetime)
   end
 
-  @required ~w(first_name email password password_confirmation)a
-  @optional ~w(phone_number last_name password_hash)a
+  @required ~w(first_name email)a
+  # need to change and move password and password confirmation to
+  @optional ~w(phone_number password password_confirmation last_name password_hash)a
+  # required field once the migration is done
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = user_cred, params) do
