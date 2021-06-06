@@ -2,6 +2,8 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
   alias AcqdatCore.Schema.RoleManagement.{User, Role}
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
+  alias AcqdatCore.Model.RoleManagement.User, as: UserModel
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
   import Tirexs.HTTP
 
   def seed_user!() do
@@ -13,9 +15,13 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
       email: System.get_env("USER_EMAIL"),
       password: System.get_env("USER_PASSWORD"),
       password_confirmation: System.get_env("USER_PASSWORD"),
+    }
+    user_credentials_id = create_user_credentials(params)
+    params = %{
       org_id: org.id,
       role_id: role.id,
-      is_invited: false
+      is_invited: false,
+      user_credentials_id: user_credentials_id
     }
     user = User.changeset(%User{}, params)
     data = Repo.insert!(user, on_conflict: :nothing)
@@ -33,5 +39,10 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
       role_id: params.role_id,
       "join_field": %{"name": "user", "parent": org.id}
       )
+  end
+
+  defp create_user_credentials(params) do
+    {:ok, user_cred} = UserCredentials.create(params)
+    user_cred.id
   end
 end
