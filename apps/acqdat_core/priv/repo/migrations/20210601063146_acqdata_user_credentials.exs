@@ -73,15 +73,12 @@ defmodule AcqdatCore.Repo.Migrations.AcqdataUserCredentials do
     query =
       from(usr in UserCredentials,
       select: usr)
-      require IEx
-      IEx.pry
    query
     |> Repo.all()
     |> Enum.each(fn user ->
       params = [first_name: user.first_name, last_name: user.last_name, email: user.email, password_hash: user.password_hash, phone_number: user.phone_number]
       query = from(usr in TempUser,
-        where: usr.user_credentials_id == ^user.id,
-        select: usr)
+        where: usr.user_credentials_id == ^user.id)
       query
       |> Repo.update_all(set: params)
     end)
