@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
     line: %{
       visual: %{
         chart: [type: %{value: "line"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "14px"}]],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "14px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
         yAxis: [title: [text: %{}]],
         xAxis: [type: %{value: "datetime"}, title: [text: %{value: "Date"}]],
         rangeSelector: [selected: %{value: 1}],
@@ -85,7 +85,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
     end)
   end
 
-  def set_widget_data(key, widget_settings, data, widget_type) do
+  def set_widget_data(_key, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Stock Single line series",
       properties: %{},

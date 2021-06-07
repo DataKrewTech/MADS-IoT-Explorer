@@ -87,7 +87,7 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
     end)
   end
 
-  def set_widget_data(key, widget_settings, data, widget_type) do
+  def set_widget_data(_key, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Basic Column",
       properties: %{},

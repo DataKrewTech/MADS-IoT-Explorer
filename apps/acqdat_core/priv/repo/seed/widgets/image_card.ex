@@ -13,7 +13,7 @@ defmodule AcqdatCore.Seed.Widgets.ImageCard do
       visual: %{
         card: [type: %{value: "image card"}, backgroundColor: %{}, fontColor: %{}],
         title: [text: %{}, align: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#495057"}],
-        icon: [text: %{}, align: %{}],
+        image: [url: %{}, align: %{}],
         description: [text: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#212529"}, align: %{}],
         subtitle: [text: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#74788d"}, align: %{}]
       }
