@@ -12,14 +12,12 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("user_details.json", %{user_details: user_details}) do
     %{
       id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
       image: user_details.avatar,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
-      phone_number: user_details.phone_number,
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
+      user_credentials:
+        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
@@ -33,12 +31,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("user_details_without_user_setting.json", %{user_details: user_details}) do
     %{
       id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
       is_invited: user_details.is_invited,
-      phone_number: user_details.phone_number,
       role_id: user_details.role_id,
+      user_credentials:
+        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
@@ -52,13 +48,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("user_index.json", %{user: user_details}) do
     %{
       id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
       image: user_details.avatar,
       is_invited: user_details.is_invited,
-      phone_number: user_details.phone_number,
       role_id: user_details.role_id,
+      user_credentials:
+        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
       user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
@@ -77,6 +71,16 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       page_size: user_details.page_size,
       total_entries: user_details.total_entries,
       total_pages: user_details.total_pages
+    }
+  end
+
+  def render("user_credentials.json", %{user: user_credentials}) do
+    %{
+      user_credentials_id: user_credentials.id,
+      email: user_credentials.email,
+      first_name: user_credentials.first_name,
+      last_name: user_credentials.last_name,
+      phone_number: user_credentials.phone_number
     }
   end
 

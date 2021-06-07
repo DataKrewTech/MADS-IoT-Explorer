@@ -613,9 +613,9 @@
                                                                <tr>
                                                                   <td align="center" valign="middle" class="mcnButtonContent" style="font-family: 'Lato', sans-serif; font-size: 24px; padding: 20px;">
                                                                      <%= if @invitation_details["type"] == "existing_user" do %>
-                                                                        <a class="mcnButton " title="Join MADS" href="<%= System.get_env("FRONTEND_URL") %>/#/join-org/<%= @invitation_details["token"] %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Join MADS</a>
+                                                                        <a class="mcnButton " title="Join MADS" href="<%= System.get_env("FRONTEND_URL") %>/#/orgs/<%= @invitation_details["org_id"] %>/join-org/<%= @invitation_details["token"] %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Join MADS</a>
                                                                      <%= else %>
-                                                                        <a class="mcnButton " title="Join MADS" href="<%= System.get_env("FRONTEND_URL") %>/#/set-password/<%= @invitation_details["token"] %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Join MADS</a>
+                                                                        <a class="mcnButton " title="Join MADS" href="<%= System.get_env("FRONTEND_URL") %>/#/orgs/<%= @invitation_details["org_id"] %>/set-password/<%= @invitation_details["token"] %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Join MADS</a>
                                                                      <%= end %>
                                                                   </td>
                                                                </tr>
@@ -747,11 +747,11 @@
                                                                               <tr>
                                                                                  <%= if @invitation_details["type"] == "existing_user" do %>
                                                                                     <td valign="top" class="mcnTextContent" style="padding: 18px;color: #F2F2F2;font-family: 'Lato', sans-serif;font-size: 14px;font-weight: normal;text-align: center;">
-                                                                                    If you face trouble with the "Join MADS" button, you can copy and paste the following link into your browser: "<%= System.get_env("FRONTEND_URL") %>/#/join-org/<%= @invitation_details["token"] %>/"
+                                                                                    If you face trouble with the "Join MADS" button, you can copy and paste the following link into your browser: "<%= System.get_env("FRONTEND_URL") %>/#/orgs/<%= @invitation_details["org_id"] %>/join-org/<%= @invitation_details["token"] %>/"
                                                                                  </td>
                                                                                  <%= else %>
                                                                                     <td valign="top" class="mcnTextContent" style="padding: 18px;color: #F2F2F2;font-family: 'Lato', sans-serif;font-size: 14px;font-weight: normal;text-align: center;">
-                                                                                    If you face trouble with the "Join MADS" button, you can copy and paste the following link into your browser: "<%= System.get_env("FRONTEND_URL") %>/#/set-password/<%= @invitation_details["token"] %>/"
+                                                                                    If you face trouble with the "Join MADS" button, you can copy and paste the following link into your browser: "<%= System.get_env("FRONTEND_URL") %>/#/orgs/<%= @invitation_details["org_id"] %>/set-password/<%= @invitation_details["token"] %>/"
                                                                                  </td>
                                                                                  <%= end %>
                                                                                  

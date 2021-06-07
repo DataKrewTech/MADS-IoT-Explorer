@@ -223,6 +223,21 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     Repo.all(query)
   end
 
+  def fetch_user_by_email_n_org(email, org_id) do
+    query =
+      from(
+        user in User,
+        join: cred in UserCredentials,
+        on:
+          cred.id == user.user_credentials_id and
+            cred.email == ^email and
+            user.org_id == ^org_id,
+        select: user
+      )
+
+    Repo.one(query)
+  end
+
   def verify_email(user) do
     query =
       from(user in User,

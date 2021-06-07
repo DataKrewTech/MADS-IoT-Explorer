@@ -24,6 +24,16 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
     Repo.insert(changeset)
   end
 
+  def find_or_create(%{email: email} = params) do
+    case Repo.get_by(UserCredentials, email: email) do
+      nil ->
+        create(params)
+
+      user_credentials ->
+        {:ok, user_credentials}
+    end
+  end
+
   @doc """
   Returns a user by the supplied id.
   """

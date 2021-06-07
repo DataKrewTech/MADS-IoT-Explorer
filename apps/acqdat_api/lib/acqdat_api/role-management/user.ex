@@ -1,16 +1,14 @@
 defmodule AcqdatApi.RoleManagement.User do
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
   alias AcqdatCore.Model.RoleManagement.Invitation, as: InvitationModel
-  alias AcqdatCore.Schema.RoleManagement.Invitation
-  alias AcqdatCore.Model.RoleManagement.Policy
-  alias AcqdatCore.Schema.RoleManagement.GroupUser
-  alias AcqdatCore.Schema.RoleManagement.UserPolicy
-  alias AcqdatCore.Model.RoleManagement.UserGroup
+  alias AcqdatCore.Schema.RoleManagement.{Invitation, GroupUser, UserPolicy}
+  alias AcqdatCore.Model.RoleManagement.{UserCredentials, Policy, UserGroup}
   alias AcqdatCore.Repo
   alias Ecto.Multi
   import AcqdatApiWeb.Helpers
   import Tirexs.HTTP
   import AcqdatApiWeb.ResMessages
+  import Ecto.Query
 
   # NOTE: Currently, setting the token expiration time to be of 2 days(172800 secs)
   @token_expiration_max_age 172_800
@@ -26,6 +24,31 @@ defmodule AcqdatApi.RoleManagement.User do
 
   def set_apps(user, %{apps: apps}) do
     verify_user_apps(UserModel.set_apps(user, apps))
+  end
+
+  def create_identity(attrs) do
+    fetch_existing_invitation(attrs["token"], %{})
+  end
+
+  def create(attrs) do
+    %{
+      token: token,
+      password: password,
+      password_confirmation: password_confirmation,
+      first_name: first_name,
+      phone_number: phone_number,
+      last_name: last_name
+    } = attrs
+
+    user_details =
+      %{}
+      |> Map.put(:password, password)
+      |> Map.put(:password_confirmation, password_confirmation)
+      |> Map.put(:first_name, first_name)
+      |> Map.put(:last_name, last_name)
+      |> Map.put(:phone_number, phone_number)
+
+    fetch_existing_invitation(token, user_details)
   end
 
   defp verify_user_assets({:ok, user}) do
@@ -52,27 +75,6 @@ defmodule AcqdatApi.RoleManagement.User do
 
   defp verify_user_apps({:error, user}) do
     {:error, %{error: extract_changeset_error(user)}}
-  end
-
-  def create(attrs) do
-    %{
-      token: token,
-      password: password,
-      password_confirmation: password_confirmation,
-      first_name: first_name,
-      phone_number: phone_number,
-      last_name: last_name
-    } = attrs
-
-    user_details =
-      %{}
-      |> Map.put(:password, password)
-      |> Map.put(:password_confirmation, password_confirmation)
-      |> Map.put(:first_name, first_name)
-      |> Map.put(:last_name, last_name)
-      |> Map.put(:phone_number, phone_number)
-
-    fetch_existing_invitation(token, user_details)
   end
 
   defp fetch_existing_invitation(token, user_details) do
@@ -133,7 +135,7 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:policies, policies)
 
     # case to check if the invited user exist in our database and is being deleted previously
-    case UserModel.get(user_details.email) do
+    case UserModel.fetch_user_by_email_n_org(email, org_id) do
       nil -> non_existing_user(user_details, invitation)
       user -> existing_user(user.is_deleted, user, user_details, invitation)
     end
@@ -163,12 +165,16 @@ defmodule AcqdatApi.RoleManagement.User do
   end
 
   defp non_existing_user(user_details, invitation) do
-    # NOTE: Following two things are happeing inside this transaction:
+    # NOTE: Following two things are happening inside this transaction:
     # 1) UserCreation from token
     # 3) Invitation Record Deletions
     verify_user(
       Multi.new()
-      |> Multi.run(:create_user, fn _, _changes ->
+      |> Multi.run(:find_or_create_credentials, fn _, _changes ->
+        UserCredentials.find_or_create(user_details)
+      end)
+      |> Multi.run(:create_user, fn _, %{find_or_create_credentials: user_credentials} ->
+        user_details = user_details |> Map.put(:user_credentials_id, user_credentials.id)
         UserModel.create(user_details)
       end)
       |> Multi.run(:delete_invitation, fn _, _ ->
@@ -206,14 +212,15 @@ defmodule AcqdatApi.RoleManagement.User do
     case result do
       {:ok,
        %{
+         find_or_create_credentials: _user_credentials,
          create_user: user,
          delete_invitation: _delete_invitation,
          add_group_and_policies: _add_group_and_policies
        }} ->
-        {:ok, user}
+        {:ok, user |> Repo.preload([:user_credentials])}
 
       {:ok, %{update_user: user, delete_invitation: _delete_invitation}} ->
-        {:ok, user}
+        {:ok, user |> Repo.preload([:user_credentials])}
 
       {:ok, %{delete_invitation: _delete_invitation}} ->
         {:error, %{error: "User already exists"}}

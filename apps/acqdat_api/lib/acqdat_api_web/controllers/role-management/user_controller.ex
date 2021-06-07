@@ -77,6 +77,39 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
+  def create_identity(conn, params) do
+    case conn.status do
+      nil ->
+        [token | _] = conn |> get_req_header("invitation-token")
+
+        params =
+          params
+          |> Map.put("token", token)
+
+        case User.create_identity(params) do
+          {:ok, user} ->
+            Task.start_link(fn ->
+              ElasticSearch.create_user("organisation", user, %{id: user.org_id})
+            end)
+
+            conn
+            |> put_status(200)
+            |> render("user_details_without_user_setting.json", %{user_details: user})
+
+          {:error, error} ->
+            send_error(conn, 400, UserErrorHelper.error_message(:create_user_error, error.error))
+        end
+
+      404 ->
+        conn
+        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
+    end
+  end
+
   def search_users(conn, params) do
     case conn.status do
       nil ->
