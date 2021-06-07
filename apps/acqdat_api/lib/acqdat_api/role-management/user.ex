@@ -52,10 +52,12 @@ defmodule AcqdatApi.RoleManagement.User do
   end
 
   defp verify_user_assets({:ok, user}) do
+    user = Repo.preload(user, [:user_credentials])
+
     {:ok,
      %{
        assets: user.assets,
-       email: user.email,
+       email: user.user_credentials.email,
        id: user.id
      }}
   end
@@ -65,10 +67,12 @@ defmodule AcqdatApi.RoleManagement.User do
   end
 
   defp verify_user_apps({:ok, user}) do
+    user = Repo.preload(user, [:user_credentials])
+
     {:ok,
      %{
        apps: user.apps,
-       email: user.email,
+       email: user.user_credentials.email,
        id: user.id
      }}
   end
