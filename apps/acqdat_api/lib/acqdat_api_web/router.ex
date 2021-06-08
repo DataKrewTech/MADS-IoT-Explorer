@@ -67,6 +67,8 @@ defmodule AcqdatApiWeb.Router do
     pipe_through(:api)
     post "/verify-token", RoleManagement.InvitationController, :validate_token
     post("/sign-in", AuthController, :sign_in)
+    post("/orgs/:org_id/sign-in", AuthController, :org_sign_in)
+    post("/sign-up", AuthController, :register)
     post("/forgot_password", RoleManagement.ForgotPasswordController, :forgot_password)
     post("/orgs/:org_id/users", RoleManagement.UserController, :create)
     post("/orgs/:org_id/user_identities", RoleManagement.UserController, :create_identity)

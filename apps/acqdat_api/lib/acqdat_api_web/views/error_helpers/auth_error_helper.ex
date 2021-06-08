@@ -22,4 +22,12 @@ defmodule AcqdatApiWeb.AuthErrorHelper do
       source: nil
     }
   end
+
+  def error_message(:register_error, message) do
+    %{
+      title: "Invalid Params",
+      error: message,
+      source: nil
+    }
+  end
 end

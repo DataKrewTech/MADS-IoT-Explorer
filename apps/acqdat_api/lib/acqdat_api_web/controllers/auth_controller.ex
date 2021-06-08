@@ -7,6 +7,7 @@ defmodule AcqdatApiWeb.AuthController do
   alias AcqdatCore.Repo
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:validate_credentials]
+  plug AcqdatApiWeb.Plug.ValidateAuthToken when action in [:org_sign_in]
 
   def sign_in(conn, params) do
     changeset = verify_login_credentials(params)
@@ -22,6 +23,46 @@ defmodule AcqdatApiWeb.AuthController do
 
       {:login, {:error, message}} ->
         send_error(conn, 401, AuthErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def org_sign_in(conn, params) do
+    changeset = verify_org_login_credentials(params)
+
+    with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+         {:login, {:ok, result}} <-
+           {:login, Account.org_sign_in(data, conn.assigns[:credential_id])} do
+      conn
+      |> put_status(200)
+      |> render("org_signin.json", result)
+    else
+      {:extract, {:error, error}} ->
+        send_error(conn, 400, error)
+
+      {:login, {:error, message}} ->
+        send_error(conn, 401, AuthErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def register(conn, params) do
+    changeset = verify_register_credentials(params)
+
+    with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+         {:register, {:ok, result}} <- {:register, Account.register(data)} do
+      conn
+      |> put_status(200)
+      |> render("signup.json", result)
+    else
+      {:extract, {:error, error}} ->
+        error = extract_changeset_error(error)
+        send_error(conn, 400, error)
+
+      {:register, {:error, %{error: message}}} ->
+        send_error(conn, 400, AuthErrorHelper.error_message(:register_error, message))
+
+      {:register, {:error, message}} ->
+        error = extract_changeset_error(message)
+        send_error(conn, 400, error)
     end
   end
 

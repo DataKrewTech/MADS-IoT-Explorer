@@ -5,6 +5,9 @@ defmodule AcqdatApi.Account do
 
   alias AcqdatCore.Domain.Account
   alias AcqdatApiWeb.Guardian
+  alias AcqdatCore.Model.EntityManagement.Organisation
+  alias AcqdatCore.Model.RoleManagement.Requests
+  alias AcqdatCore.Model.RoleManagement.{UserCredentials, User}
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -18,9 +21,44 @@ defmodule AcqdatApi.Account do
   """
   @spec sign_in(map) :: {:ok, map} | {:error, String.t()}
   def sign_in(params) do
-    %{email: email, password: password, org_id: org_id} = params
+    %{email: email, password: password} = params
 
-    verify_account(Account.authenticate(email, password, org_id))
+    res = Account.authenticate(email, password)
+
+    case res do
+      {:ok, user} ->
+        {:ok, access_token, _claims} =
+          guardian_create_token(
+            user,
+            {@access_time_hours, :hours},
+            :access
+          )
+
+        org_ids = User.fetch_user_orgs_by_email(email)
+
+        {:ok,
+         %{
+           email: email,
+           credentials_id: user.id,
+           access_token: access_token,
+           orgs: Organisation.get_all_by_ids(org_ids)
+         }}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @doc """
+  Uses `email` and `password` supplied in params to verify the user.
+
+  Returns an `access_token`, `refresh_token` and `user_id` if the user
+  is authenticated.
+  If email and password not verified then returns unauthorized access.
+  """
+  @spec org_sign_in(map, Integer.t()) :: {:ok, map} | {:error, String.t()}
+  def org_sign_in(%{org_id: org_id}, credential_id) do
+    verify_account(Account.authenticate_identity(org_id, credential_id))
   end
 
   @doc """
@@ -52,6 +90,17 @@ defmodule AcqdatApi.Account do
     else
       {:error, _} = error ->
         error
+    end
+  end
+
+  def register(%{org_url: org_url} = params) do
+    orgs = Organisation.fetch_by_url(org_url)
+
+    if orgs == [] do
+      params = params |> Map.from_struct()
+      Requests.create(params)
+    else
+      {:error, %{error: "This Organisation Url has been already taken"}}
     end
   end
 

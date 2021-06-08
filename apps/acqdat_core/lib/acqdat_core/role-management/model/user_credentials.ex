@@ -63,6 +63,19 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
     Repo.one(query) |> Repo.preload([:user_credentials])
   end
 
+  def get_by_cred_n_org(cred_id, org_id) do
+    query =
+      from(
+        user in User,
+        join: cred in UserCredentials,
+        on:
+          cred.id == user.user_credentials_id and cred.id == ^cred_id and
+            user.org_id == ^org_id
+      )
+
+    Repo.one(query) |> Repo.preload([:user_credentials])
+  end
+
   @doc """
   Returns a user by the supplied email.
   """
