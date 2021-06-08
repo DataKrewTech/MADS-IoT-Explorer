@@ -26,10 +26,6 @@ defmodule AcqdatApi.RoleManagement.User do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 
-  def create_identity(attrs) do
-    fetch_existing_invitation(attrs["token"], %{})
-  end
-
   def create(attrs) do
     %{
       token: token,
@@ -49,6 +45,10 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:phone_number, phone_number)
 
     fetch_existing_invitation(token, user_details)
+  end
+
+  def create(%{token: token}) do
+    fetch_existing_invitation(token, %{})
   end
 
   defp verify_user_assets({:ok, user}) do

@@ -37,23 +37,33 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
-  def create(conn, %{"user" => user_params, "org_id" => org_id}) do
+  def create(conn, %{"org_id" => org_id} = params) do
     case conn.status do
       nil ->
         [token | _] = conn |> get_req_header("invitation-token")
 
-        user_params =
-          user_params
-          |> Map.put("token", token)
-          |> Map.put("org_id", org_id)
+        changeset =
+          if params["user"] do
+            user_params =
+              params["user"]
+              |> Map.put("token", token)
+              |> Map.put("org_id", org_id)
 
-        changeset = verify_create_params(user_params)
+            verify_create_params(user_params)
+          else
+            params =
+              params
+              |> Map.put("token", token)
+
+            verify_join_org_params(params)
+          end
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, user}} <- {:create, User.create(data)} do
-          Task.start_link(fn ->
-            ElasticSearch.create_user("organisation", user, %{id: user.org_id})
-          end)
+          # TODO: Need to implement this for elasticsearch as per new design
+          # Task.start_link(fn ->
+          #   ElasticSearch.create_user("organisation", user, %{id: user.org_id})
+          # end)
 
           conn
           |> put_status(200)
@@ -64,39 +74,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             send_error(conn, 400, error)
 
           {:create, {:error, error}} ->
-            send_error(conn, 400, UserErrorHelper.error_message(:create_user_error, error.error))
-        end
-
-      404 ->
-        conn
-        |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
-
-      401 ->
-        conn
-        |> send_error(401, UserErrorHelper.error_message(:unauthorized))
-    end
-  end
-
-  def create_identity(conn, params) do
-    case conn.status do
-      nil ->
-        [token | _] = conn |> get_req_header("invitation-token")
-
-        params =
-          params
-          |> Map.put("token", token)
-
-        case User.create_identity(params) do
-          {:ok, user} ->
-            Task.start_link(fn ->
-              ElasticSearch.create_user("organisation", user, %{id: user.org_id})
-            end)
-
-            conn
-            |> put_status(200)
-            |> render("user_details_without_user_setting.json", %{user_details: user})
-
-          {:error, error} ->
             send_error(conn, 400, UserErrorHelper.error_message(:create_user_error, error.error))
         end
 

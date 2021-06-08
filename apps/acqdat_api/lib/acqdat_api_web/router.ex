@@ -71,7 +71,6 @@ defmodule AcqdatApiWeb.Router do
     post("/sign-up", AuthController, :register)
     post("/forgot_password", RoleManagement.ForgotPasswordController, :forgot_password)
     post("/orgs/:org_id/users", RoleManagement.UserController, :create)
-    post("/orgs/:org_id/user_identities", RoleManagement.UserController, :create_identity)
   end
 
   scope "/", AcqdatApiWeb do
