@@ -45,6 +45,12 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     ModelHelper.paginated_response(org_data_with_preloads, paginated_org_data)
   end
 
+  def get_all_by_ids(org_ids) do
+    Organisation
+    |> where([org], org.id in ^org_ids)
+    |> Repo.all()
+  end
+
   def get(params) when is_map(params) do
     case Repo.get_by(Organisation, params) do
       nil ->
@@ -100,5 +106,14 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     # org = org |> Repo.preload(:apps)
     # org.apps
     App |> order_by(:id) |> Repo.all()
+  end
+
+  def fetch_by_url(url) do
+    query =
+      from(org in Organisation,
+        where: org.url == ^url
+      )
+
+    Repo.all(query)
   end
 end
