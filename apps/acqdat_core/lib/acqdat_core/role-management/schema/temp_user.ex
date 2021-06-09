@@ -39,7 +39,7 @@ defmodule AcqdatCore.Schema.RoleManagement.TempUser do
   end
 
   @required ~w(first_name email password is_invited password_confirmation role_id org_id)a
-  @optional ~w(password_hash is_deleted phone_number last_name avatar)a
+  @optional ~w(password_hash is_deleted phone_number last_name avatar user_credentials_id)a
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = user, params) do
