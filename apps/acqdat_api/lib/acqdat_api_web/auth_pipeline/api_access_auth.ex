@@ -26,13 +26,21 @@ defmodule AcqdatApiWeb.ApiAccessAuth do
         conn
 
       false ->
-        case provide_access(conn, user_id) do
+        case user == nil or
+               (user.org_id == conn.params["org_id"] and user.role.name == "orgadmin" and
+                  user.role.id == 2) do
           true ->
             conn
 
           false ->
-            conn
-            |> put_status(401)
+            case provide_access(conn, user_id) do
+              true ->
+                conn
+
+              false ->
+                conn
+                |> put_status(401)
+            end
         end
     end
   end
