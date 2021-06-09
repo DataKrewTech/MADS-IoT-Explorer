@@ -26,4 +26,18 @@ defmodule AcqdatCore.Model.RoleManagement.Role do
 
     Repo.one(query)
   end
+
+  def get_role(name) do
+    query =
+      from(role in Role,
+        where: role.name == ^name
+      )
+
+    Repo.one(query)
+  end
+
+  def update(role, params) do
+    changeset = Role.changeset(role, params)
+    Repo.update(changeset)
+  end
 end
