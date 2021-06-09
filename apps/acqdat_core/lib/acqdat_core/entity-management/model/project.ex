@@ -179,7 +179,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   def check_adminship(user_id) do
     user_details = Repo.get!(User, user_id) |> Repo.preload([:role])
 
-    case user_details.role.name == "admin" do
+    case user_details.role.name == "superadmin" do
       true -> true
       false -> false
     end
