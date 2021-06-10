@@ -1,9 +1,8 @@
-defmodule AcqdatApiWeb.RoleManagement.InvitationErrorHelper do
+defmodule AcqdatApiWeb.RoleManagement.RequestsErrorHelper do
   def error_message(:resource_not_found) do
     %{
-      title: "Invalid email or Invitation ID",
-      error:
-        "Either Invitation with this ID doesn't exists or User already exists with this email address",
+      title: "Invalid Request ID",
+      error: "Request with this ID doesn't exists",
       source: nil
     }
   end

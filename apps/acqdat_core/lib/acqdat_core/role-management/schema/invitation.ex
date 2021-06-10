@@ -19,6 +19,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
     field(:group_ids, {:array, :integer})
     field(:policies, {:array, :map})
     field(:type, :string, default: "new_user")
+    field(:metadata, :map)
 
     # associations
     belongs_to(:inviter, User, on_replace: :delete)
@@ -29,7 +30,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
   end
 
   @required ~w(email token salt inviter_id org_id role_id)a
-  @optional ~w(asset_ids group_ids policies app_ids token_valid type)a
+  @optional ~w(asset_ids group_ids policies app_ids token_valid type metadata)a
   @permitted @optional ++ @required
 
   @spec changeset(

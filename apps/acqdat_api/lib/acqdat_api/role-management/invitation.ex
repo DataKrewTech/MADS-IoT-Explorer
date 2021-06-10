@@ -91,6 +91,29 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     }
   end
 
+  defp invitation_details_attrs(
+         %{
+           email: email,
+           org_id: org_id,
+           role_id: role_id,
+           metadata: metadata,
+           type: type
+         },
+         current_user
+       ) do
+    %{
+      "email" => email,
+      "inviter_email" => current_user.user_credentials.email,
+      "inviter_name" =>
+        "#{current_user.user_credentials.first_name} #{current_user.user_credentials.last_name}",
+      "inviter_id" => current_user.id,
+      "org_id" => org_id,
+      "role_id" => role_id,
+      "metadata" => metadata,
+      "type" => type
+    }
+  end
+
   defp reinvitation_details_parsing(
          %Invitation{
            asset_ids: asset_ids,

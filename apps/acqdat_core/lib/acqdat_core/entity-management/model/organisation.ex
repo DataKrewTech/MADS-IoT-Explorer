@@ -116,4 +116,14 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
 
     Repo.all(query)
   end
+
+  def find_or_create_by_url(%{url: url} = params) do
+    case Repo.get_by(Organisation, url: url) do
+      nil ->
+        create(params)
+
+      org ->
+        {:ok, org}
+    end
+  end
 end

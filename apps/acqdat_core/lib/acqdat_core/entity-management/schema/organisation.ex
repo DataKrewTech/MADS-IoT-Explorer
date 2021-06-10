@@ -36,8 +36,8 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(name uuid)a
-  @optional_params ~w(description metadata url)a
+  @required_params ~w(name uuid url)a
+  @optional_params ~w(description metadata)a
 
   @permitted @required_params ++ @optional_params
 
