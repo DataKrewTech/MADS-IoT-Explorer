@@ -9,6 +9,12 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   alias AcqdatApiWeb.RoleManagement.RoleView
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
 
+  def render("user_creation.json", %{message: message}) do
+    %{
+      status: message
+    }
+  end
+
   def render("user_details.json", %{user_details: user_details}) do
     %{
       id: user_details.id,

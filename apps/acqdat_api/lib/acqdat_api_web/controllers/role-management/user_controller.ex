@@ -65,9 +65,16 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
           #   ElasticSearch.create_user("organisation", user, %{id: user.org_id})
           # end)
 
+          message =
+            if params["user"] do
+              "User Created Successfully"
+            else
+              "User has joined organisation Successfully"
+            end
+
           conn
           |> put_status(200)
-          |> render("user_details_without_user_setting.json", %{user_details: user})
+          |> render("user_creation.json", message: message)
         else
           {:extract, {:error, error}} ->
             error = extract_changeset_error(error)
