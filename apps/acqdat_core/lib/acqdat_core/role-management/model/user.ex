@@ -131,6 +131,15 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     |> run_transaction(params)
   end
 
+  def update_user(%User{} = user, params) do
+    changeset = User.update_changeset(user, params)
+
+    case Repo.update(changeset) do
+      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
+      {:error, message} -> {:error, message}
+    end
+  end
+
   defp run_transaction(multi_query, params) do
     result = Repo.transaction(multi_query)
 
@@ -151,15 +160,6 @@ defmodule AcqdatCore.Model.RoleManagement.User do
           :update_user_groups -> {:error, failed_value}
           :update_user_policies -> {:error, failed_value}
         end
-    end
-  end
-
-  def update_user(%User{} = user, params) do
-    changeset = User.update_changeset(user, params)
-
-    case Repo.update(changeset) do
-      {:ok, user} -> {:ok, user |> Repo.preload([:role, :org])}
-      {:error, message} -> {:error, message}
     end
   end
 

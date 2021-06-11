@@ -21,14 +21,13 @@ defmodule AcqdatApiWeb.ApiAccessAuth do
           nil
       end
 
-    case user == nil or (user.role.id == 1 and user.role.name == "superadmin") do
+    case user == nil or user.role.name == "superadmin" do
       true ->
         conn
 
       false ->
         case user == nil or
-               (user.org_id == conn.params["org_id"] and user.role.name == "orgadmin" and
-                  user.role.id == 2) do
+               (user.org_id == conn.params["org_id"] and user.role.name == "orgadmin") do
           true ->
             conn
 

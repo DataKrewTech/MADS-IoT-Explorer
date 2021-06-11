@@ -34,10 +34,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:creator, User, on_replace: :delete)
     has_many(:panels, Panel, on_replace: :delete)
+    has_one(:dashboard_export, DashboardExport)
 
     # embedded associations
     embeds_one(:settings, Settings, on_replace: :delete)
-    has_one(:dashboard_export, DashboardExport)
 
     timestamps(type: :utc_datetime)
   end

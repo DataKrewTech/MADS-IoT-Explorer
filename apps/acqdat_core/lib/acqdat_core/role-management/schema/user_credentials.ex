@@ -5,6 +5,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
   use AcqdatCore.Schema
   alias Comeonin.Argon2
   alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Schema.RoleManagement.UserCredentials.Metadata
 
   @password_min_length 8
   @type t :: %__MODULE__{}
@@ -20,6 +21,9 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
 
     # associations
     has_many(:user, User)
+
+    # embedded associations
+    embeds_one(:metadata, Metadata, on_replace: :delete)
 
     timestamps(type: :utc_datetime)
   end
@@ -44,6 +48,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     |> validate_confirmation(:password)
     |> validate_length(:password, min: @password_min_length)
     |> put_pass_hash()
+    |> cast_embed(:metadata, with: &Metadata.changeset/2)
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true} = changeset) do
@@ -59,4 +64,29 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
   end
 
   defp put_pass_hash(changeset), do: changeset
+end
+
+defmodule AcqdatCore.Schema.RoleManagement.UserCredentials.Metadata do
+  @moduledoc """
+  Embed schema for metadata related to Users.
+  """
+
+  use AcqdatCore.Schema
+
+  embedded_schema do
+    field(:job_title, :string)
+    field(:company, :string)
+    field(:company_size, :integer)
+    field(:industry, :string)
+    field(:level, :string)
+    field(:state, :string)
+    field(:country, :string)
+    field(:timezone, :string)
+  end
+
+  @permitted ~w(timezone job_title company company_size industry level state country)a
+
+  def changeset(%__MODULE__{} = metadata, params) do
+    metadata |> cast(params, @permitted)
+  end
 end
