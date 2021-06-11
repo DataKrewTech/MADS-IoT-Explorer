@@ -26,14 +26,11 @@ defmodule AcqdatApi.RoleManagement.User do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 
-  def create(attrs) do
+  def create(%{first_name: first_name, last_name: last_name, phone_number: phone_number} = attrs) do
     %{
       token: token,
       password: password,
-      password_confirmation: password_confirmation,
-      first_name: first_name,
-      phone_number: phone_number,
-      last_name: last_name
+      password_confirmation: password_confirmation
     } = attrs
 
     user_details =
@@ -43,6 +40,19 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:first_name, first_name)
       |> Map.put(:last_name, last_name)
       |> Map.put(:phone_number, phone_number)
+
+    fetch_existing_invitation(token, user_details)
+  end
+
+  def create(%{
+        token: token,
+        password: password,
+        password_confirmation: password_confirmation
+      }) do
+    user_details =
+      %{}
+      |> Map.put(:password, password)
+      |> Map.put(:password_confirmation, password_confirmation)
 
     fetch_existing_invitation(token, user_details)
   end
@@ -123,7 +133,8 @@ defmodule AcqdatApi.RoleManagement.User do
            org_id: org_id,
            role_id: role_id,
            group_ids: group_ids,
-           policies: policies
+           policies: policies,
+           metadata: metadata
          } = invitation,
          user_details
        ) do
@@ -137,6 +148,10 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:is_invited, true)
       |> Map.put(:group_ids, group_ids)
       |> Map.put(:policies, policies)
+      |> Map.put(:first_name, metadata["first_name"])
+      |> Map.put(:last_name, metadata["last_name"])
+      |> Map.put(:phone_number, metadata["phone_number"])
+      |> Map.put(:metadata, metadata)
 
     # case to check if the invited user exist in our database and is being deleted previously
     case UserModel.fetch_user_by_email_n_org(email, org_id) do
@@ -192,8 +207,8 @@ defmodule AcqdatApi.RoleManagement.User do
   end
 
   defp add_group_and_policies(user, user_details) do
-    policy_ids = Policy.extract_policies(user_details.policies)
-    group_ids = UserGroup.extract_groups(user_details.group_ids)
+    policy_ids = Policy.extract_policies(user_details.policies || [])
+    group_ids = UserGroup.extract_groups(user_details.group_ids || [])
 
     user_policy_params =
       Enum.reduce(policy_ids, [], fn policy_id, acc ->

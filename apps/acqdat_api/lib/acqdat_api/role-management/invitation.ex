@@ -22,9 +22,7 @@ defmodule AcqdatApi.RoleManagement.Invitation do
         current_user
       )
     else
-      {org_id, _} = Integer.parse(invitation_details["org_id"])
-
-      if Enum.member?(org_ids, org_id) do
+      if Enum.member?(org_ids, invitation_details["org_id"]) do
         create_invitation({:user_exists, ""}, "", "")
       else
         invitation_details = Map.put(invitation_details, "type", "existing_user")
@@ -86,7 +84,7 @@ defmodule AcqdatApi.RoleManagement.Invitation do
       "inviter_name" =>
         "#{current_user.user_credentials.first_name} #{current_user.user_credentials.last_name}",
       "inviter_id" => current_user.id,
-      "org_id" => "#{org_id}",
+      "org_id" => org_id,
       "role_id" => role_id
     }
   end
