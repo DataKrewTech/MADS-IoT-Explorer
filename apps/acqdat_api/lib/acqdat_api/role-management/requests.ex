@@ -4,6 +4,8 @@ defmodule AcqdatApi.RoleManagement.Requests do
   alias AcqdatCore.Model.EntityManagement.Organisation
   alias AcqdatApi.RoleManagement.Invitation
 
+  defdelegate get_all(data), to: Requests
+
   def validate(%{"status" => status}, _current_user, request) when status == "reject" do
     case Requests.update(request, %{status: "rejected"}) do
       {:ok, _} ->

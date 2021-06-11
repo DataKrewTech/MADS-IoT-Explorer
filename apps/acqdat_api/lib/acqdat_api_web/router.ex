@@ -80,7 +80,7 @@ defmodule AcqdatApiWeb.Router do
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
     post "/orgs/:org_id/validate_credentials", AuthController, :validate_credentials
-    resources "/requests", RoleManagement.RequestsController, only: [:update]
+    resources "/requests", RoleManagement.RequestsController, only: [:update, :index]
 
     resources "/roles", RoleManagement.RoleController, only: [:index]
 
