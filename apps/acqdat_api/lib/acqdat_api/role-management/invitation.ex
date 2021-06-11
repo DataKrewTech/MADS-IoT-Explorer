@@ -86,7 +86,7 @@ defmodule AcqdatApi.RoleManagement.Invitation do
       "inviter_name" =>
         "#{current_user.user_credentials.first_name} #{current_user.user_credentials.last_name}",
       "inviter_id" => current_user.id,
-      "org_id" => org_id,
+      "org_id" => "#{org_id}",
       "role_id" => role_id
     }
   end
