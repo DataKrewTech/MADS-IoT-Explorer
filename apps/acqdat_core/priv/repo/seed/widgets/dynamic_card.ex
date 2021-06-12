@@ -12,7 +12,7 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
     card: %{
       visual: %{
         card: [type: %{value: "dynamic card"}, backgroundColor: %{}, fontColor: %{}],
-        title: [text: %{}, align: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#495057"}],
+        title: [text: %{}, align: %{}, fontSize: %{value: "15px"}, fontColor: %{value: "#495057"}],
         unit: [text: %{}, align: %{}],
         image: [url: %{}, align: %{}],
         description: [text: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#212529"}, align: %{}],

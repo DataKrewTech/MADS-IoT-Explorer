@@ -59,7 +59,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               data_type: :object,
               user_controlled: false,
               properties: %{
-                text: %{data_type: :string, default_value: "", user_controlled: true},
+                text: %{data_type: :text, default_value: "", user_controlled: true},
                 align: %{
                   data_type: :select,
                   default_value: ["left", "right", "center", "top", "bottom"],

@@ -40,7 +40,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 text: %{data_type: :string, default_value: "", user_controlled: true},
                 align: %{
                   data_type: :select,
-                  default_value: ["left", "right", "center", "top", "bottom"],
+                  default_value: ["left", "right", "center"],
                   user_controlled: true
                 }
               }
@@ -80,7 +80,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 },
                 align: %{
                   data_type: :select,
-                  default_value: ["center", "left", "right", "top", "bottom"],
+                  default_value: ["left", "right", "center"],
                   user_controlled: true
                 },
                 verticalAlign: %{
@@ -193,7 +193,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 },
                 align: %{
                   data_type: :select,
-                  default_value: ["center", "right", "left", "top", "bottom"],
+                  default_value: ["left", "right", "center"],
                   user_controlled: true
                 }
               }
@@ -221,7 +221,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
                 },
                 align: %{
                   data_type: :select,
-                  default_value: ["center", "right", "left", "top", "bottom"],
+                  default_value: ["left", "right", "center"],
                   user_controlled: true
                 }
               }

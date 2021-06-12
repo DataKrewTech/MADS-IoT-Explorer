@@ -12,7 +12,7 @@ defmodule AcqdatCore.Seed.Widgets.SolidGauge do
     solidgauge: %{
       visual: %{
         chart: [type: %{value: "solidgauge"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "14px"}]],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "15px"}]],
         yAxis: [title: [text: %{},  y: %{data_type: :integer, value: -70, properties: %{}}], min: %{data_type: :integer, value: 0, properties: %{}},
                 max: %{data_type: :integer, value: 200, properties: %{}},
                 stops: %{
