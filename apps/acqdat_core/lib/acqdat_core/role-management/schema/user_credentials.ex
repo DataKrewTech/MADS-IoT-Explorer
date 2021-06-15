@@ -84,7 +84,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials.Metadata do
   embedded_schema do
     field(:job_title, :string)
     field(:company, :string)
-    field(:company_size, :integer)
+    field(:company_size, :string)
     field(:industry, :string)
     field(:level, :string)
     field(:state, :string)
