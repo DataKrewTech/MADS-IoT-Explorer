@@ -1,5 +1,5 @@
 defmodule AcqdatCore.Seed.RoleManagement.User do
-  alias AcqdatCore.Schema.RoleManagement.{User, Role}
+  alias AcqdatCore.Schema.RoleManagement.{User, UserCredentials, Role}
   alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Repo
   import Tirexs.HTTP
@@ -13,9 +13,16 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
       email: System.get_env("USER_EMAIL"),
       password: System.get_env("USER_PASSWORD"),
       password_confirmation: System.get_env("USER_PASSWORD"),
+    }
+
+    user_cred = UserCredentials.changeset(%UserCredentials{}, params)
+    data = Repo.insert!(user_cred)
+
+    params = %{
       org_id: org.id,
       role_id: role.id,
-      is_invited: false
+      is_invited: false,
+      user_credentials_id: data.id
     }
     user = User.changeset(%User{}, params)
     data = Repo.insert!(user, on_conflict: :nothing)
