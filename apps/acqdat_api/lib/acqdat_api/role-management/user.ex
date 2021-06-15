@@ -26,11 +26,12 @@ defmodule AcqdatApi.RoleManagement.User do
     verify_user_apps(UserModel.set_apps(user, apps))
   end
 
-  def create(%{first_name: first_name, last_name: last_name, phone_number: phone_number} = attrs) do
+  def create(%{first_name: first_name, last_name: last_name} = attrs) do
     %{
       token: token,
       password: password,
-      password_confirmation: password_confirmation
+      password_confirmation: password_confirmation,
+      phone_number: phone_number
     } = attrs
 
     user_details =
@@ -148,9 +149,9 @@ defmodule AcqdatApi.RoleManagement.User do
       |> Map.put(:is_invited, true)
       |> Map.put(:group_ids, group_ids)
       |> Map.put(:policies, policies)
-      |> Map.put(:first_name, metadata["first_name"])
-      |> Map.put(:last_name, metadata["last_name"])
-      |> Map.put(:phone_number, metadata["phone_number"])
+      |> Map.put(:first_name, metadata["first_name"] || user_details[:first_name])
+      |> Map.put(:last_name, metadata["last_name"] || user_details[:last_name])
+      |> Map.put(:phone_number, metadata["phone_number"] || user_details[:phone_number])
       |> Map.put(:metadata, metadata)
 
     # case to check if the invited user exist in our database and is being deleted previously
