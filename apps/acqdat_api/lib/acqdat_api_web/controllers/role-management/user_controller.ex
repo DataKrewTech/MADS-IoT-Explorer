@@ -176,14 +176,22 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   end
 
   def index(conn, params) do
+    changeset = verify_index_params(params)
+
     case conn.status do
       nil ->
-        with {:ok, hits} <- ElasticSearch.user_indexing(params) do
-          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+             {:list, users} <-
+               {:list, User.get_all(data, [:user_credentials, :role, :org, :user_setting])} do
+          conn
+          |> put_status(200)
+          |> render("index.json", users)
         else
-          {:error, message} ->
-            conn
-            |> send_error(404, UserErrorHelper.error_message(:elasticsearch, message))
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+
+          {:list, {:error, message}} ->
+            send_error(conn, 400, message)
         end
 
       404 ->
