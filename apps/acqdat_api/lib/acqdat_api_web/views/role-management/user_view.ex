@@ -21,7 +21,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       image: user_details.avatar,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       user_credentials:
         render_one(user_details.user_credentials, UserView, "user_credentials.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
@@ -59,7 +58,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       role_id: user_details.role_id,
       user_credentials:
         render_one(user_details.user_credentials, UserView, "user_credentials.json"),
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
@@ -87,14 +85,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       first_name: user_credentials.first_name,
       last_name: user_credentials.last_name,
       phone_number: user_credentials.phone_number
-    }
-  end
-
-  def render("user_setting.json", setting) do
-    %{
-      user_setting_id: setting.user.id,
-      visual_settings: Map.from_struct(setting.user.visual_settings),
-      data_settings: Map.from_struct(setting.user.data_settings)
     }
   end
 
@@ -128,7 +118,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       is_invited: user_details.is_invited,
       phone_number: user_details.phone_number,
       role_id: user_details.role_id,
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(user_details.role, RoleView, "role.json"),
       user_group: render_many(user_details.user_group, UserView, "user_group.json"),
       policies: render_many(user_details.policies, UserView, "user_policy.json"),

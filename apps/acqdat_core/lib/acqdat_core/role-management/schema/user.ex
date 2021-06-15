@@ -14,7 +14,6 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   @type t :: %__MODULE__{}
 
   schema("users") do
-    field(:avatar, :string)
     field(:is_deleted, :boolean, default: false)
     field(:is_invited, :boolean, default: false)
 
@@ -22,7 +21,6 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:user_credentials, UserCredentials)
     belongs_to(:role, Role)
-    has_one(:user_setting, UserSetting)
     has_many(:user_group, GroupUser)
     has_many(:policies, UserPolicy)
     many_to_many(:assets, Asset, join_through: "asset_user", on_replace: :delete)
@@ -32,7 +30,7 @@ defmodule AcqdatCore.Schema.RoleManagement.User do
   end
 
   @required ~w(user_credentials_id is_invited role_id org_id)a
-  @optional ~w(is_deleted avatar)a
+  @optional ~w(is_deleted)a
   @permitted @optional ++ @required
 
   def changeset(%__MODULE__{} = user, params) do
