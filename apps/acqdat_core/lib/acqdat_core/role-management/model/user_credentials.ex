@@ -24,6 +24,11 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
     Repo.insert(changeset)
   end
 
+  def update(credentials, params) do
+    changeset = UserCredentials.update_changeset(credentials, params)
+    Repo.update(changeset)
+  end
+
   def find_or_create(%{email: email} = params) do
     case Repo.get_by(UserCredentials, email: email) do
       nil ->
@@ -38,7 +43,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
   Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case Repo.get(UserCredentials, id) do
+    case Repo.get(UserCredentials, id) |> Repo.preload([:user_setting]) do
       nil ->
         {:error, "not found"}
 

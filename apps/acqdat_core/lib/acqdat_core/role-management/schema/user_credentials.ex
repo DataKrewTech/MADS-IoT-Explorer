@@ -4,7 +4,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
   """
   use AcqdatCore.Schema
   alias Comeonin.Argon2
-  alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Schema.RoleManagement.{User, UserSetting}
   alias AcqdatCore.Schema.RoleManagement.UserCredentials.Metadata
 
   @password_min_length 8
@@ -18,8 +18,10 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     field(:password_hash, :string)
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)
+    field(:avatar, :string)
 
     # associations
+    has_one(:user_setting, UserSetting)
     has_many(:user, User)
 
     # embedded associations
@@ -30,7 +32,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
 
   @required ~w(first_name email)a
   # need to change and move password and password confirmation to
-  @optional ~w(phone_number password password_confirmation last_name password_hash)a
+  @optional ~w(phone_number password password_confirmation last_name password_hash avatar)a
   # required field once the migration is done
   @permitted @optional ++ @required
 
@@ -38,6 +40,15 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     user_cred
     |> cast(params, @permitted)
     |> validate_required(@required)
+    |> validate_confirmation(:password)
+    |> validate_length(:password, min: @password_min_length)
+    |> put_pass_hash()
+    |> common_changeset(params)
+  end
+
+  def update_changeset(%__MODULE__{} = user_cred, params) do
+    user_cred
+    |> cast(params, @permitted)
     |> common_changeset(params)
   end
 
@@ -45,9 +56,6 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     changeset
     |> unique_constraint(:email, name: :acqdat_user_credentials_email_index)
     |> validate_format(:email, ~r/@/)
-    |> validate_confirmation(:password)
-    |> validate_length(:password, min: @password_min_length)
-    |> put_pass_hash()
     |> cast_embed(:metadata, with: &Metadata.changeset/2)
   end
 
@@ -76,15 +84,18 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials.Metadata do
   embedded_schema do
     field(:job_title, :string)
     field(:company, :string)
-    field(:company_size, :integer)
+    field(:company_size, :string)
     field(:industry, :string)
     field(:level, :string)
     field(:state, :string)
     field(:country, :string)
     field(:timezone, :string)
+    field(:secondary_email, :string)
+    field(:linkedin, :string)
+    field(:twitter, :string)
   end
 
-  @permitted ~w(timezone job_title company company_size industry level state country)a
+  @permitted ~w(timezone job_title company company_size industry level state country secondary_email linkedin twitter)a
 
   def changeset(%__MODULE__{} = metadata, params) do
     metadata |> cast(params, @permitted)

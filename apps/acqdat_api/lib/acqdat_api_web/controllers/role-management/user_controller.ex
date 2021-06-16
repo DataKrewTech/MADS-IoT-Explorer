@@ -67,9 +67,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
           message =
             if params["user"] do
-              "User Created Successfully"
+              "Your password has been set, please login"
             else
-              "User has joined organisation Successfully"
+              "You have successfully joined the organisation, please login"
             end
 
           conn

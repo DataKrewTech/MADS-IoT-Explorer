@@ -107,6 +107,9 @@ defmodule AcqdatApiWeb.Router do
     )
 
     resources "/uploads", ImageUploadController, only: [:create]
+
+    resources "/user_credentials", RoleManagement.UserCredentialsController,
+      only: [:show, :update]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation

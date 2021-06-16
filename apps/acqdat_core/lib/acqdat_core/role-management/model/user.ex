@@ -32,7 +32,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   Returns a user by the supplied id.
   """
   def get(id) when is_integer(id) do
-    case Repo.get(User, id) |> Repo.preload([:user_setting, :user_credentials]) do
+    case Repo.get(User, id) |> Repo.preload([:user_credentials]) do
       nil ->
         {:error, "not found"}
 

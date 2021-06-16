@@ -8,6 +8,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Organisation do
     params = %{
       name: "DataKrew",
       uuid: "4219171e733a11e9a42fe86a64b144a9",
+      url: "datakrew",
       inserted_at: DateTime.truncate(DateTime.utc_now(), :second),
       updated_at: DateTime.truncate(DateTime.utc_now(), :second)
     }

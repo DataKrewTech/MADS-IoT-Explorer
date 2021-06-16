@@ -23,7 +23,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSetting do
   """
 
   use AcqdatCore.Schema
-  alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Schema.RoleManagement.UserCredentials
   alias AcqdatCore.Schema.RoleManagement.UserSetting.VisualSettings
   alias AcqdatCore.Schema.RoleManagement.UserSetting.DataSettings
 
@@ -36,7 +36,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSetting do
 
   schema "user_settings" do
     # associations
-    belongs_to(:user, User)
+    belongs_to(:user_credentials, UserCredentials)
 
     # embedded associations
     embeds_one(:visual_settings, VisualSettings, on_replace: :delete)
@@ -45,7 +45,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSetting do
     timestamps()
   end
 
-  @required ~w(user_id)a
+  @required ~w(user_credentials_id)a
   @permitted @required
 
   @spec changeset(
@@ -82,9 +82,10 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSetting.VisualSettings do
     field(:taskbar_pos, :string)
     field(:desktop_wallpaper, :string)
     field(:desktop_app_shortcuts, {:array, :string})
+    field(:sidebar_color, :string)
   end
 
-  @permitted ~w(recently_visited_apps taskbar_pos desktop_wallpaper desktop_app_shortcuts)a
+  @permitted ~w(recently_visited_apps taskbar_pos desktop_wallpaper desktop_app_shortcuts sidebar_color)a
 
   def changeset(%__MODULE__{} = settings, params) do
     settings

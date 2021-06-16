@@ -18,10 +18,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("user_details.json", %{user_details: user_details}) do
     %{
       id: user_details.id,
-      image: user_details.avatar,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       user_credentials:
         render_one(user_details.user_credentials, UserView, "user_credentials.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
@@ -54,12 +52,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("user_index.json", %{user: user_details}) do
     %{
       id: user_details.id,
-      image: user_details.avatar,
       is_invited: user_details.is_invited,
       role_id: user_details.role_id,
       user_credentials:
         render_one(user_details.user_credentials, UserView, "user_credentials.json"),
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
@@ -90,14 +86,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("user_setting.json", setting) do
-    %{
-      user_setting_id: setting.user.id,
-      visual_settings: Map.from_struct(setting.user.visual_settings),
-      data_settings: Map.from_struct(setting.user.data_settings)
-    }
-  end
-
   def render("hits.json", %{hits: hits}) do
     user_ids = extract_ids(hits.hits)
     users = UserModel.get_for_view(user_ids)
@@ -124,11 +112,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       email: user_details.email,
       first_name: user_details.first_name,
       last_name: user_details.last_name,
-      image: user_details.avatar,
       is_invited: user_details.is_invited,
       phone_number: user_details.phone_number,
       role_id: user_details.role_id,
-      user_setting: render_one(user_details.user_setting, UserView, "user_setting.json"),
       role: render_one(user_details.role, RoleView, "role.json"),
       user_group: render_many(user_details.user_group, UserView, "user_group.json"),
       policies: render_many(user_details.policies, UserView, "user_policy.json"),
