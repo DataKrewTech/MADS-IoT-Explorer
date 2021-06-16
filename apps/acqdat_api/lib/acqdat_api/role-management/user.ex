@@ -236,6 +236,7 @@ defmodule AcqdatApi.RoleManagement.User do
          delete_invitation: _delete_invitation,
          add_group_and_policies: _add_group_and_policies
        }} ->
+        user_create_es(user)
         {:ok, user |> Repo.preload([:user_credentials])}
 
       {:ok, %{update_user: user, delete_invitation: _delete_invitation}} ->
@@ -262,15 +263,18 @@ defmodule AcqdatApi.RoleManagement.User do
   end
 
   def user_create_es(params) do
+    {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
+
     create_function = fn ->
       post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
         id: params.id,
-        email: params.email,
-        first_name: params.first_name,
-        last_name: params.last_name,
+        email: user_cred.email,
+        first_name: user_cred.first_name,
+        last_name: user_cred.last_name,
         org_id: params.org_id,
         is_invited: params.is_invited,
         role_id: params.role_id,
+        inserted_at: DateTime.to_unix(params.inserted_at),
         join_field: %{name: "user", parent: params.org_id}
       )
     end
