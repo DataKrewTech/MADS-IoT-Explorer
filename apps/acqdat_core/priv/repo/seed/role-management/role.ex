@@ -3,22 +3,29 @@ defmodule AcqdatCore.Seed.RoleManagement.Role do
   alias AcqdatCore.Model.RoleManagement.Role, as: RModel
   alias AcqdatCore.Repo
 
-  @roles ~w(admin manager member)s
+  #@roles ~w(admin manager member)s
   @new_roles ~w(superadmin orgadmin member)s
 
 
   def seed() do
-    Enum.each(@roles, fn role ->
+    Enum.each(@new_roles, fn role ->
       Role.changeset(%Role{}, %{name: role})
       |> Repo.insert()
     end)
   end
 
   def modify() do
-    Enum.zip(@roles, @new_roles)
-    |> Enum.each(fn {previous, current} ->
-      role = RModel.get_role(previous)
-      RModel.update(role, %{name: current})
+    RModel.get_all()
+    |> Enum.each(fn %{name: name} = role ->
+      current_role = case name do
+        "admin" ->
+          "superadmin"
+        "manager" ->
+          "orgadmin"
+        _ ->
+          "member"
+      end
+      RModel.update(role, %{name: current_role})
     end)
   end
 end
