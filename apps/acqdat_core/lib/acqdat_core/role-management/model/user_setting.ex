@@ -11,7 +11,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserSetting do
   Creates a UserSetting with the supplied params.
 
   Expects following keys.
-  - user_id
+  - user_credentials_id
   - visual_settings
     - taskbar_pos
     - recently_visited_apps

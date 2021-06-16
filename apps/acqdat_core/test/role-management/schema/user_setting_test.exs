@@ -8,16 +8,16 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSettingTest do
 
   describe "changeset/2" do
     setup do
-      user = insert(:user)
+      user_credentials = insert(:user_credentials)
 
-      [user: user]
+      [user_credentials: user_credentials]
     end
 
     test "returns a valid changeset", context do
-      %{user: user} = context
+      %{user_credentials: user_credentials} = context
 
       params = %{
-        user_id: user.id,
+        user_credentials_id: user_credentials.id,
         visual_settings: %{
           recently_visited_apps: ["data_cruncher", "support", "settings", "dashboard"],
           taskbar_pos: "left",
@@ -36,7 +36,7 @@ defmodule AcqdatCore.Schema.RoleManagement.UserSettingTest do
     test "returns error changeset on empty params" do
       changeset = UserSetting.changeset(%UserSetting{}, %{})
 
-      assert %{user_id: ["can't be blank"]} == errors_on(changeset)
+      assert %{user_credentials_id: ["can't be blank"]} == errors_on(changeset)
     end
   end
 end

@@ -3,6 +3,7 @@ defmodule AcqdatCore.Support.Factory do
   use AcqdatCore.Schema
   use AcqdatCore.Factory.Hierarchy
   use AcqdatCore.Factory.Alerts
+  alias Comeonin.Argon2
 
   alias AcqdatApiWeb.Guardian
   import Plug.Conn
@@ -82,11 +83,16 @@ defmodule AcqdatCore.Support.Factory do
   end
 
   def user_credentials_factory() do
+    password_hash = Argon2.add_hash("stark1234")
+
     %UserCredentials{
       first_name: sequence(:first_name, &"Tony-#{&1}"),
       last_name: sequence(:last_name, &"Stark-#{&1}"),
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
-      password_hash: "NOTASECRET"
+      password: "stark1234",
+      password_confirmation: "stark1234",
+      password_hash: password_hash.password_hash,
+      avatar: "image_url"
     }
   end
 

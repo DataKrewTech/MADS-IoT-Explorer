@@ -6,10 +6,10 @@ defmodule AcqdatCore.Model.RoleManagement.UserSettingTest do
 
   describe "create/1" do
     test "creates a user_setting with supplied params" do
-      user = insert(:user)
+      user_credentials = insert(:user_credentials)
 
       params = %{
-        user_id: user.id,
+        user_credentials_id: user_credentials.id,
         visual_settings: %{
           recently_visited_apps: ["data_cruncher", "support", "settings", "dashboard"],
           taskbar_pos: "left",
@@ -38,7 +38,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserSettingTest do
       }
 
       assert {:error, changeset} = UserSettingModel.create(params)
-      assert %{user_id: ["can't be blank"]} == errors_on(changeset)
+      assert %{user_credentials_id: ["can't be blank"]} == errors_on(changeset)
     end
   end
 
