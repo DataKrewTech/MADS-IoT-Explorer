@@ -56,10 +56,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       role_id: user_details.role_id,
       user_credentials:
         render_one(user_details.user_credentials, UserView, "user_credentials.json"),
-      role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
+      role: render_one(user_details.role, RoleView, "role.json"),
       org:
         render_one(
-          preload_org(user_details.org_id),
+          user_details.org,
           OrganisationView,
           "org.json"
         )
@@ -82,7 +82,9 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       email: user_credentials.email,
       first_name: user_credentials.first_name,
       last_name: user_credentials.last_name,
-      phone_number: user_credentials.phone_number
+      phone_number: user_credentials.phone_number,
+      metadata: user_credentials.metadata && Map.from_struct(user_credentials.metadata),
+      avatar: user_credentials.avatar
     }
   end
 
