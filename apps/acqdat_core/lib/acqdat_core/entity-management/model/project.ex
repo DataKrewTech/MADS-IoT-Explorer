@@ -92,7 +92,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     query =
       from(project in Project,
         where: project.id in ^project_ids,
-        preload: [:leads, :users, :creator],
+        preload: [creator: :user_credentials, leads: :user_credentials, users: :user_credentials],
         order_by: [desc: :inserted_at]
       )
 
@@ -190,7 +190,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
     case Repo.delete(changeset) do
       {:ok, project} ->
-        project = project |> Repo.preload([:leads, :users])
+        project = project |> Repo.preload(leads: :user_credentials, users: :user_credentials)
         {:ok, project}
 
       {:error, project} ->
