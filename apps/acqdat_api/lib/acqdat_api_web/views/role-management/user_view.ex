@@ -70,6 +70,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
       avatar: user_credentials.avatar,
       user_credentials_id: user_credentials.id,
       role: render_one(user_details.role, RoleView, "role.json"),
+      user_group: render_many(user_details.user_group, UserView, "user_group.json"),
+      policies: render_many(user_details.policies, UserView, "user_policy.json"),
       org:
         render_one(
           user_details.org,
