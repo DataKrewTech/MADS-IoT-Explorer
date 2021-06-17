@@ -48,7 +48,7 @@ defmodule AcqdatCore.Model.DataInsights.FactTables do
     query =
       from(fact_table in FactTables,
         left_join: pivot in assoc(fact_table, :pivot_tables),
-        preload: [:creator],
+        preload: [creator: :user_credentials],
         group_by: fact_table.id,
         where: fact_table.org_id == ^org_id and fact_table.project_id == ^project_id,
         order_by: fact_table.name,
