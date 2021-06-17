@@ -71,7 +71,7 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
       |> Repo.paginate(page: page_number, page_size: page_size)
 
     invitation_data_with_preloads =
-      paginated_invitation_data.entries |> Repo.preload([:role, :inviter])
+      paginated_invitation_data.entries |> Repo.preload([:role, inviter: :user_credentials])
 
     ModelHelper.paginated_response(invitation_data_with_preloads, paginated_invitation_data)
   end

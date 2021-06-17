@@ -147,10 +147,10 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     )
   end
 
-  defp delete_user({:ok, invitation}) do
-    case UserModel.get(invitation.email) do
+  defp delete_user({:ok, %{email: email, org_id: org_id}}) do
+    case UserModel.fetch_user_by_email_n_org(email, org_id) do
       nil ->
-        {:error, "User not Found"}
+        {:error, "User not Found in the specified organisation"}
 
       user ->
         UserModel.delete(user)

@@ -70,11 +70,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationView do
   def render("user.json", %{invitation: inviter}) do
     %{
       id: inviter.id,
-      email: inviter.email
+      email: inviter.user_credentials.email
     }
-  end
-
-  defp string_to_atom(params) do
-    for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
   end
 end
