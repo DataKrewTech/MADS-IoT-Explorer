@@ -9,7 +9,7 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
     role = Repo.get(Role, 1)
     params = %{
       first_name: "Datakrew",
-      last_name: "Admin",
+      last_name: "superadmin",
       email: System.get_env("USER_EMAIL"),
       password: System.get_env("USER_PASSWORD"),
       password_confirmation: System.get_env("USER_PASSWORD"),
