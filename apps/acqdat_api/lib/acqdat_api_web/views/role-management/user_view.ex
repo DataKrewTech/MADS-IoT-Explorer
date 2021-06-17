@@ -15,13 +15,21 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("user_details.json", %{user_details: user_details}) do
+  def render("user_details.json", %{
+        user_details: %{user_credentials: user_credentials} = user_details
+      }) do
     %{
       id: user_details.id,
+      email: user_credentials.email,
+      first_name: user_credentials.first_name,
+      last_name: user_credentials.last_name,
+      image: user_credentials.avatar,
       is_invited: user_details.is_invited,
+      phone_number: user_credentials.phone_number,
       role_id: user_details.role_id,
-      user_credentials:
-        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
+      avatar: user_credentials.avatar,
+      user_credentials_id: user_credentials.id,
+      metadata: user_credentials.metadata && Map.from_struct(user_credentials.metadata),
       role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
       org:
         render_one(
@@ -49,13 +57,18 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("user_index.json", %{user: user_details}) do
+  def render("user_index.json", %{user: %{user_credentials: user_credentials} = user_details}) do
     %{
       id: user_details.id,
+      email: user_credentials.email,
+      first_name: user_credentials.first_name,
+      last_name: user_credentials.last_name,
+      image: user_credentials.avatar,
       is_invited: user_details.is_invited,
+      phone_number: user_credentials.phone_number,
       role_id: user_details.role_id,
-      user_credentials:
-        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
+      avatar: user_credentials.avatar,
+      user_credentials_id: user_credentials.id,
       role: render_one(user_details.role, RoleView, "role.json"),
       org:
         render_one(
