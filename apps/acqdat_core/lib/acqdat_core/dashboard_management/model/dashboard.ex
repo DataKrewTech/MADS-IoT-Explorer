@@ -40,13 +40,16 @@ defmodule AcqdatCore.Model.DashboardManagement.Dashboard do
         {:error, "dashboard with this uuid not found"}
 
       dashboard ->
-        dashboard = dashboard |> Repo.preload([:panels, :dashboard_export, :creator])
+        dashboard =
+          dashboard |> Repo.preload([:panels, :dashboard_export, creator: :user_credentials])
+
         {:ok, dashboard |> reorder_panels}
     end
   end
 
   def get_with_panels(id) when is_integer(id) do
-    case Repo.get(Dashboard, id) |> Repo.preload([:panels, :dashboard_export, :creator]) do
+    case Repo.get(Dashboard, id)
+         |> Repo.preload([:panels, :dashboard_export, creator: :user_credentials]) do
       nil ->
         {:error, "dashboard with this id not found"}
 
