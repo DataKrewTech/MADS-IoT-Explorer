@@ -38,13 +38,13 @@ defmodule AcqdatApiWeb.DataCruncher.TasksView do
     }
   end
 
-  def render("user_details.json", %{tasks: user_details}) do
+  def render("user_details.json", %{tasks: %{user_credentials: user_cred} = user_details}) do
     %{
       id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
-      image: user_details.avatar,
+      email: user_cred.email,
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name,
+      image: user_cred.avatar,
       role_id: user_details.role_id
     }
   end

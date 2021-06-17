@@ -32,7 +32,7 @@ defmodule AcqdatCore.DataCruncher.Model.Task do
     query =
       from(task in Tasks,
         where: task.org_id == ^org_id and task.user_id == ^user_id,
-        preload: [:user]
+        preload: [user: :user_credentials]
       )
 
     query |> order_by(:id) |> Repo.paginate(page: page_number, page_size: page_size)
