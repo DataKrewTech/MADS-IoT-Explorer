@@ -40,23 +40,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
     }
   end
 
-  def render("user_details_without_user_setting.json", %{user_details: user_details}) do
-    %{
-      id: user_details.id,
-      is_invited: user_details.is_invited,
-      role_id: user_details.role_id,
-      user_credentials:
-        render_one(user_details.user_credentials, UserView, "user_credentials.json"),
-      role: render_one(preload_role(user_details.role_id), RoleView, "role.json"),
-      org:
-        render_one(
-          preload_org(user_details.org_id),
-          OrganisationView,
-          "org.json"
-        )
-    }
-  end
-
   def render("user_index.json", %{user: %{user_credentials: user_credentials} = user_details}) do
     %{
       id: user_details.id,
