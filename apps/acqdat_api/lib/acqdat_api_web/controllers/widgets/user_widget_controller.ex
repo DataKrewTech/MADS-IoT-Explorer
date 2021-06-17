@@ -47,7 +47,13 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, user_widget} = {:list, UserWidgetModel.get_all(data, [:user, :widget])}
+
+        {:list, user_widget} =
+          {:list,
+           UserWidgetModel.get_all(data,
+             user: :user_credentials,
+             widget: []
+           )}
 
         conn
         |> put_status(200)
