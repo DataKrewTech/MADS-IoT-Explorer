@@ -6,14 +6,14 @@ defmodule AcqdatApi.RoleManagement.UserSetting do
     %{
       visual_settings: visual_settings,
       data_settings: data_settings,
-      user_id: user_id
+      user_credentials_id: user_id
     } = params
 
     verify_user_setting(
       UserSettingModel.create(%{
         visual_settings: visual_settings,
         data_settings: data_settings,
-        user_id: user_id
+        user_credentials_id: user_id
       })
     )
   end
@@ -22,14 +22,14 @@ defmodule AcqdatApi.RoleManagement.UserSetting do
     %{
       visual_settings: visual_settings,
       data_settings: data_settings,
-      user_id: user_id
+      user_credentials_id: user_id
     } = params
 
     verify_user_setting(
       UserSettingModel.update(user_setting, %{
         visual_settings: visual_settings,
         data_settings: data_settings,
-        user_id: user_id
+        user_credentials_id: user_id
       })
     )
   end
@@ -39,7 +39,7 @@ defmodule AcqdatApi.RoleManagement.UserSetting do
      %{
        visual_settings: user_setting.visual_settings,
        data_settings: user_setting.data_settings,
-       user_id: user_setting.user_id,
+       user_id: user_setting.user_credentials_id,
        id: user_setting.id
      }}
   end

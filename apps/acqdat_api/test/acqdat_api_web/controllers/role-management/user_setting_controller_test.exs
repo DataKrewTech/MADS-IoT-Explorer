@@ -52,7 +52,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
                  "Parameters provided to perform current action is either not valid or missing or not unique",
                "source" => %{
                  "data_settings" => ["can't be blank"],
-                 "visual_settings" => ["can't be blank"]
+                 "visual_settings" => ["can't be blank"],
+                 "user_credentials_id" => ["can't be blank"]
                },
                "status_code" => 400,
                "title" => "Insufficient or not unique parameters"
@@ -61,17 +62,19 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
 
     test "user setting create", context do
       %{org: org, user: user, conn: conn} = context
+
       user_setting = build(:user_setting)
 
       data = %{
         visual_settings: user_setting.visual_settings,
-        data_settings: user_setting.data_settings
+        data_settings: user_setting.data_settings,
+        user_credentials_id: user.user_credentials_id
       }
 
       conn =
         post(
           conn,
-          Routes.user_settings_path(conn, :create, org.id, user.id),
+          Routes.user_settings_path(conn, :create, org.id, user.user_credentials_id),
           data
         )
 
@@ -116,7 +119,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
 
       {:ok, user_setting} =
         build(:user_setting)
-        |> Map.put(:user_id, user.id)
+        |> Map.put(:user_credentials_id, user.user_credentials_id)
         |> Map.from_struct()
         |> UserSetting.create()
 
@@ -127,7 +130,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
             conn,
             :update,
             org.id,
-            user_setting.user_id,
+            user.user_credentials_id,
             user_setting.id
           ),
           %{}
@@ -140,7 +143,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
                  "Parameters provided to perform current action is either not valid or missing or not unique",
                "source" => %{
                  "data_settings" => ["can't be blank"],
-                 "visual_settings" => ["can't be blank"]
+                 "visual_settings" => ["can't be blank"],
+                 "user_credentials_id" => ["can't be blank"]
                },
                "status_code" => 400,
                "title" => "Insufficient or not unique parameters"
@@ -152,7 +156,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
 
       {:ok, user_setting} =
         build(:user_setting)
-        |> Map.put(:user_id, user.id)
+        |> Map.put(:user_credentials_id, user.user_credentials_id)
         |> Map.from_struct()
         |> UserSetting.create()
 
@@ -166,7 +170,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
           id: user_setting.data_settings.id,
           latitude: 11.222,
           longitude: 23.23
-        }
+        },
+        user_credentials_id: user.user_credentials_id
       }
 
       conn =
@@ -176,7 +181,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserSettingControllerTest do
             conn,
             :update,
             org.id,
-            user_setting.user_id,
+            user_setting.user_credentials_id,
             user_setting.id
           ),
           data

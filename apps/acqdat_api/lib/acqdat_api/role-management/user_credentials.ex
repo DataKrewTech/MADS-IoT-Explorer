@@ -37,11 +37,7 @@ defmodule AcqdatApi.RoleManagement.UserCredentials do
   end
 
   defp verify_credentials({:ok, cred}) do
-    cred =
-      cred
-      |> Repo.preload([:user_setting])
-
-    {:ok, cred}
+    UserCredentials.get(cred.id)
   end
 
   defp verify_credentials({:error, cred}) do
