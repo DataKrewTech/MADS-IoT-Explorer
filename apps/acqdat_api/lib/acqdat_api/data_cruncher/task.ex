@@ -11,7 +11,12 @@ defmodule AcqdatApi.DataCruncher.Task do
 
   def create(%{"id" => id, "action" => action} = params)
       when action == "execute" or action == "register" do
-    verify_task(TaskModel.get(id), params)
+    if is_nil(id) do
+      {:error, "task id should not be null"}
+    else
+      {id, _} = Integer.parse("#{id}")
+      verify_task(TaskModel.get(id), params)
+    end
   end
 
   def update(%{"id" => id, "action" => action} = params)
