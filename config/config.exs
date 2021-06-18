@@ -69,10 +69,6 @@ config :ja_serializer,
 config :acqdat_core,
   ecto_repos: [AcqdatCore.Repo]
 
-# Configures twilio
-config :ex_twilio,
-  account_sid: {:system, "TWILIO_ACCOUNT_SID"},
-  auth_token: {:system, "TWILIO_AUTH_TOKEN"}
 
 # Vernemq db configuration
 config :vernemq_mads_plugin, read_repo: VernemqMadsPlugin.Repo

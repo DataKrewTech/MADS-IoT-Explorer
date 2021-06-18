@@ -85,3 +85,8 @@ config :acqdat_core,
          "SECRET_KEY_BASE",
          "i6gwFKNscK4NSgptoHjMsYjmbUgFLKzehE6EBUMOkZpWF5h7Ac+J+IT9z5XVtK/d"
        )
+
+# Configures twilio
+config :ex_twilio,
+  account_sid: {:system, "TWILIO_ACCOUNT_SID"},
+  auth_token: {:system, "TWILIO_AUTH_TOKEN"}

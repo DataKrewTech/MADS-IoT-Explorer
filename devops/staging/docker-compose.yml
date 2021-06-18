@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: acqdat_prod
     volumes: 
       - pgdata:/var/lib/postgresql/data
-  
+
   redis:
     image: redis:latest
     container_name: redis
@@ -74,20 +74,11 @@ services:
         hard: -1
     volumes:
       - esdata03:/usr/share/elasticsearch/data
-  
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.6.1
-    container_name: kibana
-    ports: 
-      - 5601:5601
-    environment: 
-      ELASTICSEARCH_URL: http://es01:9200
-      ELASTICSEARCH_HOSTS: http://es01:9200
 
   mqtt_broker:
     build:
       context: ../../
-      dockerfile: ./devops/local/mqtt/Dockerfile
+      dockerfile: ./devops/staging/mqtt/Dockerfile
       args:
         DB_USER: ${DB_USER}
         DB_PASSWORD: ${DB_PASSWORD}
@@ -102,13 +93,18 @@ services:
       - vernemqetc:/vernemq/etc
     depends_on:
       - database
-  
+
   web:
     build: 
       context: ../../
-      dockerfile: ./devops/local/Dockerfile
+      dockerfile: ./devops/staging/Dockerfile
+      args:
+        DASHBOARD_URL: ${DASHBOARD_URL}
+        MADS_URL: ${MADS_URL}
+        REDIS_PORT: ${REDIS_PORT}
+        HTTP_URL: ${HTTP_URL}
     restart: always
-    container_name: web_app
+    container_name: web
     ports:
       - 4001:4001
       - 4000:4000
@@ -125,13 +121,68 @@ services:
       GUARDIAN_API_KEY: ${GUARDIAN_API_KEY}
       GUARDIAN_IOT_KEY: ${GUARDIAN_IOT_KEY}
       ELASTIC_SEARCH_HOST: ${ELASTIC_SEARCH_HOST}
+      FRONTEND_URL: ${FRONTEND_URL}
       MQTT_HOST: ${MQTT_HOST}
       MQTT_PORT: ${MQTT_PORT}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      MQTT_EXPOSED_PORT: ${MQTT_EXPOSED_PORT}
+      MQTT_EXPOSED_HOSTNAME: ${MQTT_EXPOSED_HOSTNAME}
+      USER_EMAIL: ${USER_EMAIL}
+      USER_PASSWORD: ${USER_PASSWORD}
+
     depends_on:
       - database
       - es01
       - mqtt_broker
+      - nodered
       - redis
+
+  nodered:
+    image: nodered/node-red-docker:slim
+    container_name: nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./data/nodered:/data
+    depends_on:
+      - mosquitto
+    user: root:root
+  
+  mosquitto:
+    image: "eclipse-mosquitto"
+    container_name: mosquitto
+    ports:
+      - "1881:1881"
+      - "9001:9001"
+    volumes:
+      - ./data/mosquitto/config:/mosquitto/config
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
+  
+  nginx:
+    image: nginx:1.17-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./data/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on: 
+      - web
+  
+  certbot:
+    image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
 
 volumes: 
   esdata01:

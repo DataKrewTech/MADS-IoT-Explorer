@@ -11,18 +11,12 @@ use Mix.Config
 # before starting your production server.
 config :acqdat_iot, AcqdatIotWeb.Endpoint,
   load_from_system_env: true,
-  url: [
-    host: Application.get_env(:acqdat_iot, :app_hostname),
-    port: Application.get_env(:acqdat_iot, :app_port)
-  ],
+  http: [port: {:system, "APP_IOT_PORT"}],
   server: true
 
 config :acqdat_api, AcqdatApiWeb.Endpoint,
   load_from_system_env: true,
-  url: [
-    host: Application.get_env(:acqdat_api, :app_hostname),
-    port: Application.get_env(:acqdat_api, :app_port)
-  ],
+  http: [port: {:system, "APP_API_PORT"}],
   server: true
 
 # Do not print debug messages in production
@@ -30,7 +24,7 @@ config :logger,
   backends: [:console, Sentry.LoggerBackend]
 
 config :sentry,
-  dsn: "https://d50b1bc61203468183a3c5de23e07887@o285155.ingest.sentry.io/5662765",
+  dsn: "https://ec1c44bb8dc1402992e131ffed622ade@o542702.ingest.sentry.io/5662865",
   environment_name: :prod,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!(),
@@ -39,6 +33,7 @@ config :sentry,
   },
   included_environments: [:prod]
 
+config :tirexs, :uri, {:system, "ELASTIC_SEARCH_HOST"}
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
