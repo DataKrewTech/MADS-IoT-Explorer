@@ -47,7 +47,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
     test "search with valid params", %{conn: conn, new_user: user} do
       conn =
         get(conn, Routes.user_path(conn, :search_users, user.org_id), %{
-          "label" => user.first_name
+          "label" => user.user_credentials.first_name
         })
 
       result = conn |> json_response(200)
@@ -62,23 +62,22 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
         "id" => user.org.id,
         "name" => user.org.name,
         "type" => "Organisation",
-        "uuid" => user.org.uuid
+        "uuid" => user.org.uuid,
+        "url" => nil
       }
 
       assert result == %{
                "users" => [
                  %{
-                   "email" => user.email,
-                   "first_name" => user.first_name,
+                   "email" => user.user_credentials.email,
+                   "first_name" => user.user_credentials.first_name,
                    "id" => user.id,
-                   "last_name" => user.last_name,
+                   "last_name" => user.user_credentials.last_name,
                    "role_id" => user.role_id,
                    "org" => organisation,
                    "role" => role,
-                   "image" => nil,
                    "is_invited" => false,
                    "phone_number" => nil,
-                   "user_setting" => nil,
                    "policies" => [],
                    "user_group" => []
                  }
@@ -92,7 +91,7 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
       conn =
         get(conn, Routes.user_path(conn, :search_users, org.id), %{
-          "label" => user.first_name
+          "label" => user.user_credentials.first_name
         })
 
       result = conn |> json_response(200)
@@ -167,14 +166,14 @@ defmodule AcqdatApiWeb.ElasticSearch.UserControllerTest do
 
       assert length(users) == 3
       [ruser1, ruser2, ruser3] = users
-      assert ruser1["email"] == user1.email
-      assert ruser1["first_name"] == user1.first_name
+      assert ruser1["email"] == user1.user_credentials.email
+      assert ruser1["first_name"] == user1.user_credentials.first_name
       assert ruser1["id"] == user1.id
-      assert ruser2["email"] == user2.email
-      assert ruser2["first_name"] == user2.first_name
+      assert ruser2["email"] == user2.user_credentials.email
+      assert ruser2["first_name"] == user2.user_credentials.first_name
       assert ruser2["id"] == user2.id
-      assert ruser3["email"] == user3.email
-      assert ruser3["first_name"] == user3.first_name
+      assert ruser3["email"] == user3.user_credentials.email
+      assert ruser3["first_name"] == user3.user_credentials.first_name
       assert ruser3["id"] == user3.id
     end
   end

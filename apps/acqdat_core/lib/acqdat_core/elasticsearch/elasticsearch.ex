@@ -1,5 +1,6 @@
 defmodule AcqdatCore.ElasticSearch do
   import Tirexs.HTTP
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
 
   def create(type, params) do
     create_function = fn ->

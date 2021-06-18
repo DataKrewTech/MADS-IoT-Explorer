@@ -109,11 +109,11 @@ defmodule AcqdatApiWeb.RoleManagement.UserView do
   def render("source.json", %{user: user_details}) do
     %{
       id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
+      email: user_details.user_credentials.email,
+      first_name: user_details.user_credentials.first_name,
+      last_name: user_details.user_credentials.last_name,
       is_invited: user_details.is_invited,
-      phone_number: user_details.phone_number,
+      phone_number: user_details.user_credentials.phone_number,
       role_id: user_details.role_id,
       role: render_one(user_details.role, RoleView, "role.json"),
       user_group: render_many(user_details.user_group, UserView, "user_group.json"),

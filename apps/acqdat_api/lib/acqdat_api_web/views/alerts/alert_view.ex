@@ -51,7 +51,7 @@ defmodule AcqdatApiWeb.Alerts.AlertView do
   def render("recepient.json", %{alert: recepient}) do
     %{
       id: recepient.id,
-      email: recepient.email
+      email: recepient.user_credentials.email
     }
   end
 end
