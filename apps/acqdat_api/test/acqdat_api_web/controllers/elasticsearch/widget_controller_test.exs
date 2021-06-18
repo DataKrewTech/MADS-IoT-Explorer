@@ -66,7 +66,7 @@ defmodule AcqdatApiWeb.ElasticSearch.WidgetControllerTest do
     test "search with no hits", %{conn: conn, user: user} do
       conn =
         get(conn, Routes.widget_path(conn, :search_widget), %{
-          "label" => user.first_name
+          "label" => user.user_credentials.first_name
         })
 
       result = conn |> json_response(200)

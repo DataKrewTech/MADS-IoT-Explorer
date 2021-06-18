@@ -45,7 +45,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
     query =
       from(user in User,
         where: user.id in ^user_ids,
-        preload: [:user_setting, :org, :role, user_group: :user_group, policies: :policy],
+        preload: [:user_credentials, :org, :role, user_group: :user_group, policies: :policy],
         order_by: [desc: :inserted_at]
       )
 
@@ -206,7 +206,8 @@ defmodule AcqdatCore.Model.RoleManagement.User do
         select: user
       )
 
-    Repo.one!(query) |> Repo.preload(:org)
+    Repo.one!(query)
+    |> Repo.preload([:user_credentials, :org, :role, user_group: :user_group, policies: :policy])
   end
 
   def fetch_user_orgs_by_email(email) do

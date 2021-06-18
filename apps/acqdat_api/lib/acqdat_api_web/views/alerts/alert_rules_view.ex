@@ -56,7 +56,7 @@ defmodule AcqdatApiWeb.Alerts.AlertRulesView do
   def render("recepient.json", %{alert_rules: recepient}) do
     %{
       id: recepient.id,
-      email: recepient.email
+      email: recepient.user_credentials.email
     }
   end
 end

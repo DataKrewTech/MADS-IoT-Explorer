@@ -452,7 +452,8 @@ defmodule AcqdatCore.Support.Factory do
   # TODO: This should not be here, it's the responsibility of acqdat_api.
   def setup_conn(%{conn: conn}) do
     org = insert(:organisation)
-    user = insert(:user, org: org)
+    user_credentials = insert(:user_credentials)
+    user = insert(:user, org: org, user_credentials: user_credentials)
 
     {:ok, access_token, _claims} =
       guardian_create_token(
