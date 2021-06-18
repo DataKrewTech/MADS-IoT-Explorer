@@ -5,6 +5,7 @@ defmodule AcqdatApiWeb.AuthView do
   def render("signin.json", manifest) do
     %{
       access_token: manifest.access_token,
+      refresh_token: manifest.refresh_token,
       email: manifest.email,
       credentials_id: manifest.credentials_id,
       orgs: render_many(manifest.orgs, OrganisationView, "org.json")

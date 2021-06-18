@@ -34,6 +34,13 @@ defmodule AcqdatApi.Account do
             :access
           )
 
+        {:ok, refresh_token, _claims} =
+          guardian_create_token(
+            user,
+            {@refresh_time_weeks, :weeks},
+            :refresh
+          )
+
         org_ids = User.fetch_user_orgs_by_email(email)
 
         {:ok,
@@ -41,6 +48,7 @@ defmodule AcqdatApi.Account do
            email: email,
            credentials_id: user.id,
            access_token: access_token,
+           refresh_token: refresh_token,
            orgs: Organisation.get_all_by_ids(org_ids)
          }}
 
