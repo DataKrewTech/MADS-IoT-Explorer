@@ -1,5 +1,6 @@
 defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
   use AcqdatCore.Schema
+  import AcqdatCore.DataInsights.Domain.DataFilter
   alias AcqdatApi.DataInsights.Visualizations
 
   @behaviour AcqdatCore.DataInsights.Schema.Visualizations
@@ -103,13 +104,11 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
     value_name = "\"#{value["name"]}\""
 
     if filters != [] do
-      filter_data = pivot_filters_data_parsing(filters)
-
       """
         select * from
         (select #{values_data}
         from #{fact_table_name}
-        where #{filter_data}
+        #{filters_query(filters)}
         group by cube(#{rows_data})
         order by #{rows_data}) as pt where #{rows_data_empty_chc_cond}
       """
@@ -129,7 +128,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
     column_name = "\"#{column["name"]}\""
     [value | _] = values
 
-    filter_data1 = if filters != [], do: pivot_filters_data_parsing(filters), else: nil
+    filter_data1 = if filters != [], do: filters_query(filters), else: nil
 
     col_query =
       if column["action"] == "group" do
@@ -140,7 +139,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
             column["name"]
           }" as TEXT), 'YYYY-MM-DD hh24:mi:ss'))
               from #{fact_table_name}
-              where #{filter_data1}
+              #{filter_data1}
               group by 1
               order by 1;
           """
@@ -158,9 +157,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
         end
       else
         if filter_data1 do
-          "select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and #{
-            filter_data1
-          } order by 1"
+          "select distinct #{column_name} from #{fact_table_name} #{filter_data1} order by 1"
         else
           "select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null order by 1"
         end
@@ -188,18 +185,6 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
       if column["action"] == "group",
         do: rows_data |> Enum.join(","),
         else: rows_data |> Enum.map_join(",", &"\"#{&1}\"")
-
-    filter_data =
-      if filters != [] do
-        filter_data =
-          Enum.reduce(filters, "", fn filter, acc ->
-            # "Apartment" not in ('Apartment 2.2', 'Apartment 2.2')
-            entities = filter["entities"] |> Enum.map_join(",", &"\'\'#{&1}\'\'")
-            acc <> "\"#{filter["name"]}\" not in (#{entities}) and "
-          end)
-
-        String.slice(filter_data, 0..(String.length(filter_data) - 6))
-      end
 
     crosstab_query =
       if column["action"] == "group" do
@@ -231,16 +216,12 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
             "," <>
             column_name <> "," <> value_data_string(value)
 
-        if filter_data do
+        if filter_data1 do
           """
             SELECT *
-            FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} where \"#{
-            value["name"]
-          }\" is not null and #{filter_data} and #{column_name} is not null
+            FROM crosstab('SELECT #{selected_data} FROM #{fact_table_name} #{filter_data1}
             group by #{rows_data}, #{column_name} order by #{rows_data}, #{column_name}',
-            'select distinct #{column_name} from #{fact_table_name} where #{column_name} is not null and length(#{
-            column_name
-          }) > 0 and #{filter_data} order by 1')
+            'select distinct #{column_name} from #{fact_table_name} #{filter_data1} order by 1')
             AS final_result(#{columns_data})
           """
         else
@@ -279,7 +260,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
         col_name
       }" as TEXT), 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             COUNT(#{value_name}) as \"#{value["title"]}\"
-            FROM #{fact_table_name} where #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
+            FROM #{fact_table_name} #{filter_data1} GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{
         rows_data
       }", "datetime_data"
       """
@@ -318,7 +299,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
       }" as TEXT), 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(AVG(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name}
-            where #{filter_data1} and #{value_name} is not null
+            #{filter_data1}
             GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
@@ -356,7 +337,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
       }" as TEXT), 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(SUM(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name}
-            where #{filter_data1} and #{value_name} is not null
+            #{filter_data1}
             GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
@@ -394,7 +375,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
       }" as TEXT), 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
             ROUND(MIN(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name}
-            where #{filter_data1} and #{value_name} is not null
+            #{filter_data1}
             GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
@@ -432,7 +413,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
       }" as TEXT), 'YYYY-MM-DD hh24:mi:ss')) as "datetime_data",
              ROUND(MAX(CAST(#{value_name} as NUMERIC)), 2) as \"#{value["title"]}\"
             FROM #{fact_table_name} 
-            where #{filter_data1} and #{value_name} is not null
+            #{filter_data1}
             GROUP BY "#{rows_data}", "datetime_data" ORDER BY "#{rows_data}", "datetime_data"
       """
     else
@@ -462,17 +443,6 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.PivotTables do
           "," <> "#{value["action"]}(\"#{value["name"]}\") as \"#{value["title"]}\""
       end
     end)
-  end
-
-  defp pivot_filters_data_parsing(filters) do
-    filter_data =
-      Enum.reduce(filters, "", fn filter, acc ->
-        # "Apartment" not in ('Apartment 2.2', 'Apartment 2.2')
-        entities = filter["entities"] |> Enum.map_join(",", &"\'#{&1}\'")
-        acc <> "\"#{filter["name"]}\" not in (#{entities}) and "
-      end)
-
-    filter_data = filter_data |> String.slice(0..(String.length(filter_data) - 6))
   end
 
   defp value_data_string(value) do

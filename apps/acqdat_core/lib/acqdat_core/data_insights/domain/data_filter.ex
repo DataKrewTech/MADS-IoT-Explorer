@@ -65,7 +65,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataFilter do
         "\"#{filter["name"]}\" > CAST ( \'#{filter["values"]}\' AS timestamptz )"
 
       "on" ->
-        "\"#{filter["name"]}\" = CAST ( \'#{filter["values"]}\' AS timestamptz )"
+        "\"#{filter["name"]}\"::date = CAST ( \'#{filter["values"]}\' AS timestamptz )"
 
       "last" ->
         interval = "\'#{filter["values_by"]} #{filter["values"]}\'"
