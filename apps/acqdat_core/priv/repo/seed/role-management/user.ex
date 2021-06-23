@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Seed.RoleManagement.User do
   alias AcqdatCore.Schema.RoleManagement.{User, UserCredentials, Role}
   alias AcqdatCore.Schema.EntityManagement.Organisation
-  alias alias AcqdatCore.Model.RoleManagement.{UserCredentials}
+  alias AcqdatCore.Model.RoleManagement.{UserCredentials}
   alias AcqdatCore.Repo
   import Tirexs.HTTP
 
