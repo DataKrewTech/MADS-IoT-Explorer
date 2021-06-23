@@ -1,6 +1,7 @@
 defmodule AcqdatCore.Seed.RoleManagement.User do
   alias AcqdatCore.Schema.RoleManagement.{User, UserCredentials, Role}
   alias AcqdatCore.Schema.EntityManagement.Organisation
+  alias alias AcqdatCore.Model.RoleManagement.{UserCredentials}
   alias AcqdatCore.Repo
   import Tirexs.HTTP
 
@@ -30,15 +31,19 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
   end
 
   def create(type, params, org) do
-    post("#{type}/_doc/#{params.id}?routing=#{org.id}",
-      id: params.id,
-      email: params.email,
-      first_name: params.first_name,
-      last_name: params.last_name,
-      org_id: params.org_id,
-      is_invited: params.is_invited,
-      role_id: params.role_id,
-      "join_field": %{"name": "user", "parent": org.id}
+    {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
+
+
+      post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
+        id: params.id,
+        email: user_cred.email,
+        first_name: user_cred.first_name,
+        last_name: user_cred.last_name,
+        org_id: params.org_id,
+        is_invited: params.is_invited,
+        role_id: params.role_id,
+        inserted_at: DateTime.to_unix(params.inserted_at),
+        join_field: %{name: "user", parent: params.org_id}
       )
   end
 end
