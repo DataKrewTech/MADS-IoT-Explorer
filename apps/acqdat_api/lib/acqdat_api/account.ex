@@ -24,9 +24,13 @@ defmodule AcqdatApi.Account do
     %{email: email, password: password} = params
 
     res = Account.authenticate(email, password)
+    org_ids = User.fetch_user_orgs_by_email(email)
 
-    case res do
-      {:ok, user} ->
+    case {res, org_ids} do
+      {_, []} ->
+        {:error, "credentials not found"}
+
+      {{:ok, user}, _} ->
         {:ok, access_token, _claims} =
           guardian_create_token(
             user,
@@ -41,8 +45,6 @@ defmodule AcqdatApi.Account do
             :refresh
           )
 
-        org_ids = User.fetch_user_orgs_by_email(email)
-
         {:ok,
          %{
            email: email,
@@ -52,7 +54,7 @@ defmodule AcqdatApi.Account do
            orgs: Organisation.get_all_by_ids(org_ids)
          }}
 
-      {:error, error} ->
+      {{:error, error}, _} ->
         {:error, error}
     end
   end
