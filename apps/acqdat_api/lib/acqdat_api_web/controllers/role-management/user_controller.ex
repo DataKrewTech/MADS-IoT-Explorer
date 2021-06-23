@@ -263,7 +263,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
 
       403 ->
         conn
-        |> send_error(404, UserErrorHelper.error_message(:forbidden))
+        |> send_error(400, UserErrorHelper.error_message(:forbidden))
 
       404 ->
         conn
@@ -281,7 +281,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     logged_in_user = Guardian.Plug.current_resource(conn)
     {:ok, user} = User.get(String.to_integer(logged_in_user))
 
-    case user.role_id === 3 or user.id == String.to_integer(logged_in_user) do
+    case user.role_id === 3 and user.id == String.to_integer(logged_in_user) do
       true ->
         conn
         |> put_status(403)
