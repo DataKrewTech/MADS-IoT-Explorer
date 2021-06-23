@@ -32,8 +32,6 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
 
   def create(type, params, org) do
     {:ok, user_cred} = UCModel.get(params.user_credentials_id)
-
-
       post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
         id: params.id,
         email: user_cred.email,
