@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Seed.RoleManagement.User do
   alias AcqdatCore.Schema.RoleManagement.{User, UserCredentials, Role}
   alias AcqdatCore.Schema.EntityManagement.Organisation
-  alias AcqdatCore.Model.RoleManagement.{UserCredentials}
+  alias AcqdatCore.Model.RoleManagement.UserCredentials, as: UCModel
   alias AcqdatCore.Repo
   import Tirexs.HTTP
 
@@ -31,7 +31,7 @@ defmodule AcqdatCore.Seed.RoleManagement.User do
   end
 
   def create(type, params, org) do
-    {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
+    {:ok, user_cred} = UCModel.get(params.user_credentials_id)
 
 
       post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
