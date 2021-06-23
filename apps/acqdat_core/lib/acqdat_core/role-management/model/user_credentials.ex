@@ -29,6 +29,17 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
     Repo.update(changeset)
   end
 
+  def update_details(id, params) do
+    case Repo.get(UserCredentials, id) |> Repo.preload([:user_setting]) do
+      nil ->
+        {:error, "user_credentials not found"}
+
+      credentials ->
+        changeset = UserCredentials.changeset(credentials, params)
+        Repo.update(changeset)
+    end
+  end
+
   def find_or_create(%{email: email} = params) do
     case Repo.get_by(UserCredentials, email: email) do
       nil ->

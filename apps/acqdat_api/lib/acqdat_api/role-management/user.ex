@@ -166,6 +166,9 @@ defmodule AcqdatApi.RoleManagement.User do
 
     verify_user(
       Multi.new()
+      |> Multi.run(:update_user_cred, fn _, _changes ->
+        UserCredentials.update_details(user.user_credentials_id, user_details)
+      end)
       |> Multi.run(:update_user, fn _, _changes ->
         UserModel.update_user(user, user_details)
       end)
@@ -240,7 +243,7 @@ defmodule AcqdatApi.RoleManagement.User do
         user_create_es(user)
         {:ok, user |> Repo.preload([:user_credentials])}
 
-      {:ok, %{update_user: user, delete_invitation: _delete_invitation}} ->
+      {:ok, %{update_user_cred: _, update_user: user, delete_invitation: _delete_invitation}} ->
         {:ok, user |> Repo.preload([:user_credentials])}
 
       {:ok, %{delete_invitation: _delete_invitation}} ->
