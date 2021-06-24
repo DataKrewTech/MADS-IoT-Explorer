@@ -12,7 +12,7 @@ defmodule Virta.Component do
     use Virta.Component
 
     @impl true
-    def run(request_id, inport_args, _outport_args, _instance_pid) do
+    def run(request_id, inport_args, _outport_args, _instance_pid, _configuration) do
       value = Map.get(inport_args, :augend) + Map.get(inport_args, :addend)
       { request_id, :reply, %{ sum: value } }
     end
@@ -120,14 +120,17 @@ defmodule Virta.Component do
 
   The third argument contains a pid of the process that spawned this process.
 
+  The fourth argument holds the configuration for a particular node in the process
+  state using recursion.
+
   #### This is the method defined in __using__ macro
   ```elixir
-  def loop(inport_args, outport_args, instance_pid) do
+  def loop(inport_args, outport_args, instance_pid, configuration) do
     receive do
       { request_id, port, value } when port in @inports ->
         inport_args = Map.put(inport_args, port, value)
         if(@inports |> Enum.all?(&(Map.has_key?(inport_args, &1)))) do
-          run(request_id, inport_args, outport_args, instance_pid)
+          run(request_id, inport_args, outport_args, instance_pid, configuration)
           |> dispatch(outport_args)
           loop(%{}, outport_args, instance_pid)
         else
@@ -137,7 +140,7 @@ defmodule Virta.Component do
   end
   ```
   """
-  @callback loop(%{}, %{}, pid) :: any
+  @callback loop(%{}, %{}, pid, %{}) :: any
 
   @doc """
   Contains the logic of the component. Once executed, returns a token which is received by the
@@ -164,7 +167,7 @@ defmodule Virta.Component do
 
   #### Sample without outports
   ```elixir
-  def run(request_id, inport_args, _outport_args, _instance_pid) do
+  def run(request_id, inport_args, _outport_args, _instance_pid, _configuration) do
     value = Map.get(inport_args, :data)
     IO.inspect(value)
     { request_id, :noreply }
@@ -175,14 +178,14 @@ defmodule Virta.Component do
   The following example has two outports :sum, :product
 
   ```elixir
-  def run(request_id, inport_args, _outport_args, _instance_pid) do
+  def run(request_id, inport_args, _outport_args, _instance_pid, configurations) do
     sum = Map.get(inport_args, :augend) + Map.get(inport_args, :addend)
     product = Map.get(inport_args, :augend) * Map.get(inport_args, :addend)
     { request_id, :reply, %{ sum: sun, product: product } }
   end
   ```
   """
-  @callback run(any, %{}, %{}, pid) :: {any, :noreply} | {any, :reply, any}
+  @callback run(any, %{}, %{}, pid, %{}) :: {any, :noreply} | {any, :reply, any}
 
   @doc """
   Returns info about the component.
@@ -212,9 +215,10 @@ defmodule Virta.Component do
   @callback display_name() :: String.t()
 
   @doc """
-  Returns all the properties of a component in a map.
+  Returns all the properties of a component in a list of maps.
   """
-  @callback component_properties() :: map()
+  @callback component_properties() :: [map()]
+
 
   defmacro __using__(_) do
     quote do
@@ -251,18 +255,18 @@ defmodule Virta.Component do
       end
 
       @impl true
-      def loop(inport_args, outport_args, instance_pid) do
+      def loop(inport_args, outport_args, instance_pid, configuration) do
         receive do
           {request_id, port, value} when port in @inports ->
             inport_args = Map.put(inport_args, port, value)
 
             if(@inports |> Enum.all?(&Map.has_key?(inport_args, &1))) do
-              run(request_id, inport_args, outport_args, instance_pid)
+              run(request_id, inport_args, outport_args, instance_pid, configuration)
               |> dispatch(outport_args)
 
-              loop(%{}, outport_args, instance_pid)
+              loop(%{}, outport_args, instance_pid, configuration)
             else
-              loop(inport_args, outport_args, instance_pid)
+              loop(inport_args, outport_args, instance_pid, configuration)
             end
         end
       end
@@ -282,7 +286,7 @@ defmodule Virta.Component do
         end)
       end
 
-      defoverridable loop: 3
+      defoverridable loop: 4, dispatch: 2
     end
   end
 end

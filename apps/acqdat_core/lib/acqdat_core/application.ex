@@ -15,7 +15,8 @@ defmodule AcqdatCore.Application do
       AcqdatCore.IotManager.DataDump.Supervisor,
       {AcqdatCore.MQTT.Supervisor, strategy: :one_for_one},
       AcqdatCore.Domain.Notification.Supervisor,
-      AcqdatCore.Alerts.Supervisor
+      AcqdatCore.Alerts.Supervisor,
+      AcqdatCore.StreamLogic.ConsumerSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

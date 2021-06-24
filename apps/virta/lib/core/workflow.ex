@@ -94,6 +94,10 @@ defmodule Virta.Core.Workflow do
   """
   @inports []
   @outports []
+  @properties []
+  @category :default
+  @info "Used for invoking different workflow"
+  @display_name "Workflow"
 
   alias Virta.Node
   alias Virta.Instance
@@ -106,7 +110,8 @@ defmodule Virta.Core.Workflow do
   end
 
   @impl true
-  def loop(inport_args, outport_args, instance_pid, rinports \\ nil, rgraph_name \\ nil) do
+  def loop(inport_args, outport_args, instance_pid, _configuration,
+      rinports \\ nil, rgraph_name \\ nil) do
     receive do
       {request_id, port, value} ->
         {inports, graph_name} =
@@ -121,15 +126,15 @@ defmodule Virta.Core.Workflow do
 
         if(required_fields |> Enum.all?(&Map.has_key?(inport_args, &1))) do
           run(request_id, inport_args, outport_args, instance_pid)
-          loop(%{}, outport_args, instance_pid, inports, graph_name)
+          loop(%{}, outport_args, instance_pid, %{}, inports, graph_name)
         else
-          loop(inport_args, outport_args, instance_pid, inports, graph_name)
+          loop(inport_args, outport_args, instance_pid, %{}, inports, graph_name)
         end
     end
   end
 
   @impl true
-  def run(request_id, inport_args, outport_args, _instance_pid) do
+  def run(request_id, inport_args, outport_args, _instance_pid, __configuration \\ %{}) do
     {ref, message_configs} =
       outport_args
       |> Enum.filter(fn arg -> !Map.has_key?(arg, :pid) end)

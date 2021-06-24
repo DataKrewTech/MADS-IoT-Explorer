@@ -28,6 +28,7 @@ defmodule AcqdatApiWeb.Plug.LoadProject do
 
       :error ->
         conn
+        |> assign(:error_message, "project not found")
         |> put_status(404)
     end
   end

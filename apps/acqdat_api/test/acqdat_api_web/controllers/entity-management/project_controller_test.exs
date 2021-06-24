@@ -277,4 +277,70 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectControllerTest do
              }
     end
   end
+
+  describe "entity_list/2 " do
+    setup :setup_conn
+    setup do
+      project = insert(:project)
+      [project: project]
+    end
+
+    test "returns data for gateway entity", %{conn: conn, project: project} do
+      insert_list(3, :gateway, project: project, org: project.org)
+      org = project.org
+      params = %{entity: "gateway"}
+      conn = get(conn, Routes.project_path(conn, :entity_list, org.id, project.id), params)
+      result = conn |> json_response(200)
+      assert result["page_number"] == 1
+      assert result["total_entries"] == 3
+      [gateway | _] = result["gateways"]
+      assert gateway["type"] == "Gateway"
+    end
+
+    test "returns data for sensor entity", %{conn: conn, project: project} do
+      insert_list(3, :sensor, project: project, org: project.org)
+      org = project.org
+      params = %{entity: "sensor"}
+      conn = get(conn, Routes.project_path(conn, :entity_list, org.id, project.id), params)
+      result = conn |> json_response(200)
+      assert result["page_number"] == 1
+      assert result["total_entries"] == 3
+      assert Map.has_key?(result, "sensors")
+    end
+
+    test "returns data for sensor_type entity", %{conn: conn, project: project} do
+      insert_list(3, :sensor_type, project: project, org: project.org)
+      org = project.org
+      params = %{entity: "sensor_type"}
+      conn = get(conn, Routes.project_path(conn, :entity_list, org.id, project.id), params)
+      result = conn |> json_response(200)
+      assert result["page_number"] == 1
+      assert result["total_entries"] == 3
+      assert Map.has_key?(result, "sensors_type")
+    end
+
+    test "returns data for asset entity", %{conn: conn, project: project} do
+      insert_list(3, :asset, project: project, org: project.org)
+      org = project.org
+      params = %{entity: "asset"}
+      conn = get(conn, Routes.project_path(conn, :entity_list, org.id, project.id),
+        params)
+      result = conn |> json_response(200)
+      assert result["page_number"] == 1
+      assert result["total_entries"] == 3
+      assert Map.has_key?(result, "assets")
+    end
+
+    test "returns data for asset_type entity", %{conn: conn, project: project} do
+      insert_list(3, :asset_type, project: project, org: project.org)
+      org = project.org
+      params = %{entity: "asset_type"}
+      conn = get(conn, Routes.project_path(conn, :entity_list, org.id, project.id),
+        params)
+      result = conn |> json_response(200)
+      assert result["page_number"] == 1
+      assert result["total_entries"] == 3
+      assert Map.has_key?(result, "asset_types")
+    end
+  end
 end

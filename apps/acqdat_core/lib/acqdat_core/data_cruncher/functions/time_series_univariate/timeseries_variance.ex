@@ -16,7 +16,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSVariance do
   use Virta.Component
   alias AcqdatCore.Repo
 
-  def run(request_id, inport_args, _outport_args, _instance_pid) do
+  def run(request_id, inport_args, _outport_args, _instance_pid, _configurations) do
     data_source = Map.get(inport_args, :ts_datasource)
     result = process_data(data_source)
     {request_id, :reply, %{tsvariance: result}}

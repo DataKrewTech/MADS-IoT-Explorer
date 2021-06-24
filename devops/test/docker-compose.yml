@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "acqdat_core"
+      POSTGRES_DB: "acqdat_core_dev"
     volumes: 
       - pgdata:/var/lib/postgresql/data
   
@@ -36,9 +36,31 @@ services:
       - esdata01:/usr/share/elasticsearch/data
     ports:
       - 127.0.0.1:9200:9200
+
+  mqtt_broker:
+    build:
+      context: ../../
+      dockerfile: ./devops/test/mqtt/Dockerfile
+      args:
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+    restart: always
+    ports:
+      - 1882:1883
+    volumes:
+      - vernemqdata:/vernemq/data
+      - vernemqlogs:/vernemq/logs
+      - vernemqetc:/vernemq/etc
+    depends_on:
+      - database
   
 volumes: 
   esdata01:
     driver: local
   pgdata:
   redis-data:
+  vernemqdata:
+  vernemqlogs:
+  vernemqetc:

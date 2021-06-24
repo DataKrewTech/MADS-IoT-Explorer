@@ -25,4 +25,15 @@ defmodule AcqdatApiWeb.Validators.EntityManagement.Project do
       org_id!: :integer
     })
   )
+
+  defparams(
+    verify_entity_list(%{
+      page_size: :integer,
+      page_number: :integer,
+      org_id!: :integer,
+      project_id!: :integer,
+      entity!: :string
+    })
+  )
+
 end

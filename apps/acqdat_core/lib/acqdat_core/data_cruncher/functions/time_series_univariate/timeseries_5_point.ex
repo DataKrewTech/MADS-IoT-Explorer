@@ -30,7 +30,7 @@ defmodule AcqdatCore.DataCruncher.Functions.TSFivepointSummary do
 
   @impl true
   # TODO: Need to implement run method of ts_five_point_summary
-  def run(request_id, _inport_args, _outport_args, _instance_pid) do
+  def run(request_id, _inport_args, _outport_args, _instance_pid, _configurations) do
     result = %{}
     {request_id, :reply, %{summary_five_point: result}}
   end

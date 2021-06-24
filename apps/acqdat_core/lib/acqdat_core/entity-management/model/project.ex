@@ -6,10 +6,27 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   alias AcqdatCore.Model.EntityManagement.Sensor, as: SensorModel
   alias AcqdatCore.Model.Helper, as: ModelHelper
   alias AcqdatCore.Repo
+  alias Ecto.Multi
+  alias AcqdatCore.Ntools.Kafka
+  alias AcqdatCore.Ntools.Kafka.Topic
 
   def create(params) do
     changeset = Project.changeset(%Project{}, params)
-    Repo.insert(changeset)
+    # create a dynamic supervisor to monitor all the rule chains of this
+    # project
+
+    Multi.new()
+    |> Multi.run(:create_telemetry_topic, fn _repo, _params ->
+      create_project_telemetry_topic(params)
+    end)
+    |> Multi.insert(:insert_project, changeset)
+    |> Repo.transaction()
+    |> case do
+      {:error, _failed_operation, failed_value, _changes} ->
+        {:error, failed_value}
+      {:ok, %{insert_project: project}} ->
+        {:ok, project}
+    end
   end
 
   def return_archived_count() do
@@ -185,12 +202,20 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     end
   end
 
+  @doc """
+  Deletes a project.
+
+  Also, deletes the topics associated with this project in kafka.
+  """
   def delete(project) do
     changeset = Project.delete_changeset(project)
 
     case Repo.delete(changeset) do
       {:ok, project} ->
         project = project |> Repo.preload(leads: :user_credentials, users: :user_credentials)
+        topic = "project-#{project.uuid}-telemetry"
+        KafkaEx.delete_topics([topic])
+        project = project |> Repo.preload([:leads, :users])
         {:ok, project}
 
       {:error, project} ->
@@ -276,5 +301,14 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
           }
         ]
     end)
+  end
+
+  def create_project_telemetry_topic(project) do
+    topic = %Topic{
+      topic_name: "project-#{project.uuid}-telemetry",
+      num_partitions: 1,
+      replication_factor: 3
+    }
+    Kafka.create_topics([topic])
   end
 end

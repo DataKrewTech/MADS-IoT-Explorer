@@ -9,6 +9,10 @@ defmodule Virta.Core.Out do
 
   @inports []
   @outports []
+  @properties []
+  @category :default
+  @info "Serves as output collection for a workflow"
+  @display_name "In"
 
   use Virta.Component
 
@@ -18,7 +22,7 @@ defmodule Virta.Core.Out do
   end
 
   @impl true
-  def loop(inport_args, outport_args, instance_pid) do
+  def loop(inport_args, outport_args, instance_pid, _configuration) do
     receive do
       {request_id, port, value} ->
         inport_args = Map.put(inport_args, port, value)
@@ -26,15 +30,16 @@ defmodule Virta.Core.Out do
 
         if(required_fields |> Enum.all?(&Map.has_key?(inport_args, &1))) do
           run(request_id, inport_args, outport_args, instance_pid)
-          loop(%{}, outport_args, instance_pid)
+          loop(%{}, outport_args, instance_pid, %{})
         else
-          loop(inport_args, outport_args, instance_pid)
+          loop(inport_args, outport_args, instance_pid, %{})
         end
     end
   end
 
   @impl true
-  def run(request_id, inport_args, _outport_args, instance_pid) do
+  def run(request_id, inport_args, _outport_args, instance_pid,
+      _configuration \\ %{}) do
     send(instance_pid, {request_id, :output, inport_args})
   end
 end

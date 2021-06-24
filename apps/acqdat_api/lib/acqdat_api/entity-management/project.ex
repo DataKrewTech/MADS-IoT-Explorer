@@ -1,7 +1,23 @@
 defmodule AcqdatApi.EntityManagement.Project do
+
+  import AcqdatApiWeb.Helpers
   alias AcqdatCore.Model.EntityManagement.Project, as: ProjectModel
   alias AcqdatCore.Repo
-  import AcqdatApiWeb.Helpers
+  alias AcqdatCore.Model.IotManager.Gateway
+  alias AcqdatCore.Model.EntityManagement.{
+    Asset,
+    AssetType,
+    Sensor,
+    SensorType
+  }
+  alias AcqdatApiWeb.EntityManagement.{
+    AssetView,
+    AssetTypeView,
+    SensorView,
+    SensorTypeView
+  }
+  alias AcqdatApiWeb.IotManager.GatewayView
+
 
   defdelegate get_all(data, preloads), to: ProjectModel
   defdelegate get_all_archived(data, preloads), to: ProjectModel
@@ -32,6 +48,26 @@ defmodule AcqdatApi.EntityManagement.Project do
     user_list = project.leads ++ project.users ++ [project.creator]
     user_list |> Enum.uniq()
   end
+
+
+  def entity_list(%{entity: "gateway"}=params) do
+    {GatewayView, Gateway.get_all(params, [:org, :project, :sensors])}
+  end
+  def entity_list(%{entity: "sensor"}=params) do
+    {SensorView, Sensor.get_all_by_project_n_org(params)}
+  end
+def entity_list(%{entity: "sensor_type"} = params) do
+    {SensorTypeView, SensorType.get_all(params)}
+  end
+  def entity_list(%{entity: "asset"} = params) do
+    {AssetView, Asset.get_all(params)}
+  end
+  def entity_list(%{entity: "asset_type"} = params) do
+    {AssetTypeView, AssetType.get_all(params, [:org, :project])}
+  end
+  def entity_list(_), do: {:none, []}
+
+  ############## private functions ##################
 
   defp project_create_attrs(
          %{

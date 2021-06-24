@@ -226,7 +226,31 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     end
   end
 
-  ############################# private functions ###########################
+  def entity_list(conn, params) do
+    case conn.status do
+      nil ->
+        changeset = verify_entity_list(params)
+        with {:extract, {:ok, params}} <- {:extract, extract_changeset_data(changeset)} do
+          case Project.entity_list(params) do
+            {:none, []} ->
+              send_error(conn, 404, %{error: "no matching entities found"})
+            {view, data} ->
+              conn
+              |> put_status(200)
+              |> put_view(view)
+              |> render("index.json", data)
+          end
+        else
+          {:extract, {:error, error}} ->
+            send_error(conn, 400, error)
+        end
+      404 ->
+        conn
+        |> send_error(404, "Resource Not Found")
+    end
+  end
+
+  ########################## private functions ##############
 
   defp update_image(conn, project, params) do
     avatar =
