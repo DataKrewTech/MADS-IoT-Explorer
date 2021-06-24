@@ -6,6 +6,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   import Ecto.Query
   import Ecto.Query.API, only: [count: 1]
   alias AcqdatCore.Repo
+  alias AcqdatCore.Schema.EntityManagement.Organisation
   alias AcqdatCore.Schema.EntityManagement.Asset
   alias AcqdatCore.Schema.EntityManagement.AssetType
   alias AcqdatCore.Schema.EntityManagement.Project
@@ -24,8 +25,16 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   Calculates all the parameters to be checked for an organisation and stores
   them in the database.
   """
-  def measure_and_dump(org_id, options \\ []) do
+  def measure_and_dump() do
+    orgs = Repo.all(Organisation)
 
+  end
+
+  def assimilate_all_metrics(org_id) do
+    org_id
+    |> entity_manifest()
+    |> Map.merge(dashboard_manifest(org_id))
+    |> Map.merge(data_insights_manifest(org_id))
   end
 
   # Get projects, assets, asset_types, sensors, sensor_types, gateways,
@@ -49,14 +58,14 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
           metadata: %{data: sensor_result.sensor_type_meta}},
         assets: %{count: asset_result.asset_count,
           metadata: %{data: asset_result.asset_meta}},
-        asset_types: %{count: asset_result.asset__type_count,
+        asset_types: %{count: asset_result.asset_type_count,
           metadata: %{data: asset_result.asset_type_meta}},
         projects: %{count: project_result.project_count,
-          metadata: %{data: asset_result.project_meta}},
+          metadata: %{data: project_result.project_meta}},
         gateways: %{count: project_result.gateway_count,
           metadata: %{data: project_result.gateway_meta}},
         active_parameters: %{
-          count: parameters_result.count,
+          count: parameters_result.parameter_count,
           metadata: parameters_result.parameter_meta
         }
       }
@@ -69,14 +78,16 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
     dashboard_results = parse_dashboard_parameters(query)
 
     %{
-      dashbaords: %{count: dashboard_results.dashboard_count,
-        metadata: %{data: dashboard_results.dashboard_meta},
-      },
-      panels:  %{count: dashboard_results.panel_count,
-        metadata: %{data: dashboard_results.panel_meta},
-      },
-      widgets:  %{count: dashboard_results.widget_count,
-        metadata: %{data: dashboard_results.widget_meta},
+      dashboards: %{
+        dashboards: %{count: dashboard_results.dashboard_count,
+          metadata: %{data: dashboard_results.dashboard_meta},
+        },
+        panels:  %{count: dashboard_results.panel_count,
+          metadata: %{data: dashboard_results.panel_meta},
+        },
+        widgets:  %{count: dashboard_results.widget_count,
+          metadata: %{data: dashboard_results.widget_meta},
+        }
       }
     }
   end
@@ -86,11 +97,13 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
     query = data_insights_query(org_id)
     results = parse_data_insights_query(query)
 
-    %{
-      fact_tables: %{count: results.fact_table_count,
-        metadata: %{data: results.fact_table_meta}},
-      visualisations: %{count: results.visualisation_count,
-        metadata: %{data: results.visualisation_meta}
+    %{ data_insights:
+      %{
+        fact_tables: %{count: results.fact_table_count,
+          metadata: %{data: results.fact_table_meta}},
+        visualisations: %{count: results.visualisation_count,
+          metadata: %{data: results.visualisation_meta}
+        }
       }
     }
   end
@@ -154,8 +167,8 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   # particular day. See `AcqdatCore.Schema.EntityManagement.SensorsData`
   # and `AcqdatCore.Schema.EntityManagement.Sensors`.
   def parameters_query(org_id, time) do
-    start_time = Timex.beginning_of_day(time)
-    end_time = Timex.end_of_day(time)
+    start_time = Timex.shift(time, days: -1)
+    end_time = time
 
     subquery1 = from(
       sensor_data in SensorsData,
