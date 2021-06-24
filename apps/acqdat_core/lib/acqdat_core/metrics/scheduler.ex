@@ -14,14 +14,12 @@ defmodule AcqdatCore.Metrics.SchedulerSupervisor do
 end
 
 defmodule AcqdatCore.Metrics.Scheduler do
-  use GenServer
-  alias AcqdatCore.Metrics.OrgMetrics
 
   @moduledoc """
   Runs a cron task to add the metrics for an organisation in the metrics table.
   """
-
   use GenServer
+  alias AcqdatCore.Metrics.OrgMetrics
 
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)

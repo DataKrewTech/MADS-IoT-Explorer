@@ -27,14 +27,15 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   """
   def measure_and_dump() do
     orgs = Repo.all(Organisation)
-
+    stream = Task.async_stream(orgs, &assimilate_all_metrics/1, ordered: false)
+    Enum.to_list(stream)
   end
 
-  def assimilate_all_metrics(org_id) do
-    org_id
+  def assimilate_all_metrics(org) do
+    org.id
     |> entity_manifest()
-    |> Map.merge(dashboard_manifest(org_id))
-    |> Map.merge(data_insights_manifest(org_id))
+    |> Map.merge(dashboard_manifest(org.id))
+    |> Map.merge(data_insights_manifest(org.id))
   end
 
   # Get projects, assets, asset_types, sensors, sensor_types, gateways,
