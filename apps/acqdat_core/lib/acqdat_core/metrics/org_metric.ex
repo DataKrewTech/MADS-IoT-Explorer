@@ -32,10 +32,10 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   end
 
   def assimilate_all_metrics(org) do
-    org.id
-    |> entity_manifest()
-    |> Map.merge(dashboard_manifest(org.id))
-    |> Map.merge(data_insights_manifest(org.id))
+    data = org.id
+      |> entity_manifest()
+      |> Map.merge(dashboard_manifest(org.id))
+      |> Map.merge(data_insights_manifest(org.id))
   end
 
   # Get projects, assets, asset_types, sensors, sensor_types, gateways,
