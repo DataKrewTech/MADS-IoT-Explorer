@@ -120,23 +120,23 @@ defmodule AcqdatApiWeb.Router do
     resources "/user_groups", RoleManagement.UserGroupController, except: [:new, :edit]
     post "/group_policies", RoleManagement.UserGroupController, :group_policies
 
-    post(
-      "/dashboards/:dashboard_id/export",
-      DashboardManagement.DashboardExportController,
-      :create
-    )
+    # post(
+    #   "/dashboards/:dashboard_id/export",
+    #   DashboardManagement.DashboardExportController,
+    #   :create
+    # )
 
-    put(
-      "/dashboards/:dashboard_id/export/:dashboard_uuid",
-      DashboardManagement.DashboardExportController,
-      :update
-    )
+    # put(
+    #   "/dashboards/:dashboard_id/export/:dashboard_uuid",
+    #   DashboardManagement.DashboardExportController,
+    #   :update
+    # )
 
-    get(
-      "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
-      DashboardManagement.DashboardExportController,
-      :show_credentials
-    )
+    # get(
+    #   "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
+    #   DashboardManagement.DashboardExportController,
+    #   :show_credentials
+    # )
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
 
@@ -235,43 +235,101 @@ defmodule AcqdatApiWeb.Router do
 
     post("/fetch_token", DataInsights.EntityController, :fetch_token)
 
-    resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
-    get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
-    post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
+    # resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
+    # get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
+    # post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
 
-    scope "/dashboards/:dashboard_id", DashboardManagement do
-      resources "/panels", PanelController, except: [:new, :edit]
-    end
+    # scope "/dashboards/:dashboard_id", DashboardManagement do
+    #   resources "/panels", PanelController, except: [:new, :edit]
+    # end
 
-    scope "/panels/:panel_id", DashboardManagement do
-      resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
-    end
+    # scope "/panels/:panel_id", DashboardManagement do
+    #   resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
+    # end
 
-    get "/command_widget_types",
-        DashboardManagement.CommandWidgetController,
-        :command_widget_types
+    # get "/command_widget_types",
+    #     DashboardManagement.CommandWidgetController,
+    #     :command_widget_types
 
-    post "/panels/:panel_id/widgets/:widget_id/widget_instances",
-         DashboardManagement.WidgetInstanceController,
-         :create,
-         as: :create_widget_instances
+    # post "/panels/:panel_id/widgets/:widget_id/widget_instances",
+    #      DashboardManagement.WidgetInstanceController,
+    #      :create,
+    #      as: :create_widget_instances
 
-    get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-        DashboardManagement.WidgetInstanceController,
-        :show,
-        as: :show_widget_instances
+    # get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+    #     DashboardManagement.WidgetInstanceController,
+    #     :show,
+    #     as: :show_widget_instances
 
-    delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-           DashboardManagement.WidgetInstanceController,
-           :delete,
-           as: :delete_widget_instances
+    # delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+    #        DashboardManagement.WidgetInstanceController,
+    #        :delete,
+    #        as: :delete_widget_instances
 
-    put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-        DashboardManagement.WidgetInstanceController,
-        :update,
-        as: :update_widget_instances
+    # put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+    #     DashboardManagement.WidgetInstanceController,
+    #     :update,
+    #     as: :update_widget_instances
 
     post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
+  end
+
+  scope "/dash_mgmt", AcqdatApiWeb do
+    scope "/orgs/:org_id" do
+      post(
+        "/dashboards/:dashboard_id/export",
+        DashboardManagement.DashboardExportController,
+        :create
+      )
+
+      put(
+        "/dashboards/:dashboard_id/export/:dashboard_uuid",
+        DashboardManagement.DashboardExportController,
+        :update
+      )
+
+      get(
+        "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
+        DashboardManagement.DashboardExportController,
+        :show_credentials
+      )
+
+      resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
+      get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
+      post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
+
+      scope "/dashboards/:dashboard_id", DashboardManagement do
+        resources "/panels", PanelController, except: [:new, :edit]
+      end
+
+      scope "/panels/:panel_id", DashboardManagement do
+        resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
+      end
+
+      get "/command_widget_types",
+          DashboardManagement.CommandWidgetController,
+          :command_widget_types
+
+      post "/panels/:panel_id/widgets/:widget_id/widget_instances",
+           DashboardManagement.WidgetInstanceController,
+           :create,
+           as: :create_widget_instances
+
+      get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+          DashboardManagement.WidgetInstanceController,
+          :show,
+          as: :show_widget_instances
+
+      delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+             DashboardManagement.WidgetInstanceController,
+             :delete,
+             as: :delete_widget_instances
+
+      put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+          DashboardManagement.WidgetInstanceController,
+          :update,
+          as: :update_widget_instances
+    end
   end
 
   # TODO: Need to remove this scope later, and clean test-cases also
