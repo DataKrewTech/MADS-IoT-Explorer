@@ -26,7 +26,7 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
   def email(url, user) do
     new_email()
     |> from(@from_address)
-    |> to(user.email)
+    |> to(user.user_credentials.email)
     |> subject(@subject)
     |> put_html_layout({AcqdatCore.EmailView, "email.html"})
     |> render("forgot_password.html", user: user, url: url)

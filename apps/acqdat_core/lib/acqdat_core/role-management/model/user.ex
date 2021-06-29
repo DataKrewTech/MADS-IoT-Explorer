@@ -53,7 +53,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   end
 
   def get_by_email(email) when is_binary(email) do
-    case Repo.get_by(User, email: email) do
+    case Repo.get_by(UserCredentials, email: email) do
       nil ->
         {:error, "not found"}
 
