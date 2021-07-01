@@ -28,37 +28,6 @@ defmodule AcqdatApiWeb.Router do
   end
 
   scope "/", AcqdatApiWeb do
-    pipe_through(:export_auth)
-    get("/dashboards/:dashboard_uuid", DashboardManagement.DashboardExportController, :export)
-
-    get(
-      "/dashboards/:dashboard_uuid/verify",
-      DashboardManagement.DashboardExportController,
-      :exported_dashboard
-    )
-
-    post(
-      "/details/:dashboard_uuid/panels/:id",
-      DashboardManagement.DashboardExportController,
-      :show
-    )
-
-    get(
-      "/dashboards/:dashboard_uuid/panels/:panel_id/widget_instances/:id",
-      DashboardManagement.DashboardExportController,
-      :fetch_widget_instances
-    )
-
-    post "/dashboards/:dashboard_uuid/reports",
-         DashboardManagement.DashboardExportController,
-         :reports
-
-    get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
-        DashboardManagement.DashboardExportController,
-        :fetch_all_hierarchy
-  end
-
-  scope "/", AcqdatApiWeb do
     pipe_through(:password_reset_auth)
     put("/reset_password", RoleManagement.ForgotPasswordController, :reset_password)
   end
@@ -119,24 +88,6 @@ defmodule AcqdatApiWeb.Router do
     # user group api
     resources "/user_groups", RoleManagement.UserGroupController, except: [:new, :edit]
     post "/group_policies", RoleManagement.UserGroupController, :group_policies
-
-    # post(
-    #   "/dashboards/:dashboard_id/export",
-    #   DashboardManagement.DashboardExportController,
-    #   :create
-    # )
-
-    # put(
-    #   "/dashboards/:dashboard_id/export/:dashboard_uuid",
-    #   DashboardManagement.DashboardExportController,
-    #   :update
-    # )
-
-    # get(
-    #   "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
-    #   DashboardManagement.DashboardExportController,
-    #   :show_credentials
-    # )
 
     resources "/components", DataCruncher.ComponentsController, only: [:index]
 
@@ -235,42 +186,6 @@ defmodule AcqdatApiWeb.Router do
 
     post("/fetch_token", DataInsights.EntityController, :fetch_token)
 
-    # resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
-    # get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
-    # post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
-
-    # scope "/dashboards/:dashboard_id", DashboardManagement do
-    #   resources "/panels", PanelController, except: [:new, :edit]
-    # end
-
-    # scope "/panels/:panel_id", DashboardManagement do
-    #   resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
-    # end
-
-    # get "/command_widget_types",
-    #     DashboardManagement.CommandWidgetController,
-    #     :command_widget_types
-
-    # post "/panels/:panel_id/widgets/:widget_id/widget_instances",
-    #      DashboardManagement.WidgetInstanceController,
-    #      :create,
-    #      as: :create_widget_instances
-
-    # get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-    #     DashboardManagement.WidgetInstanceController,
-    #     :show,
-    #     as: :show_widget_instances
-
-    # delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-    #        DashboardManagement.WidgetInstanceController,
-    #        :delete,
-    #        as: :delete_widget_instances
-
-    # put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-    #     DashboardManagement.WidgetInstanceController,
-    #     :update,
-    #     as: :update_widget_instances
-
     post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
   end
 
@@ -329,6 +244,42 @@ defmodule AcqdatApiWeb.Router do
           DashboardManagement.WidgetInstanceController,
           :update,
           as: :update_widget_instances
+
+      get("/entities", DashboardManagement.DashboardController, :fetch_all_hierarchy)
+      get("/gateways/", DashboardManagement.DashboardController, :all_gateways)
+    end
+
+    get("/widgets/filtered", DashboardManagement.DashboardController, :fetch_widgets)
+
+    scope "/" do
+      pipe_through(:export_auth)
+      get("/dashboards/:dashboard_uuid", DashboardManagement.DashboardExportController, :export)
+
+      get(
+        "/dashboards/:dashboard_uuid/verify",
+        DashboardManagement.DashboardExportController,
+        :exported_dashboard
+      )
+
+      post(
+        "/details/:dashboard_uuid/panels/:id",
+        DashboardManagement.DashboardExportController,
+        :show
+      )
+
+      get(
+        "/dashboards/:dashboard_uuid/panels/:panel_id/widget_instances/:id",
+        DashboardManagement.DashboardExportController,
+        :fetch_widget_instances
+      )
+
+      post "/dashboards/:dashboard_uuid/reports",
+           DashboardManagement.DashboardExportController,
+           :reports
+
+      get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
+          DashboardManagement.DashboardExportController,
+          :fetch_all_hierarchy
     end
   end
 
