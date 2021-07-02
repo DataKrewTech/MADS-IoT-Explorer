@@ -178,29 +178,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   end
 
   def index(conn, params) do
-    changeset = verify_index_params(params)
-
     case conn.status do
       nil ->
-        with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
-             {:list, users} <-
-               {:list,
-                User.get_all(data, [
-                  :user_credentials,
-                  :role,
-                  :org,
-                  user_group: :user_group,
-                  policies: :policy
-                ])} do
-          conn
-          |> put_status(200)
-          |> render("index.json", users)
+        with {:ok, hits} <- ElasticSearch.user_indexing(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
         else
-          {:extract, {:error, error}} ->
-            send_error(conn, 400, error)
-
-          {:list, {:error, message}} ->
-            send_error(conn, 400, message)
+          {:error, message} ->
+            conn
+            |> send_error(404, UserErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->
@@ -211,6 +196,40 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
         conn
         |> send_error(401, UserErrorHelper.error_message(:unauthorized))
     end
+
+    # changeset = verify_index_params(params)
+
+    # case conn.status do
+    #   nil ->
+    #     with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
+    #          {:list, users} <-
+    #            {:list,
+    #             User.get_all(data, [
+    #               :user_credentials,
+    #               :role,
+    #               :org,
+    #               user_group: :user_group,
+    #               policies: :policy
+    #             ])} do
+    #       conn
+    #       |> put_status(200)
+    #       |> render("index.json", users)
+    #     else
+    #       {:extract, {:error, error}} ->
+    #         send_error(conn, 400, error)
+
+    #       {:list, {:error, message}} ->
+    #         send_error(conn, 400, message)
+    #     end
+
+    #   404 ->
+    #     conn
+    #     |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
+
+    #   401 ->
+    #     conn
+    #     |> send_error(401, UserErrorHelper.error_message(:unauthorized))
+    # end
   end
 
   def update(conn, params) do
