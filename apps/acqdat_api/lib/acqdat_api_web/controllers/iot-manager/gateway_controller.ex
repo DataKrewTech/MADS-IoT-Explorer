@@ -1,5 +1,7 @@
 defmodule AcqdatApiWeb.IotManager.GatewayController do
   use AcqdatApiWeb, :authorized_controller
+  import AcqdatApiWeb.Helpers
+  import AcqdatApiWeb.Validators.IotManager.Gateway
   alias AcqdatApi.IotManager.Gateway
   alias AcqdatApi.Image
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
@@ -8,11 +10,11 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   alias AcqdatCore.ElasticSearch
   alias AcqdatApiWeb.IotManager.GatewayErrorHelper
   alias AcqdatCore.Model.IotManager.GatewayDataDump
-  import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.IotManager.Gateway
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject when action not in [:all_gateways]
+  plug :put_view, AcqdatApiWeb.EntityManagement.ProjectView when action in [:fetch_projects]
+  plug :put_view, AcqdatApiWeb.EntityManagement.EntityView when action in [:fetch_project_tree]
 
   plug AcqdatApiWeb.Plug.LoadGateway
        when action in [
@@ -24,7 +26,8 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
               :data_dump_index
             ]
 
-  plug :load_hierarchy_tree when action in [:hierarchy]
+  plug :load_hierarchy_tree_with_gateway when action in [:hierarchy]
+  plug :load_hierarchy_tree when action in [:fetch_project_tree]
 
   def search_gateways(conn, params) do
     case conn.status do
@@ -300,6 +303,46 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     end
   end
 
+  def fetch_projects(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.project_indexing(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> send_error(404, GatewayErrorHelper.error_message(:elasticsearch, message))
+        end
+
+      404 ->
+        conn
+        |> send_error(404, GatewayErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, GatewayErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_project_tree(conn, _params) do
+    case conn.status do
+      nil ->
+        org = conn.assigns.org
+
+        conn
+        |> put_status(200)
+        |> render("organisation_tree.json", org)
+
+      404 ->
+        conn
+        |> send_error(404, GatewayErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, GatewayErrorHelper.error_message(:unauthorized))
+    end
+  end
+
   ############################### private functions #########################
 
   defp add_image_to_params(conn, params) do
@@ -344,6 +387,27 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
   end
 
   defp check_org(conn, org_id, project_id) do
+    {org_id, _} = Integer.parse(org_id)
+    {project_id, _} = Integer.parse(project_id)
+
+    case OrgModel.get(org_id, project_id) do
+      {:ok, org} ->
+        assign(conn, :org, org)
+
+      {:error, _message} ->
+        conn
+        |> put_status(404)
+    end
+  end
+
+  defp load_hierarchy_tree_with_gateway(
+         %{params: %{"org_id" => org_id, "project_id" => project_id}} = conn,
+         _params
+       ) do
+    check_org_with_gateway(conn, org_id, project_id)
+  end
+
+  defp check_org_with_gateway(conn, org_id, project_id) do
     {org_id, _} = Integer.parse(org_id)
     {project_id, _} = Integer.parse(project_id)
 

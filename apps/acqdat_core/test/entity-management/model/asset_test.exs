@@ -388,9 +388,9 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
   defp create_asset_tree(_context) do
     org = insert(:organisation)
-    project = insert(:project)
-    asset_type = insert(:asset_type)
-    user = insert(:user)
+    project = insert(:project, org: org)
+    asset_type = insert(:asset_type, org: org)
+    user = insert(:user, org: org)
 
     asset_2 = build_asset_map("asset_2", org.id, org.name, project.id, user.id, asset_type.id)
     asset_3 = build_asset_map("asset_3", org.id, org.name, project.id, user.id, asset_type.id)

@@ -127,16 +127,7 @@ defmodule AcqdatApiWeb.Router do
     resources "/projects", EntityManagement.ProjectController,
       only: [:index, :create, :update, :delete, :show]
 
-    scope "/projects/:project_id", IotManager do
-      get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
-      put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
-      resources "/gateways", GatewayController, except: [:new, :edit]
-      post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
-      get("/hierarchy", GatewayController, :hierarchy)
-      get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
-    end
 
-    get "/gateways/", IotManager.GatewayController, :all_gateways
     # all the alert apis will be scoped here
     scope "/", Alerts do
       resources "/policies", PolicyController, only: [:index]
@@ -188,6 +179,28 @@ defmodule AcqdatApiWeb.Router do
 
     post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
   end
+
+  ####################### IoT Manager ########################
+
+  scope "/iot_mgmt", AcqdatApiWeb do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+    scope "/orgs/:org_id" do
+      get "/projects", IotManager.GatewayController, :fetch_projects
+      get "/gateways/", IotManager.GatewayController, :all_gateways
+
+      scope "/projects/:project_id", IotManager do
+        get "/entities", GatewayController, :fetch_project_tree
+        get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
+        put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
+        resources "/gateways", GatewayController, except: [:new, :edit]
+        post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
+        get("/hierarchy", GatewayController, :hierarchy)
+        get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
+      end
+    end
+  end
+
+  ################### Dashboard management ############################
 
   scope "/dash_mgmt", AcqdatApiWeb do
     scope "/orgs/:org_id" do
@@ -283,6 +296,7 @@ defmodule AcqdatApiWeb.Router do
     end
   end
 
+  ######################### Tool Management ###########################
   # TODO: Need to remove this scope later, and clean test-cases also
   scope "/tl-mgmt", AcqdatApiWeb do
     pipe_through([:api, :api_bearer_auth, :api_ensure_auth])
