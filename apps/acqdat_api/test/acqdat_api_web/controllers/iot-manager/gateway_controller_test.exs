@@ -355,14 +355,15 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
     test "returns the project hierarchy", context do
       %{org: org, conn: conn, project: project} = context
 
-      result = conn
+      result =
+        conn
         |> get(Routes.gateway_path(conn, :fetch_project_tree, org.id, project.id))
         |> json_response(200)
+
       assert Map.has_key?(result, "entities")
       assert Map.has_key?(result, "type")
       assert length(result["entities"]) != 0
     end
-
   end
 
   #################### private functions #########################3
@@ -432,5 +433,4 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       description: ""
     }
   end
-
 end
