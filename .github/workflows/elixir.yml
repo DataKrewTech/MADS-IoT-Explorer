@@ -63,7 +63,9 @@ jobs:
     - name: Check code formatting
       run: mix format --check-formatted
     - name: Run tests (with coverage)
-      run:  mix coveralls.json --umbrella
+      run:  |
+        mix ecto.setup
+        mix coveralls.json --umbrella
       env:
         DB_HOST: db
         ELASTIC_SEARCH_HOST: http://elastic_search:9200
