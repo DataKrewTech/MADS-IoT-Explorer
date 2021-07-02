@@ -5,9 +5,7 @@ defmodule AcqdatCore.Repo.Migrations.AddMetrics do
     create table("acqdat_metrics") do
 
       add(:inserted_time, :timestamptz, null: false)
-
-      add(:metrics, references("metrics_meta", on_delete: :delete_all))
-
+      add(:metrics, :map)
       timestamps(type: :timestamptz)
     end
   end
