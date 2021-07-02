@@ -8,7 +8,7 @@ defmodule AcqdatCore.Schema.Metrics do
   }
 
   schema "acqdat_metrics" do
-    field(:inserted_time, :utc_datetime)
+    field(:inserted_time, :utc_datetime, null: false)
     embeds_one(:metrics, Meta)
 
     timestamps(type: :utc_datetime, updated_at: false)
@@ -16,9 +16,9 @@ defmodule AcqdatCore.Schema.Metrics do
 
   def changeset(%__MODULE__{} = metric, params) do
     metric
-    # |> cast(params, [:inserted_time, :metrics])
-    |> cast(params, [])
+    |> cast(params, [:inserted_time])
     |> cast_embed(:metrics, with: &Meta.changeset/2)
+    |> validate_required([:inserted_time])
   end
 end
 

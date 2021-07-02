@@ -6,10 +6,16 @@ defmodule AcqdatCore.Schema.MetricsTest do
   describe "changeset" do
     test "metrics - returns a valid changeset" do
       params = dummy_data()
-      changeset = Metrics.changeset(%Metrics{}, %{metrics: params})
+      changeset = Metrics.changeset(%Metrics{}, %{inserted_time: DateTime.truncate(DateTime.utc_now(), :second), metrics: params})
       %{valid?: validity} = changeset
       assert validity
-      # Repo.insert(changeset)
+    end
+
+    test "metrics - successfully updates database" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      params = dummy_data()
+      changeset = Metrics.changeset(%Metrics{}, %{inserted_time: DateTime.truncate(DateTime.utc_now(), :second), metrics: params})
+      Repo.insert!(changeset)
     end
   end
 
