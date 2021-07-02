@@ -1,9 +1,16 @@
 defmodule AcqdatCore.Schema.MetricsTest do
   use ExUnit.Case, async: true
-  alias AcqdatCore.Schema.MetricsTest
+  alias AcqdatCore.Schema.Metrics
+  alias AcqdatCore.Repo
 
   describe "changeset" do
-
+    test "metrics - returns a valid changeset" do
+      params = dummy_data()
+      changeset = Metrics.changeset(%Metrics{}, %{metrics: params})
+      %{valid?: validity} = changeset
+      assert validity
+      # Repo.insert(changeset)
+    end
   end
 
   defp dummy_data() do
