@@ -11,7 +11,7 @@ defmodule AcqdatCore.Schema.Metrics do
     field(:inserted_time, :utc_datetime, null: false)
     embeds_one(:metrics, Meta)
 
-    timestamps(type: :utc_datetime, updated_at: false)
+    timestamps(type: :utc_datetime)
   end
 
   def changeset(%__MODULE__{} = metric, params) do
