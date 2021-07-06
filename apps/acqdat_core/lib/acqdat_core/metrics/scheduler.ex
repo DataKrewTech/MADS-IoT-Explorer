@@ -1,6 +1,10 @@
 defmodule AcqdatCore.Metrics.SchedulerSupervisor do
   use Supervisor
 
+  @moduledoc """
+  Acts as the supervisor process for the scheduler
+  """
+
   def start_link(args) do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
