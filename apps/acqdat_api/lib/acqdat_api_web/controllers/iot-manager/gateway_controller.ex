@@ -68,12 +68,30 @@ defmodule AcqdatApiWeb.IotManager.GatewayController do
     end
   end
 
+  def mapped_sensors(conn, %{"org_id" => org_id, "project_id" => project_id}) do
+    case conn.status do
+      nil ->
+        data =
+          Gateway.return_sensor_gatewap_mapping(org_id, project_id)
+          |> Gateway.extract_param_uuid()
+
+        conn |> put_status(200) |> render("mapped_sensors.json", %{data: data})
+
+      404 ->
+        conn
+        |> send_error(404, GatewayErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, GatewayErrorHelper.error_message(:unauthorized))
+    end
+  end
+
   def update(conn, params) do
     case conn.status do
       nil ->
         %{assigns: %{gateway: gateway}} = conn
         params = Map.put(params, "image_url", gateway.image_url)
-
         params = extract_image(conn, gateway, params)
 
         case Gateway.update(gateway, params) do

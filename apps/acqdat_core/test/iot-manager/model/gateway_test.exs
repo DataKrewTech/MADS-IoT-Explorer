@@ -3,6 +3,7 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Model.IotManager.Gateway
+  alias AcqdatApi.IotManager.Gateway, as: GatewayHelper
   alias AcqdatCore.Schema.IotManager.Gateway, as: GSchema
   alias AcqdatCore.Schema.EntityManagement.Sensor
   alias AcqdatCore.Repo
@@ -196,6 +197,60 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor1.gateway_id == gateway.id
       assert sensor2.gateway_id == gateway.id
       assert sensor3.gateway_id == gateway.id
+    end
+  end
+
+  describe "tree_mapping/1" do
+    setup do
+      org = insert(:organisation)
+      project = insert(:project, org: org)
+      gateway = insert(:gateway, org: org, project: project)
+      sensors = insert_list(3, :sensor, org: org, project: project)
+      [sensors: sensors, gateway: gateway]
+    end
+
+    test "parameter mapping containing nested values", context do
+      %{sensors: [sensor1, sensor2, sensor3], gateway: gateway} = context
+      [param1, param2] = sensor1.sensor_type.parameters
+      [param3, param4] = sensor2.sensor_type.parameters
+      [param5, param6] = sensor3.sensor_type.parameters
+      mapped_parameters = create_nested_parameters(sensor1, sensor2, sensor3)
+      tree_mapping = GatewayHelper.tree_mapping(mapped_parameters)
+
+      resultant_map = %{
+        "#{sensor1.id}.#{param1.uuid}" => "axis_object.x_axis",
+        "#{sensor1.id}.#{param2.uuid}" => "axis_object.z_axis",
+        "#{sensor2.id}.#{param3.uuid}" => "axis_object.z_axis",
+        "#{sensor2.id}.#{param4.uuid}" => "axis_object.lambda.alpha",
+        "#{sensor3.id}.#{param5.uuid}" => "axis_object.lambda.beta",
+        "#{sensor3.id}.#{param6.uuid}" => "y_axis"
+      }
+
+      assert tree_mapping == resultant_map
+    end
+  end
+
+  describe "mapped_parameters/1" do
+    setup do
+      org = insert(:organisation)
+      project = insert(:project, org: org)
+      gateway = insert(:gateway, org: org, project: project)
+      sensors = insert_list(3, :sensor, org: org, project: project, gateway: gateway)
+      [sensors: sensors, gateway: gateway]
+    end
+
+    test "parameter mapping containing nested values", context do
+      %{sensors: sensors, gateway: gateway} = context
+      [sensor1, sensor2, sensor3] = sensors
+
+      data = GatewayHelper.extract_param_uuid(sensors)
+
+      resultant_map =
+        Enum.reduce(sensors, %{}, fn sensor, acc ->
+          Map.put_new(acc, sensor.id, gateway.id)
+        end)
+
+      assert data == resultant_map
     end
   end
 

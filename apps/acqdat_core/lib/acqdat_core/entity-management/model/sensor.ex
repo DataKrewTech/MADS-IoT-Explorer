@@ -81,6 +81,17 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
     end
   end
 
+  def return_sensor_gatewap_mapping(org_id, project_id) do
+    query =
+      from(sensor in Sensor,
+        where:
+          sensor.org_id == ^org_id and sensor.project_id == ^project_id and
+            is_nil(sensor.gateway_id) == false
+      )
+
+    Repo.all(query)
+  end
+
   def remove_sensor(sensor_ids) do
     query =
       from(sensor in Sensor,
