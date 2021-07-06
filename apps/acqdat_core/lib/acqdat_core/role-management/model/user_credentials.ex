@@ -29,6 +29,11 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
     Repo.update(changeset)
   end
 
+  def reset_password(credentials, params) do
+    changeset = UserCredentials.reset_password_changeset(credentials, params)
+    Repo.update(changeset)
+  end
+
   def update_details(id, params) do
     case Repo.get(UserCredentials, id) |> Repo.preload([:user_setting]) do
       nil ->

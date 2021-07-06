@@ -2,12 +2,13 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
   use Bamboo.Phoenix, view: AcqdatCore.EmailView
   alias AcqdatCore.Model.RoleManagement.ForgotPassword, as: ForgotPasswordModel
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
   alias AcqdatApiWeb.Guardian
+  alias AcqdatCore.Repo
   alias AcqdatCore.Mailer
   import Bamboo.Email
   import AcqdatApiWeb.Helpers
 
-  defdelegate update_user(user, params), to: UserModel
   defdelegate delete(user_id), to: ForgotPasswordModel
 
   @subject "Reset Password"
@@ -21,6 +22,10 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
     } = params
 
     check_user(UserModel.get_by_email(email))
+  end
+
+  def update(user, params) do
+    UserCredentials.reset_password(user, params)
   end
 
   def email(url, user) do

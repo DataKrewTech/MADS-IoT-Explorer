@@ -52,6 +52,15 @@ defmodule AcqdatCore.Schema.RoleManagement.UserCredentials do
     |> common_changeset(params)
   end
 
+  def reset_password_changeset(%__MODULE__{} = user_cred, params) do
+    user_cred
+    |> cast(params, @permitted)
+    |> validate_confirmation(:password)
+    |> validate_length(:password, min: @password_min_length)
+    |> put_pass_hash()
+    |> common_changeset(params)
+  end
+
   def common_changeset(changeset, _params) do
     changeset
     |> unique_constraint(:email, name: :acqdat_user_credentials_email_index)
