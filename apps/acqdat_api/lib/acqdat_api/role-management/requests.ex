@@ -37,7 +37,7 @@ defmodule AcqdatApi.RoleManagement.Requests do
         type: "new_org_admin",
         org_id: org.id,
         role_id: role_id,
-        metadata: Map.merge(metadata, request.user_metadata)
+        metadata: Map.merge(metadata, request.user_metadata || %{})
       }
 
       Invitation.create(attrs, current_user)

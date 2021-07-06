@@ -47,7 +47,8 @@ defmodule AcqdatCore.Support.Factory do
     UserCredentials,
     Role,
     App,
-    Invitation
+    Invitation,
+    Requests
   }
 
   alias AcqdatCore.Schema.ToolManagement.{
@@ -115,6 +116,17 @@ defmodule AcqdatCore.Support.Factory do
       org: build(:organisation),
       group_ids: [],
       policies: []
+    }
+  end
+
+  def request_factory() do
+    %Requests{
+      email: sequence(:email, &"ceo-#{&1}@stark.com"),
+      first_name: sequence(:first_name, &"Tony-#{&1}"),
+      last_name: sequence(:last_name, &"Stark-#{&1}"),
+      org_name: sequence(:org_name, &"Stark-#{&1}"),
+      org_url: sequence(:org_url, &"Stark-#{&1}"),
+      phone_number: "123456"
     }
   end
 

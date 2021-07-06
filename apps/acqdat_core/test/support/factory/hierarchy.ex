@@ -8,7 +8,8 @@ defmodule AcqdatCore.Factory.Hierarchy do
           uuid: UUID.uuid1(:hex),
           name: sequence(:organisation_name, &"Asgard#{&1}"),
           metadata: %{},
-          description: "port of asgardians"
+          description: "port of asgardians",
+          url: sequence(:organisation_name, &"Asgard-#{&1}")
         }
       end
 
