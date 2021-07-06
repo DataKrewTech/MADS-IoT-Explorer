@@ -88,12 +88,7 @@ defmodule AcqdatApiWeb.Router do
     resources "/user_groups", RoleManagement.UserGroupController, except: [:new, :edit]
     post "/group_policies", RoleManagement.UserGroupController, :group_policies
 
-    resources "/components", DataCruncher.ComponentsController, only: [:index]
-
     resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
-      resources "/tasks", DataCruncher.TasksController,
-        only: [:create, :index, :show, :update, :delete]
-
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
@@ -110,8 +105,6 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
     end
 
-    # post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
-    # get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
     get("/entities", EntityManagement.EntityController, :fetch_all_hierarchy)
 
     # all the alert apis will be scoped here
@@ -123,44 +116,6 @@ defmodule AcqdatApiWeb.Router do
       get "/alert_apps", AlertFilterListingController, :alert_app_listing
       get "/alert_status", AlertFilterListingController, :alert_status_listing
     end
-
-    # scope "/projects/:project_id", EntityManagement do
-    #   resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
-    #   get "/assets/search", AssetController, :search_assets, as: :search_assets
-    #   get "/sensors/search", SensorController, :search_sensors, as: :search_sensors
-
-    #   get "/sensor_type/search", SensorTypeController, :search_sensor_type,
-    #     as: :search_sensor_type
-
-    #   get "/asset_types/search", AssetTypeController, :search_asset_type, as: :search_asset_type
-
-    #   resources "/assets", AssetController,
-    #     only: [:create, :show, :update, :delete, :index],
-    #     as: :assets
-
-    #   resources "/sensors", SensorController, except: [:new, :edit]
-    #   resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
-    # end
-
-    scope "/projects/:project_id", DataInsights do
-      resources "/topology", TopologyController, only: [:index]
-      get("/topology_entities", TopologyController, :entities)
-
-      resources "/fact_tables", FactTablesController, except: [:new, :edit] do
-        get("/details", FactTablesController, :details)
-        get("/fetch_headers", FactTablesController, :fetch_headers)
-
-        resources "/visualizations", VisualizationsController, except: [:new, :edit] do
-          post("/export", VisualizationsController, :export)
-        end
-      end
-
-      get("/visualizations/fetch_all_types", VisualizationsController, :fetch_all_types)
-    end
-
-    post("/fetch_token", DataInsights.EntityController, :fetch_token)
-
-    post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
   end
 
   ####################### IoT Manager ########################
@@ -319,6 +274,50 @@ defmodule AcqdatApiWeb.Router do
     end
 
     post("/fetch-count", EntityController, :fetch_count)
+  end
+
+  ################### Data Insights ############################
+
+  scope "/data_inst", AcqdatApiWeb.DataInsights do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      get("/projects", TopologyController, :fetch_projects)
+
+      scope "/projects/:project_id" do
+        resources "/topology", TopologyController, only: [:index]
+        get("/topology_entities", TopologyController, :entities)
+
+        resources "/fact_tables", FactTablesController, except: [:new, :edit] do
+          get("/details", FactTablesController, :details)
+          get("/fetch_headers", FactTablesController, :fetch_headers)
+
+          resources "/visualizations", VisualizationsController, except: [:new, :edit] do
+            post("/export", VisualizationsController, :export)
+          end
+        end
+
+        get("/visualizations/fetch_all_types", VisualizationsController, :fetch_all_types)
+      end
+
+      post("/fetch_token", EntityController, :fetch_token)
+    end
+  end
+
+  ################### Data Cruncher ############################
+
+  scope "/data_crhr", AcqdatApiWeb.DataCruncher do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      resources "/components", ComponentsController, only: [:index]
+      post("/data_cruncher_token", EntityController, :fetch_token)
+      get("/entities", EntityController, :fetch_all_hierarchy)
+
+      scope "/users/:user_id" do
+        resources "/tasks", TasksController, only: [:create, :index, :show, :update, :delete]
+      end
+    end
   end
 
   ######################### Tool Management ###########################
