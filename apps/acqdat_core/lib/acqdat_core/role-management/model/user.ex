@@ -44,7 +44,7 @@ defmodule AcqdatCore.Model.RoleManagement.User do
   def get_for_view(user_ids) do
     query =
       from(user in User,
-        where: user.id in ^user_ids,
+        where: user.id in ^user_ids and user.is_deleted == false,
         preload: [:user_credentials, :org, :role, user_group: :user_group, policies: :policy],
         order_by: [desc: :inserted_at]
       )
