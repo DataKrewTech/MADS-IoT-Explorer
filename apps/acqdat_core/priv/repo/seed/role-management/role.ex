@@ -5,10 +5,10 @@ defmodule AcqdatCore.Seed.RoleManagement.Role do
   @roles ~w(admin manager member)s
 
   def seed() do
+
     Enum.each(@roles, fn role ->
       Role.changeset(%Role{}, %{name: role})
-      |> Repo.insert()
+      |> Repo.insert!()
     end)
   end
 end
-

@@ -13,12 +13,12 @@ defmodule AcqdatCore.Metrics.SchedulerSupervisor do
     children = [
       AcqdatCore.Metrics.Scheduler
     ]
+
     Supervisor.init(children, strategy: :one_for_one)
   end
 end
 
 defmodule AcqdatCore.Metrics.Scheduler do
-
   @moduledoc """
   Runs a cron task to add the metrics for an organisation in the metrics table.
   """
@@ -50,7 +50,7 @@ defmodule AcqdatCore.Metrics.Scheduler do
     {:noreply, state}
   end
 
-  #TODO: The time is being set to 11:45 pm singapore time which is
+  # TODO: The time is being set to 11:45 pm singapore time which is
   #      3:45pm UTC. This should be a configurable time so it can run as per
   #      the cloud region.
   defp calculate_next_cycle_delay(now) do
@@ -69,5 +69,4 @@ defmodule AcqdatCore.Metrics.Scheduler do
         Timex.shift(next_run, days: 1)
     end
   end
-
 end

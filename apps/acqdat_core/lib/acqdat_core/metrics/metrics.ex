@@ -37,20 +37,16 @@ defmodule AcqdatCore.Metrics.Metrics do
 
   Expects a month in the integer representation or a date as the input.
   """
-  @spec monthly_report(integer(), integer()|String.t()) :: map()
+  @spec monthly_report(integer(), integer() | String.t()) :: map()
   def monthly_report(org_id, month) when is_integer(month) do
-
   end
 
   def monthly_report(org, date) do
-
   end
 
   @doc """
   Returns the daily report for an organisation.
   """
   def daily_report() do
-
   end
-
 end

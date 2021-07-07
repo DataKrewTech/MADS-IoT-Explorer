@@ -20,6 +20,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   alias AcqdatCore.DataInsights.Schema.FactTables
   alias AcqdatCore.DataInsights.Schema.Visualizations
 
+  alias AcqdatCore.Schema.Metrics
 
   @doc """
   Calculates all the parameters to be checked for an organisation and stores
