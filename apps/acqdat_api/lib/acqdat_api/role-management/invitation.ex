@@ -10,7 +10,20 @@ defmodule AcqdatApi.RoleManagement.Invitation do
 
   defdelegate get_by_token(token), to: InvitationModel
 
-  def create(attrs, current_user) do
+  def create(
+        %{email: email, org_id: org_id, group_ids: group_ids, policies: policies} = attrs,
+        current_user
+      ) do
+    invitation = InvitationModel.get_by_email_n_org(email, org_id)
+
+    if invitation do
+      update(invitation, current_user, group_ids, policies)
+    else
+      create_invite(attrs, current_user)
+    end
+  end
+
+  def create_invite(attrs, current_user) do
     invitation_details = invitation_details_attrs(attrs, current_user)
 
     org_ids = UserModel.fetch_user_orgs_by_email(invitation_details["email"])
@@ -37,26 +50,59 @@ defmodule AcqdatApi.RoleManagement.Invitation do
   end
 
   def update(invitation, current_user, group_ids, policies) do
-    reinvite_user(
-      InvitationModel.update_invitation_token(invitation, %{
-        "email" => invitation.email,
-        "org_id" => invitation.org_id,
-        "token_valid" => true,
-        "group_ids" => group_ids,
-        "policies" => policies
-      }),
-      current_user
-    )
+    org_ids = UserModel.fetch_user_orgs_by_email(invitation.email)
+
+    if org_ids == [] do
+      reinvite_user(
+        InvitationModel.update_invitation_token(invitation, %{
+          "email" => invitation.email,
+          "org_id" => invitation.org_id,
+          "token_valid" => true,
+          "group_ids" => group_ids,
+          "policies" => policies
+        }),
+        "new_user",
+        current_user
+      )
+    else
+      if Enum.member?(org_ids, invitation.org_id) do
+        reinvite_error()
+      else
+        reinvite_user(
+          InvitationModel.update_invitation_token(invitation, %{
+            "email" => invitation.email,
+            "org_id" => invitation.org_id,
+            "token_valid" => true,
+            "group_ids" => group_ids,
+            "policies" => policies
+          }),
+          "existing_user",
+          current_user
+        )
+      end
+    end
   end
 
-  def reinvite_user({:ok, invitation}, current_user) do
-    reinvitation_details_parsing(invitation, current_user)
+  def reinvite_user({:ok, invitation}, type, current_user) do
+    reinvitation_details_parsing(invitation, type, current_user)
     |> send_invite_email(current_user)
     |> show_reinvitation_success_message_to_user()
   end
 
-  def reinvite_user({:error, invitation}, _current_user) do
+  def reinvite_user({:error, invitation}, _type, _current_user) do
     {:error, %{error: extract_changeset_error(invitation)}}
+  end
+
+  def reinvite_error() do
+    {:error,
+     %{
+       error: %{
+         error:
+           "Parameters provided to perform current action is either not valid or missing or not unique",
+         source: %{email: ["user with this email already exists for the specified organisation"]},
+         title: "Insufficient or not unique parameters"
+       }
+     }}
   end
 
   defp invitation_details_attrs(
@@ -121,9 +167,10 @@ defmodule AcqdatApi.RoleManagement.Invitation do
            role_id: role_id,
            token: token
          },
+         type,
          current_user
        ) do
-    %{
+    invitation = %{
       "email" => email,
       "app_ids" => app_ids,
       "asset_ids" => asset_ids,
@@ -135,6 +182,8 @@ defmodule AcqdatApi.RoleManagement.Invitation do
       "role_id" => role_id,
       "token" => token
     }
+
+    if type == "existing_user", do: Map.put(invitation, "type", "existing_user"), else: invitation
   end
 
   def delete(invitation) do
