@@ -41,6 +41,7 @@ defmodule AcqdatCore.Seed.DataFeeder.OrgAndUser do
         org_id: params.org_id,
         is_invited: params.is_invited,
         role_id: params.role_id,
+        is_deleted: params.is_deleted,
         inserted_at: DateTime.to_unix(params.inserted_at),
         join_field: %{name: "user", parent: params.org_id}
       )

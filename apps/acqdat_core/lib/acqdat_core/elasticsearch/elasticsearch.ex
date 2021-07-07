@@ -742,7 +742,7 @@ defmodule AcqdatCore.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "user", id: org_id]]]
+            must: [[parent_id: [type: "user", id: org_id]], [match: [is_deleted: false]]]
           ]
         ],
         sort: [
@@ -764,7 +764,7 @@ defmodule AcqdatCore.ElasticSearch do
       search: [
         query: [
           bool: [
-            must: [[parent_id: [type: "user", id: org_id]]]
+            must: [[parent_id: [type: "user", id: org_id]], [match: [is_deleted: false]]]
           ]
         ],
         sort: [
@@ -895,6 +895,7 @@ defmodule AcqdatCore.ElasticSearch do
       last_name: user_cred.last_name,
       org_id: params.org_id,
       is_invited: params.is_invited,
+      is_deleted: params.is_deleted,
       inserted_at: DateTime.to_unix(params.inserted_at),
       role_id: params.role_id,
       join_field: %{name: "user", parent: params.org_id}
