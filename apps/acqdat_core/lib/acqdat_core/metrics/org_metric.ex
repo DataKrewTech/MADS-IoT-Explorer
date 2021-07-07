@@ -74,14 +74,32 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
           count: sensor_result.sensor_type_count,
           metadata: %{data: sensor_result.sensor_type_meta}
         },
-        assets: %{count: asset_result.asset_count, metadata: %{data: asset_result.asset_meta}},
+        assets: %{
+          count: asset_result.asset_count,
+          metadata: %{
+            data:
+              Enum.map(asset_result.asset_meta, fn asset ->
+                %{id: elem(asset, 0), name: elem(asset, 1)}
+              end)
+          }
+        },
         asset_types: %{
           count: asset_result.asset_type_count,
-          metadata: %{data: asset_result.asset_type_meta}
+          metadata: %{
+            data:
+              Enum.map(asset_result.asset_type_meta, fn asset_type ->
+                %{id: elem(asset_type, 0), name: elem(asset_type, 1)}
+              end)
+          }
         },
         projects: %{
           count: project_result.project_count,
-          metadata: %{data: project_result.project_meta}
+          metadata: %{
+            data:
+              Enum.map(project_result.project_meta, fn project ->
+                %{id: elem(project, 0), name: elem(project, 1)}
+              end)
+          }
         },
         gateways: %{
           count: project_result.gateway_count,
@@ -157,7 +175,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
         select: %{
           asset_type_id: asset_type.id,
           asset_type_name: asset_type.name,
-          asset_data: fragment("array_agg((?, ?))", asset.name, asset.id),
+          asset_data: fragment("array_agg((?, ?))", asset.id, asset.name),
           asset_count: count(asset.id)
         }
       )
@@ -172,7 +190,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
         select: %{
           sensor_type_id: sensor_type.id,
           sensor_type_name: sensor_type.name,
-          sensor_data: fragment("array_agg((?,?))", sensor.name, sensor.id),
+          sensor_data: fragment("array_agg((?,?))", sensor.id, sensor.name),
           sensor_count: count(sensor.id)
         }
       )
@@ -187,7 +205,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
         select: %{
           project_name: project.name,
           project_id: project.id,
-          gateway: fragment("array_agg((?,?))", gateway.name, gateway.id),
+          gateway: fragment("array_agg((?,?))", gateway.id, gateway.name),
           gateway_count: count(gateway.id)
         }
       )

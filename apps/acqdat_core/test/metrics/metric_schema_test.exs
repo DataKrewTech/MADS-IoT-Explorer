@@ -4,8 +4,11 @@ defmodule AcqdatCore.Schema.MetricsTest do
   alias AcqdatCore.Repo
   alias AcqdatCore.Metrics.OrgMetrics
 
+  import AcqdatCore.Support.Factory
+  alias AcqdatCore.Schema.EntityManagement.{Asset}
+
   describe "changeset" do
-    test "metrics - returns a valid changeset" do
+    test "returns a valid changeset" do
       params = dummy_data()
 
       changeset =
@@ -19,7 +22,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
       assert validity
     end
 
-    test "metrics - successfully updates database" do
+    test "successfully updates database" do
       Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       params = dummy_data()
       time = DateTime.truncate(DateTime.utc_now(), :second)
@@ -29,15 +32,25 @@ defmodule AcqdatCore.Schema.MetricsTest do
 
       Repo.insert!(changeset)
       data = Repo.all(Metrics)
-      assert hd(data).inserted_at == time
+      {:ok, test_meta} = Map.fetch(hd(data).metrics.dashboards.dashboards, "metadata")
+      {:ok, test_data} = Map.fetch(test_meta, "data")
+      {:ok, test_value} = Map.fetch(hd(test_data), "value")
+      assert test_value == "Test Dashboard"
     end
   end
 
   describe "measure_and_dump" do
-    test "updates with organisation info" do
+    test "successfully updates database with organisation info" do
       Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
-      # asset = insert(:asset)
+      initial_size = Enum.count(Repo.all(Metrics))
+      insert(:asset)
+      insert(:asset)
+      insert(:asset)
       OrgMetrics.measure_and_dump()
+      final_size = Enum.count(Repo.all(Metrics))
+      IO.puts(initial_size)
+      IO.puts(final_size)
+      refute initial_size == final_size
     end
   end
 
