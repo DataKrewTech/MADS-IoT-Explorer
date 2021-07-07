@@ -2,6 +2,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
   use ExUnit.Case, async: true
   alias AcqdatCore.Schema.Metrics
   alias AcqdatCore.Repo
+  alias AcqdatCore.Metrics.OrgMetrics
 
   describe "changeset" do
     test "metrics - returns a valid changeset" do
@@ -10,6 +11,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
       changeset =
         Metrics.changeset(%Metrics{}, %{
           inserted_time: DateTime.truncate(DateTime.utc_now(), :second),
+          org_id: 123,
           metrics: params
         })
 
@@ -34,7 +36,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
   describe "measure_and_dump" do
     test "updates with organisation info" do
       Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
-      asset = insert(:asset)
+      # asset = insert(:asset)
       OrgMetrics.measure_and_dump()
     end
   end
@@ -98,15 +100,13 @@ defmodule AcqdatCore.Schema.MetricsTest do
             ]
           }
         },
-        projects: [
-          %{count: 1, metadata: %{data: [%{id: 70, value: "JTC Cleantech 1"}]}},
-          sensor_types: %{
-            count: 2,
-            metadata: %{
-              data: [%{id: 54, value: "PowerCubePramsV1"}, %{id: 51, value: "PowerCubeParams"}]
-            }
+        projects: %{count: 1, metadata: %{data: [%{id: 70, value: "JTC Cleantech 1"}]}},
+        sensor_types: %{
+          count: 2,
+          metadata: %{
+            data: [%{id: 54, value: "PowerCubePramsV1"}, %{id: 51, value: "PowerCubeParams"}]
           }
-        ],
+        },
         sensors: %{
           count: 4,
           metadata: %{

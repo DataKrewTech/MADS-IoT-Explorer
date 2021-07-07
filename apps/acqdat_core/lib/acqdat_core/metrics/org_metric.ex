@@ -29,15 +29,25 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   def measure_and_dump() do
     orgs = Repo.all(Organisation)
     stream = Task.async_stream(orgs, &assimilate_all_metrics/1, ordered: false)
-    Enum.to_list(stream)
+
+    Enum.map(stream, fn metric ->
+      {:ok, data} = metric
+      org_id = data.org_id
+
+      Metrics.changeset(%Metrics{}, %{
+        inserted_time: DateTime.truncate(DateTime.utc_now(), :second),
+        org_id: org_id,
+        metrics: data
+      })
+      |> Repo.insert!()
+    end)
   end
 
   def assimilate_all_metrics(org) do
-    data =
-      org.id
-      |> entity_manifest()
-      |> Map.merge(dashboard_manifest(org.id))
-      |> Map.merge(data_insights_manifest(org.id))
+    org.id
+    |> entity_manifest()
+    |> Map.merge(dashboard_manifest(org.id))
+    |> Map.merge(data_insights_manifest(org.id))
   end
 
   # Get projects, assets, asset_types, sensors, sensor_types, gateways,
@@ -54,6 +64,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
     parameters_result = parse_parameters_data(parameters_query)
 
     %{
+      org_id: org_id,
       entities: %{
         sensors: %{
           count: sensor_result.sensor_count,
