@@ -8,6 +8,8 @@ defmodule AcqdatCore.Repo.Migrations.AddMetrics do
       add(:org_id, :integer, null: false)
       add(:metrics, :map)
       timestamps(type: :timestamptz)
+
     end
+    create index("acqdat_metrics", [:org_id, :inserted_time])
   end
 end
