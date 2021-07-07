@@ -51,7 +51,6 @@ defmodule AcqdatCore.Schema.Metrics.Meta do
 end
 
 defmodule AcqdatCore.Schema.Metrics.EntityMeta do
-
   use AcqdatCore.Schema
 
   embedded_schema do
