@@ -348,7 +348,7 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
     end
   end
 
-  describe "fetch_hierarchy" do
+  describe "fetch_project_tree" do
     setup :setup_conn
     setup :create_asset_tree
 
