@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.RoleManagement.RequestsErrorHelper do
+defmodule AcqdatApiWeb.TenantManagement.RequestsErrorHelper do
   def error_message(:resource_not_found) do
     %{
       title: "Invalid Request ID",

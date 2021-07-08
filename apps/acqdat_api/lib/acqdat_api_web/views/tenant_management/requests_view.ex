@@ -1,6 +1,7 @@
-defmodule AcqdatApiWeb.RoleManagement.RequestsView do
+defmodule AcqdatApiWeb.TenantManagement.RequestsView do
   use AcqdatApiWeb, :view
-  alias AcqdatApiWeb.RoleManagement.RequestsView
+  alias AcqdatApiWeb.TenantManagement.RequestsView
+  alias AcqdatApiWeb.EntityManagement.OrganisationView
 
   def render("request_messg.json", %{message: message}) do
     %{
@@ -29,6 +30,17 @@ defmodule AcqdatApiWeb.RoleManagement.RequestsView do
       phone_number: request.phone_number,
       status: request.status,
       user_metadata: request.user_metadata
+    }
+  end
+
+  def render("org_index.json", %{organisation: organisation}) do
+    %{
+      organisations:
+        render_many(organisation.entries, OrganisationView, "org_with_preloads.json"),
+      page_number: organisation.page_number,
+      page_size: organisation.page_size,
+      total_entries: organisation.total_entries,
+      total_pages: organisation.total_pages
     }
   end
 end

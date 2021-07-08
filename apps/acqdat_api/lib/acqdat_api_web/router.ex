@@ -49,7 +49,6 @@ defmodule AcqdatApiWeb.Router do
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
     post "/orgs/:org_id/validate_credentials", AuthController, :validate_credentials
-    resources "/requests", RoleManagement.RequestsController, only: [:update, :index]
 
     resources "/roles", RoleManagement.RoleController, only: [:index]
 
@@ -318,6 +317,14 @@ defmodule AcqdatApiWeb.Router do
         resources "/tasks", TasksController, only: [:create, :index, :show, :update, :delete]
       end
     end
+  end
+
+  ######################### Tenant Manager ############################
+  scope "/tent_mgmt", AcqdatApiWeb.TenantManagement do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    get "/orgs", RequestsController, :org_index
+    resources "/requests", RequestsController, only: [:update, :index]
   end
 
   ######################### Tool Management ###########################

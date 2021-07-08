@@ -1,9 +1,11 @@
-defmodule AcqdatApiWeb.RoleManagement.RequestsController do
+defmodule AcqdatApiWeb.TenantManagement.RequestsController do
   use AcqdatApiWeb, :authorized_controller
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.RoleManagement.Requests
-  alias AcqdatApiWeb.RoleManagement.RequestsErrorHelper
-  alias AcqdatApi.RoleManagement.Requests
+  import AcqdatApiWeb.Validators.TenantManagement.Requests
+  alias AcqdatApiWeb.TenantManagement.RequestsErrorHelper
+  alias AcqdatApi.TenantManagement.Requests
+  alias AcqdatApi.EntityManagement.Organisation
+  alias AcqdatApiWeb.EntityManagement.OrganisationErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadCurrentUser when action in [:update]
   plug AcqdatApiWeb.Plug.LoadRequests when action in [:update]
@@ -58,6 +60,28 @@ defmodule AcqdatApiWeb.RoleManagement.RequestsController do
       401 ->
         conn
         |> send_error(401, RequestsErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def org_index(conn, params) do
+    changeset = verify_index_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, organisation} = {:list, Organisation.get_all(data, [:apps, :projects])}
+
+        conn
+        |> put_status(200)
+        |> render("org_index.json", %{organisation: organisation})
+
+      404 ->
+        conn
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
   end
 end
