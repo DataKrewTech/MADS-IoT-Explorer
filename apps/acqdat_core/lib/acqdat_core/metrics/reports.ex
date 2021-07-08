@@ -1,4 +1,12 @@
-defmodule AcqdatCore.Metrics.Metrics do
+defmodule AcqdatCore.Metrics.Reports do
+  import Ecto.Query
+
+  alias AcqdatCore.Repo
+  alias AcqdatCore.Schema.Metrics
+  alias AcqdatCore.Metrics.OrgMetrics
+
+  alias AcqdatCore.Schema.EntityManagement.Organisation
+
   @moduledoc """
   A module for handling all the organisation related metrics.
 
@@ -47,6 +55,44 @@ defmodule AcqdatCore.Metrics.Metrics do
   @doc """
   Returns the daily report for an organisation.
   """
-  def daily_report() do
+  def daily_report(org_id) do
+    midnight_today = DateTime.utc_now()
+    midnight_today = %{midnight_today | hour: 0}
+    midnight_today = %{midnight_today | minute: 0}
+    midnight_today = %{midnight_today | second: 0}
+    midnight_today = %{midnight_today | microsecond: 0}
+    now = DateTime.utc_now()
+
+    query =
+      from(
+        org in Organisation,
+        where: org.id == ^org_id
+      )
+
+    results = Repo.all(query)
+
+    case results == [] do
+      true ->
+        {:error, "Organisation does not exist"}
+
+      false ->
+        query =
+          from(
+            metric in Metrics,
+            where:
+              metric.org_id == ^org_id and
+                metric.inserted_time > ^midnight_today and
+                metric.inserted_time < ^now
+          )
+
+        results = Repo.all(query)
+
+        if(results == []) do
+          OrgMetrics.measure_and_dump()
+          daily_report(org_id)
+        else
+          {:ok, hd(results)}
+        end
+    end
   end
 end

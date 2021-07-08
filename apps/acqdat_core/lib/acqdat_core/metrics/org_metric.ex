@@ -19,7 +19,6 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
   alias AcqdatCore.DataInsights.Schema.FactTables
   alias AcqdatCore.DataInsights.Schema.Visualizations
-
   alias AcqdatCore.Schema.Metrics
 
   @doc """

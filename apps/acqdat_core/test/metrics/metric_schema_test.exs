@@ -2,7 +2,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
   use ExUnit.Case, async: true
   alias AcqdatCore.Schema.Metrics
   alias AcqdatCore.Repo
-  alias AcqdatCore.Metrics.OrgMetrics
+  alias AcqdatCore.Metrics.{OrgMetrics, Reports}
 
   import AcqdatCore.Support.Factory
   alias AcqdatCore.Schema.EntityManagement.{Asset}
@@ -48,9 +48,32 @@ defmodule AcqdatCore.Schema.MetricsTest do
       insert(:asset)
       OrgMetrics.measure_and_dump()
       final_size = Enum.count(Repo.all(Metrics))
-      IO.puts(initial_size)
-      IO.puts(final_size)
       refute initial_size == final_size
+    end
+  end
+
+  describe "daily_report" do
+    test "rejects bad org_id" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      {:error, result} = Reports.daily_report(-43)
+      assert result == "Organisation does not exist"
+    end
+
+    test "returns existing same day record if available" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      asset = insert(:asset)
+      time = DateTime.truncate(DateTime.utc_now(), :second)
+      OrgMetrics.measure_and_dump()
+      :timer.sleep(2000)
+      {:ok, result} = Reports.daily_report(asset.org_id)
+      assert DateTime.diff(result.inserted_time, time) <= 1
+    end
+
+    test "generates valid record if not already available" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      asset = insert(:asset)
+      {:ok, result} = Reports.daily_report(asset.org_id)
+      assert result.org_id == asset.org_id
     end
   end
 
