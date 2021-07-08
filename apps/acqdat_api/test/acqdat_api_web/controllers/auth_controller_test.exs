@@ -121,110 +121,118 @@ defmodule AcqdatApiWeb.AuthControllerTest do
   #   end
   # end
 
-  # describe "validate_token/2" do
-  #   setup :setup_user_with_conn
+  describe "validate_token/2" do
+    setup :setup_user_with_conn
 
-  #   setup %{conn: conn, user_credentials: user_credentials, user_params: params, user: user} do
-  #     data = %{email: user_credentials.email, password: params.password, org_id: user.org_id}
-  #     conn = post(conn, Routes.auth_path(conn, :sign_in), data)
-  #     result = conn |> json_response(200)
+    setup %{conn: conn, user_credentials: user_credentials, user_params: params, user: user} do
+      res =
+        post(conn, Routes.auth_path(conn, :sign_in), %{
+          email: user_credentials.email,
+          password: params.password
+        })
 
-  #     [
-  #       access_token: result["access_token"],
-  #       refresh_token: result["refresh_token"]
-  #     ]
-  #   end
+      conn = conn |> put_req_header("auth-token", res.assigns.access_token)
 
-  #   test "returns same access token if not expired", context do
-  #     %{access_token: access_token, refresh_token: refresh_token} = context
+      conn = post(conn, Routes.auth_path(conn, :org_sign_in, user.org_id))
 
-  #     conn =
-  #       build_conn()
-  #       |> put_req_header("authorization", "Bearer #{refresh_token}")
+      result = conn |> json_response(200)
 
-  #     params = %{access_token: access_token}
-  #     conn = post(conn, Routes.auth_path(conn, :validate_token), params)
-  #     result = conn |> json_response(200)
-  #     assert result["access_token"] == access_token
-  #     assert result["message"] == "Authorized"
-  #   end
+      [
+        access_token: result["access_token"],
+        refresh_token: result["refresh_token"]
+      ]
+    end
 
-  #   test "returns a new access token if expired", context do
-  #     %{refresh_token: refresh_token} = context
+    test "returns same access token if not expired", context do
+      %{access_token: access_token, refresh_token: refresh_token} = context
 
-  #     conn =
-  #       build_conn()
-  #       |> put_req_header("authorization", "Bearer #{refresh_token}")
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-  #     access_token = invalid_token()
-  #     params = %{access_token: access_token}
-  #     conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      params = %{access_token: access_token}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      result = conn |> json_response(200)
+      assert result["access_token"] == access_token
+      assert result["message"] == "Authorized"
+    end
 
-  #     result = conn |> json_response(200)
-  #     assert result["access_token"] != access_token
-  #     assert result["message"] == "Authorized"
-  #   end
+    test "returns a new access token if expired", context do
+      %{refresh_token: refresh_token} = context
 
-  #   test "returns error if refresh token in auth header not valid" do
-  #     refresh_token = invalid_token()
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-  #     conn =
-  #       build_conn()
-  #       |> put_req_header("authorization", "Bearer #{refresh_token}")
+      access_token = invalid_token()
+      params = %{access_token: access_token}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
-  #     params = %{access_token: invalid_token()}
-  #     conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      result = conn |> json_response(200)
+      assert result["access_token"] != access_token
+      assert result["message"] == "Authorized"
+    end
 
-  #     result = conn |> json_response(403)
+    test "returns error if refresh token in auth header not valid" do
+      refresh_token = invalid_token()
 
-  #     assert result == %{
-  #              "detail" => "You are not allowed to perform this action.",
-  #              "source" => nil,
-  #              "status_code" => 403,
-  #              "title" => "Unauthorized"
-  #            }
-  #   end
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-  #   test "returns error if access token garbage", context do
-  #     %{refresh_token: refresh_token} = context
+      params = %{access_token: invalid_token()}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
-  #     conn =
-  #       build_conn()
-  #       |> put_req_header("authorization", "Bearer #{refresh_token}")
+      result = conn |> json_response(403)
 
-  #     params = %{access_token: "avcbd123489u"}
-  #     conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
+    end
 
-  #     result = conn |> json_response(400)
+    test "returns error if access token garbage", context do
+      %{refresh_token: refresh_token} = context
 
-  #     assert %{
-  #              "detail" => "argument error: [\"avcbd123489u\"]",
-  #              "source" => nil,
-  #              "status_code" => 400,
-  #              "title" => "Invalid token"
-  #            } == result
-  #   end
+      conn =
+        build_conn()
+        |> put_req_header("authorization", "Bearer #{refresh_token}")
 
-  #   test "fails if authorization header not found" do
-  #     params = %{refresh_token: "avcbd123489u"}
-  #     conn = build_conn()
-  #     conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+      params = %{access_token: "avcbd123489u"}
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
 
-  #     result = conn |> json_response(403)
+      result = conn |> json_response(400)
 
-  #     assert result == %{
-  #              "detail" => "You are not allowed to perform this action.",
-  #              "source" => nil,
-  #              "status_code" => 403,
-  #              "title" => "Unauthorized"
-  #            }
-  #   end
-  # end
+      assert %{
+               "detail" => "argument error: [\"avcbd123489u\"]",
+               "source" => nil,
+               "status_code" => 400,
+               "title" => "Invalid token"
+             } == result
+    end
+
+    test "fails if authorization header not found" do
+      params = %{refresh_token: "avcbd123489u"}
+      conn = build_conn()
+      conn = post(conn, Routes.auth_path(conn, :validate_token), params)
+
+      result = conn |> json_response(403)
+
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
+    end
+  end
 
   describe "sign_out/2" do
     setup :setup_user_with_conn
 
-    setup %{conn: conn, user_credentials: user_credentials, user_params: params, user: user} do
+    setup %{conn: conn, user_credentials: user_credentials, user_params: params} do
       data = %{email: user_credentials.email, password: params.password}
       conn = post(conn, Routes.auth_path(conn, :sign_in), data)
       result = conn |> json_response(200)
