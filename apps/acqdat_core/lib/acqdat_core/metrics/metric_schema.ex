@@ -3,12 +3,14 @@ defmodule AcqdatCore.Schema.Metrics do
   alias AcqdatCore.Schema.Metrics.Meta
 
   @type t :: %__MODULE__{
-    inserted_time: DateTime.t(),
-    metrics: map()
-  }
+          inserted_time: DateTime.t(),
+          org_id: integer(),
+          metrics: map()
+        }
 
   schema "acqdat_metrics" do
     field(:inserted_time, :utc_datetime, null: false)
+    field(:org_id, :integer, null: false)
     embeds_one(:metrics, Meta)
 
     timestamps(type: :utc_datetime)
@@ -16,9 +18,9 @@ defmodule AcqdatCore.Schema.Metrics do
 
   def changeset(%__MODULE__{} = metric, params) do
     metric
-    |> cast(params, [:inserted_time])
+    |> cast(params, [:inserted_time, :org_id])
     |> cast_embed(:metrics, with: &Meta.changeset/2)
-    |> validate_required([:inserted_time])
+    |> validate_required([:inserted_time, :org_id])
   end
 end
 
@@ -29,6 +31,7 @@ defmodule AcqdatCore.Schema.Metrics.Meta do
   alias AcqdatCore.Schema.Metrics.RoleManagerMeta
 
   use AcqdatCore.Schema
+
   embedded_schema do
     embeds_one(:entities, EntityMeta)
     embeds_one(:dashboards, DashboardMeta)
@@ -48,7 +51,6 @@ defmodule AcqdatCore.Schema.Metrics.Meta do
 end
 
 defmodule AcqdatCore.Schema.Metrics.EntityMeta do
-
   use AcqdatCore.Schema
 
   embedded_schema do
