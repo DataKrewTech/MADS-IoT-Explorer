@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
         id: 3
       }
 
-      conn = get(conn, Routes.user_tasks_path(conn, :show, 1, 1, params.id))
+      conn = get(conn, Routes.tasks_path(conn, :show, 1, 1, params.id))
       result = conn |> json_response(403)
 
       assert result == %{
@@ -43,7 +43,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :show, task.org_id, task.user_id, params.id)
+          Routes.tasks_path(conn, :show, task.org_id, task.user_id, params.id)
         )
 
       result = conn |> json_response(400)
@@ -60,7 +60,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :show, task.org_id, task.user_id, task.id)
+          Routes.tasks_path(conn, :show, task.org_id, task.user_id, task.id)
         )
 
       result = conn |> json_response(200)
@@ -85,7 +85,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         delete(
           conn,
-          Routes.user_tasks_path(
+          Routes.tasks_path(
             conn,
             :delete,
             task.org_id,
@@ -111,7 +111,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
         id: 3
       }
 
-      conn = delete(conn, Routes.user_tasks_path(conn, :delete, 1, 1, params.id))
+      conn = delete(conn, Routes.tasks_path(conn, :delete, 1, 1, params.id))
       result = conn |> json_response(403)
 
       assert result == %{
@@ -127,7 +127,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
         id: -1
       }
 
-      conn = delete(conn, Routes.user_tasks_path(conn, :delete, 1, 1, params.id))
+      conn = delete(conn, Routes.tasks_path(conn, :delete, 1, 1, params.id))
 
       result = conn |> json_response(404)
 
@@ -154,7 +154,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :index, task.org_id, task.user_id, params)
+          Routes.tasks_path(conn, :index, task.org_id, task.user_id, params)
         )
 
       response = conn |> json_response(200)
@@ -171,7 +171,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :index, task.org_id, task.user_id, %{})
+          Routes.tasks_path(conn, :index, task.org_id, task.user_id, %{})
         )
 
       response = conn |> json_response(200)
@@ -190,7 +190,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :index, task.org_id, task.user_id, params)
+          Routes.tasks_path(conn, :index, task.org_id, task.user_id, params)
         )
 
       page1_response = conn |> json_response(200)
@@ -215,7 +215,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksControllerTest do
       conn =
         get(
           conn,
-          Routes.user_tasks_path(conn, :index, task.org_id, task.user_id, params)
+          Routes.tasks_path(conn, :index, task.org_id, task.user_id, params)
         )
 
       result = conn |> json_response(403)
