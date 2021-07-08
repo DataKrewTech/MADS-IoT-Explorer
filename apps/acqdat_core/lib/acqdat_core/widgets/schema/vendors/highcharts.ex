@@ -586,8 +586,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
        when entity_type == "sensor" and type == "latest" do
     data = SensorData.get_latest_by_parameters(entity_id, parameter, filter_metadata)
 
-    data = (data || %{}) |> Map.delete(:x)
-    [data]
+    if data, do: [Map.delete(data, :x)], else: []
   end
 
   defp map_sensor_data(res, sen_data) do

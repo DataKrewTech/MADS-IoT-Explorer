@@ -80,6 +80,10 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
     Repo.get_by(Invitation, email: email)
   end
 
+  def get_by_email_n_org(email, org_id) do
+    Repo.get_by(Invitation, email: email, org_id: org_id)
+  end
+
   def get_by_token(token) do
     Repo.get_by(Invitation, token: token, token_valid: true)
   end

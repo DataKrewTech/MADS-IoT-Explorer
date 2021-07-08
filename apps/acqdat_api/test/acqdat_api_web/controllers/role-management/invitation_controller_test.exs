@@ -52,6 +52,25 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
              }
     end
 
+    test "re-invitation email will be sent when user re-invites the same user", context do
+      %{conn: conn} = context
+
+      invitation = insert(:invitation)
+
+      data = %{
+        invitation: %{email: invitation.email, role_id: invitation.id, org_id: invitation.org_id}
+      }
+
+      conn = post(conn, Routes.invitation_path(conn, :create, invitation.org_id), data)
+
+      response = conn |> json_response(200)
+
+      assert response == %{
+               "status" =>
+                 "Sent Reinvitation to the user successfully, they will receive email after sometime!"
+             }
+    end
+
     test "creation of invitation fails if the user with email exists in specified organisation",
          context do
       %{conn: conn} = context
@@ -183,6 +202,35 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
 
     test "invitation token updated", context do
       %{invitation: invitation, conn: conn} = context
+
+      conn =
+        put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{
+          "invitation" => %{"group_ids" => [], "policies" => []}
+        })
+
+      response = conn |> json_response(200)
+
+      assert response["status"] ==
+               "Sent Reinvitation to the user successfully, they will receive email after sometime!"
+    end
+
+    test "re-invitation email will be sent when user re-invites the same user",
+         context do
+      %{invitation: invitation, conn: conn} = context
+
+      data = %{
+        user: %{
+          password: "test123@!%$",
+          password_confirmation: "test123@!%$",
+          first_name: "Demo Name"
+        }
+      }
+
+      conn =
+        conn
+        |> put_req_header("invitation-token", invitation.token)
+
+      post(conn, Routes.user_path(conn, :create, invitation.org_id), data)
 
       conn =
         put(conn, Routes.invitation_path(conn, :update, invitation.org_id, invitation.id), %{

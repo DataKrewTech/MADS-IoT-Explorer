@@ -38,7 +38,8 @@ defmodule AcqdatApiWeb.AuthView do
     %{
       message: "Authorized",
       access_token: manifest.access_token,
-      user_id: manifest.user_id
+      user_id: manifest.user_id,
+      org_id: manifest.org_id
     }
   end
 

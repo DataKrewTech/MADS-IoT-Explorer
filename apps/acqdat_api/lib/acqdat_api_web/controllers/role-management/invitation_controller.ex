@@ -111,6 +111,9 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
             |> put_status(200)
             |> render("invite.json", %{message: message})
 
+          {:error, %{error: message}} ->
+            send_error(conn, 400, message)
+
           {:error, error} ->
             error = extract_changeset_error(error)
 
