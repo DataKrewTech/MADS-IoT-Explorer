@@ -47,21 +47,393 @@ defmodule AcqdatCore.Metrics.Reports do
   """
   @spec monthly_report(integer(), integer() | String.t()) :: map()
   def monthly_report(org_id, month) when is_integer(month) do
+    empty_report = %{
+      dashboard_count: 0,
+      panel_count: 0,
+      widget_count: 0,
+      fact_table_count: 0,
+      visualisation_count: 0,
+      active_parameter_count: 0,
+      asset_type_count: 0,
+      asset_count: 0,
+      gateway_count: 0,
+      project_count: 0,
+      sensor_type_count: 0,
+      sensor_count: 0
+    }
+
+    date = DateTime.to_date(DateTime.utc_now())
+    date = %{date | month: month}
+    start_date = Timex.beginning_of_month(date)
+    end_date = Timex.end_of_month(date)
+    number_of_days = end_date.day
+
+    query =
+      from(
+        metric in Metrics,
+        where:
+          metric.org_id == ^org_id and
+            fragment("?::date BETWEEN ? AND ?", metric.inserted_time, ^start_date, ^end_date),
+        distinct: fragment("?::date", metric.inserted_time)
+      )
+
+    results = Repo.all(query)
+
+    case length(results) != number_of_days do
+      true ->
+        {:error, "Data missing for organisation on some days, cannot generate report"}
+
+      false ->
+        new_report = empty_report
+
+        new_report =
+          Enum.reduce(results, new_report, fn daily_report, new_report ->
+            new_report = %{
+              new_report
+              | dashboard_count:
+                  new_report.dashboard_count +
+                    Map.fetch!(daily_report.metrics.dashboards.dashboards, "count")
+            }
+
+            new_report = %{
+              new_report
+              | panel_count:
+                  new_report.panel_count +
+                    Map.fetch!(daily_report.metrics.dashboards.panels, "count")
+            }
+
+            new_report = %{
+              new_report
+              | widget_count:
+                  new_report.widget_count +
+                    Map.fetch!(daily_report.metrics.dashboards.widgets, "count")
+            }
+
+            new_report = %{
+              new_report
+              | fact_table_count:
+                  new_report.fact_table_count +
+                    Map.fetch!(daily_report.metrics.data_insights.fact_tables, "count")
+            }
+
+            new_report = %{
+              new_report
+              | visualisation_count:
+                  new_report.visualisation_count +
+                    Map.fetch!(daily_report.metrics.data_insights.visualisations, "count")
+            }
+
+            new_report = %{
+              new_report
+              | active_parameter_count:
+                  new_report.active_parameter_count +
+                    Map.fetch!(daily_report.metrics.entities.active_parameters, "count")
+            }
+
+            new_report = %{
+              new_report
+              | asset_type_count:
+                  new_report.asset_type_count +
+                    Map.fetch!(daily_report.metrics.entities.asset_types, "count")
+            }
+
+            new_report = %{
+              new_report
+              | asset_count:
+                  new_report.asset_count +
+                    Map.fetch!(daily_report.metrics.entities.assets, "count")
+            }
+
+            new_report = %{
+              new_report
+              | gateway_count:
+                  new_report.gateway_count +
+                    Map.fetch!(daily_report.metrics.entities.gateways, "count")
+            }
+
+            new_report = %{
+              new_report
+              | project_count:
+                  new_report.project_count +
+                    Map.fetch!(daily_report.metrics.entities.projects, "count")
+            }
+
+            new_report = %{
+              new_report
+              | sensor_type_count:
+                  new_report.sensor_type_count +
+                    Map.fetch!(daily_report.metrics.entities.sensor_types, "count")
+            }
+
+            new_report = %{
+              new_report
+              | sensor_count:
+                  new_report.sensor_count +
+                    Map.fetch!(daily_report.metrics.entities.sensors, "count")
+            }
+          end)
+
+        new_report = %{
+          new_report
+          | dashboard_count: new_report.dashboard_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | panel_count: new_report.panel_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | widget_count: new_report.widget_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | fact_table_count: new_report.fact_table_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | visualisation_count: new_report.visualisation_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | active_parameter_count: new_report.active_parameter_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | asset_type_count: new_report.asset_type_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | asset_count: new_report.asset_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | gateway_count: new_report.gateway_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | project_count: new_report.project_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | sensor_type_count: new_report.sensor_type_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | sensor_count: new_report.sensor_count / number_of_days
+        }
+
+        {:ok, new_report}
+    end
   end
 
-  def monthly_report(org, date) do
+  def monthly_report(org_id, end_date) do
+    empty_report = %{
+      dashboard_count: 0,
+      panel_count: 0,
+      widget_count: 0,
+      fact_table_count: 0,
+      visualisation_count: 0,
+      active_parameter_count: 0,
+      asset_type_count: 0,
+      asset_count: 0,
+      gateway_count: 0,
+      project_count: 0,
+      sensor_type_count: 0,
+      sensor_count: 0
+    }
+
+    start_date = Timex.beginning_of_month(end_date)
+    number_of_days = end_date.day
+
+    if(end_date == Timex.today()) do
+      daily_report(org_id)
+    end
+
+    query =
+      from(
+        metric in Metrics,
+        where:
+          metric.org_id == ^org_id and
+            fragment("?::date BETWEEN ? AND ?", metric.inserted_time, ^start_date, ^end_date),
+        distinct: fragment("?::date", metric.inserted_time)
+      )
+
+    results = Repo.all(query)
+
+    case length(results) != number_of_days do
+      true ->
+        {:error, "Data missing for organisation on some days, cannot generate report"}
+
+      false ->
+        new_report = empty_report
+
+        new_report =
+          Enum.reduce(results, new_report, fn daily_report, new_report ->
+            new_report = %{
+              new_report
+              | dashboard_count:
+                  new_report.dashboard_count +
+                    Map.fetch!(daily_report.metrics.dashboards.dashboards, "count")
+            }
+
+            new_report = %{
+              new_report
+              | panel_count:
+                  new_report.panel_count +
+                    Map.fetch!(daily_report.metrics.dashboards.panels, "count")
+            }
+
+            new_report = %{
+              new_report
+              | widget_count:
+                  new_report.widget_count +
+                    Map.fetch!(daily_report.metrics.dashboards.widgets, "count")
+            }
+
+            new_report = %{
+              new_report
+              | fact_table_count:
+                  new_report.fact_table_count +
+                    Map.fetch!(daily_report.metrics.data_insights.fact_tables, "count")
+            }
+
+            new_report = %{
+              new_report
+              | visualisation_count:
+                  new_report.visualisation_count +
+                    Map.fetch!(daily_report.metrics.data_insights.visualisations, "count")
+            }
+
+            new_report = %{
+              new_report
+              | active_parameter_count:
+                  new_report.active_parameter_count +
+                    Map.fetch!(daily_report.metrics.entities.active_parameters, "count")
+            }
+
+            new_report = %{
+              new_report
+              | asset_type_count:
+                  new_report.asset_type_count +
+                    Map.fetch!(daily_report.metrics.entities.asset_types, "count")
+            }
+
+            new_report = %{
+              new_report
+              | asset_count:
+                  new_report.asset_count +
+                    Map.fetch!(daily_report.metrics.entities.assets, "count")
+            }
+
+            new_report = %{
+              new_report
+              | gateway_count:
+                  new_report.gateway_count +
+                    Map.fetch!(daily_report.metrics.entities.gateways, "count")
+            }
+
+            new_report = %{
+              new_report
+              | project_count:
+                  new_report.project_count +
+                    Map.fetch!(daily_report.metrics.entities.projects, "count")
+            }
+
+            new_report = %{
+              new_report
+              | sensor_type_count:
+                  new_report.sensor_type_count +
+                    Map.fetch!(daily_report.metrics.entities.sensor_types, "count")
+            }
+
+            new_report = %{
+              new_report
+              | sensor_count:
+                  new_report.sensor_count +
+                    Map.fetch!(daily_report.metrics.entities.sensors, "count")
+            }
+          end)
+
+        new_report = %{
+          new_report
+          | dashboard_count: new_report.dashboard_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | panel_count: new_report.panel_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | widget_count: new_report.widget_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | fact_table_count: new_report.fact_table_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | visualisation_count: new_report.visualisation_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | active_parameter_count: new_report.active_parameter_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | asset_type_count: new_report.asset_type_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | asset_count: new_report.asset_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | gateway_count: new_report.gateway_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | project_count: new_report.project_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | sensor_type_count: new_report.sensor_type_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | sensor_count: new_report.sensor_count / number_of_days
+        }
+
+        {:ok, new_report}
+    end
   end
 
   @doc """
   Returns the daily report for an organisation.
   """
   def daily_report(org_id) do
-    midnight_today = DateTime.utc_now()
-    midnight_today = %{midnight_today | hour: 0}
-    midnight_today = %{midnight_today | minute: 0}
-    midnight_today = %{midnight_today | second: 0}
-    midnight_today = %{midnight_today | microsecond: 0}
-    now = DateTime.utc_now()
+    today = DateTime.to_date(DateTime.utc_now())
 
     query =
       from(
@@ -81,8 +453,7 @@ defmodule AcqdatCore.Metrics.Reports do
             metric in Metrics,
             where:
               metric.org_id == ^org_id and
-                metric.inserted_time > ^midnight_today and
-                metric.inserted_time < ^now
+                fragment("?::date", metric.inserted_time) == ^today
           )
 
         results = Repo.all(query)

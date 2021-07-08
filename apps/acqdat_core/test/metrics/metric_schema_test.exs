@@ -52,7 +52,7 @@ defmodule AcqdatCore.Schema.MetricsTest do
     end
   end
 
-  describe "daily_report" do
+  describe "daily_report/1" do
     test "rejects bad org_id" do
       Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       {:error, result} = Reports.daily_report(-43)
@@ -74,6 +74,90 @@ defmodule AcqdatCore.Schema.MetricsTest do
       asset = insert(:asset)
       {:ok, result} = Reports.daily_report(asset.org_id)
       assert result.org_id == asset.org_id
+    end
+  end
+
+  describe "monthly_report/2" do
+    test "Rejects where data not available" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      asset = insert(:asset)
+      {:error, message} = Reports.monthly_report(asset.org_id, 1)
+      assert message == "Data missing for organisation on some days, cannot generate report"
+    end
+
+    test "Returns valid report for available data" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      asset = insert(:asset)
+      org_id = asset.org_id
+      sample = DateTime.utc_now()
+      time_zone = sample.time_zone
+      time = DateTime.to_time(sample)
+      date = DateTime.to_date(sample)
+      date = %{date | month: 4}
+      dummy = dummy_data()
+
+      sum =
+        Enum.reduce(1..30, 0, fn day, acc ->
+          date = %{date | day: day}
+          timestamp = DateTime.new!(date, time, time_zone)
+          random = Enum.random(0..50)
+          newdashdash = %{dummy.dashboards.dashboards | count: random}
+          newdash = %{dummy.dashboards | dashboards: newdashdash}
+          newdata = %{dummy | dashboards: newdash}
+
+          changeset =
+            Metrics.changeset(%Metrics{}, %{
+              inserted_time: timestamp,
+              org_id: org_id,
+              metrics: newdata
+            })
+
+          Repo.insert!(changeset)
+
+          acc + random
+        end)
+
+      average = sum / 30
+      {:ok, result} = Reports.monthly_report(org_id, 4)
+      assert result.dashboard_count == average
+    end
+
+    test "Returns valid data for month so far" do
+      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
+      asset = insert(:asset)
+      org_id = asset.org_id
+      sample = DateTime.utc_now()
+      time_zone = sample.time_zone
+      time = DateTime.to_time(sample)
+      date = DateTime.to_date(sample)
+      date = %{date | month: 4}
+      date = %{date | day: 14}
+      dummy = dummy_data()
+
+      sum =
+        Enum.reduce(1..14, 0, fn day, acc ->
+          date = %{date | day: day}
+          timestamp = DateTime.new!(date, time, time_zone)
+          random = Enum.random(0..50)
+          newdashdash = %{dummy.dashboards.dashboards | count: random}
+          newdash = %{dummy.dashboards | dashboards: newdashdash}
+          newdata = %{dummy | dashboards: newdash}
+
+          changeset =
+            Metrics.changeset(%Metrics{}, %{
+              inserted_time: timestamp,
+              org_id: org_id,
+              metrics: newdata
+            })
+
+          Repo.insert!(changeset)
+
+          acc + random
+        end)
+
+      average = sum / 14
+      {:ok, result} = Reports.monthly_report(org_id, date)
+      assert result.dashboard_count == average
     end
   end
 
