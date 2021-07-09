@@ -8,12 +8,14 @@ defmodule Notifications.Vendors.Twilio do
   @behaviour SMS
 
   # ExTwilio.Message.create(to: "whatsapp:+917066820264", from: "whatsapp:+14155238886", body: "Hello there mads is  going great")
-  @impl
+  # @impl
+  @spec send_message(any, any, any) :: {:ok, map} | {:error, map, number}
   def send_message(message, to, _from) do
     ExTwilio.Message.create(to: "whatsapp:#{to}", from: "whatsapp:+14155238886", body: message)
   end
 
-  @impl
+  # @impl
+  @spec send_sms(any, any, any) :: {:ok, map} | {:error, map, number}
   def send_sms(message, to, from) do
     ExTwilio.Message.create(to: to, from: from, body: message)
   end

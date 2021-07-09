@@ -4,7 +4,8 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.HighCharts do
   @moduledoc """
     Embedded Schema of the settings of the widget with it keys and subkeys
   """
-  @data_types ~w(string color object list integer boolean)a
+
+  # @data_types ~w(string color object list integer boolean)a
 
   defstruct chart: %{
               data_type: :object,

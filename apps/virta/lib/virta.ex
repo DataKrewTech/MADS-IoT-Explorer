@@ -19,7 +19,7 @@ defmodule Virta do
   use Application
 
   @doc false
-  def start(_type, _args) do
+  def start(_, _) do
     Supervisor.start_link(name: Supervisor)
   end
 end

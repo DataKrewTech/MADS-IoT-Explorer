@@ -75,21 +75,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
       message: "unique name under org"
     )
   end
-
-  # TODO: Need to remove these codes, after fbp branch is merged to master
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
-  defp add_slug(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:slug, Slugger.slugify(random_string(12)))
-  end
-
-  defp random_string(length) do
-    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
-  end
 end
 
 defmodule AcqdatCore.DashboardManagement.Schema.Dashboard.Settings do

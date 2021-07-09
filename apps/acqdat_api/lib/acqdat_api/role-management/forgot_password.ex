@@ -72,7 +72,7 @@ defmodule AcqdatApi.RoleManagement.ForgotPassword do
   end
 
   defp guardian_create_token(resource, time, token_type) do
-    {:ok, access_token, _claims} =
+    {:ok, access_token, _} =
       Guardian.encode_and_sign(
         resource,
         %{},

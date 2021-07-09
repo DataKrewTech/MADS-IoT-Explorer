@@ -12,7 +12,7 @@ defmodule AcqdatApi.DashboardManagement.CommandWidget do
 
   def create(params) do
     Multi.new()
-    |> Multi.run(:create_widget, fn _, _changes ->
+    |> Multi.run(:create_widget, fn _, _ ->
       CommandWidget.create(params)
     end)
     |> Multi.run(:update_panel_widget_layout, fn _, %{create_widget: widget} ->
@@ -27,10 +27,10 @@ defmodule AcqdatApi.DashboardManagement.CommandWidget do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{create_widget: widget, update_panel_widget_layout: _panel}} ->
+      {:ok, %{create_widget: widget, update_panel_widget_layout: _}} ->
         {:ok, widget}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :create_widget -> verify_error_changeset({:error, failed_value})
           :update_panel_widget_layout -> verify_error_changeset({:error, failed_value})

@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.ErrorHandler do
   use AcqdatApiWeb, :controller
 
-  def auth_error(conn, {type, _reason}, _opts) do
+  def auth_error(conn, {type, _}, _) do
     conn
     |> put_status(403)
     |> put_view(AcqdatApiWeb.ErrorView)

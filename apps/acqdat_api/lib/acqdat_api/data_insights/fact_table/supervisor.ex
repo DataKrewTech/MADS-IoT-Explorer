@@ -10,7 +10,7 @@ defmodule AcqdatApi.DataInsights.FactTableSupervisor do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def init(_args) do
+  def init(_) do
     children = [
       FactTableManager,
       FactTableServer

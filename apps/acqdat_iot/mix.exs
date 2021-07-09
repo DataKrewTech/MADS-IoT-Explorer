@@ -38,6 +38,7 @@ defmodule AcqdatIot.MixProject do
   defp deps do
     [
       {:acqdat_core, in_umbrella: true},
+      {:acqdat_api, in_umbrella: true},
 
       # validation api params
       {:params, "~> 2.0"}

@@ -16,7 +16,7 @@ defmodule AcqdatApi.ExtractRoutes do
   #     }
   #  }
 
-  def start_link(_opts) do
+  def start_link(_) do
     Agent.start_link(fn -> extract_routes() end, name: __MODULE__)
   end
 

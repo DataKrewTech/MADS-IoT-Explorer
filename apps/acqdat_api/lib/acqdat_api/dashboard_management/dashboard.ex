@@ -59,7 +59,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
 
   defp create_dashboard(params) do
     Multi.new()
-    |> Multi.run(:create_dashboard, fn _, _changes ->
+    |> Multi.run(:create_dashboard, fn _, _ ->
       DashboardModel.create(params)
     end)
     |> Multi.run(:create_home_panel, fn _, %{create_dashboard: dashboard} ->
@@ -77,10 +77,10 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{create_dashboard: dashboard, create_home_panel: _panel}} ->
+      {:ok, %{create_dashboard: dashboard, create_home_panel: _}} ->
         verify_dashboard({:ok, dashboard})
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :create_dashboard -> verify_error_changeset({:error, failed_value})
           :create_home_panel -> verify_error_changeset({:error, failed_value})

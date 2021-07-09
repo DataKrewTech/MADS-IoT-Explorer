@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelsChannel do
 
   intercept ["out_put_res"]
 
-  def join("panels:" <> panel_id, _params, socket) do
+  def join("panels:" <> panel_id, _, socket) do
     if socket.assigns.user_id do
       socket = assign(socket, :panel, panel_id)
       response = %{message: "Channel Joined Successfully #{panel_id}"}

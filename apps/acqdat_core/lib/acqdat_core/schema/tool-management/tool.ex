@@ -65,13 +65,4 @@ defmodule AcqdatCore.Schema.ToolManagement.Tool do
       message: "Unique tool name per tool box!"
     )
   end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    uuid = @tool_prefix <> permalink(4)
-
-    changeset
-    |> put_change(:uuid, uuid)
-  end
-
-  defp add_uuid(%Ecto.Changeset{valid?: false} = changeset), do: changeset
 end

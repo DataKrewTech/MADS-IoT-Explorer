@@ -121,7 +121,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
     end
   end
 
-  def delete(conn, _params) do
+  def delete(conn, _) do
     case conn.status do
       nil ->
         case Asset.delete(conn.assigns.asset) do
@@ -129,7 +129,7 @@ defmodule AcqdatApiWeb.EntityManagement.AssetController do
             conn
             |> send_error(404, AssetErrorHelper.error_message(:asset_with_child_sensors, message))
 
-          {:ok, {_number, nil}} ->
+          {:ok, {_, nil}} ->
             Task.start_link(fn ->
               ElasticSearch.delete("assets", conn.assigns.asset.id)
             end)

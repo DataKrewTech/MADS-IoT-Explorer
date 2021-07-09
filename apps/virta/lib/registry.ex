@@ -63,7 +63,7 @@ defmodule Virta.Registry do
   # ------------------------------------------------------------------------- Server Callbacks -----
 
   @doc false
-  def init(_opts) do
+  def init(_) do
     {:ok, %{}}
   end
 

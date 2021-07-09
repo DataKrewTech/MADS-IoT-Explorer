@@ -18,8 +18,24 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     Repo.update(changeset)
   end
 
+  # TODO: Implement delete
+  @spec delete(any) :: any
+  def delete(_) do
+    nil
+  end
+
   def get(id) when is_integer(id) do
     case Repo.get(Organisation, id) do
+      nil ->
+        {:error, "organisation not found"}
+
+      org ->
+        {:ok, org}
+    end
+  end
+
+  def get(params) when is_map(params) do
+    case Repo.get_by(Organisation, params) do
       nil ->
         {:error, "organisation not found"}
 
@@ -49,16 +65,6 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     Organisation
     |> where([org], org.id in ^org_ids)
     |> Repo.all()
-  end
-
-  def get(params) when is_map(params) do
-    case Repo.get_by(Organisation, params) do
-      nil ->
-        {:error, "organisation not found"}
-
-      org ->
-        {:ok, org}
-    end
   end
 
   def get(id, project_id) when is_integer(id) do
@@ -101,7 +107,7 @@ defmodule AcqdatCore.Model.EntityManagement.Organisation do
     end
   end
 
-  def get_apps(_org) do
+  def get_apps(_) do
     # TODO: Need to filter by organisation, in future
     # org = org |> Repo.preload(:apps)
     # org.apps

@@ -27,7 +27,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
       name: params.name,
       uuid: params.uuid,
       inserted_at: DateTime.to_unix(params.inserted_at),
-      "join_field": "org"
+      join_field: "org"
       )
   end
 
@@ -46,7 +46,7 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
       creator_id: params.creator_id,
       inserted_at: DateTime.to_unix(params.inserted_at),
       metadata: params.metadata,
-      "join_field": %{"name": "project", "parent": params.org_id}
+      join_field: %{name: "project", parent: params.org_id}
       )
   end
 
@@ -74,8 +74,8 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
     inserted_at: DateTime.to_unix(params.inserted_at),
     creator_id: params.creator_id,
     metadata: params.metadata,
-      "join_field": "pro"
-      )
+    join_field: "pro"
+    )
   end
 
   defp seed_gateway_data() do
@@ -99,6 +99,6 @@ defmodule AcqdatCore.Seed.DataFeeder.Project do
     image_url: params.image_url,
     inserted_at: DateTime.to_unix(params.inserted_at),
     join_field: %{name: "gateway", parent: params.project_id}
-      )
+    )
   end
 end

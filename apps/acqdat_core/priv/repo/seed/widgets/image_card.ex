@@ -45,7 +45,7 @@ defmodule AcqdatCore.Seed.Widgets.ImageCard do
     end)
   end
 
-  def set_widget_data(_key, widget_settings, data, widget_type) do
+  def set_widget_data(_, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Image Card",
       properties: %{},

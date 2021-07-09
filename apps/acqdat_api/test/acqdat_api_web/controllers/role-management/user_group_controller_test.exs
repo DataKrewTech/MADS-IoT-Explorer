@@ -209,7 +209,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserGroupControllerTest do
     end
   end
 
-  def setup_request(_params) do
+  def setup_request(_) do
     actions1 = [
       %{"app" => "EntityManagement", "feature" => "Project", "action" => "create"},
       %{"app" => "EntityManagement", "feature" => "Sensor", "action" => "create"},

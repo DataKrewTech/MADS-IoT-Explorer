@@ -29,7 +29,7 @@ defmodule AcqdatCore.Alerts.Model.AlertRulesTest do
 
     test "with invalid params", %{alert_rule: alert_rule} do
       {:ok, alert_rule} = ARModel.create(alert_rule)
-      assert {:error, _alert_rule} = ARModel.update(alert_rule, %{creator_id: nil})
+      assert {:error, _} = ARModel.update(alert_rule, %{creator_id: nil})
     end
   end
 
@@ -38,13 +38,13 @@ defmodule AcqdatCore.Alerts.Model.AlertRulesTest do
 
     test "with valid params", %{alert_rule: alert_rule} do
       {:ok, alert_rule} = ARModel.create(alert_rule)
-      assert {:ok, _alert_rule} = ARModel.delete(alert_rule)
+      assert {:ok, _} = ARModel.delete(alert_rule)
     end
   end
 
-  def setup_alert_rules(_context) do
+  def setup_alert_rules(_) do
     sensor = insert(:sensor)
-    [param1, _param2] = fetch_parameters(sensor.sensor_type.parameters)
+    [param1, _] = fetch_parameters(sensor.sensor_type.parameters)
     [user1, user2, user3] = insert_list(3, :user)
 
     alert_rule = %{

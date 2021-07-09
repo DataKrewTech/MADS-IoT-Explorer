@@ -5,8 +5,6 @@ defmodule AcqdatApiWeb.Widgets.WidgetController do
   alias AcqdatApi.Widgets.Widget
   alias AcqdatCore.ElasticSearch
   alias AcqdatCore.Model.Widgets.WidgetType, as: WTModel
-  alias AcqdatApi.Image
-  alias AcqdatApi.ImageDeletion
   alias AcqdatApiWeb.Widgets.WidgetErrorHelper
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts

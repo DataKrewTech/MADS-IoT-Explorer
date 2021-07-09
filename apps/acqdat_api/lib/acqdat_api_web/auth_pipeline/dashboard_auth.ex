@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.DashboardExportAuth do
   @spec init(any) :: any
   def init(default), do: default
 
-  def call(%{params: %{"dashboard_uuid" => dashboard_uuid}} = conn, _params) do
+  def call(%{params: %{"dashboard_uuid" => dashboard_uuid}} = conn, _) do
     token =
       case Map.has_key?(conn.params, "token") do
         true ->
@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.DashboardExportAuth do
     verify_dashboard(conn, DEModel.verify_uuid_and_token(dashboard_uuid, token))
   end
 
-  defp verify_dashboard(conn, {:error, message}) do
+  defp verify_dashboard(conn, {:error, _}) do
     conn
     |> put_status(401)
   end

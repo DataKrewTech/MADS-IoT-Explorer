@@ -280,7 +280,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     end
   end
 
-  defp check_exported_dashboard(false, params, exported_dashboard) do
+  defp check_exported_dashboard(false, _, exported_dashboard) do
     Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
   end
 
@@ -337,7 +337,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
     end
   end
 
-  defp add_image_url(conn, params, entity_id, type) do
+  defp add_image_url(_, params, entity_id, type) do
     scope = "dashboard_#{type}/#{entity_id}"
 
     image = if type == "settings", do: params["settings"]["client_logo"], else: params["image"]

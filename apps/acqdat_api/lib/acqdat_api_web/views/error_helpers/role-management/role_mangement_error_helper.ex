@@ -24,33 +24,6 @@ defmodule AcqdatApiWeb.RoleManagement.RoleManagementErrorHelper do
     }
   end
 
-  def confirm_message(:mail_sent) do
-    %{
-      status_code: 200,
-      title: "Forgot Password mail sent",
-      detail: "Password email containing further process to reset your password has been sent.",
-      source: nil
-    }
-  end
-
-  def error_message(:forgot_password, message) do
-    %{
-      status_code: 400,
-      title: "Problem with sending email or the email provided is wrong",
-      detail: message,
-      source: nil
-    }
-  end
-
-  def error_message(:forgot_password, message) do
-    %{
-      status_code: 400,
-      title: "Problem with sending email or the email provided is wrong",
-      detail: message,
-      source: nil
-    }
-  end
-
   def error_message(:wrong_email) do
     %{
       title: "Wrong Email or Invalid Email",
@@ -63,6 +36,24 @@ defmodule AcqdatApiWeb.RoleManagement.RoleManagementErrorHelper do
     %{
       title: "Invalid or expired link.",
       error: "The link you are trying to access is either invalid or expired.",
+      source: nil
+    }
+  end
+
+  def error_message(:forgot_password, message) do
+    %{
+      status_code: 400,
+      title: "Problem with sending email or the email provided is wrong",
+      detail: message,
+      source: nil
+    }
+  end
+
+  def confirm_message(:mail_sent) do
+    %{
+      status_code: 200,
+      title: "Forgot Password mail sent",
+      detail: "Password email containing further process to reset your password has been sent.",
       source: nil
     }
   end

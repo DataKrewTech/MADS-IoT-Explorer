@@ -8,7 +8,7 @@ defmodule AcqdatCore.Seed.Helpers.HighchartsUpdateHelpers do
   end
 
 
-  defmacro __before_compile__(_env) do
+  defmacro __before_compile__(_) do
     module = __CALLER__.module
     Module.get_attribute(module, :highchart_key_widget_settings)
 
@@ -48,7 +48,7 @@ defmodule AcqdatCore.Seed.Helpers.CustomCardUpdateHelpers do
   end
 
 
-  defmacro __before_compile__(_env) do
+  defmacro __before_compile__(_) do
     module = __CALLER__.module
     Module.get_attribute(module, :custom_card_key_widget_settings)
 
@@ -79,7 +79,7 @@ defmodule AcqdatCore.Seed.Helpers.AnyChartUpdateHelpers do
   end
 
 
-  defmacro __before_compile__(_env) do
+  defmacro __before_compile__(_) do
     module = __CALLER__.module
     Module.get_attribute(module, :any_chart_key_widget_settings)
 

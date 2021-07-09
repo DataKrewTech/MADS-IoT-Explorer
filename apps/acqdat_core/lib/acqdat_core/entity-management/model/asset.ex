@@ -353,14 +353,14 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   # fetch_asset_descendants_map" function will return all the sensors of the leaf
   # asset.
-  defp fetch_asset_descendants_map(nil, _entities, asset) do
+  defp fetch_asset_descendants_map(nil, _, asset) do
     sensors = SensorModel.child_sensors(asset)
     Map.put_new(asset, :sensors, sensors)
   end
 
   # fetch_asset_descendants_map" function will return all the descendants(assets/sensors)
   # of the respective asset.
-  defp fetch_asset_descendants_map(_data, entities, asset) do
+  defp fetch_asset_descendants_map(_, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->
         entities = SensorModel.child_sensors(asset)
@@ -373,7 +373,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   # fetch_asset_descendants_map" function will return all the sensors + gateways of the leaf
   # asset.
-  defp fetch_asset_descendants_map_for_gateway(nil, _entities, asset) do
+  defp fetch_asset_descendants_map_for_gateway(nil, _, asset) do
     sensors = SensorModel.child_sensors(asset)
     gateways = GatewayModel.child_gateways(asset)
     asset = Map.put_new(asset, :sensors, sensors)
@@ -382,7 +382,7 @@ defmodule AcqdatCore.Model.EntityManagement.Asset do
 
   # fetch_asset_descendants_map" function will return all the descendants(assets/sensors/gateway)
   # of the respective asset.
-  defp fetch_asset_descendants_map_for_gateway(_data, entities, asset) do
+  defp fetch_asset_descendants_map_for_gateway(_, entities, asset) do
     entities_with_sensors =
       Enum.reduce(entities, [], fn asset, acc_sensor ->
         entities = SensorModel.child_sensors(asset)

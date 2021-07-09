@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSVariance do
   @inports [:ts_datasource]
   @outports [:tsvariance]
-  @display_name "TimeSeries Variance"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns variance value for the provided timeseries data stream.
+  # @display_name "TimeSeries Variance"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns variance value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

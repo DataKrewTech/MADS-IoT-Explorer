@@ -27,11 +27,11 @@ defmodule AcqdatCore.Seed.DataFeeder.OrgAndUser do
       name: params.name,
       uuid: params.uuid,
       inserted_at: DateTime.to_unix(params.inserted_at),
-      "join_field": "organisation"
+      join_field: "organisation"
       )
   end
 
-  def create(type, params, org) do
+  def create(_, params, _) do
     {:ok, user_cred} = UCModel.get(params.user_credentials_id)
       post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
         id: params.id,

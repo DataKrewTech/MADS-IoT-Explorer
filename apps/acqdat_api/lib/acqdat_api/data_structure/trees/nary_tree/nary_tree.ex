@@ -1,6 +1,6 @@
 defmodule AcqdatApi.DataStructure.Trees.NaryTree do
   @moduledoc """
-  NaryTree implements a data structure for an n-ary tree in which each node has zero or more children. 
+  NaryTree implements a data structure for an n-ary tree in which each node has zero or more children.
   A node in a tree can have arbitrary number of children and depth. Trees are unbalanced and children unordered.
   """
 
@@ -249,7 +249,7 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
   @doc ~S"""
   Delete a node in a tree.
   If the deleted node has children, the children will be moved up in hierarchy
-  to become the children of the deleted node's parent. 
+  to become the children of the deleted node's parent.
 
   Deleting root node results in `:error`
 
@@ -428,14 +428,14 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
   end
 
   @doc ~S"""
-  Prints a tree in hierarchical fashion. 
+  Prints a tree in hierarchical fashion.
   The second parameter is an optional function that accepts a node as a parameter.
   `print_tree` will output the return value of the function for each node in the tree.
 
   ## Example
     `iex> NaryTree.print_tree tree, fn(node) -> "#{x.name} : {x.content}" end`
 
-    or 
+    or
 
     `iex> NaryTree.print_tree tree, &("#{&1.name}: #{&1.id}")`
 
@@ -447,7 +447,7 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
   defp do_print_tree(node, _, _) when is_nil(node),
     do: raise("Expecting %NaryTree.Node(), found nil.")
 
-  defp do_print_tree(%Node{children: children} = node, _nodes, func) when children == [] do
+  defp do_print_tree(%Node{children: children} = node, _, func) when children == [] do
     IO.puts(indent(node.level) <> "- " <> func.(node))
   end
 
@@ -470,14 +470,14 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
   @doc ~S"""
   Invoked in order to access a node in a tree and update it at the same time
 
-  ## Example 
+  ## Example
       iex> tree = NaryTree.new NaryTree.Node.new("1", "Root")
       iex> {old_node, new_tree} = NaryTree.get_and_update tree, tree.root, &({&1, %NaryTree.Node{&1 | content: :not_empty}})
       iex> old_node.content
       :empty
       iex> NaryTree.root(new_tree).content
       :not_empty
-    
+
   """
   def get_and_update(%__MODULE__{} = tree, id, fun) when is_function(fun, 1) do
     current = get(tree, id)
@@ -522,7 +522,7 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
 
   defp traverse(node, _, _) when is_nil(node), do: raise("Expecting %NaryTree.Node(), found nil.")
 
-  defp traverse(%Node{children: children} = node, _nodes, acc) when children == [] do
+  defp traverse(%Node{children: children} = node, _, acc) when children == [] do
     [node | acc]
   end
 
@@ -552,7 +552,7 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
     node_to_map(%Node{} = nodes[tree.root], tree, func)
   end
 
-  defp node_to_map(%Node{children: children} = node, _tree, func) when children == [] do
+  defp node_to_map(%Node{children: children} = node, _, func) when children == [] do
     func.(node)
   end
 
@@ -675,12 +675,12 @@ defmodule AcqdatApi.DataStructure.Trees.NaryTree do
       |> reduce_tree(acc, f)
     end
 
-    defp reduce_tree(_, {:halt, acc}, _f), do: {:halted, acc}
+    defp reduce_tree(_, {:halt, acc}, _), do: {:halted, acc}
     defp reduce_tree(nodes, {:suspend, acc}, f), do: {:suspended, acc, &reduce_tree(nodes, &1, f)}
-    defp reduce_tree([], {:cont, acc}, _f), do: {:done, acc}
+    defp reduce_tree([], {:cont, acc}, _), do: {:done, acc}
     defp reduce_tree([h | t], {:cont, acc}, f), do: reduce_tree(t, f.(h, acc), f)
 
-    def slice(_tree) do
+    def slice(_) do
       # let the default action take over
       {:error, NaryTree}
     end

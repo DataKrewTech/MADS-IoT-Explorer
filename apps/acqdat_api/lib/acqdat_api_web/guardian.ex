@@ -7,7 +7,7 @@ defmodule AcqdatApiWeb.Guardian do
     {:error, :resource_not_found}
   end
 
-  def subject_for_token(resource, _claims) do
+  def subject_for_token(resource, _) do
     sub = to_string(resource.id)
     {:ok, sub}
   end

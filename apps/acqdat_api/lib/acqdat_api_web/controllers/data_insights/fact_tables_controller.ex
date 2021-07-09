@@ -120,7 +120,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
     end
   end
 
-  def details(conn, %{"fact_tables_id" => fact_tables_id}) do
+  def details(conn, %{"fact_tables_id" => _}) do
     case conn.status do
       nil ->
         conn
@@ -141,7 +141,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
 
   def update(conn, %{
         "org_id" => org_id,
-        "project_id" => project_id,
+        "project_id" => _,
         "id" => id,
         "user_list" => user_list,
         "date_range_settings" => date_range_settings,
@@ -182,7 +182,7 @@ defmodule AcqdatApiWeb.DataInsights.FactTablesController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => _}) do
     case conn.status do
       nil ->
         case FactTables.delete(conn.assigns.fact_table) do

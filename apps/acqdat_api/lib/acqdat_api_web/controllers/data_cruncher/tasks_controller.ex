@@ -100,7 +100,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksController do
         {task_id, _} = Integer.parse(task_id)
 
         case Task.get(task_id) do
-          {:error, message} ->
+          {:error, _} ->
             conn
             |> send_error(400, DataCruncherErrorHelper.error_message(:tasks, :resource_not_found))
 

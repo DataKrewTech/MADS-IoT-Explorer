@@ -180,14 +180,14 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   defp extract_sensor_ids_from_parameters(mapped_parameters) do
-    Enum.reduce(mapped_parameters, [], fn {_key, value}, acc ->
+    Enum.reduce(mapped_parameters, [], fn {_, value}, acc ->
       filter_from_parameters(value, acc)
     end)
   end
 
   defp filter_from_parameters(%{"type" => "object", "value" => parameters}, acc) do
     result =
-      Enum.reduce(parameters, [], fn {_key, value}, accumulator ->
+      Enum.reduce(parameters, [], fn {_, value}, accumulator ->
         filter_from_parameters(value, accumulator)
       end)
 
@@ -354,10 +354,10 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
       end)
 
     case result do
-      {:ok, _message} ->
+      {:ok, _} ->
         {:ok, "Gateway Sensor List updated"}
 
-      {:error, message} ->
+      {:error, _} ->
         {:error, "Some error occurred while updating list"}
     end
   end
@@ -393,20 +393,20 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
   end
 
   # adding only gateway credentials
-  defp validate_gateway_creds_results(gateway, {:ok, _creds}) do
+  defp validate_gateway_creds_results(gateway, {:ok, _}) do
     {:ok, %{gateway: gateway}}
   end
 
-  defp validate_gateway_creds_results(_gateway, {:error, changeset}) do
+  defp validate_gateway_creds_results(_, {:error, changeset}) do
     {:error, changeset}
   end
 
   # adding both gateway and project credentials
-  defp validate_project_create_results(_project, _gateway, {:error, changeset}) do
+  defp validate_project_create_results(_, _, {:error, changeset}) do
     {:error, changeset}
   end
 
-  defp validate_project_create_results(project, gateway, {:ok, _creds}) do
+  defp validate_project_create_results(project, gateway, {:ok, _}) do
     access_token = UUID.uuid1(:hex)
 
     validate_project_credentials(
@@ -420,15 +420,15 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     )
   end
 
-  defp validate_project_credentials(_project, _gateway, {:error, changeset}) do
+  defp validate_project_credentials(_, _, {:error, changeset}) do
     {:error, changeset}
   end
 
-  defp validate_project_credentials(_project, gateway, {:ok, credentials}) do
+  defp validate_project_credentials(_, gateway, {:ok, credentials}) do
     {:ok, %{gateway: gateway, access_token: credentials.access_token}}
   end
 
-  defp start_project_client(_gateway = %{channel: "mqtt"}, project, credentials) do
+  defp start_project_client(_ = %{channel: "mqtt"}, project, credentials) do
     topics = [
       {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+", 0},
       {"org/#{project.org.uuid}/project/#{project.uuid}/gateway/+/request-config", 0}
@@ -441,7 +441,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     )
   end
 
-  defp start_project_client(_gateway, _project, _credentials), do: :ok
+  defp start_project_client(_, _, _), do: :ok
 
   defp fetch_gateway_ids(gateways) do
     Enum.reduce(gateways, [], fn gateway, acc ->

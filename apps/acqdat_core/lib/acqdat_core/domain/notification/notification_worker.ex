@@ -11,7 +11,7 @@ defmodule AcqdatCore.Domain.Notification.Worker do
   end
 
   @impl GenServer
-  def init(_args) do
+  def init(_) do
     {:ok, nil}
   end
 

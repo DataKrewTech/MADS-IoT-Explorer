@@ -196,9 +196,6 @@ defmodule AcqdatApiWeb.Router do
       get "/alert_status", AlertFilterListingController, :alert_status_listing
     end
 
-    get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
-      as: :search_assets
-
     scope "/projects/:project_id", EntityManagement do
       resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
       get "/assets/search", AssetController, :search_assets, as: :search_assets

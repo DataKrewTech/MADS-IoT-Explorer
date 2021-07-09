@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSRange do
   @inports [:ts_datasource]
   @outports [:tsrange]
-  @display_name "TimeSeries Range"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns Range value for the provided timeseries data stream.
+  # @display_name "TimeSeries Range"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns Range value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

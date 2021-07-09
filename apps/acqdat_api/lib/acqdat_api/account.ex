@@ -7,7 +7,7 @@ defmodule AcqdatApi.Account do
   alias AcqdatApiWeb.Guardian
   alias AcqdatCore.Model.EntityManagement.Organisation
   alias AcqdatCore.Model.RoleManagement.Requests
-  alias AcqdatCore.Model.RoleManagement.{UserCredentials, User}
+  alias AcqdatCore.Model.RoleManagement.User
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -31,14 +31,14 @@ defmodule AcqdatApi.Account do
         {:error, "credentials not found"}
 
       {{:ok, user}, _} ->
-        {:ok, access_token, _claims} =
+        {:ok, access_token, _} =
           guardian_create_token(
             user,
             {@access_time_hours, :hours},
             :access
           )
 
-        {:ok, refresh_token, _claims} =
+        {:ok, refresh_token, _} =
           guardian_create_token(
             user,
             {@refresh_time_weeks, :weeks},
@@ -121,14 +121,14 @@ defmodule AcqdatApi.Account do
   ############## private functions #####################
 
   defp verify_account({:ok, user}) do
-    {:ok, access_token, _claims} =
+    {:ok, access_token, _} =
       guardian_create_token(
         user,
         {@access_time_hours, :hours},
         :access
       )
 
-    {:ok, refresh_token, _claims} =
+    {:ok, refresh_token, _} =
       guardian_create_token(
         user,
         {@refresh_time_weeks, :weeks},
@@ -138,7 +138,7 @@ defmodule AcqdatApi.Account do
     {:ok, %{access_token: access_token, user_id: user.id, refresh_token: refresh_token}}
   end
 
-  defp verify_account({:error, _message}) do
+  defp verify_account({:error, _}) do
     {:error, "unauthenticated"}
   end
 
@@ -151,17 +151,17 @@ defmodule AcqdatApi.Account do
     )
   end
 
-  defp assess_token({:ok, _result}, access_token, _refresh_token) do
+  defp assess_token({:ok, _}, access_token, _) do
     resource = get_resource(access_token)
 
     {:ok, %{access_token: access_token, user_id: resource}}
   end
 
-  defp assess_token({:error, %ArgumentError{}} = result, _access_token, _refresh_token),
+  defp assess_token({:error, %ArgumentError{}} = result, _, _),
     do: result
 
-  defp assess_token({:error, _reason}, _access_token, refresh_token) do
-    {:ok, _old_stuff, {new_token, _new_claims}} =
+  defp assess_token({:error, _}, _, refresh_token) do
+    {:ok, _, {new_token, _}} =
       Guardian.exchange(refresh_token, "refresh", "access", ttl: {@access_time_hours, :hours})
 
     resource = get_resource(new_token)
@@ -169,7 +169,7 @@ defmodule AcqdatApi.Account do
   end
 
   defp get_resource(token) do
-    {:ok, resource, _claims} = Guardian.resource_from_token(token)
+    {:ok, resource, _} = Guardian.resource_from_token(token)
     resource
   end
 end

@@ -33,7 +33,7 @@ defmodule AcqdatApiWeb.Alerts.AlertFilterListingController do
     end
   end
 
-  def alert_app_listing(conn, params) do
+  def alert_app_listing(conn, _) do
     app = AlertFilterListing.list_app()
 
     conn
@@ -41,7 +41,7 @@ defmodule AcqdatApiWeb.Alerts.AlertFilterListingController do
     |> render("apps.json", %{apps: app})
   end
 
-  def alert_status_listing(conn, params) do
+  def alert_status_listing(conn, _) do
     status = AlertFilterListing.list_status()
 
     conn

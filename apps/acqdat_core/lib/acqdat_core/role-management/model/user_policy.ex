@@ -38,7 +38,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserPolicy do
       {:ok, %{add_policy_to_user: user, remove_policy_for_user: _panel}} ->
         {:ok, user}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end

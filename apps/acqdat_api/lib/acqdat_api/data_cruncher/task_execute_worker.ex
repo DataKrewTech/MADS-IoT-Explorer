@@ -2,7 +2,6 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
   use GenServer
   alias AcqdatCore.DataCruncher.Domain.Workflow
   alias AcqdatCore.DataCruncher.Model.Task, as: TaskModel
-  alias AcqdatCore.Repo
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -16,7 +15,7 @@ defmodule AcqdatApi.DataCruncher.TaskExecuteWorker do
     {:ok, params}
   end
 
-  def handle_cast({:register, task}, _status) do
+  def handle_cast({:register, task}, _) do
     tasks =
       Enum.map(task.workflows, fn workflow ->
         workflow

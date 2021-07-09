@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSNorm do
   @inports [:ts_datasource]
   @outports [:tsnorm]
-  @display_name "TimeSeries Norm"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns norm vector value for the provided timeseries data stream.
+  # @display_name "TimeSeries Norm"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns norm vector value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.DataCruncher.TasksChannel do
 
   intercept ["out_put_res"]
 
-  def join("tasks:" <> task_id, _params, socket) do
+  def join("tasks:" <> task_id, _, socket) do
     if socket.assigns.user_id do
       socket = assign(socket, :task, task_id)
       response = %{message: "Channel Joined Successfully #{task_id}"}

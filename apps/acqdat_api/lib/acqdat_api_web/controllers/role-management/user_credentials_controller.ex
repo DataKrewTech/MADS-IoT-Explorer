@@ -2,7 +2,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserCredentialsController do
   use AcqdatApiWeb, :authorized_controller
   alias AcqdatApiWeb.RoleManagement.UserErrorHelper
   import AcqdatApiWeb.Helpers
-  import AcqdatApiWeb.Validators.RoleManagement.UserCredentials
   alias AcqdatApi.RoleManagement.UserCredentials
   alias AcqdatApi.{Image, ImageDeletion}
 
@@ -18,7 +17,7 @@ defmodule AcqdatApiWeb.RoleManagement.UserCredentialsController do
           |> put_status(200)
           |> render("user_credentials.json", %{user_details: user_cred})
         else
-          {:show, {:error, message}} ->
+          {:show, {:error, _}} ->
             conn
             |> send_error(400, UserErrorHelper.error_message(:resource_not_found))
         end
@@ -46,9 +45,6 @@ defmodule AcqdatApiWeb.RoleManagement.UserCredentialsController do
             conn
             |> put_status(200)
             |> render("user_credentials.json", %{user_details: user_cred})
-
-          {:error, error} ->
-            send_error(conn, 400, error)
 
           {:error, message} ->
             send_error(conn, 400, message)

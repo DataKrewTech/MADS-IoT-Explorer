@@ -16,7 +16,7 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Column do
             visual_settings: %{}
 
   @impl true
-  def visual_prop_gen(_visualization, options \\ %{}) do
+  def visual_prop_gen(_, options \\ %{}) do
     DataGenerator.process_visual_data(options, "column")
   end
 

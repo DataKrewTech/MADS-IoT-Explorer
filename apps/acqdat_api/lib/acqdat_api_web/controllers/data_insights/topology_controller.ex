@@ -7,7 +7,7 @@ defmodule AcqdatApiWeb.DataInsights.TopologyController do
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadProject
 
-  def index(conn, %{"org_id" => org_id, "project_id" => project_id}) do
+  def index(conn, %{"org_id" => org_id, "project_id" => _}) do
     case conn.status do
       nil ->
         with {:index, topology} <-

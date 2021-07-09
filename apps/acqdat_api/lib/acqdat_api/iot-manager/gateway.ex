@@ -22,12 +22,12 @@ defmodule AcqdatApi.IotManager.Gateway do
     Repo.preload(gateway, [:org, :project, :sensors])
   end
 
-  def setup_config(gateway, _channel = "http", params) do
+  def setup_config(gateway, _ = "http", params) do
     %{"commands" => command} = params
     CommandHandler.put(gateway.uuid, command)
   end
 
-  def setup_config(gateway, _channel = "mqtt", params) do
+  def setup_config(gateway, _ = "mqtt", params) do
     %{"commands" => command} = params
     CommandHandler.put(gateway.uuid, command)
     Gateway.send_mqtt_config(gateway, command)
@@ -53,7 +53,7 @@ defmodule AcqdatApi.IotManager.Gateway do
 
   defp return_uuid_and_parameter_name(
          key,
-         %{"type" => "object", "value" => value} = object_value,
+         %{"type" => "object", "value" => value} = _,
          acc
        ) do
     Enum.reduce(value, acc, fn {inside_key, value}, rcc ->
@@ -65,7 +65,7 @@ defmodule AcqdatApi.IotManager.Gateway do
 
   defp return_uuid_and_parameter_name(
          key,
-         %{"type" => "list", "value" => value} = list_value,
+         %{"type" => "list", "value" => value} = _,
          acc
        ) do
     Enum.reduce(value, acc, fn value, rcc ->

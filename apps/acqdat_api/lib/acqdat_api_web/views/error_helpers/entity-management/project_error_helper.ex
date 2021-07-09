@@ -15,22 +15,6 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectErrorHelper do
     }
   end
 
-  def error_message(:elasticsearch, %{error: %{reason: message}}) do
-    %{
-      title: "ElasticSearch Indexing Problem",
-      error: message,
-      source: nil
-    }
-  end
-
-  def error_message(:elasticsearch, message) do
-    %{
-      title: "Problem with elasticsearch",
-      error: message,
-      source: nil
-    }
-  end
-
   def error_message(asset_types: {message, _}) do
     %{
       title: "Asset Type attachment constraint",
@@ -44,6 +28,22 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectErrorHelper do
       title: "Sensor Type attachment constraint",
       error: "Sensor Types are attached to this project. This is a restricted action.",
       source: message
+    }
+  end
+
+  def error_message(:elasticsearch, %{error: %{reason: message}}) do
+    %{
+      title: "ElasticSearch Indexing Problem",
+      error: message,
+      source: nil
+    }
+  end
+
+  def error_message(:elasticsearch, message) do
+    %{
+      title: "Problem with elasticsearch",
+      error: message,
+      source: nil
     }
   end
 end

@@ -27,7 +27,7 @@ defmodule AcqdatApi.DataInsights.FactTableServer do
   ################ Server Calls #################
 
   @impl GenServer
-  def init(_args) do
+  def init(_) do
     {:ok, %{queue: :queue.new()}}
   end
 
@@ -69,7 +69,7 @@ defmodule AcqdatApi.DataInsights.FactTableServer do
         FactTableWorker.process(worker, args)
         drain_queue(pool, queue)
 
-      {:empty, _queue} = result ->
+      {:empty, _} = result ->
         # debug "queue empty, stopping drain"
         result
     end
@@ -80,7 +80,7 @@ defmodule AcqdatApi.DataInsights.FactTableServer do
       {{:value, item}, queue} ->
         {:ok, item, queue}
 
-      {:empty, _queue} = result ->
+      {:empty, _} = result ->
         result
     end
   end

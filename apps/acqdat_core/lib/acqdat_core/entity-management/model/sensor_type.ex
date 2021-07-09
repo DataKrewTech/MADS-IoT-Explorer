@@ -21,6 +21,16 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
     end
   end
 
+  def get(params) when is_map(params) do
+    case Repo.get_by(SensorType, params) do
+      nil ->
+        {:error, "SensorType not found"}
+
+      sensor_type ->
+        {:ok, sensor_type}
+    end
+  end
+
   def return_count(%{"type" => "SensorType", "project_id" => project_id}) do
     query =
       from(p in SensorType,
@@ -38,16 +48,6 @@ defmodule AcqdatCore.Model.EntityManagement.SensorType do
       )
 
     Repo.one(query)
-  end
-
-  def get(params) when is_map(params) do
-    case Repo.get_by(SensorType, params) do
-      nil ->
-        {:error, "SensorType not found"}
-
-      sensor_type ->
-        {:ok, sensor_type}
-    end
   end
 
   def get_all(%{org_id: org_id, project_id: project_id}) do

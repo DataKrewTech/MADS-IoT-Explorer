@@ -885,7 +885,7 @@ defmodule AcqdatCore.ElasticSearch do
   end
 
   # [ "#{field}": [query: "#{value}", fuzziness: 1]
-  def create_user(type, params, org) do
+  def create_user(_, params, _) do
     {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
 
     post("organisation/_doc/#{params.id}?routing=#{params.org_id}",

@@ -61,15 +61,6 @@ defmodule AcqdatCore.Schema.ToolManagement.Employee do
     @roles
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    uuid = @emp_prefix <> permalink(4)
-
-    changeset
-    |> put_change(:uuid, uuid)
-  end
-
-  defp add_uuid(%Ecto.Changeset{valid?: false} = changeset), do: changeset
-
   # TODO: Look for a possible way to check using ExPhoneNumber if the
   #      number is valid.
   # defp validate_number(%Ecto.Changeset{valid?: true} = changeset) do

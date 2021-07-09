@@ -121,7 +121,7 @@ defmodule AcqdatCore.DataCruncher.Domain.WorkflowTest do
     )
   end
 
-  defp setup_sensor_with_type(_context) do
+  defp setup_sensor_with_type(_) do
     org = insert(:organisation)
     project = insert(:project, org: org)
     sensor_type = setup_sensor_type(org, project)

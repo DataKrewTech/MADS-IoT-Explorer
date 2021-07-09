@@ -48,11 +48,6 @@ defmodule AcqdatCore.DashboardManagement.Schema.CommandWidget do
     |> assoc_constraint(:panel)
   end
 
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    changeset
-    |> put_change(:uuid, UUID.uuid1(:hex))
-  end
-
   defp add_command_widget_type(%Ecto.Changeset{valid?: true} = changeset) do
     module = get_field(changeset, :module)
     widget_type = module.widget_type

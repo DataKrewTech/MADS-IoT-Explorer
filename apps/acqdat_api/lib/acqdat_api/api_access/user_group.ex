@@ -9,6 +9,9 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
 
   defdelegate get_all(data, preloads), to: UserGroup
   defdelegate get(id), to: UserGroup
+
+  @spec delete(AcqdatCore.Schema.RoleManagement.UserGroup.t()) ::
+          {:error, any} | {:ok, nil | [%{optional(atom) => any}] | %{optional(atom) => any}}
   defdelegate delete(user_group), to: UserGroup
   defdelegate return_policies(data, preloads), to: UserGroup
 
@@ -30,6 +33,11 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
     add_policies(total_policy_ids, params, group)
   end
 
+  def update(group, params) do
+    params = Map.new(params, fn {key, val} -> {String.to_atom("#{key}"), val} end)
+    verify_group(UserGroup.normal_update(group, params))
+  end
+
   defp add_policies(total_policies, params, group) do
     params = Map.put_new(params, :policy_ids, total_policies)
     params = Map.put_new(params, :user_ids, [])
@@ -38,11 +46,6 @@ defmodule AcqdatApi.ApiAccess.UserGroup do
 
   defp delete_policies(group, policies_to_be_delete) do
     GroupPolicy.remove_policy_from_group(group.id, policies_to_be_delete)
-  end
-
-  def update(group, params) do
-    params = for {key, val} <- params, into: %{}, do: {String.to_atom(key), val}
-    verify_group(UserGroup.normal_update(group, params))
   end
 
   defp verify_group({:ok, group}) do

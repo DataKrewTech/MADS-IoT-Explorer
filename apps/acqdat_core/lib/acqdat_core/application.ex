@@ -6,7 +6,7 @@ defmodule AcqdatCore.Application do
   use Application
   alias AcqdatCore.Model.IotManager.MQTTBroker
 
-  def start(_type, _args) do
+  def start(_, _) do
     children = [
       # Start the Ecto repository
       AcqdatCore.Repo,

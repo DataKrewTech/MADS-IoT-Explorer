@@ -6,7 +6,6 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
   alias AcqdatCore.Schema.RoleManagement.Invitation
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Helper, as: ModelHelper
-  alias AcqdatCore.Model.RoleManagement.User
   import Ecto.Query
 
   def list_invitations() do
@@ -86,9 +85,5 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
 
   def delete(%Invitation{} = invitation) do
     Repo.delete(invitation)
-  end
-
-  defp check_for_existing_user(email) do
-    User.verify_email(email)
   end
 end

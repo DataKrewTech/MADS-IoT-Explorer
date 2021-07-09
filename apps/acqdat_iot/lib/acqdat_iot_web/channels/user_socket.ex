@@ -15,7 +15,7 @@ defmodule AcqdatIotWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket, _connect_info) do
+  def connect(_, socket, _) do
     {:ok, socket}
   end
 
@@ -29,5 +29,5 @@ defmodule AcqdatIotWeb.UserSocket do
   #     AcqdatIotWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(_), do: nil
 end

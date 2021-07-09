@@ -2,13 +2,12 @@ defmodule AcqdatApiWeb.ApiAccessAuth do
   import Plug.Conn
   import Ecto.Query
   alias AcqdatCore.Repo
-  alias AcqdatApi.ExtractRoutes
   alias AcqdatCore.Schema.RoleManagement.{GroupUser, GroupPolicy, UserPolicy}
   alias AcqdatCore.Model.RoleManagement.User
 
   def init(default), do: default
 
-  def call(conn, _params) do
+  def call(conn, _) do
     user_id = Guardian.Plug.current_resource(conn)
 
     user =

@@ -77,6 +77,6 @@ defmodule AcqdatCore.Domain.Account do
     end
   end
 
-  defp verify_password(user, true = _password_matches), do: {:ok, user}
-  defp verify_password(_user, _), do: {:error, :not_found}
+  defp verify_password(user, true = _), do: {:ok, user}
+  defp verify_password(_, _), do: {:error, :not_found}
 end

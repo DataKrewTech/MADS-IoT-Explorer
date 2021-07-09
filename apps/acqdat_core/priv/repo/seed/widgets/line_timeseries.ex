@@ -101,7 +101,7 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
     end)
   end
 
-  def set_widget_data(key, widget_settings, data, widget_type) do
+  def set_widget_data(_, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Line Timeseries",
       properties: %{},

@@ -114,14 +114,14 @@ defmodule AcqdatApiWeb.DigitalTwinController do
     end
   end
 
-  defp load_digital_twin(%{params: %{"id" => id}} = conn, _params) do
+  defp load_digital_twin(%{params: %{"id" => id}} = conn, _) do
     {id, _} = Integer.parse(id)
 
     case DigitalTwinModel.get(id) do
       {:ok, digital_twin} ->
         assign(conn, :digital_twin, digital_twin)
 
-      {:error, _message} ->
+      {:error, _} ->
         conn
         |> put_status(404)
     end

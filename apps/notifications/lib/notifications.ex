@@ -5,7 +5,6 @@ defmodule Notifications do
   alias AcqdatCore.Model.RoleManagement.User
   alias AcqdatCore.Mailer.AlertNotification
   alias AcqdatCore.Mailer
-  alias AcqdatCore.Model.EntityManagement.Organisation
   alias Notifications.Vendors
 
   def send_notifications(alert, alert_rule, vendor) do

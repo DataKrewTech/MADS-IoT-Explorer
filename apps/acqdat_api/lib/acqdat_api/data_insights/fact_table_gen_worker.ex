@@ -14,7 +14,7 @@ defmodule AcqdatApi.DataInsights.FactTableGenWorker do
     {:ok, params}
   end
 
-  def handle_cast({:register, params}, _status) do
+  def handle_cast({:register, params}, _) do
     output =
       params
       |> execute_workflow()

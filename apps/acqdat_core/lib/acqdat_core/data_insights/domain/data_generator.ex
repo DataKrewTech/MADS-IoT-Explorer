@@ -2,7 +2,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
   import AcqdatCore.DataInsights.Domain.DataFilter
   alias AcqdatCore.Repo
 
-  def process_visual_data(options, type) when type == "heat_map" do
+  def process_visual_data(_, type) when type == "heat_map" do
     %{anychart: %{type: type}}
   end
 
@@ -35,8 +35,6 @@ defmodule AcqdatCore.DataInsights.Domain.DataGenerator do
 
       [y_axis | _] = y_axes
       y_axis_col = "\"#{y_axis["name"]}\""
-
-      grouped_params = x_axis_col <> "," <> y_axis_col
 
       values_data = y_axes_data(values)
 

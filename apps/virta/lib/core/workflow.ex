@@ -133,7 +133,7 @@ defmodule Virta.Core.Workflow do
     {ref, message_configs} =
       outport_args
       |> Enum.filter(fn arg -> !Map.has_key?(arg, :pid) end)
-      |> Enum.reduce({nil, []}, fn arg, {_ref, message_configs} ->
+      |> Enum.reduce({nil, []}, fn arg, {_, message_configs} ->
         to_port = Map.get(arg, :to)
         from_port = Map.get(arg, :from)
         ref = arg |> Map.get(:ref) |> Map.get(:ref)
@@ -143,7 +143,7 @@ defmodule Virta.Core.Workflow do
 
     data =
       message_configs
-      |> Enum.reduce(%{}, fn {_from, to}, acc ->
+      |> Enum.reduce(%{}, fn {_, to}, acc ->
         value = Map.get(inport_args, to)
 
         messages =
@@ -152,7 +152,7 @@ defmodule Virta.Core.Workflow do
         Map.put(acc, %Node{module: Virta.Core.In, id: 0}, messages)
       end)
 
-    {_requst_id, response} = Virta.Executor.call(ref, data)
+    {_, response} = Virta.Executor.call(ref, data)
 
     outport_args
     |> Enum.filter(fn arg -> Map.has_key?(arg, :pid) end)

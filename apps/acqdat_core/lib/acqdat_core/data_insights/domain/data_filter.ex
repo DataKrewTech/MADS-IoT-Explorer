@@ -9,7 +9,7 @@ defmodule AcqdatCore.DataInsights.Domain.DataFilter do
     "where #{query}"
   end
 
-  def filters_query(_filters) do
+  def filters_query(_) do
     ""
   end
 

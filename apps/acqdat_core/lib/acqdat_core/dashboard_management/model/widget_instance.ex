@@ -84,7 +84,7 @@ defmodule AcqdatCore.Model.DashboardManagement.WidgetInstance do
       {:ok, %{delete_widget_instance: widget_instance, rmv_frm_layouts: _panel}} ->
         {:ok, widget_instance}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end

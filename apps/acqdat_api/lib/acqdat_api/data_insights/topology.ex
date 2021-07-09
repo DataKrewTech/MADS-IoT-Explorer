@@ -38,14 +38,14 @@ defmodule AcqdatApi.DataInsights.Topology do
   #       2. It'll pass user input to parse_entities
   def gen_sub_topology(id, org_id, project, name, fact_table, entities_list, date_range_settings) do
     Multi.new()
-    |> Multi.run(:update_to_db, fn _, _changes ->
+    |> Multi.run(:update_to_db, fn _, _ ->
       FactTables.update(fact_table, %{
         name: name,
         columns_metadata: entities_list,
         date_range_settings: date_range_settings
       })
     end)
-    |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: _fact_table} ->
+    |> Multi.run(:gen_sub_topology, fn _, %{update_to_db: _} ->
       parse_entities(id, entities_list, org_id, project)
       {:ok, "You'll receive fact table data on channel"}
     end)
@@ -113,7 +113,7 @@ defmodule AcqdatApi.DataInsights.Topology do
   end
 
   # NOTE: this validate_entities will get executed if there are multiple only asset_types present in user input
-  defp validate_entities(fact_table_id, {asset_types, _sensor_types}, entities_list, parent_tree)
+  defp validate_entities(fact_table_id, {asset_types, _}, entities_list, parent_tree)
        when length(asset_types) == length(entities_list) do
     uniq_asset_types = Enum.uniq_by(asset_types, fn asset_type -> asset_type["id"] end)
 
@@ -158,8 +158,8 @@ defmodule AcqdatApi.DataInsights.Topology do
 
   # NOTE: 1. this validate_entities will find root elem of the user provided input with the help of subtree
   #       2. this'll then call the Genserver flow for further fact_table processing
-  defp validate_entities(id, {asset_types, _sensor_types}, entities_list, parent_tree) do
-    {_entity_levels, {root_node, root_entity}, entity_map} =
+  defp validate_entities(id, {asset_types, _}, entities_list, parent_tree) do
+    {_, {root_node, root_entity}, entity_map} =
       Enum.reduce(asset_types, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
         node = NaryTree.get(parent_tree, "#{entity["id"]}_#{entity["name"]}")
         acc1 = acc1 ++ [node.level]
@@ -192,14 +192,14 @@ defmodule AcqdatApi.DataInsights.Topology do
     "#{project.id}_#{project.version}"
   end
 
-  defp run_under_transaction(multi, _result_key) do
+  defp run_under_transaction(multi, _) do
     multi
     |> Repo.transaction(timeout: :infinity)
     |> case do
       {:ok, result} ->
         {:ok, result[:del_rec_frm_fact_tab]}
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end

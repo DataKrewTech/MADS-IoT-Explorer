@@ -5,7 +5,7 @@ defmodule VernemqMadsPlugin.Application do
 
   use Application
 
-  def start(_type, _args) do
+  def start(_, _) do
     IO.puts("Starting mads plugin")
 
     children = [

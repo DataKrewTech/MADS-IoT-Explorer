@@ -70,7 +70,7 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
       playground_asset_type: playground_asset_type
     } = asset_types
 
-    %{id: asset_type_id, org_id: org_id, project_id: project_id} = building_asset_type
+    %{id: _, org_id: org_id, project_id: project_id} = building_asset_type
 
     {:ok, energy_mtr_sensor_type} = SensorType.create(%{name: "Energy Meter", project_id: project_id, org_id: org_id, parameters: gen_sensor_type_params("Energy Meter")})
 
@@ -343,12 +343,48 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
     iterator = get_time_iterator(duration, interval)
 
     Enum.map(iterator, fn time ->
-      time = time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
+      time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
       %{
         sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
         inserted_at: time,
         inserted_timestamp: time,
         parameters: energy_parameters(sensor, interval)
+      }
+    end)
+  end
+
+  def gen_sensor_type_data("occupancy", sensor) do
+    duration = @months * 30 # duration in months
+    interval = 10 # interval in minutes
+    iterator = get_time_iterator(duration, interval)
+
+    Enum.map(iterator, fn time ->
+      time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
+      %{
+        sensor_id: sensor.id,
+        project_id: sensor.project_id,
+        org_id: sensor.org_id,
+        inserted_at: time,
+        inserted_timestamp: time,
+        parameters: occupancy_parameters(sensor)
+      }
+    end)
+  end
+
+  def gen_sensor_type_data("heat", sensor) do
+    duration = @months * 30 # duration in months
+    interval = 10 # interval in minutes
+    iterator = get_time_iterator(duration, interval)
+
+    Enum.map(iterator, fn time ->
+      time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
+      %{
+        sensor_id: sensor.id,
+        project_id: sensor.project_id,
+        org_id: sensor.org_id,
+        inserted_at: time,
+        inserted_timestamp: time,
+        parameters: heat_parameters(sensor)
       }
     end)
   end
@@ -374,47 +410,13 @@ defmodule AcqdatCore.Seed.DataInsights.Topology do
         result = create_parameter_struct(params, energy)
         Map.put(acc, "Energy", result)
     end)
-    |> Enum.map(fn {key, value} ->
-      value
-    end)
-  end
-
-  def gen_sensor_type_data("heat", sensor) do
-    duration = @months * 30 # duration in months
-    interval = 10 # interval in minutes
-    iterator = get_time_iterator(duration, interval)
-
-    Enum.map(iterator, fn time ->
-      time = time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
-      %{
-        sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
-        inserted_at: time,
-        inserted_timestamp: time,
-        parameters: heat_parameters(sensor)
-      }
-    end)
+    |> Map.values()
   end
 
   defp heat_parameters(sensor) do
     [param] = sensor.sensor_type.parameters
     result = create_parameter_struct(param, Enum.random(20..35))
     [result]
-  end
-
-  def gen_sensor_type_data("occupancy", sensor) do
-    duration = @months * 30 # duration in months
-    interval = 10 # interval in minutes
-    iterator = get_time_iterator(duration, interval)
-
-    Enum.map(iterator, fn time ->
-      time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.truncate(:second)
-      %{
-        sensor_id: sensor.id, project_id: sensor.project_id, org_id: sensor.org_id,
-        inserted_at: time,
-        inserted_timestamp: time,
-        parameters: occupancy_parameters(sensor)
-      }
-    end)
   end
 
   defp occupancy_parameters(sensor) do

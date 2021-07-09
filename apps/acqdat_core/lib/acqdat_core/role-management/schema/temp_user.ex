@@ -9,7 +9,7 @@ defmodule AcqdatCore.Schema.RoleManagement.TempUser do
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation}
   alias AcqdatCore.Schema.RoleManagement.UserPolicy
   alias AcqdatCore.Schema.RoleManagement.UserCredentials
-  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting, GroupUser, UserGroup}
+  alias AcqdatCore.Schema.RoleManagement.{App, Role, UserSetting, GroupUser}
   alias AcqdatCore.Repo
 
   @password_min_length 8

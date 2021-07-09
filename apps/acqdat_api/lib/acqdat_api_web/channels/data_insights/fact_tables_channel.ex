@@ -4,7 +4,7 @@ defmodule AcqdatApiWeb.DataInsights.TasksChannel do
 
   intercept ["out_put_res"]
 
-  def join("project_fact_table:" <> fact_table_id, _params, socket) do
+  def join("project_fact_table:" <> fact_table_id, _, socket) do
     if socket.assigns.user_id do
       socket = assign(socket, :fact_table_id, fact_table_id)
       response = %{message: "Channel Joined Successfully FactTable ID #{fact_table_id}"}

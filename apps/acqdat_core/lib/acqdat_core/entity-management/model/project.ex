@@ -220,7 +220,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   defp group_by_senor_type(entity) do
     grouped_data = Enum.group_by(entity.sensors, fn x -> x.sensor_type end, fn y -> y.name end)
 
-    Enum.reduce(grouped_data, [], fn {key, val}, acc ->
+    Enum.reduce(grouped_data, [], fn {key, _}, acc ->
       acc ++ [%{id: "#{key.id}_#{key.name}", name: key.name, type: "SensorType"}]
     end)
   end

@@ -116,7 +116,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     }
   end
 
-  defp parse_filtered_params(_panel) do
+  defp parse_filtered_params(_) do
     %{
       from_date: Timex.shift(Timex.now(), months: -1),
       to_date: Timex.now(),
@@ -131,7 +131,7 @@ defmodule AcqdatCore.Model.DashboardManagement.Panel do
     %{from_date: from_unix(from_date), to_date: from_unix(to_date)}
   end
 
-  defp fetch_datetime_range(_from_date, _to_date, last) do
+  defp fetch_datetime_range(_, _, last) do
     [interval, duration] = String.split(last, "_")
     {interval, _} = Integer.parse(interval)
     to_date = DateTime.utc_now()

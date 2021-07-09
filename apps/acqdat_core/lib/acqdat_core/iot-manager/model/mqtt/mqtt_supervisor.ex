@@ -27,7 +27,7 @@ defmodule AcqdatCore.MQTT.Supervisor do
   end
 
   @impl true
-  def init(_opts) do
+  def init(_) do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 end

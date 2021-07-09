@@ -1,7 +1,7 @@
 defmodule AcqdatApiWeb.DataInsights.TopologyView do
   use AcqdatApiWeb, :view
   alias AcqdatApiWeb.DataInsights.TopologyView
-  alias AcqdatApiWeb.EntityManagement.{AssetTypeView, SensorTypeView}
+  alias AcqdatApiWeb.EntityManagement.AssetTypeView
 
   def render("index.json", %{topology: topology}) do
     %{

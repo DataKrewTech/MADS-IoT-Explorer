@@ -4,7 +4,6 @@ defmodule AcqdatApi.EntityManagement.Organisation do
   alias AcqdatCore.Model.RoleManagement.Role
   alias AcqdatCore.Model.RoleManagement.UserCredentials
   alias Ecto.Multi
-  alias AcqdatCore.ElasticSearch
   import Tirexs.HTTP
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
@@ -34,7 +33,7 @@ defmodule AcqdatApi.EntityManagement.Organisation do
   defp create_organisation_and_user(params) do
     verify_organisation(
       Multi.new()
-      |> Multi.run(:create_organisation, fn _, _changes ->
+      |> Multi.run(:create_organisation, fn _, _ ->
         OrgModel.create(params)
       end)
       |> Multi.run(:create_user, fn _, %{create_organisation: organisation} ->
@@ -54,7 +53,7 @@ defmodule AcqdatApi.EntityManagement.Organisation do
 
             UserModel.create(user_details)
 
-          {:error, _message} ->
+          {:error, _} ->
             {:ok, user_cred} = UserCredentials.get(user_details["email"])
 
             user_details =
@@ -80,7 +79,7 @@ defmodule AcqdatApi.EntityManagement.Organisation do
         user_create_es(user)
         {:ok, organisation}
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end

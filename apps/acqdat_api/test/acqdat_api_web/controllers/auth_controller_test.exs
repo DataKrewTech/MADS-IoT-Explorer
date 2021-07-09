@@ -249,7 +249,7 @@ defmodule AcqdatApiWeb.AuthControllerTest do
     end
   end
 
-  def setup_user_with_conn(_context) do
+  def setup_user_with_conn(_) do
     org = insert(:organisation)
     role = insert(:role)
 

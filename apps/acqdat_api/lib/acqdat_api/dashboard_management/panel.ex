@@ -31,7 +31,7 @@ defmodule AcqdatApi.DashboardManagement.Panel do
       dashboard_id: dashboard_id,
       settings: settings,
       icon: icon,
-      filter_metadata: filter_metadata || %{from_date: from_date},
+      filter_metadata: filter_metadata || %{from_date: from_date()},
       widget_layouts: widget_layouts
     }
 

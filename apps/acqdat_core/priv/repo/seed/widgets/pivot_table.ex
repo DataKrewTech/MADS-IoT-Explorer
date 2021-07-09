@@ -2,7 +2,7 @@ defmodule AcqdatCore.Seed.Widgets.PivotTable do
   @moduledoc """
   Holds seeds for PivotTable Widget.
   """
-  
+
   alias AcqdatCore.Repo
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Widgets.Schema.Widget, as: WidgetSchema
@@ -69,7 +69,7 @@ defmodule AcqdatCore.Seed.Widgets.PivotTable do
     end)
   end
 
-  def set_widget_data(_key, widget_settings, data, widget_type) do
+  def set_widget_data(_, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "PivotTable",
       properties: %{},

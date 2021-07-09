@@ -7,7 +7,7 @@ defmodule AcqdatApi.ExtractRoutesSupervisor do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def init(_args) do
+  def init(_) do
     children = [
       ExtractRoutes
     ]

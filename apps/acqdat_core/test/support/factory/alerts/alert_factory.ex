@@ -1,5 +1,5 @@
 defmodule AcqdatCore.Factory.Alerts do
-  defmacro __using__(_opts) do
+  defmacro __using__(_) do
     quote do
       alias AcqdatCore.Alerts.Schema.AlertRules
       alias AcqdatCore.Alerts.Schema.Alert

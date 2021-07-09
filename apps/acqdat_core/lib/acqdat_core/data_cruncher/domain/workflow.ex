@@ -47,7 +47,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
 
   ############################# private functions ###########################
 
-  defp update_temp_table({_request_id, output_data}) do
+  defp update_temp_table({_, output_data}) do
     # TODO: Need to refactor this code to bulk update
     Enum.each(output_data, fn {key, val} ->
       params = %{source_id: Atom.to_string(key)}
@@ -59,30 +59,29 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     end)
   end
 
-  defp generate_graph_data(%{input_data: input_data, id: workflow_id} = workflow) do
+  defp generate_graph_data(%{input_data: input_data, id: workflow_id} = _) do
     # TODO: Needs to refactor and test it out for multiple input data and nodes
-    nodes =
-      Enum.reduce(input_data, %{}, fn data, acc ->
-        stream_data = %Token{data: fetch_data_stream(data), data_type: :query_stream}
+    Enum.reduce(input_data, %{}, fn data, acc ->
+      stream_data = %Token{data: fetch_data_stream(data), data_type: :query_stream}
 
-        int_nodes =
-          Enum.reduce(data["nodes"], %{}, fn node, acc1 ->
-            module = node |> fetch_function_module()
-            node_from = module |> gen_node(node)
+      int_nodes =
+        Enum.reduce(data["nodes"], %{}, fn node, acc1 ->
+          module = node |> fetch_function_module()
+          node_from = module |> gen_node(node)
 
-            res = [
-              {
-                workflow_id,
-                String.to_atom(node["inports"]),
-                stream_data
-              }
-            ]
+          res = [
+            {
+              workflow_id,
+              String.to_atom(node["inports"]),
+              stream_data
+            }
+          ]
 
-            Map.put(acc1, node_from, res)
-          end)
+          Map.put(acc1, node_from, res)
+        end)
 
-        Map.merge(acc, int_nodes)
-      end)
+      Map.merge(acc, int_nodes)
+    end)
   end
 
   defp fetch_data_stream(
@@ -91,7 +90,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
            "parameter_id" => parameter_id,
            "start_date" => start_date,
            "end_date" => end_date
-         } = data
+         } = _
        ) do
     date_to = parse_date(end_date)
     date_from = parse_date(start_date)
@@ -104,7 +103,7 @@ defmodule AcqdatCore.DataCruncher.Domain.Workflow do
     })
   end
 
-  defp gen_node(module, %{"id" => id} = graph_node) do
+  defp gen_node(module, %{"id" => id} = _) do
     %Node{module: module, id: id}
   end
 

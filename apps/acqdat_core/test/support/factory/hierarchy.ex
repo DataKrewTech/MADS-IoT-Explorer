@@ -1,5 +1,5 @@
 defmodule AcqdatCore.Factory.Hierarchy do
-  defmacro __using__(_opts) do
+  defmacro __using__(_) do
     quote do
       alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Project}
 

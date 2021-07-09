@@ -4,7 +4,7 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsChannel do
 
   intercept ["out_put_res_visualizations"]
 
-  def join("visualizations:" <> visualization_id, _params, socket) do
+  def join("visualizations:" <> visualization_id, _, socket) do
     if socket.assigns.user_id do
       socket = assign(socket, :visualization_id, visualization_id)
       response = %{message: "Channel Joined Successfully Visualization Id #{visualization_id}"}

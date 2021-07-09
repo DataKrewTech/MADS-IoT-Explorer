@@ -8,7 +8,7 @@ defmodule AcqdatCore.IotManager.DataDump.Supervisor do
     Supervisor.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def init(_args) do
+  def init(_) do
     children = [
       Server,
       Manager,

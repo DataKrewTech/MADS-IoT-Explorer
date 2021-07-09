@@ -55,7 +55,7 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     |> show_reinvitation_success_message_to_user()
   end
 
-  def reinvite_user({:error, invitation}, _current_user) do
+  def reinvite_user({:error, invitation}, _) do
     {:error, %{error: extract_changeset_error(invitation)}}
   end
 
@@ -157,11 +157,11 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     end
   end
 
-  defp delete_invitation({:ok, _invitation}) do
+  defp delete_invitation({:ok, _}) do
     {:ok, resp_msg(:invitation_deleted_successfully)}
   end
 
-  defp delete_invitation({:error, _invitation}) do
+  defp delete_invitation({:error, _}) do
     {:error, resp_msg(:invitation_deletion_error)}
   end
 
@@ -173,11 +173,11 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     |> show_message_to_user()
   end
 
-  defp create_invitation({:error, invitation}, _invitation_details, _current_user) do
+  defp create_invitation({:error, invitation}, _, _) do
     {:error, %{error: extract_changeset_error(invitation)}}
   end
 
-  defp create_invitation({:user_exists, _invitation}, _invitation_details, _current_user) do
+  defp create_invitation({:user_exists, _}, _, _) do
     {:error,
      %{
        error: %{
@@ -194,11 +194,11 @@ defmodule AcqdatApi.RoleManagement.Invitation do
     |> Mailer.deliver_now()
   end
 
-  defp show_message_to_user(_invitation_details) do
+  defp show_message_to_user(_) do
     {:ok, resp_msg(:invited_success)}
   end
 
-  defp show_reinvitation_success_message_to_user(_invitation_details) do
+  defp show_reinvitation_success_message_to_user(_) do
     {:ok, resp_msg(:reinvitation_success)}
   end
 end

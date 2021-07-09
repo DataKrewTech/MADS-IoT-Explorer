@@ -35,7 +35,7 @@ defmodule AcqdatCore.Alerts.Schema.AlertRulesTest do
     end
   end
 
-  def setup_alert_rules(_context) do
+  def setup_alert_rules(_) do
     sensor = insert(:sensor)
     [param1, _param2] = fetch_parameters(sensor.sensor_type.parameters)
     [user1, user2, user3] = insert_list(3, :user)

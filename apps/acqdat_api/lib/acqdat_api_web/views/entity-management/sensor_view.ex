@@ -124,17 +124,6 @@ defmodule AcqdatApiWeb.EntityManagement.SensorView do
     }
   end
 
-  def render("metadata.json", %{sensor: metadata}) do
-    %{
-      id: metadata.id,
-      name: metadata.name,
-      data_type: metadata.data_type,
-      unit: metadata.unit,
-      uuid: metadata.uuid,
-      value: metadata.value
-    }
-  end
-
   def render("hits.json", %{hits: hits}) do
     sensor_ids = extract_ids(hits.hits)
     sensors = Sensor.get_for_view(sensor_ids)

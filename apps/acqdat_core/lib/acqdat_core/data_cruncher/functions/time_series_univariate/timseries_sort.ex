@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSSort do
   @inports [:ts_datasource]
   @outports [:tssort]
-  @display_name "TimeSeries Sort"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns Sorted values for the provided timeseries data stream.
+  # @display_name "TimeSeries Sort"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns Sorted values for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

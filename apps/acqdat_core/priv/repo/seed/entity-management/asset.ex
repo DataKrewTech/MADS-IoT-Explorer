@@ -3,7 +3,6 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
   import Tirexs.HTTP
   alias AcqdatCore.Schema.EntityManagement.{Asset, Organisation, Project, AssetType}
   alias AcqdatCore.Schema.RoleManagement.User
-  alias AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
 
   @asset_manifest [
@@ -130,7 +129,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Asset do
      }
      case Repo.insert(asset_type) do
        {:ok, asset_type} -> asset_type
-       {:error, error} -> raise RuntimeError, message: "Problem Inserting Asset Type"
+       {:error, _} -> raise RuntimeError, message: "Problem Inserting Asset Type"
      end
   end
 end

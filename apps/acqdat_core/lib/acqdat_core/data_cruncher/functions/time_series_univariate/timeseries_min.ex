@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMin do
   @inports [:ts_datasource]
   @outports [:tsmin]
-  @display_name "TimeSeries Min"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns min value for the provided timeseries data stream.
+  # @display_name "TimeSeries Min"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns min value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

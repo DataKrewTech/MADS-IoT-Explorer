@@ -20,7 +20,7 @@ defmodule AcqdatApiWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   # socket = new Socket("/socket", {params: {token: window.userToken}})
-  def connect(%{"token" => token}, socket, _connect_info) do
+  def connect(%{"token" => token}, socket, _) do
     case Phoenix.Token.verify(
            socket,
            @secret_key_base,
@@ -36,7 +36,7 @@ defmodule AcqdatApiWeb.UserSocket do
 
         {:ok, socket}
 
-      {:error, reason} ->
+      {:error, _} ->
         :error
     end
   end
@@ -51,5 +51,5 @@ defmodule AcqdatApiWeb.UserSocket do
   #     AcqdatApiWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(_), do: nil
 end

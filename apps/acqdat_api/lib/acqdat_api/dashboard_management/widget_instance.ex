@@ -11,7 +11,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
 
   def create(attrs) do
     Multi.new()
-    |> Multi.run(:create_widget, fn _, _changes ->
+    |> Multi.run(:create_widget, fn _, _ ->
       attrs
       |> widget_create_attrs()
       |> WidgetInstanceModel.create()
@@ -36,10 +36,10 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{create_widget: widget_instance, update_panel_widget_layout: _panel}} ->
+      {:ok, %{create_widget: widget_instance, update_panel_widget_layout: _}} ->
         verify_widget({:ok, widget_instance})
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :create_widget -> verify_error_changeset({:error, failed_value})
           :update_panel_widget_layout -> verify_error_changeset({:error, failed_value})
@@ -185,7 +185,7 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
     }
   end
 
-  defp parse_filtered_params(%{panel: panel}) do
+  defp parse_filtered_params(%{panel: _}) do
     %{
       from_date: Timex.shift(Timex.now(), months: -1),
       to_date: Timex.now(),

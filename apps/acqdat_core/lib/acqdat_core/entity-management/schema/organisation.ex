@@ -10,7 +10,6 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
   alias AcqdatCore.Schema.EntityManagement.Project
   alias AcqdatCore.Repo
 
-  # use AsNestedSet, scope: [:id]
   @typedoc """
   `uuid`: A universally unique id to identify the Organisation.
   `name`: Name for easy identification of the Organisation.

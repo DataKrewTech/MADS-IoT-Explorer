@@ -102,7 +102,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
     end
   end
 
-  def export(conn, params) do
+  def export(conn, _) do
     case conn.status do
       nil ->
         conn
@@ -180,7 +180,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
         {id, _} = Integer.parse(id)
 
         case WidgetInstance.get_by_filter(id, params) do
-          {:error, message} ->
+          {:error, _} ->
             conn
             |> send_error(400, DashboardExportErrorHelper.error_message(:resource_not_found))
 
@@ -264,7 +264,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardExportController do
     end
   end
 
-  defp check_exported_dashboard(false, params, exported_dashboard) do
+  defp check_exported_dashboard(false, _, exported_dashboard) do
     Dashboard.get_by_uuid(exported_dashboard.dashboard_uuid)
   end
 

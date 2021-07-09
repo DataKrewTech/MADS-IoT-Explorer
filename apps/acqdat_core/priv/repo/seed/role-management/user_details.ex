@@ -25,7 +25,7 @@ defmodule AcqdatCore.Seed.RoleManagement.UserDetails do
       org_id: params.org_id,
       is_invited: params.is_invited,
       role_id: params.role_id,
-      "join_field": %{"name": "user", "parent": org.id}
+      join_field: %{name: "user", parent: org.id}
       )
   end
 

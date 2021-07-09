@@ -9,7 +9,6 @@ defmodule AcqdatApi.DataInsights.FactTables do
   alias AcqdatCore.Repo
   alias AcqdatApi.DataStructure.Trees.NaryTree
   alias Ecto.Multi
-  alias AcqdatCore.Schema.EntityManagement.SensorsData, as: SD
 
   defdelegate get_fact_table_headers(fact_table_id), to: FactTables
 
@@ -35,7 +34,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
   def delete(fact_table) do
     Multi.new()
-    |> Multi.run(:del_rec_frm_fact_tab, fn _, _changes ->
+    |> Multi.run(:del_rec_frm_fact_tab, fn _, _ ->
       FactTables.delete(fact_table)
     end)
     |> Multi.run(:del_temp_fact_tab, fn _, %{del_rec_frm_fact_tab: _} ->
@@ -56,7 +55,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
     })
   end
 
-  def create(fact_table_name, org_id, %{name: project_name, id: project_id}, %{id: creator_id}) do
+  def create(fact_table_name, org_id, %{name: _, id: project_id}, %{id: creator_id}) do
     FactTables.create(%{
       name: fact_table_name,
       org_id: org_id,
@@ -80,7 +79,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
   def compute_sensors(fact_table_id, sensor_types, uniq_sensor_types) do
     [
-      %{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to, "name" => name}
+      %{"id" => sensor_type_id, "date_from" => date_from, "date_to" => date_to, "name" => _}
       | _
     ] = uniq_sensor_types
 
@@ -211,61 +210,60 @@ defmodule AcqdatApi.DataInsights.FactTables do
           [[key] ++ List.flatten(Enum.map(metadatas, fn metadata -> Map.values(metadata) end))]
       end)
 
-    output =
-      if data != [] do
-        headers_metadata = %{
-          "#{asset_type_id}" =>
-            Stream.with_index(metadata_list, 0)
-            |> Enum.reduce(%{}, fn {v, k}, acc ->
-              Map.put(acc, v, k)
-            end)
-        }
+    if data != [] do
+      headers_metadata = %{
+        "#{asset_type_id}" =>
+          Stream.with_index(metadata_list, 0)
+          |> Enum.reduce(%{}, fn {v, k}, acc ->
+            Map.put(acc, v, k)
+          end)
+      }
 
-        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+      {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
 
-        {:ok, _} =
-          FactTables.update(fact_table, %{
-            headers_metadata: %{
-              "rows_len" => length(metadata_list),
-              "headers" => headers_metadata
-            }
-          })
+      {:ok, _} =
+        FactTables.update(fact_table, %{
+          headers_metadata: %{
+            "rows_len" => length(metadata_list),
+            "headers" => headers_metadata
+          }
+        })
 
-        headers = Enum.map(metadata_list_names, fn x -> %{"#{x}" => "text"} end)
+      headers = Enum.map(metadata_list_names, fn x -> %{"#{x}" => "text"} end)
 
-        fact_table_name = "fact_table_#{fact_table_id}"
+      fact_table_name = "fact_table_#{fact_table_id}"
 
-        create_fact_table(fact_table_name, headers, data)
+      create_fact_table(fact_table_name, headers, data)
 
-        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+      data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
-        columns =
-          Ecto.Adapters.SQL.query!(
-            Repo,
-            "select column_name, data_type from information_schema.columns where table_name = \'#{
-              fact_table_name
-            }\'",
-            [],
-            timeout: :infinity
-          )
+      columns =
+        Ecto.Adapters.SQL.query!(
+          Repo,
+          "select column_name, data_type from information_schema.columns where table_name = \'#{
+            fact_table_name
+          }\'",
+          [],
+          timeout: :infinity
+        )
 
-        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+      columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
 
-        %{
-          headers: columns,
-          data: data.rows,
-          total: total_no_of_rec(fact_table_name)
-        }
-      else
-        %{error: "no data present"}
-      end
+      %{
+        headers: columns,
+        data: data.rows,
+        total: total_no_of_rec(fact_table_name)
+      }
+    else
+      %{error: "no data present"}
+    end
   end
 
   def gen_comp_asset_data(%{fact_table_id: fact_table_id, asset_types: asset_types}) do
     [
       %{
         "id" => id,
-        "name" => _name,
+        "name" => _,
         "metadata_name" => metadata_name,
         "metadata_id" => metadata_id
       }
@@ -298,43 +296,42 @@ defmodule AcqdatApi.DataInsights.FactTables do
         {headers, data1}
       end
 
-    output =
-      if data != [] do
-        fact_table_name = "fact_table_#{fact_table_id}"
+    if data != [] do
+      fact_table_name = "fact_table_#{fact_table_id}"
 
-        create_fact_table(fact_table_name, headers, data)
+      create_fact_table(fact_table_name, headers, data)
 
-        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+      data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
-        headers_metadata = %{"#{id}" => %{"#{metadata_id}" => 0}}
+      headers_metadata = %{"#{id}" => %{"#{metadata_id}" => 0}}
 
-        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+      {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
 
-        {:ok, _} =
-          FactTables.update(fact_table, %{
-            headers_metadata: %{"rows_len" => 1, "headers" => headers_metadata}
-          })
+      {:ok, _} =
+        FactTables.update(fact_table, %{
+          headers_metadata: %{"rows_len" => 1, "headers" => headers_metadata}
+        })
 
-        columns =
-          Ecto.Adapters.SQL.query!(
-            Repo,
-            "select column_name, data_type from information_schema.columns where table_name = \'#{
-              fact_table_name
-            }\'",
-            [],
-            timeout: :infinity
-          )
+      columns =
+        Ecto.Adapters.SQL.query!(
+          Repo,
+          "select column_name, data_type from information_schema.columns where table_name = \'#{
+            fact_table_name
+          }\'",
+          [],
+          timeout: :infinity
+        )
 
-        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+      columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
 
-        %{
-          headers: columns,
-          data: data.rows,
-          total: total_no_of_rec(fact_table_name)
-        }
-      else
-        %{error: "no data present"}
-      end
+      %{
+        headers: columns,
+        data: data.rows,
+        total: total_no_of_rec(fact_table_name)
+      }
+    else
+      %{error: "no data present"}
+    end
   end
 
   def gen_comp_sensor_data(%{fact_table_id: fact_table_id, sensor_types: sensor_types}) do
@@ -381,52 +378,51 @@ defmodule AcqdatApi.DataInsights.FactTables do
         }
       end
 
-    output =
-      if output[:data] != [] do
-        headers_metadata =
-          if metadata_name == "name",
-            do: %{"#{id}" => %{"#{metadata_id}" => 0}},
-            else: %{"#{id}" => %{"#{metadata_id}" => 0, "#{metadata_id}_dateTime" => 1}}
+    if output[:data] != [] do
+      headers_metadata =
+        if metadata_name == "name",
+          do: %{"#{id}" => %{"#{metadata_id}" => 0}},
+          else: %{"#{id}" => %{"#{metadata_id}" => 0, "#{metadata_id}_dateTime" => 1}}
 
-        {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
+      {:ok, fact_table} = FactTables.get_by_id(fact_table_id)
 
-        {:ok, _} =
-          FactTables.update(fact_table, %{
-            headers_metadata: %{
-              "rows_len" => length(output[:headers]),
-              "headers" => headers_metadata
-            }
-          })
+      {:ok, _} =
+        FactTables.update(fact_table, %{
+          headers_metadata: %{
+            "rows_len" => length(output[:headers]),
+            "headers" => headers_metadata
+          }
+        })
 
-        fact_table_name = "fact_table_#{fact_table_id}"
+      fact_table_name = "fact_table_#{fact_table_id}"
 
-        create_fact_table(fact_table_name, output[:headers], output[:data])
+      create_fact_table(fact_table_name, output[:headers], output[:data])
 
-        data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
+      data = Ecto.Adapters.SQL.query!(Repo, "select * from #{fact_table_name} LIMIT 20", [])
 
-        columns =
-          Ecto.Adapters.SQL.query!(
-            Repo,
-            "select column_name, data_type from information_schema.columns where table_name = \'#{
-              fact_table_name
-            }\'",
-            [],
-            timeout: :infinity
-          )
+      columns =
+        Ecto.Adapters.SQL.query!(
+          Repo,
+          "select column_name, data_type from information_schema.columns where table_name = \'#{
+            fact_table_name
+          }\'",
+          [],
+          timeout: :infinity
+        )
 
-        columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
+      columns = columns.rows |> Enum.map(fn [a, b] -> %{"#{a}" => b} end)
 
-        %{
-          headers: columns,
-          data: data.rows,
-          total: total_no_of_rec(fact_table_name)
-        }
-      else
-        %{error: "no data present"}
-      end
+      %{
+        headers: columns,
+        data: data.rows,
+        total: total_no_of_rec(fact_table_name)
+      }
+    else
+      %{error: "no data present"}
+    end
   end
 
-  def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, node_tracker) do
+  def fetch_descendants(fact_table_id, parent_tree, root_node, entities_list, _) do
     {subtree, node_tracker} = traverse_n_gen_subtree(parent_tree, root_node, entities_list, [])
 
     if Enum.sort(Enum.uniq(List.flatten(node_tracker))) == Enum.sort(entities_list) do
@@ -594,7 +590,7 @@ defmodule AcqdatApi.DataInsights.FactTables do
   end
 
   def compute_table_row_len(subtree) do
-    Enum.reduce(subtree.nodes, 0, fn {key, node}, size ->
+    Enum.reduce(subtree.nodes, 0, fn {_, node}, size ->
       if node.content != :empty do
         if node.type == "SensorType" and node.content != ["name"] do
           len = length(node.content -- ["name"]) * 2
@@ -612,10 +608,10 @@ defmodule AcqdatApi.DataInsights.FactTables do
     Map.keys(output)
     |> Enum.uniq()
     |> Stream.with_index(0)
-    |> Enum.reduce({%{}, 0}, fn {entity_type_id, index}, {acc, pos} ->
+    |> Enum.reduce({%{}, 0}, fn {entity_type_id, _}, {acc, pos} ->
       {index_pos, res} =
         Stream.with_index(subtree.nodes[entity_type_id].content, pos)
-        |> Enum.reduce({pos, %{}}, fn {v, table_indx}, {ind, acc} ->
+        |> Enum.reduce({pos, %{}}, fn {v, table_indx}, {_, acc} ->
           if subtree.nodes[entity_type_id].type == "SensorType" and v != "name" do
             ind_pos_of_entity =
               Enum.find_index(subtree.nodes[entity_type_id].content, fn x -> x == v end)
@@ -661,59 +657,57 @@ defmodule AcqdatApi.DataInsights.FactTables do
     |> Enum.reduce(empty_headers, fn entity, acc ->
       pos = headers["#{entity["id"]}_#{entity["name"]}"]["#{entity["metadata_id"]}"]
 
-      res =
-        if entity["metadata_name"] == entity["metadata_id"] do
+      if entity["metadata_name"] == entity["metadata_id"] do
+        List.replace_at(
+          acc,
+          pos,
+          %{"#{entity["name"]} #{entity["metadata_name"]}" => "text"}
+        )
+      else
+        if entity["type"] == "AssetType" do
+          [%{name: [metadata_name]}] =
+            AssetTypeModel.fetch_uniq_metadata_name_by_metadata_uuid(entity["id"], [
+              entity["metadata_id"]
+            ])
+
+          # ["#{entity["name"]} #{metadata_name}"]
           List.replace_at(
             acc,
             pos,
-            %{"#{entity["name"]} #{entity["metadata_name"]}" => "text"}
+            %{"#{entity["name"]} #{metadata_name}" => "text"}
           )
         else
-          if entity["type"] == "AssetType" do
-            [%{name: [metadata_name]}] =
-              AssetTypeModel.fetch_uniq_metadata_name_by_metadata_uuid(entity["id"], [
-                entity["metadata_id"]
-              ])
+          [%{name: [param_name]}] =
+            SensorTypeModel.fetch_uniq_param_name_by_param_uuid(entity["id"], [
+              entity["metadata_id"]
+            ])
 
-            # ["#{entity["name"]} #{metadata_name}"]
+          acc =
             List.replace_at(
               acc,
               pos,
-              %{"#{entity["name"]} #{metadata_name}" => "text"}
+              %{"#{entity["name"]} #{param_name}" => "numeric"}
+            )
+
+          pos = headers["#{entity["id"]}_#{entity["name"]}"]["#{entity["metadata_id"]}_dateTime"]
+
+          pos_dateTime = headers["#{entity["id"]}_#{entity["name"]}"]["entity_dateTime"]
+
+          if pos_dateTime do
+            List.replace_at(
+              acc,
+              pos_dateTime,
+              %{"entity_dateTime" => "timestamp"}
             )
           else
-            [%{name: [param_name]}] =
-              SensorTypeModel.fetch_uniq_param_name_by_param_uuid(entity["id"], [
-                entity["metadata_id"]
-              ])
-
-            acc =
-              List.replace_at(
-                acc,
-                pos,
-                %{"#{entity["name"]} #{param_name}" => "numeric"}
-              )
-
-            pos =
-              headers["#{entity["id"]}_#{entity["name"]}"]["#{entity["metadata_id"]}_dateTime"]
-
-            pos_dateTime = headers["#{entity["id"]}_#{entity["name"]}"]["entity_dateTime"]
-
-            if pos_dateTime do
-              List.replace_at(
-                acc,
-                pos_dateTime,
-                %{"entity_dateTime" => "timestamp"}
-              )
-            else
-              List.replace_at(
-                acc,
-                pos,
-                %{"#{entity["name"]} #{param_name}_dateTime" => "timestamp"}
-              )
-            end
+            List.replace_at(
+              acc,
+              pos,
+              %{"#{entity["name"]} #{param_name}_dateTime" => "timestamp"}
+            )
           end
         end
+      end
     end)
   end
 
@@ -878,14 +872,13 @@ defmodule AcqdatApi.DataInsights.FactTables do
 
               [
                 %{
-                  "metadata_name" => _metadata_name,
+                  "metadata_name" => _,
                   "date_to" => date_to,
                   "date_from" => date_from
                 }
                 | _
               ] = sensor_entity
 
-              # parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
               parameter_ids = Enum.map(sensor_entity, fn entity -> entity["metadata_id"] end)
 
               date_from = from_unix(date_from)
@@ -920,58 +913,55 @@ defmodule AcqdatApi.DataInsights.FactTables do
           parent_data = Enum.map(parent_data, fn entity -> entity[:id] end) |> Enum.uniq()
           assets = AssetModel.get_all_by_ids(parent_data)
 
-          asset_ids =
-            Enum.reduce(assets, [], fn asset, acc ->
-              data = AssetModel.fetch_child_descendants(asset)
+          Enum.reduce(assets, [], fn asset, acc ->
+            data = AssetModel.fetch_child_descendants(asset)
 
-              res =
-                if node.type == "AssetType" do
-                  Enum.reduce(data, [], fn x, acc1 ->
-                    if "#{x.asset_type_id}" == id,
-                      do: acc1 ++ [%{parent_id: asset.id, name: x.name, id: x.id}],
-                      else: acc1
+            res =
+              if node.type == "AssetType" do
+                Enum.reduce(data, [], fn x, acc1 ->
+                  if "#{x.asset_type_id}" == id,
+                    do: acc1 ++ [%{parent_id: asset.id, name: x.name, id: x.id}],
+                    else: acc1
+                end)
+              else
+                list = Enum.map(data, fn x -> x.id end)
+
+                entity_ids =
+                  from(sensor in Sensor,
+                    where:
+                      sensor.sensor_type_id == ^id and sensor.parent_id in ^list and
+                        sensor.parent_type == "Asset",
+                    select: sensor.id
+                  )
+                  |> Repo.all()
+
+                sensor_entity =
+                  Enum.filter(user_list, fn x ->
+                    "#{x["id"]}" == id && x["type"] == node.type
                   end)
-                else
-                  list = Enum.map(data, fn x -> x.id end)
 
-                  entity_ids =
-                    from(sensor in Sensor,
-                      where:
-                        sensor.sensor_type_id == ^id and sensor.parent_id in ^list and
-                          sensor.parent_type == "Asset",
-                      select: sensor.id
-                    )
-                    |> Repo.all()
+                [
+                  %{
+                    "metadata_name" => _,
+                    "date_to" => date_to,
+                    "date_from" => date_from
+                  }
+                  | _
+                ] = sensor_entity
 
-                  sensor_entity =
-                    Enum.filter(user_list, fn x ->
-                      "#{x["id"]}" == id && x["type"] == node.type
-                    end)
+                parameter_ids = Enum.map(sensor_entity, fn entity -> entity["metadata_id"] end)
 
-                  [
-                    %{
-                      "metadata_name" => _metadata_name,
-                      "date_to" => date_to,
-                      "date_from" => date_from
-                    }
-                    | _
-                  ] = sensor_entity
+                date_from = from_unix(date_from)
+                date_to = from_unix(date_to)
 
-                  # parameters = Enum.map(sensor_entity, fn entity -> entity["metadata_name"] end)
-                  parameter_ids = Enum.map(sensor_entity, fn entity -> entity["metadata_id"] end)
+                query = SensorData.fetch_sensor_data_btw_time_intv(entity_ids, date_from, date_to)
 
-                  date_from = from_unix(date_from)
-                  date_to = from_unix(date_to)
+                output = SensorData.fetch_sensors_data(query, parameter_ids) |> Repo.all()
+                Enum.map(output, fn x -> Map.merge(%{parent_id: asset.id}, x) end)
+              end
 
-                  query =
-                    SensorData.fetch_sensor_data_btw_time_intv(entity_ids, date_from, date_to)
-
-                  output = SensorData.fetch_sensors_data(query, parameter_ids) |> Repo.all()
-                  Enum.map(output, fn x -> Map.merge(%{parent_id: asset.id}, x) end)
-                end
-
-              acc ++ res
-            end)
+            acc ++ res
+          end)
         else
           entity_data
         end
@@ -1015,24 +1005,22 @@ defmodule AcqdatApi.DataInsights.FactTables do
         {subtree_map, node_tracker}
 
       _ ->
-        res =
-          Enum.reduce(tree_node.children, {subtree_map, node_tracker}, fn child_id,
-                                                                          {acc1, acc2} ->
-            node = NaryTree.get(tree, child_id)
-            res = traverse_n_gen_subtree(tree, node, entities_list, node_tracker)
-            {data, data2} = res
+        Enum.reduce(tree_node.children, {subtree_map, node_tracker}, fn child_id, {acc1, acc2} ->
+          node = NaryTree.get(tree, child_id)
+          res = traverse_n_gen_subtree(tree, node, entities_list, node_tracker)
+          {data, data2} = res
 
-            if res != nil && acc1 != %{} && acc1 != [] do
-              items = acc1[:children] ++ [data]
-              acc1 = acc1 |> Map.put(:children, List.flatten(items))
-              acc2 = acc2 ++ data2
-              {acc1, acc2}
-            else
-              acc2 = acc2 ++ data2
-              acc1 = acc1 ++ data
-              {acc1, acc2}
-            end
-          end)
+          if res != nil && acc1 != %{} && acc1 != [] do
+            items = acc1[:children] ++ [data]
+            acc1 = acc1 |> Map.put(:children, List.flatten(items))
+            acc2 = acc2 ++ data2
+            {acc1, acc2}
+          else
+            acc2 = acc2 ++ data2
+            acc1 = acc1 ++ data
+            {acc1, acc2}
+          end
+        end)
     end
   end
 
@@ -1103,14 +1091,14 @@ defmodule AcqdatApi.DataInsights.FactTables do
     res
   end
 
-  defp run_under_transaction(multi, result_key) do
+  defp run_under_transaction(multi, _) do
     multi
     |> Repo.transaction(timeout: :infinity)
     |> case do
       {:ok, result} ->
         {:ok, result[:del_rec_frm_fact_tab]}
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end

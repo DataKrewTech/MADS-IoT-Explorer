@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSMax do
   @inports [:ts_datasource]
   @outports [:tsmax]
-  @display_name "TimeSeries Max"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns max value for the provided timeseries data stream.
+  # @display_name "TimeSeries Max"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns max value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

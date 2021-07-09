@@ -9,16 +9,16 @@ defmodule AcqdatCore.IotManager.DataDump.Worker do
     GenServer.start_link(__MODULE__, nil)
   end
 
-  def init(_args) do
+  def init(_) do
     {:ok, nil}
   end
 
-  def handle_cast({:data_dump, params}, _state) do
+  def handle_cast({:data_dump, params}, _) do
     response = verify_data_dump(GDDModel.create(params), params)
     {:noreply, response}
   end
 
-  defp verify_data_dump({:ok, data}, _params) do
+  defp verify_data_dump({:ok, data}, _) do
     GenServer.cast(Server, {:data_parser, data})
     {:ok, data}
   end

@@ -52,13 +52,4 @@ defmodule AcqdatCore.Schema.ToolManagement.ToolBox do
     |> validate_required(@required_params)
     |> unique_constraint(:name)
   end
-
-  defp add_uuid(%Ecto.Changeset{valid?: true} = changeset) do
-    uuid = @tb_prefix <> permalink(4)
-
-    changeset
-    |> put_change(:uuid, uuid)
-  end
-
-  defp add_uuid(%Ecto.Changeset{valid?: false} = changeset), do: changeset
 end

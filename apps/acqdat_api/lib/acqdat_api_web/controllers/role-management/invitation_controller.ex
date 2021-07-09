@@ -99,7 +99,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
 
   def update(
         conn,
-        %{"invitation" => %{"group_ids" => group_ids, "policies" => policies}} = params
+        %{"invitation" => %{"group_ids" => group_ids, "policies" => policies}} = _
       ) do
     invitation = conn.assigns[:invitation]
 

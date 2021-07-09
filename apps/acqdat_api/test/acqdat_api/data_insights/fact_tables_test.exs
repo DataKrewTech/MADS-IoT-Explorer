@@ -748,7 +748,7 @@ defmodule AcqdatApi.DataInsights.FactTablesTest do
       topology_map = Topology.gen_topology(org_id, project)
       parent_tree = NaryTree.from_map(topology_map)
 
-      {_entity_levels, {root_node, root_entity}, entity_map} =
+      {_, {root_node, root_entity}, entity_map} =
         Enum.reduce(user_list, {[], {nil, nil}, %{}}, fn entity, {acc1, {acc2, acc4}, acc3} ->
           node = NaryTree.get(parent_tree, "#{entity["id"]}_#{entity["name"]}")
           acc1 = acc1 ++ [node.level]

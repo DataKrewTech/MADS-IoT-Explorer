@@ -1,5 +1,4 @@
 defmodule AcqdatCore.Test.Support.DataDump do
-  # alias AcqdatCore.Schema.EntityManagement.SensorsData
   alias AcqdatCore.Schema.IotManager.Gateway
   alias AcqdatCore.Model.IotManager.Gateway, as: GModel
   alias AcqdatCore.Schema.IotManager.GatewayDataDump

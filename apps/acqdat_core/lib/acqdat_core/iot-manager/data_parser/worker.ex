@@ -6,7 +6,7 @@ defmodule AcqdatCore.IotManager.DataParser.Worker do
     GenServer.start_link(__MODULE__, nil)
   end
 
-  def init(_args) do
+  def init(_) do
     {:ok, nil}
   end
 

@@ -8,7 +8,7 @@ defmodule AcqdatApi.RoleManagement.UserCredentials do
 
   def update(cred, %{"user_setting" => user_settings} = params) do
     Multi.new()
-    |> Multi.run(:update_credentials, fn _, _changes ->
+    |> Multi.run(:update_credentials, fn _, _ ->
       UserCredentials.update(cred, params)
     end)
     |> Multi.run(:update_settings, fn _, %{update_credentials: cred} ->
@@ -25,10 +25,10 @@ defmodule AcqdatApi.RoleManagement.UserCredentials do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{update_credentials: cred, update_settings: _settings}} ->
+      {:ok, %{update_credentials: cred, update_settings: _}} ->
         verify_credentials({:ok, cred})
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :update_credentials -> verify_error_changeset({:error, failed_value})
           :update_settings -> verify_error_changeset({:error, failed_value})

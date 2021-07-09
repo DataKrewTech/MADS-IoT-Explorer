@@ -64,7 +64,7 @@ defmodule AcqdatApiWeb.DashboardManagement.PanelController do
         {id, _} = Integer.parse(id)
 
         case Panel.get_with_widgets(id) do
-          {:error, message} ->
+          {:error, _} ->
             message = PanelErrorHelper.error_message(:resource_not_found)
             send_error(conn, 400, message)
 

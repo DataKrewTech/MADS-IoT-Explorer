@@ -30,7 +30,7 @@ defmodule AcqdatApi.Image do
   # end
 
   # Override the storage directory:
-  def storage_dir(_version, {_file, type}) do
+  def storage_dir(_, {_, type}) do
     "uploads/#{type}"
   end
 

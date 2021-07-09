@@ -16,12 +16,12 @@ defmodule AcqdatCore.DataInsights.Schema.Visualizations.Lines do
             visual_settings: %{}
 
   @impl true
-  def visual_prop_gen(_visualization, options \\ %{}) do
+  def visual_prop_gen(_, options \\ %{}) do
     DataGenerator.process_visual_data(options, "line")
   end
 
   @impl true
-  def data_prop_gen(params, _options \\ []) do
+  def data_prop_gen(params, _ \\ []) do
     DataGenerator.process_data(params, "line")
   end
 

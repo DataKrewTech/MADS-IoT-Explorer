@@ -45,17 +45,17 @@ defmodule AcqdatCore.Model.IotManager.MQTT.Handler do
     {:ok, state}
   end
 
-  def handle_message([_org, org_id, _project, project_id, _gateway, gateway_uuid], payload, state) do
+  def handle_message([_, org_id, _, project_id, _, gateway_uuid], payload, state) do
     meta = %{org_uuid: org_id, project_uuid: project_id, gateway_uuid: gateway_uuid}
     log_data_if_valid(Jason.decode(payload), meta)
     {:ok, state}
   end
 
-  def subscription(_status, _topic_filter, state) do
+  def subscription(_, _, state) do
     {:ok, state}
   end
 
-  def terminate(_reason, _state) do
+  def terminate(_, _) do
     # tortoise doesn't care about what you return from terminate/2,
     # that is in alignment with other behaviours that implement a
     # terminate-callback

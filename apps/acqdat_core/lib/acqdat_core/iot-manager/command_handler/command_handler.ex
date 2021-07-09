@@ -30,7 +30,7 @@ defmodule AcqdatCore.IotManager.CommandHandler do
       [] ->
         nil
 
-      [{_key, value}] ->
+      [{_, value}] ->
         value
     end
   end

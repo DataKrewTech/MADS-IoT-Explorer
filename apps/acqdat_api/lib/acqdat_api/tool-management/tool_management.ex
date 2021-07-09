@@ -49,7 +49,7 @@ defmodule AcqdatApi.ToolManagement do
     Tool.get(%{uuid: tool_uuid})
   end
 
-  def employees(_facotry_id) do
+  def employees(_) do
     Employee.get_all()
   end
 
@@ -59,7 +59,7 @@ defmodule AcqdatApi.ToolManagement do
         tool_box = Repo.preload(tool_box, :tools)
         {:ok, tool_box.tools}
 
-      {:error, _error} = error ->
+      {:error, _} = error ->
         error
     end
   end
@@ -70,7 +70,7 @@ defmodule AcqdatApi.ToolManagement do
       {:ok, employee} ->
         {:ok, Employee.employee_tool_issue_status(employee.id)}
 
-      {:error, _message} = error ->
+      {:error, _} = error ->
         error
     end
   end
@@ -139,7 +139,7 @@ defmodule AcqdatApi.ToolManagement do
   defp persist(schema, list, status, transaction_type) do
     Multi.new()
     |> Multi.insert_all(:inserts, schema, list, returning: [:tool_id])
-    |> Multi.run(:tool_update, fn _repo, %{inserts: {_, inserts}} ->
+    |> Multi.run(:tool_update, fn _, %{inserts: {_, inserts}} ->
       {:ok, update_tool_status(inserts, status)}
     end)
     |> Repo.transaction()

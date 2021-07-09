@@ -8,7 +8,6 @@ defmodule AcqdatApi.RoleManagement.User do
   import AcqdatApiWeb.Helpers
   import Tirexs.HTTP
   import AcqdatApiWeb.ResMessages
-  import Ecto.Query
 
   # NOTE: Currently, setting the token expiration time to be of 2 days(172800 secs)
   @token_expiration_max_age 172_800
@@ -96,7 +95,7 @@ defmodule AcqdatApi.RoleManagement.User do
     fetch_invitation(InvitationModel.get_by_token(token), user_details)
   end
 
-  defp fetch_invitation(nil, _user_details) do
+  defp fetch_invitation(nil, _) do
     {:error, %{error: resp_msg(:invitation_is_not_valid)}}
   end
 
@@ -115,18 +114,18 @@ defmodule AcqdatApi.RoleManagement.User do
     )
   end
 
-  defp validate_invitation({:error, :expired}, invitation, _user_details) do
+  defp validate_invitation({:error, :expired}, invitation, _) do
     mark_invitation_token_as_invalid(
       InvitationModel.update_invitation(invitation, %{token_valid: false})
     )
   end
 
-  defp validate_invitation({:error, :invalid}, _invitation, _user_details) do
+  defp validate_invitation({:error, :invalid}, _, _) do
     {:error, %{error: resp_msg(:invalid_invitation_token)}}
   end
 
   defp validate_invitation(
-         {:ok, _data},
+         {:ok, _},
          %Invitation{
            asset_ids: asset_ids,
            app_ids: app_ids,
@@ -166,10 +165,10 @@ defmodule AcqdatApi.RoleManagement.User do
 
     verify_user(
       Multi.new()
-      |> Multi.run(:update_user_cred, fn _, _changes ->
+      |> Multi.run(:update_user_cred, fn _, _ ->
         UserCredentials.update_details(user.user_credentials_id, user_details)
       end)
-      |> Multi.run(:update_user, fn _, _changes ->
+      |> Multi.run(:update_user, fn _, _ ->
         UserModel.update_user(user, user_details)
       end)
       |> Multi.run(:delete_invitation, fn _, _ ->
@@ -179,7 +178,7 @@ defmodule AcqdatApi.RoleManagement.User do
     )
   end
 
-  defp existing_user(false, _user, _user_details, invitation) do
+  defp existing_user(false, _, _, invitation) do
     Multi.new()
     |> Multi.run(:delete_invitation, fn _, _ ->
       InvitationModel.delete(invitation)
@@ -193,7 +192,7 @@ defmodule AcqdatApi.RoleManagement.User do
     # 3) Invitation Record Deletions
     verify_user(
       Multi.new()
-      |> Multi.run(:find_or_create_credentials, fn _, _changes ->
+      |> Multi.run(:find_or_create_credentials, fn _, _ ->
         UserCredentials.find_or_create(user_details)
       end)
       |> Multi.run(:create_user, fn _, %{find_or_create_credentials: user_credentials} ->
@@ -235,34 +234,30 @@ defmodule AcqdatApi.RoleManagement.User do
     case result do
       {:ok,
        %{
-         find_or_create_credentials: _user_credentials,
+         find_or_create_credentials: _,
          create_user: user,
-         delete_invitation: _delete_invitation,
-         add_group_and_policies: _add_group_and_policies
+         delete_invitation: _,
+         add_group_and_policies: _
        }} ->
         user_create_es(user)
         {:ok, user |> Repo.preload([:user_credentials])}
 
-      {:ok, %{update_user_cred: _, update_user: user, delete_invitation: _delete_invitation}} ->
+      {:ok, %{update_user_cred: _, update_user: user, delete_invitation: _}} ->
         {:ok, user |> Repo.preload([:user_credentials])}
 
-      {:ok, %{delete_invitation: _delete_invitation}} ->
+      {:ok, %{delete_invitation: _}} ->
         {:error, %{error: "User already exists"}}
 
-      {:error, _failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end
 
-  defp verify_error_changeset({:error, changeset}) do
-    {:error, %{error: extract_changeset_error(changeset)}}
-  end
-
-  defp mark_invitation_token_as_invalid({:ok, _data}) do
+  defp mark_invitation_token_as_invalid({:ok, _}) do
     {:error, %{error: resp_msg(:invitation_token_expired)}}
   end
 
-  defp mark_invitation_token_as_invalid({:error, _data}) do
+  defp mark_invitation_token_as_invalid({:error, _}) do
     {:error, %{error: resp_msg(:unable_to_mark_invitation_invalid)}}
   end
 

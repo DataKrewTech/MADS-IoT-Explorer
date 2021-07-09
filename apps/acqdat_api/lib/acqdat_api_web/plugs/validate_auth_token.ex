@@ -20,7 +20,7 @@ defmodule AcqdatApiWeb.Plug.ValidateAuthToken do
     assign(conn, :credential_id, credential_id)
   end
 
-  defp validate_token_res({:error, reason}, conn) do
+  defp validate_token_res({:error, _}, conn) do
     conn
     |> send_error(401, AuthErrorHelper.error_message(:unauthorized))
     |> halt

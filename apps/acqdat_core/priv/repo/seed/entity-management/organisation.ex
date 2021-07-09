@@ -23,7 +23,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Organisation do
       id: params.id,
       name: params.name,
       uuid: params.uuid,
-      "join_field": "organisation"
+      join_field: "organisation"
       )
   end
 end

@@ -6,7 +6,7 @@ defmodule AcqdatApiWeb.PasswordResetAuth do
   @spec init(any) :: any
   def init(default), do: default
 
-  def call(conn, _params) do
+  def call(conn, _) do
     token =
       case Map.has_key?(conn.params, "token") do
         true ->
@@ -24,7 +24,7 @@ defmodule AcqdatApiWeb.PasswordResetAuth do
     verify_token(conn, FEModel.verify_token(token))
   end
 
-  defp verify_token(conn, {:error, _message}) do
+  defp verify_token(conn, {:error, _}) do
     conn
     |> put_status(401)
   end

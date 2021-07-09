@@ -25,7 +25,8 @@ defmodule Notifications.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_twilio, "~> 0.8.1"}
+      {:ex_twilio, "~> 0.8.1"},
+      {:acqdat_core, in_umbrella: true}
     ]
   end
 end

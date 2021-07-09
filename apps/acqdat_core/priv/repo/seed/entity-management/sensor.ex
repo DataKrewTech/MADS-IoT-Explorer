@@ -92,7 +92,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
       sensor = Map.put_new(sensor, :sensor_type_id, sensor_type.id)
       changeset = Sensor.changeset(%Sensor{}, sensor)
       Repo.insert(changeset)
-      x = x + 1
+      x + 1
     end)
   end
 
@@ -108,7 +108,7 @@ defmodule AcqdatCore.Seed.EntityManagement.Sensor do
     sensor_type = SensorType.changeset(%SensorType{}, params)
       case Repo.insert(sensor_type) do
         {:ok, sensor_type} -> sensor_type
-        {:error, error} -> raise RuntimeError, message: "Problem Inserting Sensor Type"
+        {:error, _} -> raise RuntimeError, message: "Problem Inserting Sensor Type"
       end
   end
 end

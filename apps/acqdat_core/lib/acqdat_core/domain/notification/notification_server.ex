@@ -22,7 +22,7 @@ defmodule AcqdatCore.Domain.Notification.Server do
   ################ Server Calls #################
 
   @impl GenServer
-  def init(_args) do
+  def init(_) do
     {:ok, %{queue: :queue.new()}}
   end
 

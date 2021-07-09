@@ -8,7 +8,7 @@ defmodule AcqdatApi.RoleManagement.Requests do
 
   defdelegate get_all(data), to: Requests
 
-  def validate(%{"status" => status}, _current_user, request) when status == "reject" do
+  def validate(%{"status" => status}, _, request) when status == "reject" do
     case Requests.update(request, %{status: "rejected"}) do
       {:ok, _} ->
         {:ok, "Successfully Rejected the Request"}
@@ -20,7 +20,7 @@ defmodule AcqdatApi.RoleManagement.Requests do
 
   def validate(%{"status" => status}, current_user, request) when status == "accept" do
     Multi.new()
-    |> Multi.run(:find_or_create_org, fn _, _changes ->
+    |> Multi.run(:find_or_create_org, fn _, _ ->
       Organisation.find_or_create_by_url(%{url: request.org_url, name: request.org_name})
     end)
     |> Multi.run(:create_invitation, fn _, %{find_or_create_org: org} ->
@@ -52,10 +52,10 @@ defmodule AcqdatApi.RoleManagement.Requests do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{find_or_create_org: _org, create_invitation: invitation}} ->
+      {:ok, %{find_or_create_org: _, create_invitation: invitation}} ->
         verify_invite({:ok, invitation})
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :find_or_create_org -> verify_error_changeset({:error, failed_value})
           :create_invitation -> verify_error_changeset({:error, failed_value})

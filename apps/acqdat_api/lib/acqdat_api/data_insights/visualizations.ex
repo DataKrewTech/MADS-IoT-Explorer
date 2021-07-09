@@ -1,6 +1,5 @@
 defmodule AcqdatApi.DataInsights.Visualizations do
   alias AcqdatCore.Model.DataInsights.Visualizations
-  alias AcqdatCore.Model.DashboardManagement.WidgetInstance
   alias AcqdatCore.Model.Widgets.Widget
   alias AcqdatCore.Widgets.Schema.Vendors.HighCharts
 
@@ -68,11 +67,6 @@ defmodule AcqdatApi.DataInsights.Visualizations do
   end
 
   def export(visualization, %{"panel_id" => panel_id, "title" => title}) do
-    data = %{
-      label: title,
-      panel_id: panel_id
-    }
-
     case fetch_widget(visualization) do
       {:ok, widget} ->
         visual_properties =

@@ -2,12 +2,12 @@ defmodule AcqdatCore.DataCruncher.Functions.Print do
   alias AcqdatCore.DataCruncher.Model.TempOutput
   @inports [:ts_datasource]
   @outports [:tsprint]
-  @display_name "Print Output"
-  @properties %{}
-  @category :output
-  @info """
-  Function Returns the print output value
-  """
+  # @display_name "Print Output"
+  # @properties %{}
+  # @category :output
+  # @info """
+  # Function Returns the print output value
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo
@@ -27,13 +27,9 @@ defmodule AcqdatCore.DataCruncher.Functions.Print do
 
     {:ok, value} =
       Repo.transaction(fn ->
-        {:ok, value} = TempOutput.create(params)
+        {:ok, _} = TempOutput.create(params)
       end)
 
     value
-  end
-
-  defp process_data(_) do
-    0
   end
 end

@@ -1,17 +1,17 @@
 defmodule AcqdatCore.DataCruncher.Functions.TSStandardDeviation do
   @inports [:ts_datasource]
   @outports [:tsstandartdeviation]
-  @display_name "TimeSeries Standard Deviation"
-  @properties %{}
-  @category :function
-  @info """
-  Function Returns standard deviation value for the provided timeseries data stream.
+  # @display_name "TimeSeries Standard Deviation"
+  # @properties %{}
+  # @category :function
+  # @info """
+  # Function Returns standard deviation value for the provided timeseries data stream.
 
-  A timseries stream consist of data in the following format
-  ```
-  [[DateTime, value]]
-  ```
-  """
+  # A timseries stream consist of data in the following format
+  # ```
+  # [[DateTime, value]]
+  # ```
+  # """
 
   use Virta.Component
   alias AcqdatCore.Repo

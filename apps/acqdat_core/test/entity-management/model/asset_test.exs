@@ -386,7 +386,7 @@ defmodule AcqdatCore.Model.EntityManagement.AssetTest do
 
   ############## helper functions ##############################
 
-  defp create_asset_tree(_context) do
+  defp create_asset_tree(_) do
     org = insert(:organisation)
     project = insert(:project)
     asset_type = insert(:asset_type)

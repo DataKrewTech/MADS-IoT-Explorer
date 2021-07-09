@@ -39,7 +39,7 @@ defmodule AcqdatCore.Model.RoleManagement.GroupUser do
       {:ok, %{add_user_to_group: user, remove_user_from_group: _panel}} ->
         {:ok, user |> Repo.preload([:user_group, :policies])}
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, _, failed_value, _} ->
         {:error, failed_value}
     end
   end
@@ -57,10 +57,6 @@ defmodule AcqdatCore.Model.RoleManagement.GroupUser do
     {:ok, user |> Repo.preload([:user_group, :policies])}
   end
 
-  def remove_user_from_group(user, []) do
-    {:ok, user |> Repo.preload([:user_group, :policies])}
-  end
-
   def add_user_to_group(user, group_ids) do
     user_group_params =
       Enum.reduce(group_ids, [], fn group_id, acc ->
@@ -69,6 +65,10 @@ defmodule AcqdatCore.Model.RoleManagement.GroupUser do
 
     Repo.insert_all(GroupUser, user_group_params)
     {:ok, user}
+  end
+
+  def remove_user_from_group(user, []) do
+    {:ok, user |> Repo.preload([:user_group, :policies])}
   end
 
   def remove_user_from_group(user, group_ids) do

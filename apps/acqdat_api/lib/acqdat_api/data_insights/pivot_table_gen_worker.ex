@@ -1,7 +1,6 @@
 defmodule AcqdatApi.DataInsights.PivotTableGenWorker do
   use GenServer
   alias AcqdatApi.DataInsights.PivotTables
-  alias AcqdatCore.Repo
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -15,7 +14,7 @@ defmodule AcqdatApi.DataInsights.PivotTableGenWorker do
     {:ok, params}
   end
 
-  def handle_cast({:register, params}, _status) do
+  def handle_cast({:register, params}, _) do
     output =
       params
       |> execute()

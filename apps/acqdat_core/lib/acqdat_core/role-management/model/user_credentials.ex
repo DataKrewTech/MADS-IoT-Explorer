@@ -56,7 +56,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
   end
 
   @doc """
-  Returns a user by the supplied id.
+  Returns a user by the supplied id/email.
   """
   def get(id) when is_integer(id) do
     case Repo.get(UserCredentials, id) |> Repo.preload([:user_setting]) do
@@ -66,6 +66,10 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
       user_details ->
         {:ok, user_details}
     end
+  end
+
+  def get(email) when is_binary(email) do
+    Repo.get_by(UserCredentials, email: email)
   end
 
   @doc """
@@ -95,12 +99,5 @@ defmodule AcqdatCore.Model.RoleManagement.UserCredentials do
       )
 
     Repo.one(query) |> Repo.preload([:user_credentials])
-  end
-
-  @doc """
-  Returns a user by the supplied email.
-  """
-  def get(email) when is_binary(email) do
-    Repo.get_by(UserCredentials, email: email)
   end
 end

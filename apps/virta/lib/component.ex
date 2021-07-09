@@ -184,32 +184,32 @@ defmodule Virta.Component do
   """
   @callback run(any, %{}, %{}, pid) :: {any, :noreply} | {any, :reply, any}
 
-  @doc """
-  Returns info about the component.
+  # @doc """
+  # Returns info about the component.
 
-  In order for the user to use a component on there must be a detailed
-  information with probably some examples to explain the purpose
-  of the component. The info can be written in markdown.
-  """
-  @callback info() :: String.t()
+  # In order for the user to use a component on there must be a detailed
+  # information with probably some examples to explain the purpose
+  # of the component. The info can be written in markdown.
+  # """
+  # @callback info() :: String.t()
 
-  @doc """
-  A set of properties that can be set for a component.
+  # @doc """
+  # A set of properties that can be set for a component.
 
-  Returns a map with keys and their types, the component can make use
-  of these properties in the `run` function.
-  """
-  @callback properties() :: Map.t()
+  # Returns a map with keys and their types, the component can make use
+  # of these properties in the `run` function.
+  # """
+  # @callback properties() :: Map.t()
 
-  @doc """
-  Returns the category to which the the following component belongs
-  """
-  @callback category() :: atom()
+  # @doc """
+  # Returns the category to which the the following component belongs
+  # """
+  # @callback category() :: atom()
 
-  @doc """
-  The display name for the component.
-  """
-  @callback display_name() :: String.t()
+  # @doc """
+  # The display name for the component.
+  # """
+  # @callback display_name() :: String.t()
 
   @doc """
   Returns all the properties of a component in a map.
@@ -226,27 +226,27 @@ defmodule Virta.Component do
       @impl true
       def outports, do: @outports
 
-      @impl true
-      def properties, do: @properties
+      # @impl true
+      # def properties, do: @properties
 
-      @impl true
-      def category, do: @category
+      # @impl true
+      # def category, do: @category
 
-      @impl true
-      def info, do: @info
+      # @impl true
+      # def info, do: @info
 
-      @impl true
-      def display_name, do: @display_name
+      # @impl true
+      # def display_name, do: @display_name
 
       @impl true
       def component_properties do
         %{
           inports: @inports,
-          outports: @outports,
-          properties: @properties,
-          category: @category,
-          info: @info,
-          display_name: @display_name
+          outports: @outports
+          # properties: @properties,
+          # category: @category,
+          # info: @info,
+          # display_name: @display_name
         }
       end
 
@@ -269,7 +269,7 @@ defmodule Virta.Component do
 
       @impl true
       def dispatch({request_id, :noreply}, outport_args) do
-        unless length(outport_args) == 0 do
+        unless Enum.empty?(outport_args) do
           raise ":reply expected"
         end
       end

@@ -1,7 +1,7 @@
 defmodule AcqdatCore.Seed.IoTManager.Gateway do
 
   alias AcqdatCore.Schema.IotManager.Gateway
-  alias AcqdatCore.Schema.EntityManagement.{Organisation, Asset, Project}
+  alias AcqdatCore.Schema.EntityManagement.{Organisation, Project}
   alias AcqdatCore.Repo
 
   @gateway_params %{

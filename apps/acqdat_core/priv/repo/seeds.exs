@@ -14,7 +14,6 @@ alias AcqdatCore.Seed.RoleManagement.{User, Role, App}
 alias AcqdatCore.Seed.EntityManagement.{Sensor, Organisation, Asset, Project, SensorsData}
 alias AcqdatCore.Seed.Widget
 alias AcqdatCore.Seed.DataFeeder.Project, as: ProjectDataFeeder
-# alias AcqdatCore.Seed.DataFeeder.Sensor
 
 # The order here is important, don't modify it.
 

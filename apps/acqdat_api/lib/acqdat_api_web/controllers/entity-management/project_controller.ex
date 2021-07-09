@@ -205,7 +205,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     end
   end
 
-  def fetch_project_users(conn, _params) do
+  def fetch_project_users(conn, _) do
     case conn.status do
       nil ->
         %{assigns: %{project: project}} = conn
@@ -235,7 +235,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     Project.update(project, %{"avatar" => avatar})
   end
 
-  defp upload_and_fetch_url(conn, %{"image" => image} = params, entity_id) do
+  defp upload_and_fetch_url(conn, %{"image" => image} = _, entity_id) do
     scope = "project/#{entity_id}"
 
     with {:ok, image_name} <- Image.store({image, scope}) do
@@ -246,11 +246,10 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
   end
 
   defp modify_params(conn, params) do
-    params =
-      params
-      |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
-      |> parse_metadata_params()
-      |> Map.put("avatar", "")
+    params
+    |> Map.put_new("creator_id", String.to_integer(Guardian.Plug.current_resource(conn)))
+    |> parse_metadata_params()
+    |> Map.put("avatar", "")
   end
 
   defp extract_image(conn, project, params) do

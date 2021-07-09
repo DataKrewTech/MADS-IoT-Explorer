@@ -5,7 +5,7 @@ defmodule AcqdatApi.Application do
 
   use Application
 
-  def start(_type, _args) do
+  def start(_, _) do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
@@ -29,7 +29,7 @@ defmodule AcqdatApi.Application do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
-  def config_change(changed, _new, removed) do
+  def config_change(changed, _, removed) do
     AcqdatApiWeb.Endpoint.config_change(changed, removed)
     :ok
   end

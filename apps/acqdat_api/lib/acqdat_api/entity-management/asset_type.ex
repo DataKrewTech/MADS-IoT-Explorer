@@ -20,7 +20,7 @@ defmodule AcqdatApi.EntityManagement.AssetType do
     case sensor_type_present do
       true ->
         Multi.new()
-        |> Multi.run(:create_sensor_type, fn _, _changes ->
+        |> Multi.run(:create_sensor_type, fn _, _ ->
           add_sensor_type(params)
         end)
         |> Multi.run(:create_asset_type, fn _, %{create_sensor_type: sensor_type} ->
@@ -148,10 +148,10 @@ defmodule AcqdatApi.EntityManagement.AssetType do
     result = Repo.transaction(multi_query)
 
     case result do
-      {:ok, %{create_sensor_type: _create_sensor_type, create_asset_type: create_asset_type}} ->
+      {:ok, %{create_sensor_type: _, create_asset_type: create_asset_type}} ->
         verify_asset_type({:ok, create_asset_type})
 
-      {:error, failed_operation, failed_value, _changes_so_far} ->
+      {:error, failed_operation, failed_value, _} ->
         case failed_operation do
           :create_sensor_type -> verify_error_changeset({:error, failed_value})
           :create_asset_type -> verify_error_changeset({:error, failed_value})
