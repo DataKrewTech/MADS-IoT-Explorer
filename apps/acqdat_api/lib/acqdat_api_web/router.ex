@@ -105,16 +105,6 @@ defmodule AcqdatApiWeb.Router do
     end
 
     get("/entities", EntityManagement.EntityController, :fetch_all_hierarchy)
-
-    # all the alert apis will be scoped here
-    scope "/", Alerts do
-      resources "/policies", PolicyController, only: [:index]
-      resources "/alert-rules", AlertRulesController, except: [:new, :edit]
-      resources "/alert", AlertController, except: [:new, :edit, :create]
-      get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
-      get "/alert_apps", AlertFilterListingController, :alert_app_listing
-      get "/alert_status", AlertFilterListingController, :alert_status_listing
-    end
   end
 
   ####################### IoT Manager ########################
@@ -325,6 +315,20 @@ defmodule AcqdatApiWeb.Router do
 
     get "/orgs", RequestsController, :org_index
     resources "/requests", RequestsController, only: [:update, :index]
+  end
+
+  ######################### Alerts ####################################
+  scope "/alert", AcqdatApiWeb.Alerts do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      resources "/policies", PolicyController, only: [:index]
+      resources "/alert-rules", AlertRulesController, except: [:new, :edit]
+      resources "/alert", AlertController, except: [:new, :edit, :create]
+      get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
+      get "/alert_apps", AlertFilterListingController, :alert_app_listing
+      get "/alert_status", AlertFilterListingController, :alert_status_listing
+    end
   end
 
   ######################### Tool Management ###########################
