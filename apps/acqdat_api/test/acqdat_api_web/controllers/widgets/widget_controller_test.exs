@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.WidgetControllerTest do
+defmodule AcqdatApiWeb.Widgets.WidgetControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
