@@ -3,6 +3,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserSetting do
   Exposes APIs for handling user_setting related fields.
   """
 
+  import Ecto.Query
   alias AcqdatCore.Schema.RoleManagement.UserSetting
   alias AcqdatCore.Repo
 
@@ -10,7 +11,7 @@ defmodule AcqdatCore.Model.RoleManagement.UserSetting do
   Creates a UserSetting with the supplied params.
 
   Expects following keys.
-  - user_id
+  - user_credentials_id
   - visual_settings
     - taskbar_pos
     - recently_visited_apps
@@ -55,5 +56,18 @@ defmodule AcqdatCore.Model.RoleManagement.UserSetting do
   """
   def delete(id) when is_integer(id) do
     Repo.get_by(UserSetting, id: id) |> Repo.delete()
+  end
+
+  def fetch_user_credentials() do
+    from(
+      user_setting in "user_settings",
+      join: user in "users",
+      on: user_setting.user_id == user.id,
+      select: {
+        user_setting.id,
+        user.user_credentials_id
+      }
+    )
+    |> Repo.all()
   end
 end

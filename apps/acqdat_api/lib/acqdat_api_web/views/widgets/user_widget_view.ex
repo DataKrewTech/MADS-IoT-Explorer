@@ -3,22 +3,12 @@ defmodule AcqdatApiWeb.Widgets.UserWidgetView do
   alias AcqdatApiWeb.Widgets.WidgetView
   alias AcqdatApiWeb.Widgets.UserWidgetView
 
-  def render("user_widget.json", %{user_widget: user_widget}) do
-    %{
-      id: user_widget.id,
-      user_id: user_widget.user_id,
-      widget_id: user_widget.widget_id,
-      widget: render_one(user_widget.widget, WidgetView, "widget.json"),
-      user: render_one(user_widget.user, UserWidgetView, "user.json")
-    }
-  end
-
-  def render("user.json", %{user_widget: user}) do
+  def render("user.json", %{user_widget: %{user_credentials: user_cred} = user}) do
     %{
       id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name,
+      email: user_cred.email
     }
   end
 

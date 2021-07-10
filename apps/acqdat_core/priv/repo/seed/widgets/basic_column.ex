@@ -12,8 +12,8 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
     column: %{
       visual: %{
         chart: [type: %{value: "column"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}],
-        subtitle: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "15px"}]],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
         yAxis: [title: [text: %{}]],
         credits: [enabled: %{value: false}],
       },
@@ -87,7 +87,7 @@ defmodule AcqdatCore.Seed.Widgets.BasicColumn do
     end)
   end
 
-  def set_widget_data(key, widget_settings, data, widget_type) do
+  def set_widget_data(_key, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Basic Column",
       properties: %{},

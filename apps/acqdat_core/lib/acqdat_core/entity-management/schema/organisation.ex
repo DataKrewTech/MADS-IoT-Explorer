@@ -22,6 +22,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
     field(:name, :string)
     field(:metadata, :map)
     field(:description, :string)
+    field(:url, :string)
 
     # associations
     has_many(:projects, Project, foreign_key: :org_id)
@@ -35,7 +36,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
     timestamps(type: :utc_datetime)
   end
 
-  @required_params ~w(name uuid)a
+  @required_params ~w(name uuid url)a
   @optional_params ~w(description metadata)a
 
   @permitted @required_params ++ @optional_params
@@ -63,7 +64,7 @@ defmodule AcqdatCore.Schema.EntityManagement.Organisation do
 
   def common_changeset(changeset) do
     changeset
-    |> unique_constraint(:name, name: :acqdat_organisation_name_index)
+    |> unique_constraint(:url, name: :acqdat_organisation_url_index)
     |> unique_constraint(:uuid, name: :acqdat_organisation_uuid_index)
   end
 

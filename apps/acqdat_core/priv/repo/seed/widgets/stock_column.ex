@@ -11,8 +11,11 @@ defmodule AcqdatCore.Seed.Widgets.StockColumn do
   @highchart_key_widget_settings %{
     column: %{
       visual: %{
-        chart: [type: %{value: "column"}],
-        title: [text: %{}],
+        chart: [type: %{value: "column"}, backgroundColor: %{}, plotBackgroundColor: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "15px"}]],
+        caption: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
+        yAxis: [title: [text: %{}]],
         rangeSelector: [selected: %{value: 1}],
         credits: [enabled: %{value: false}],
         legend: [enabled: %{value: true}]
@@ -23,6 +26,7 @@ defmodule AcqdatCore.Seed.Widgets.StockColumn do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
+            color: %{data_type: :color, value: %{data: "#000000"}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: false}, properties: %{}}
           }
         },

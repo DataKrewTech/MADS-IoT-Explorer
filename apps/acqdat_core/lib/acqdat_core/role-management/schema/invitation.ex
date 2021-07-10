@@ -18,6 +18,8 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
     field(:app_ids, {:array, :integer})
     field(:group_ids, {:array, :integer})
     field(:policies, {:array, :map})
+    field(:type, :string, default: "new_user")
+    field(:metadata, :map)
 
     # associations
     belongs_to(:inviter, User, on_replace: :delete)
@@ -28,7 +30,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
   end
 
   @required ~w(email token salt inviter_id org_id role_id)a
-  @optional ~w(asset_ids group_ids policies app_ids token_valid)a
+  @optional ~w(asset_ids group_ids policies app_ids token_valid type metadata)a
   @permitted @optional ++ @required
 
   @spec changeset(
@@ -40,7 +42,10 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
     |> cast(params, @permitted)
     |> gen_token(params)
     |> validate_required(@required)
-    |> unique_constraint(:email)
+    |> unique_constraint(:email,
+      name: :unique_email_per_org,
+      message: "unique email under org"
+    )
     |> unique_constraint(:token)
     |> unique_constraint(:salt)
     |> assoc_constraint(:inviter)
@@ -51,7 +56,10 @@ defmodule AcqdatCore.Schema.RoleManagement.Invitation do
     invitation
     |> cast(params, @permitted)
     |> validate_required(@required)
-    |> unique_constraint(:email)
+    |> unique_constraint(:email,
+      name: :unique_email_per_org,
+      message: "unique email under org"
+    )
     |> unique_constraint(:token)
     |> unique_constraint(:salt)
     |> assoc_constraint(:inviter)

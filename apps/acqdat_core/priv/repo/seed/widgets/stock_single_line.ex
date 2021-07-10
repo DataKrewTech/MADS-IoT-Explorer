@@ -11,8 +11,12 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
   @highchart_key_widget_settings %{
     line: %{
       visual: %{
-        chart: [type: %{value: "line"}],
-        title: [text: %{}],
+        chart: [type: %{value: "line"}, backgroundColor: %{}, plotBackgroundColor: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "15px"}]],
+        caption: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
+        yAxis: [title: [text: %{}]],
+        xAxis: [type: %{value: "datetime"}, title: [text: %{value: "Date"}]],
         rangeSelector: [selected: %{value: 1}],
         credits: [enabled: %{value: false}],
         legend: [enabled: %{value: true}]
@@ -23,6 +27,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
           value: %{},
           properties: %{
             name: %{data_type: :string, value: %{}, properties: %{}},
+            color: %{data_type: :color, value: %{data: "#000000"}, properties: %{}},
             multiple: %{data_type: :boolean, value: %{data: false}, properties: %{}}
           }
         },
@@ -80,7 +85,7 @@ defmodule AcqdatCore.Seed.Widgets.StockSingleLine do
     end)
   end
 
-  def set_widget_data(key, widget_settings, data, widget_type) do
+  def set_widget_data(_key, widget_settings, data, widget_type) do
     %WidgetSchema{
       label: "Stock Single line series",
       properties: %{},

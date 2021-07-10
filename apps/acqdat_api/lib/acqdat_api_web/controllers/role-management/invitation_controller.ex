@@ -162,7 +162,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationController do
        ) do
     user = conn.assigns.current_user
 
-    case invitee_email == user.email do
+    case invitee_email == user.user_credentials.email do
       true ->
         conn
         |> put_status(404)

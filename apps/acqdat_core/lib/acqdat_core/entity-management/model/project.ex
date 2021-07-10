@@ -92,7 +92,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
     query =
       from(project in Project,
         where: project.id in ^project_ids,
-        preload: [:leads, :users, :creator],
+        preload: [creator: :user_credentials, leads: :user_credentials, users: :user_credentials],
         order_by: [desc: :inserted_at]
       )
 
@@ -179,7 +179,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
   def check_adminship(user_id) do
     user_details = Repo.get!(User, user_id) |> Repo.preload([:role])
 
-    case user_details.role.name == "admin" do
+    case user_details.role.name == "superadmin" do
       true -> true
       false -> false
     end
@@ -190,7 +190,7 @@ defmodule AcqdatCore.Model.EntityManagement.Project do
 
     case Repo.delete(changeset) do
       {:ok, project} ->
-        project = project |> Repo.preload([:leads, :users])
+        project = project |> Repo.preload(leads: :user_credentials, users: :user_credentials)
         {:ok, project}
 
       {:error, project} ->

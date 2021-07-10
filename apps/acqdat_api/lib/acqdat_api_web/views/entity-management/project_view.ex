@@ -51,18 +51,7 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
   end
 
   def render("user_list.json", %{users: users}) do
-    %{users: render_many(users, ProjectView, "user_details.json")}
-  end
-
-  def render("user_details.json", %{project: user_details}) do
-    %{
-      id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name,
-      image: user_details.avatar,
-      role_id: user_details.role_id
-    }
+    %{users: render_many(users, ProjectView, "user.json")}
   end
 
   def render("show.json", %{project: project}) do
@@ -120,12 +109,12 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectView do
     }
   end
 
-  def render("user.json", %{project: user}) do
+  def render("user.json", %{project: %{user_credentials: user_cred} = user}) do
     %{
       id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name,
+      email: user_cred.email,
       org_id: user.org_id,
       role_id: user.role_id
     }

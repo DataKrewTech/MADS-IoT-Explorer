@@ -3,7 +3,7 @@ defmodule AcqdatApiWeb.Validators.RoleManagement.UserSetting do
 
   defparams(
     verify_user_setting_params(%{
-      user_id!: :integer,
+      user_credentials_id!: :integer,
       visual_settings!: :map,
       data_settings!: :map
     })

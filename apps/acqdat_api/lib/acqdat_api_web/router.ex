@@ -67,8 +67,11 @@ defmodule AcqdatApiWeb.Router do
     pipe_through(:api)
     post "/verify-token", RoleManagement.InvitationController, :validate_token
     post("/sign-in", AuthController, :sign_in)
+    post("/orgs/:org_id/sign-in", AuthController, :org_sign_in)
+    post("/sign-up", AuthController, :register)
     post("/forgot_password", RoleManagement.ForgotPasswordController, :forgot_password)
     post("/orgs/:org_id/users", RoleManagement.UserController, :create)
+    post("/validate_org_url", EntityManagement.OrganisationController, :validate_org_url)
   end
 
   scope "/", AcqdatApiWeb do
@@ -78,6 +81,7 @@ defmodule AcqdatApiWeb.Router do
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
     post "/orgs/:org_id/validate_credentials", AuthController, :validate_credentials
+    resources "/requests", RoleManagement.RequestsController, only: [:update, :index]
 
     resources "/roles", RoleManagement.RoleController, only: [:index]
 
@@ -103,6 +107,9 @@ defmodule AcqdatApiWeb.Router do
     )
 
     resources "/uploads", ImageUploadController, only: [:create]
+
+    resources "/user_credentials", RoleManagement.UserCredentialsController,
+      only: [:show, :update]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation

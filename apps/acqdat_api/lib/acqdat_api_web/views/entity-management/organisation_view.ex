@@ -9,6 +9,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationView do
     %{
       type: "Organisation",
       id: org.id,
+      url: org.url,
       name: org.name,
       entities: render_many(org.project_data, ProjectView, "project.json")
     }
@@ -18,6 +19,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationView do
     %{
       type: "Organisation",
       id: org.id,
+      url: org.url,
       name: org.name,
       uuid: org.uuid
     }
@@ -47,6 +49,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationView do
       type: "Organisation",
       id: organisation.id,
       name: organisation.name,
+      url: organisation.url,
       admin: render_many(admin_user, OrganisationView, "admin.json"),
       apps: render_many(organisation.apps, AppView, "app.json")
     }
@@ -54,10 +57,7 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationView do
 
   def render("admin.json", %{organisation: user_details}) do
     %{
-      id: user_details.id,
-      email: user_details.email,
-      first_name: user_details.first_name,
-      last_name: user_details.last_name
+      id: user_details.id
     }
   end
 end

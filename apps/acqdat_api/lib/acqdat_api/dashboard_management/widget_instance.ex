@@ -146,6 +146,12 @@ defmodule AcqdatApi.DashboardManagement.WidgetInstance do
       ["card", "image_card"] ->
         {15, 20, "image_card"}
 
+      ["pivot_table"] ->
+        {25, 20, "pivot_table"}
+
+      ["anychart", _] ->
+        {25, 20, "anychart"}
+
       _ ->
         {25, 20, "highcharts"}
     end

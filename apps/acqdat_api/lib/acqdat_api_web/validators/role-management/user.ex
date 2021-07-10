@@ -20,7 +20,15 @@ defmodule AcqdatApiWeb.Validators.RoleManagement.User do
       last_name: :string,
       phone_number: :string,
       password!: :string,
-      password_confirmation!: :string
+      password_confirmation!: :string,
+      org_id!: :integer
+    })
+  )
+
+  defparams(
+    verify_join_org_params(%{
+      token!: :string,
+      org_id!: :integer
     })
   )
 

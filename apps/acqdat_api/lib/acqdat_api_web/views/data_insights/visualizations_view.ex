@@ -53,12 +53,12 @@ defmodule AcqdatApiWeb.DataInsights.VisualizationsView do
     %{visualization: visualization}
   end
 
-  def render("creator.json", %{visualizations: creator}) do
+  def render("creator.json", %{visualizations: %{user_credentials: user_cred} = creator}) do
     %{
       id: creator.id,
-      email: creator.email,
-      first_name: creator.first_name,
-      last_name: creator.last_name
+      email: user_cred.email,
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name
     }
   end
 

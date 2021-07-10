@@ -15,6 +15,14 @@ defmodule AcqdatApiWeb.RoleManagement.UserErrorHelper do
     }
   end
 
+  def error_message(:forbidden) do
+    %{
+      title: "Action not allowed",
+      error: "Only admins can delete other users or a person can delete other person not itself",
+      source: %{role: %{message: "Not an admin or trying to delete themself"}}
+    }
+  end
+
   def error_message(:unauthorized) do
     %{
       title: "Unauthorized Access",

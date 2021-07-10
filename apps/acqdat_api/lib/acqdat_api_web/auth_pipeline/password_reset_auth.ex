@@ -29,7 +29,7 @@ defmodule AcqdatApiWeb.PasswordResetAuth do
     |> put_status(401)
   end
 
-  defp verify_token(conn, {:ok, details}) do
-    assign(conn, :user, details.user)
+  defp verify_token(conn, {:ok, user}) do
+    assign(conn, :user, user)
   end
 end

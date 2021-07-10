@@ -9,7 +9,7 @@ defmodule AcqdatCore.Schema.RoleManagement.RoleTest do
   describe "changeset/2" do
     test "returns a valid changeset" do
       params = %{
-        name: "admin",
+        name: "orgadmin",
         description: "Admin of the organisation"
       }
 

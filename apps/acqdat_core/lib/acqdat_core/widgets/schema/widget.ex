@@ -51,7 +51,7 @@ defmodule AcqdatCore.Widgets.Schema.Widget do
 
     # embedded associations
     embeds_many(:visual_settings, VisualSettings, on_replace: :delete)
-    embeds_many(:data_settings, DataSettings)
+    embeds_many(:data_settings, DataSettings, on_replace: :delete)
 
     # associations
     belongs_to(:widget_type, WidgetType)

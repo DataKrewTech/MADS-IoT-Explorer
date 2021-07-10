@@ -3,6 +3,7 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
   import AcqdatCore.Support.Factory
+  alias AcqdatCore.Repo
 
   describe "create/2" do
     setup :setup_conn
@@ -36,19 +37,51 @@ defmodule AcqdatApiWeb.RoleManagement.InvitationControllerTest do
     test "invitation create", context do
       %{org: org, conn: conn} = context
 
-      user = insert(:user)
+      user_cred = insert(:user_credentials)
       role = insert(:role)
 
-      data = %{invitation: %{email: user.email, role_id: role.id}}
+      data = %{invitation: %{email: user_cred.email, role_id: role.id}}
 
       conn = post(conn, Routes.invitation_path(conn, :create, org.id), data)
+
+      response = conn |> json_response(200)
+
+      assert response == %{
+               "status" =>
+                 "Sent invitation to the user successfully, they will receive email after sometime!"
+             }
+    end
+
+    test "creation of invitation fails if the user with email exists in specified organisation",
+         context do
+      %{conn: conn} = context
+
+      user = insert(:user) |> Repo.preload([:user_credentials])
+
+      role = insert(:role)
+
+      data = %{
+        invitation: %{
+          email: user.user_credentials.email,
+          role_id: role.id,
+          org_id: user.org_id,
+          assets: [],
+          apps: [],
+          group_ids: [],
+          policies: []
+        }
+      }
+
+      conn = post(conn, Routes.invitation_path(conn, :create, user.org_id), data)
 
       response = conn |> json_response(400)
 
       assert response == %{
                "detail" =>
                  "Parameters provided to perform current action is either not valid or missing or not unique",
-               "source" => %{"email" => ["user with this email already exists"]},
+               "source" => %{
+                 "email" => ["user with this email already exists for the specified organisation"]
+               },
                "status_code" => 400,
                "title" => "Insufficient or not unique parameters"
              }

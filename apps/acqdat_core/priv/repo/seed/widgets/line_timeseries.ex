@@ -12,9 +12,9 @@ defmodule AcqdatCore.Seed.Widgets.LineTimeseries do
     line: %{
       visual: %{
         chart: [type: %{value: "line"}, backgroundColor: %{}, plotBackgroundColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, style: [color: %{value: "#495057"}, fontSize: %{value: "15px"}]],
         caption: [text: %{}, align: %{}],
-        subtitle: [text: %{}, align: %{}],
+        subtitle: [text: %{}, align: %{}, style: [color: %{value: "#74788d"}, fontSize: %{value: "14px"}]],
         yAxis: [title: [text: %{}]],
         xAxis: [type: %{value: "datetime"}, title: [text: %{value: "Date"}]],
         credits: [enabled: %{value: false}],

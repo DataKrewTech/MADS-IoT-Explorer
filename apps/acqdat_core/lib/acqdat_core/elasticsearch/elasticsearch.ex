@@ -1,5 +1,6 @@
 defmodule AcqdatCore.ElasticSearch do
   import Tirexs.HTTP
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
 
   def create(type, params) do
     create_function = fn ->
@@ -885,16 +886,18 @@ defmodule AcqdatCore.ElasticSearch do
 
   # [ "#{field}": [query: "#{value}", fuzziness: 1]
   def create_user(type, params, org) do
-    post("#{type}/_doc/#{params.id}?routing=#{org.id}?refresh=true",
+    {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
+
+    post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
       id: params.id,
-      email: params.email,
-      first_name: params.first_name,
-      last_name: params.last_name,
+      email: user_cred.email,
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name,
       org_id: params.org_id,
       is_invited: params.is_invited,
       inserted_at: DateTime.to_unix(params.inserted_at),
       role_id: params.role_id,
-      join_field: %{name: "user", parent: org.id}
+      join_field: %{name: "user", parent: params.org_id}
     )
   end
 

@@ -3,6 +3,7 @@ defmodule AcqdatCore.Support.Factory do
   use AcqdatCore.Schema
   use AcqdatCore.Factory.Hierarchy
   use AcqdatCore.Factory.Alerts
+  alias Comeonin.Argon2
 
   alias AcqdatApiWeb.Guardian
   import Plug.Conn
@@ -43,6 +44,7 @@ defmodule AcqdatCore.Support.Factory do
   alias AcqdatCore.Schema.RoleManagement.{
     User,
     UserSetting,
+    UserCredentials,
     Role,
     App,
     Invitation
@@ -74,12 +76,23 @@ defmodule AcqdatCore.Support.Factory do
 
   def user_factory() do
     %User{
+      role: build(:role),
+      org: build(:organisation),
+      user_credentials: build(:user_credentials)
+    }
+  end
+
+  def user_credentials_factory() do
+    password_hash = Argon2.add_hash("stark1234")
+
+    %UserCredentials{
       first_name: sequence(:first_name, &"Tony-#{&1}"),
       last_name: sequence(:last_name, &"Stark-#{&1}"),
       email: sequence(:email, &"ceo-#{&1}@stark.com"),
-      password_hash: "NOTASECRET",
-      role: build(:role),
-      org: build(:organisation)
+      password: "stark1234",
+      password_confirmation: "stark1234",
+      password_hash: password_hash.password_hash,
+      avatar: "image_url"
     }
   end
 
@@ -443,7 +456,8 @@ defmodule AcqdatCore.Support.Factory do
   # TODO: This should not be here, it's the responsibility of acqdat_api.
   def setup_conn(%{conn: conn}) do
     org = insert(:organisation)
-    user = insert(:user, org: org)
+    user_credentials = insert(:user_credentials)
+    user = insert(:user, org: org, user_credentials: user_credentials)
 
     {:ok, access_token, _claims} =
       guardian_create_token(

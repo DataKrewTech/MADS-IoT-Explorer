@@ -75,7 +75,14 @@ defmodule AcqdatApiWeb.EntityManagement.ProjectController do
     case conn.status do
       nil ->
         {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
-        {:list, project} = {:list, Project.get_all_archived(data, [:leads, :users, :creator])}
+
+        {:list, project} =
+          {:list,
+           Project.get_all_archived(data,
+             leads: :user_credentials,
+             users: :user_credentials,
+             creator: :user_credentials
+           )}
 
         conn
         |> put_status(200)

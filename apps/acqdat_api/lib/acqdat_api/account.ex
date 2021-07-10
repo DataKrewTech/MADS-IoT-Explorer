@@ -5,7 +5,9 @@ defmodule AcqdatApi.Account do
 
   alias AcqdatCore.Domain.Account
   alias AcqdatApiWeb.Guardian
-  alias AcqdatCore.Schema.RoleManagement.User
+  alias AcqdatCore.Model.EntityManagement.Organisation
+  alias AcqdatCore.Model.RoleManagement.Requests
+  alias AcqdatCore.Model.RoleManagement.{UserCredentials, User}
 
   @access_time_hours 5
   @refresh_time_weeks 1
@@ -21,7 +23,52 @@ defmodule AcqdatApi.Account do
   def sign_in(params) do
     %{email: email, password: password} = params
 
-    verify_account(Account.authenticate(email, password))
+    res = Account.authenticate(email, password)
+    org_ids = User.fetch_user_orgs_by_email(email)
+
+    case {res, org_ids} do
+      {_, []} ->
+        {:error, "credentials not found"}
+
+      {{:ok, user}, _} ->
+        {:ok, access_token, _claims} =
+          guardian_create_token(
+            user,
+            {@access_time_hours, :hours},
+            :access
+          )
+
+        {:ok, refresh_token, _claims} =
+          guardian_create_token(
+            user,
+            {@refresh_time_weeks, :weeks},
+            :refresh
+          )
+
+        {:ok,
+         %{
+           email: email,
+           credentials_id: user.id,
+           access_token: access_token,
+           refresh_token: refresh_token,
+           orgs: Organisation.get_all_by_ids(org_ids)
+         }}
+
+      {{:error, error}, _} ->
+        {:error, error}
+    end
+  end
+
+  @doc """
+  Uses `email` and `password` supplied in params to verify the user.
+
+  Returns an `access_token`, `refresh_token` and `user_id` if the user
+  is authenticated.
+  If email and password not verified then returns unauthorized access.
+  """
+  @spec org_sign_in(map, Integer.t()) :: {:ok, map} | {:error, String.t()}
+  def org_sign_in(%{org_id: org_id}, credential_id) do
+    verify_account(Account.authenticate_identity(org_id, credential_id))
   end
 
   @doc """
@@ -56,8 +103,19 @@ defmodule AcqdatApi.Account do
     end
   end
 
-  def validate_credentials(%User{email: email}, %{password: password}) do
-    Account.authenticate(email, password)
+  def register(%{org_url: org_url} = params) do
+    orgs = Organisation.fetch_by_url(org_url)
+
+    if orgs == [] do
+      params = params |> Map.from_struct()
+      Requests.create(params)
+    else
+      {:error, %{error: "This Organisation Url has been already taken"}}
+    end
+  end
+
+  def validate_credentials(params, %{password: password, org_id: org_id}) do
+    Account.authenticate(params.user_credentials.email, password, org_id)
   end
 
   ############## private functions #####################

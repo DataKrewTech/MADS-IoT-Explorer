@@ -54,7 +54,7 @@ defmodule AcqdatCore.Model.DataInsights.Visualizations do
       }) do
     query =
       from(visualization in Visualizations,
-        preload: [:creator],
+        preload: [creator: :user_credentials],
         where:
           visualization.org_id == ^org_id and
             visualization.project_id == ^project_id and

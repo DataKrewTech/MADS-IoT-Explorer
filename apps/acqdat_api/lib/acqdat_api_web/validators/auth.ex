@@ -13,6 +13,24 @@ defmodule AcqdatApiWeb.Validators.Auth do
   )
 
   defparams(
+    verify_org_login_credentials(%{
+      org_id!: :integer
+    })
+  )
+
+  defparams(
+    verify_register_credentials(%{
+      first_name!: :string,
+      last_name!: :string,
+      email!: :string,
+      phone_number!: :string,
+      org_name!: :string,
+      org_url!: :string,
+      user_metadata!: :map
+    })
+  )
+
+  defparams(
     verify_refresh_params(%{
       access_token!: :string
     })
@@ -27,7 +45,8 @@ defmodule AcqdatApiWeb.Validators.Auth do
 
   defparams(
     verify_validate_params(%{
-      password!: :string
+      password!: :string,
+      org_id!: :integer
     })
   )
 end

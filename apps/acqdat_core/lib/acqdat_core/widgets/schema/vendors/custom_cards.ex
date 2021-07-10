@@ -26,7 +26,9 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
                   data_type: :select,
                   default_value: ["left", "right", "center", "top", "bottom"],
                   user_controlled: true
-                }
+                },
+                fontSize: %{data_type: :string, default_value: "14px", user_controlled: true},
+                fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },
             unit: %{
@@ -41,11 +43,11 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
                 }
               }
             },
-            icon: %{
+            image: %{
               data_type: :object,
               user_controlled: false,
               properties: %{
-                text: %{data_type: :string, default_value: "", user_controlled: true},
+                url: %{data_type: :file, default_value: "", user_controlled: true},
                 align: %{
                   data_type: :select,
                   default_value: ["left", "right", "center", "top", "bottom"],
@@ -57,13 +59,13 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
               data_type: :object,
               user_controlled: false,
               properties: %{
-                text: %{data_type: :string, default_value: "", user_controlled: true},
+                text: %{data_type: :text, default_value: "", user_controlled: true},
                 align: %{
                   data_type: :select,
                   default_value: ["left", "right", "center", "top", "bottom"],
                   user_controlled: true
                 },
-                fontSize: %{data_type: :integer, default_value: 14, user_controlled: true},
+                fontSize: %{data_type: :string, default_value: "14px", user_controlled: true},
                 fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },
@@ -77,7 +79,7 @@ defmodule AcqdatCore.Widgets.Schema.Vendors.CustomCards do
                   default_value: ["left", "right", "center", "top", "bottom"],
                   user_controlled: true
                 },
-                fontSize: %{data_type: :integer, default_value: 12, user_controlled: true},
+                fontSize: %{data_type: :string, default_value: "14px", user_controlled: true},
                 fontColor: %{data_type: :color, default_value: "#ffffff", user_controlled: true}
               }
             },

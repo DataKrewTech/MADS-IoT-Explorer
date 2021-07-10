@@ -12,7 +12,8 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       visual_properties: widget.visual_properties,
       series: widget.series,
       widget_settings: widget.widget_settings,
-      widget_category: widget.widget.category
+      widget_category: widget.widget.category,
+      source_app: widget.source_app
     }
   end
 
@@ -27,6 +28,7 @@ defmodule AcqdatApiWeb.DashboardManagement.WidgetInstanceView do
       series: widget.series,
       widget_settings: widget.widget_settings,
       widget_category: widget.widget.category,
+      source_app: widget.source_app,
       panel: render_one(widget.panel, PanelView, "panel.json")
     }
   end

@@ -12,11 +12,11 @@ defmodule AcqdatCore.Seed.Widgets.DynamicCard do
     card: %{
       visual: %{
         card: [type: %{value: "dynamic card"}, backgroundColor: %{}, fontColor: %{}],
-        title: [text: %{}, align: %{}],
+        title: [text: %{}, align: %{}, fontSize: %{value: "15px"}, fontColor: %{value: "#495057"}],
         unit: [text: %{}, align: %{}],
-        icon: [text: %{}, align: %{}],
-        description: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}],
-        subtitle: [text: %{}, fontSize: %{}, fontColor: %{}, align: %{}]
+        image: [url: %{}, align: %{}],
+        description: [text: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#212529"}, align: %{}],
+        subtitle: [text: %{}, fontSize: %{value: "14px"}, fontColor: %{value: "#74788d"}, align: %{}]
       },
       data: %{
         series: %{

@@ -1,6 +1,8 @@
 defmodule AcqdatApi.EntityManagement.Organisation do
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
   alias AcqdatCore.Model.RoleManagement.User, as: UserModel
+  alias AcqdatCore.Model.RoleManagement.Role
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
   alias Ecto.Multi
   alias AcqdatCore.ElasticSearch
   import Tirexs.HTTP
@@ -36,12 +38,31 @@ defmodule AcqdatApi.EntityManagement.Organisation do
         OrgModel.create(params)
       end)
       |> Multi.run(:create_user, fn _, %{create_organisation: organisation} ->
+        role_id = Role.get_role_id("orgadmin")
+
         user_details =
           params.user_details
           |> Map.put_new("org_id", organisation.id)
           |> Map.put_new("is_invited", false)
+          |> Map.replace!("role_id", role_id)
 
-        UserModel.create(user_details)
+        case UserCredentials.create(user_details) do
+          {:ok, user_cred} ->
+            user_details =
+              user_details
+              |> Map.put_new("user_credentials_id", user_cred.id)
+
+            UserModel.create(user_details)
+
+          {:error, _message} ->
+            {:ok, user_cred} = UserCredentials.get(user_details["email"])
+
+            user_details =
+              user_details
+              |> Map.put_new("user_credentials_id", user_cred.id)
+
+            UserModel.create(user_details)
+        end
       end)
       |> run_transaction()
     )
@@ -70,14 +91,17 @@ defmodule AcqdatApi.EntityManagement.Organisation do
   end
 
   defp user_create_es(params) do
+    {:ok, user_cred} = UserCredentials.get(params.user_credentials_id)
+
     post("organisation/_doc/#{params.id}?routing=#{params.org_id}",
       id: params.id,
-      email: params.email,
-      first_name: params.first_name,
-      last_name: params.last_name,
+      email: user_cred.email,
+      first_name: user_cred.first_name,
+      last_name: user_cred.last_name,
       org_id: params.org_id,
       is_invited: params.is_invited,
       role_id: params.role_id,
+      inserted_at: DateTime.to_unix(params.inserted_at),
       join_field: %{name: "user", parent: params.org_id}
     )
   end

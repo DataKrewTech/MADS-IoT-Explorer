@@ -159,6 +159,31 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
     end
   end
 
+  def validate_org_url(conn, %{"url" => url}) do
+    case conn.status do
+      nil ->
+        case OrgModel.get(%{url: url}) do
+          {:ok, _} ->
+            conn
+            |> put_status(200)
+            |> json(%{is_valid: false})
+
+          {:error, _} ->
+            conn
+            |> put_status(200)
+            |> json(%{is_valid: true})
+        end
+
+      404 ->
+        conn
+        |> send_error(404, OrganisationErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
+    end
+  end
+
   defp load_org(%{params: %{"id" => org_id}} = conn, _params) do
     check_org(conn, org_id)
   end

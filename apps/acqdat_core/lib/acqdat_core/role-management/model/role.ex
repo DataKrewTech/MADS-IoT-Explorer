@@ -16,4 +16,32 @@ defmodule AcqdatCore.Model.RoleManagement.Role do
 
     ModelHelper.paginated_response(role_data_with_preloads, paginated_role_data)
   end
+
+  def get_all() do
+    Repo.all(Role)
+  end
+
+  def get_role_id(name) do
+    query =
+      from(role in Role,
+        where: role.name == ^name,
+        select: role.id
+      )
+
+    Repo.one(query)
+  end
+
+  def get_role(name) do
+    query =
+      from(role in Role,
+        where: role.name == ^name
+      )
+
+    Repo.one(query)
+  end
+
+  def update(role, params) do
+    changeset = Role.changeset(role, params)
+    Repo.update(changeset)
+  end
 end

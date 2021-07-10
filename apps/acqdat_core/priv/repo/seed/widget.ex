@@ -69,6 +69,17 @@ defmodule AcqdatCore.Seed.Widget do
     end)
   end
 
+  def update_data_settings() do
+    chart_mappings = %{
+      "Stock Single line series" => {StockSingleLine, :line}
+    }
+
+    Enum.each(chart_mappings, fn {label, value} ->
+      {module, widget_key} = value
+      module.update_data_settings(label, widget_key)
+    end)
+  end
+
   defp update_classifications_of_widgets(widgets, classification) do
     Enum.each(widgets, fn name ->
       case WidgetModel.get_by_label(name) do

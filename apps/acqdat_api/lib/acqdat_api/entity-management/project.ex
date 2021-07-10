@@ -8,7 +8,7 @@ defmodule AcqdatApi.EntityManagement.Project do
   defdelegate delete(project), to: ProjectModel
 
   def update(project, params) do
-    project = project |> Repo.preload([:leads, :users])
+    project = project |> Repo.preload(leads: :user_credentials, users: :user_credentials)
     ProjectModel.update(project, params)
   end
 
@@ -21,7 +21,14 @@ defmodule AcqdatApi.EntityManagement.Project do
   end
 
   def get_all_users(project) do
-    project = project |> Repo.preload([:creator, :leads, :users])
+    project =
+      project
+      |> Repo.preload(
+        creator: :user_credentials,
+        leads: :user_credentials,
+        users: :user_credentials
+      )
+
     user_list = project.leads ++ project.users ++ [project.creator]
     user_list |> Enum.uniq()
   end
@@ -43,7 +50,7 @@ defmodule AcqdatApi.EntityManagement.Project do
   end
 
   defp verify_project({:ok, project}) do
-    project = project |> Repo.preload([:leads, :users])
+    project = project |> Repo.preload(leads: :user_credentials, users: :user_credentials)
     {:ok, project}
   end
 

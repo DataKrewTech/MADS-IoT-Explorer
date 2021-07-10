@@ -34,10 +34,10 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     belongs_to(:org, Organisation, on_replace: :delete)
     belongs_to(:creator, User, on_replace: :delete)
     has_many(:panels, Panel, on_replace: :delete)
+    has_one(:dashboard_export, DashboardExport)
 
     # embedded associations
     embeds_one(:settings, Settings, on_replace: :delete)
-    has_one(:dashboard_export, DashboardExport)
 
     timestamps(type: :utc_datetime)
   end
@@ -61,6 +61,7 @@ defmodule AcqdatCore.DashboardManagement.Schema.Dashboard do
     |> cast(params, @permitted)
     |> validate_required(@required_params)
     |> common_changeset()
+    |> cast_assoc(:panels, with: &Panel.changeset/2)
   end
 
   @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()

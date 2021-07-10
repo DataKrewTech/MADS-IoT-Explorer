@@ -38,7 +38,7 @@ defmodule AcqdatApiWeb.RoleManagement.ForgotPasswordController do
       nil ->
         user = conn.assigns.user
 
-        case ForgotPassword.update_user(user, params) do
+        case ForgotPassword.update(user, params) do
           {:ok, _user} ->
             Task.start_link(fn ->
               ForgotPassword.delete(user.id)

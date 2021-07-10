@@ -1,5 +1,6 @@
 defmodule AcqdatCore.Model.RoleManagement.ForgotPassword do
   alias AcqdatCore.Schema.RoleManagement.ForgotPassword
+  alias AcqdatCore.Model.RoleManagement.UserCredentials
   alias AcqdatCore.Repo
   import Ecto.Query
 
@@ -16,8 +17,11 @@ defmodule AcqdatCore.Model.RoleManagement.ForgotPassword do
       )
 
     case List.first(Repo.all(query)) do
-      nil -> {:error, "Token is invalid"}
-      details -> {:ok, details |> Repo.preload(:user)}
+      nil ->
+        {:error, "Token is invalid"}
+
+      details ->
+        UserCredentials.get(details.user_id)
     end
   end
 

@@ -529,9 +529,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
       conn = post(conn, Routes.user_path(conn, :create, org.id), data)
 
       response = conn |> json_response(200)
-      assert Map.has_key?(response, "is_invited")
-      assert response["is_invited"]
-      assert response["first_name"] == "Demo Name"
+      assert Map.has_key?(response, "status")
+      assert response["status"] == "Your password has been set, please login"
     end
 
     test "user creation fails in case of invalid token", context do
@@ -562,18 +561,30 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
     end
 
     test "existing user created when valid token is provided", context do
-      %{org: org, conn: conn} = context
-      salt = "test user_salt"
+      %{conn: conn} = context
 
-      user = insert(:user)
-      token = Phoenix.Token.sign(AcqdatApiWeb.Endpoint, salt, %{email: user.email})
-      invitation = insert(:invitation, token: token, salt: salt, email: user.email)
+      user = insert(:user) |> Repo.preload([:user_credentials])
 
-      assert token == invitation.token
-      assert salt == invitation.salt
+      invitation_params = %{
+        "email" => user.user_credentials.email,
+        "org_id" => user.org_id,
+        "first_name" => "first",
+        "last_name" => "last",
+        "inviter_id" => user.id,
+        "role_id" => user.role_id
+      }
+
+      {:ok, invitation} =
+        AcqdatCore.Model.RoleManagement.Invitation.create_invitation(invitation_params)
 
       {:ok, result} = UModel.delete(user)
       result = Repo.get(User, user.id)
+
+      assert result.is_deleted == true
+
+      conn =
+        conn
+        |> put_req_header("invitation-token", invitation.token)
 
       data = %{
         user: %{
@@ -583,14 +594,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserControllerTest do
         }
       }
 
-      conn =
-        conn
-        |> put_req_header("invitation-token", invitation.token)
-
-      assert result.is_deleted == true
-      conn = post(conn, Routes.user_path(conn, :create, org.id), data)
+      conn = post(conn, Routes.user_path(conn, :create, user.org_id), data)
       response = conn |> json_response(200)
-      result = Repo.get(User, response["id"])
+      assert response == %{"status" => "Your password has been set, please login"}
+      result = Repo.get(User, user.id)
       assert result.is_deleted == false
     end
   end

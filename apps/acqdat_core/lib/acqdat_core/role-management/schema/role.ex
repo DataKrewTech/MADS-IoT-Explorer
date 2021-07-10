@@ -4,7 +4,7 @@ defmodule AcqdatCore.Schema.RoleManagement.Role do
   """
 
   use AcqdatCore.Schema
-  @roles ~w(admin manager member)s
+  @roles ~w(superadmin orgadmin member)s
 
   @typedoc """
   `name`: role name.

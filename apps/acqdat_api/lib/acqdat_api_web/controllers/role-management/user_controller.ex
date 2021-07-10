@@ -12,6 +12,8 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
   plug AcqdatApiWeb.Plug.LoadUser
        when action in [:show, :update, :assets, :apps, :delete]
 
+  plug :check_for_member_role_and_self_deletion when action in [:delete]
+
   def show(conn, %{"id" => id}) do
     case conn.status do
       nil ->
@@ -37,27 +39,44 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
     end
   end
 
-  def create(conn, %{"user" => user_params, "org_id" => org_id}) do
+  def create(conn, %{"org_id" => org_id} = params) do
     case conn.status do
       nil ->
         [token | _] = conn |> get_req_header("invitation-token")
 
-        user_params =
-          user_params
-          |> Map.put("token", token)
-          |> Map.put("org_id", org_id)
+        changeset =
+          if params["user"] do
+            user_params =
+              params["user"]
+              |> Map.put("token", token)
+              |> Map.put("org_id", org_id)
 
-        changeset = verify_create_params(user_params)
+            verify_create_params(user_params)
+          else
+            params =
+              params
+              |> Map.put("token", token)
+
+            verify_join_org_params(params)
+          end
 
         with {:extract, {:ok, data}} <- {:extract, extract_changeset_data(changeset)},
              {:create, {:ok, user}} <- {:create, User.create(data)} do
-          Task.start_link(fn ->
-            ElasticSearch.create_user("organisation", user, %{id: user.org_id})
-          end)
+          # TODO: Need to implement this for elasticsearch as per new design
+          # Task.start_link(fn ->
+          #   ElasticSearch.create_user("organisation", user, %{id: user.org_id})
+          # end)
+
+          message =
+            if params["user"] do
+              "Your password has been set, please login"
+            else
+              "You have successfully joined the organisation, please login"
+            end
 
           conn
           |> put_status(200)
-          |> render("user_details_without_user_setting.json", %{user_details: user})
+          |> render("user_creation.json", message: message)
         else
           {:extract, {:error, error}} ->
             error = extract_changeset_error(error)
@@ -227,6 +246,10 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
             |> send_error(400, error)
         end
 
+      403 ->
+        conn
+        |> send_error(400, UserErrorHelper.error_message(:forbidden))
+
       404 ->
         conn
         |> send_error(404, UserErrorHelper.error_message(:resource_not_found))
@@ -234,6 +257,22 @@ defmodule AcqdatApiWeb.RoleManagement.UserController do
       401 ->
         conn
         |> send_error(401, UserErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  ################################################# Private Function ###################################################################
+
+  defp check_for_member_role_and_self_deletion(conn, _params) do
+    logged_in_user = Guardian.Plug.current_resource(conn)
+    {:ok, user} = User.get(String.to_integer(logged_in_user))
+
+    case user.role_id === 3 and user.id == String.to_integer(logged_in_user) do
+      true ->
+        conn
+        |> put_status(403)
+
+      false ->
+        conn
     end
   end
 end

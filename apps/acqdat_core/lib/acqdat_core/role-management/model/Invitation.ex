@@ -33,15 +33,9 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
   end
 
   def create_invitation(attrs \\ %{}) do
-    case check_for_existing_user(attrs["email"]) do
-      true ->
-        {:user_exists, "User already exists"}
-
-      false ->
-        %Invitation{}
-        |> Invitation.changeset(attrs)
-        |> Repo.insert()
-    end
+    %Invitation{}
+    |> Invitation.changeset(attrs)
+    |> Repo.insert()
   end
 
   def update_invitation(%Invitation{} = invitation, attrs \\ %{}) do
@@ -77,7 +71,7 @@ defmodule AcqdatCore.Model.RoleManagement.Invitation do
       |> Repo.paginate(page: page_number, page_size: page_size)
 
     invitation_data_with_preloads =
-      paginated_invitation_data.entries |> Repo.preload([:role, :inviter])
+      paginated_invitation_data.entries |> Repo.preload([:role, inviter: :user_credentials])
 
     ModelHelper.paginated_response(invitation_data_with_preloads, paginated_invitation_data)
   end

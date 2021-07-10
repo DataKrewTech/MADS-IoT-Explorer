@@ -91,7 +91,7 @@ defmodule AcqdatApi.DashboardManagement.Dashboard do
   defp verify_dashboard({:ok, dashboard}) do
     dashboard =
       dashboard
-      |> Repo.preload([:panels, :dashboard_export, :creator])
+      |> Repo.preload([:panels, :dashboard_export, creator: :user_credentials])
       |> DashboardModel.reorder_panels()
 
     {:ok, dashboard}
