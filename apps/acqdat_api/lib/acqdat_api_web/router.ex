@@ -58,17 +58,6 @@ defmodule AcqdatApiWeb.Router do
     resources "/apps", AppController, only: [:index]
     get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
 
-    # NOTE: Kept widgets resources out of organisation_scope currently
-    get "/widgets/search", Widgets.WidgetController, :search_widget
-
-    get "/widgets/filtered", Widgets.WidgetController, :fetch_all
-
-    resources "/widgets", Widgets.WidgetController,
-      only: [:create, :update, :delete, :index, :show]
-
-    resources "/widget-type", Widgets.WidgetTypeController,
-      only: [:create, :update, :delete, :index, :show]
-
     resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
     )
@@ -91,8 +80,6 @@ defmodule AcqdatApiWeb.Router do
       resources "/settings", RoleManagement.UserSettingController,
         only: [:create, :update],
         as: :settings
-
-      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
     end
 
     get "/search_users", RoleManagement.UserController, :search_users
@@ -350,6 +337,27 @@ defmodule AcqdatApiWeb.Router do
       get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
       get "/alert_apps", AlertFilterListingController, :alert_app_listing
       get "/alert_status", AlertFilterListingController, :alert_status_listing
+    end
+  end
+
+  ######################### Widgets Manager ####################################
+  scope "/wigt_mgmt", AcqdatApiWeb.Widgets do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    # NOTE: Kept widgets resources out of organisation_scope currently
+    get "/widgets/search", WidgetController, :search_widget
+
+    get "/widgets/filtered", WidgetController, :fetch_all
+
+    resources "/widgets", WidgetController, only: [:create, :update, :delete, :index, :show]
+
+    resources "/widget-type", WidgetTypeController,
+      only: [:create, :update, :delete, :index, :show]
+
+    scope "/orgs/:org_id" do
+      scope "/users/:user_id" do
+        resources "/widgets", UserWidgetController, only: [:index, :create], as: :user_widgets
+      end
     end
   end
 
