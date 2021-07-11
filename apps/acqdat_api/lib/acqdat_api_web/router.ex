@@ -125,6 +125,14 @@ defmodule AcqdatApiWeb.Router do
         get("/hierarchy", GatewayController, :hierarchy)
         get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
       end
+
+      scope "/projects/:project_id", Alerts do
+        resources "/policies", PolicyController, only: [:index]
+        resources "/alert-rules", AlertRulesController, except: [:new, :edit]
+        get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
+        get "/alert_apps", AlertFilterListingController, :alert_app_listing
+        get "/alert_status", AlertFilterListingController, :alert_status_listing
+      end
     end
   end
 
@@ -322,8 +330,22 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     scope "/orgs/:org_id" do
+      get "/projects", AlertController, :fetch_projects
       resources "/policies", PolicyController, only: [:index]
       resources "/alert-rules", AlertRulesController, except: [:new, :edit]
+      resources "/alert", AlertController, except: [:new, :edit, :create]
+      get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
+      get "/alert_apps", AlertFilterListingController, :alert_app_listing
+      get "/alert_status", AlertFilterListingController, :alert_status_listing
+    end
+  end
+
+  ######################### Role Manager ####################################
+  scope "/role_mgmt", AcqdatApiWeb do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id", Alerts do
+      get "/projects", AlertController, :fetch_projects
       resources "/alert", AlertController, except: [:new, :edit, :create]
       get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
       get "/alert_apps", AlertFilterListingController, :alert_app_listing
