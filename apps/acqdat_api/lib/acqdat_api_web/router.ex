@@ -45,12 +45,10 @@ defmodule AcqdatApiWeb.Router do
 
   scope "/", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-    get "/apis", RoleManagement.ExtractedRoutesController, :apis
+
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
     post "/orgs/:org_id/validate_credentials", AuthController, :validate_credentials
-
-    resources "/roles", RoleManagement.RoleController, only: [:index]
 
     resources "/orgs", EntityManagement.OrganisationController,
       only: [:show, :create, :index, :update, :delete]
@@ -63,34 +61,11 @@ defmodule AcqdatApiWeb.Router do
     )
 
     resources "/uploads", ImageUploadController, only: [:create]
-
-    resources "/user_credentials", RoleManagement.UserCredentialsController,
-      only: [:show, :update]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-
-    # user group api
-    resources "/user_groups", RoleManagement.UserGroupController, except: [:new, :edit]
-    post "/group_policies", RoleManagement.UserGroupController, :group_policies
-
-    resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
-      resources "/settings", RoleManagement.UserSettingController,
-        only: [:create, :update],
-        as: :settings
-    end
-
-    get "/search_users", RoleManagement.UserController, :search_users
-
-    scope "/", RoleManagement do
-      put("/users/:id/assets", UserController, :assets, as: :user_assets)
-      put("/users/:id/apps", UserController, :apps, as: :user_apps)
-
-      resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
-    end
-
     get("/entities", EntityManagement.EntityController, :fetch_all_hierarchy)
   end
 
@@ -331,12 +306,23 @@ defmodule AcqdatApiWeb.Router do
   scope "/role_mgmt", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    scope "/orgs/:org_id", Alerts do
-      get "/projects", AlertController, :fetch_projects
-      resources "/alert", AlertController, except: [:new, :edit, :create]
-      get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
-      get "/alert_apps", AlertFilterListingController, :alert_app_listing
-      get "/alert_status", AlertFilterListingController, :alert_status_listing
+    scope "/orgs/:org_id", RoleManagement do
+      resources "/user_groups", UserGroupController, except: [:new, :edit]
+      get "/apis", ExtractedRoutesController, :apis
+      post "/group_policies", UserGroupController, :group_policies
+
+      resources "/users", UserController, only: [:show, :update, :index, :delete] do
+        resources "/settings", UserSettingController,
+          only: [:create, :update],
+          as: :settings
+      end
+
+      resources "/roles", RoleController, only: [:index]
+      get "/search_users", UserController, :search_users
+      put("/users/:id/assets", UserController, :assets, as: :user_assets)
+      put("/users/:id/apps", UserController, :apps, as: :user_apps)
+      resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
+      resources "/user_credentials", UserCredentialsController, only: [:show, :update]
     end
   end
 
