@@ -1,11 +1,12 @@
 defmodule AcqdatCore.Schema.MetricsTest do
   use ExUnit.Case, async: true
+  use AcqdatCore.DataCase
+
   alias AcqdatCore.Schema.Metrics
   alias AcqdatCore.Repo
   alias AcqdatCore.Metrics.{OrgMetrics, Reports}
 
   import AcqdatCore.Support.Factory
-  alias AcqdatCore.Schema.EntityManagement.{Asset}
 
   describe "changeset" do
     test "returns a valid changeset" do
@@ -23,7 +24,6 @@ defmodule AcqdatCore.Schema.MetricsTest do
     end
 
     test "successfully updates database" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       params = dummy_data()
       time = DateTime.truncate(DateTime.utc_now(), :second)
 
@@ -41,7 +41,6 @@ defmodule AcqdatCore.Schema.MetricsTest do
 
   describe "measure_and_dump" do
     test "successfully updates database with organisation info" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       initial_size = Enum.count(Repo.all(Metrics))
       insert(:asset)
       insert(:asset)
@@ -54,13 +53,11 @@ defmodule AcqdatCore.Schema.MetricsTest do
 
   describe "daily_report/1" do
     test "rejects bad org_id" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       {:error, result} = Reports.daily_report(-43)
       assert result == "Organisation does not exist"
     end
 
     test "returns existing same day record if available" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       asset = insert(:asset)
       time = DateTime.truncate(DateTime.utc_now(), :second)
       OrgMetrics.measure_and_dump()
@@ -70,7 +67,6 @@ defmodule AcqdatCore.Schema.MetricsTest do
     end
 
     test "generates valid record if not already available" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       asset = insert(:asset)
       {:ok, result} = Reports.daily_report(asset.org_id)
       assert result.org_id == asset.org_id
@@ -79,14 +75,12 @@ defmodule AcqdatCore.Schema.MetricsTest do
 
   describe "monthly_report/2" do
     test "Rejects where data not available" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       asset = insert(:asset)
       {:error, message} = Reports.monthly_report(asset.org_id, 1)
       assert message == "Data missing for organisation on some days, cannot generate report"
     end
 
     test "Returns valid report for available data" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       asset = insert(:asset)
       org_id = asset.org_id
       sample = DateTime.utc_now()
@@ -123,7 +117,6 @@ defmodule AcqdatCore.Schema.MetricsTest do
     end
 
     test "Returns valid data for month so far" do
-      Ecto.Adapters.SQL.Sandbox.checkout(AcqdatCore.Repo)
       asset = insert(:asset)
       org_id = asset.org_id
       sample = DateTime.utc_now()
@@ -237,6 +230,11 @@ defmodule AcqdatCore.Schema.MetricsTest do
               %{id: "Power Cube Main Params", value: 331}
             ]
           }
+        }
+      },
+      role_manager: %{
+        users: %{
+          count: 0
         }
       }
     }

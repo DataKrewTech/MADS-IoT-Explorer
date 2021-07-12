@@ -47,6 +47,7 @@ defmodule AcqdatCore.Schema.Metrics.Meta do
     |> cast_embed(:dashboards, with: &DashboardMeta.changeset/2)
     |> cast_embed(:data_insights, with: &DataInsightsMeta.changeset/2)
     |> cast_embed(:role_manager, with: &RoleManagerMeta.changeset/2)
+    |> validate_required([:entities, :dashboards, :data_insights, :role_manager])
   end
 end
 
@@ -63,11 +64,12 @@ defmodule AcqdatCore.Schema.Metrics.EntityMeta do
     field(:active_parameters, :map)
   end
 
-  @optional_params ~w(sensors sensor_types assets asset_types projects gateways active_parameters)a
+  @required_params ~w(sensors sensor_types assets asset_types projects gateways active_parameters)a
 
   def changeset(entitymeta, params) do
     entitymeta
-    |> cast(params, @optional_params)
+    |> cast(params, @required_params)
+    |> validate_required(@required_params)
   end
 end
 
@@ -80,11 +82,12 @@ defmodule AcqdatCore.Schema.Metrics.DashboardMeta do
     field(:widgets, :map)
   end
 
-  @optional_params ~w(dashboards panels widgets)a
+  @required_params ~w(dashboards panels widgets)a
 
   def changeset(dashboardmeta, params) do
     dashboardmeta
-    |> cast(params, @optional_params)
+    |> cast(params, @required_params)
+    |> validate_required(@required_params)
   end
 end
 
@@ -96,11 +99,12 @@ defmodule AcqdatCore.Schema.Metrics.DataInsightsMeta do
     field(:visualisations, :map)
   end
 
-  @optional_params ~w(fact_tables visualisations)a
+  @required_params ~w(fact_tables visualisations)a
 
   def changeset(datainsightsmeta, params) do
     datainsightsmeta
-    |> cast(params, @optional_params)
+    |> cast(params, @required_params)
+    |> validate_required(@required_params)
   end
 end
 
@@ -111,10 +115,11 @@ defmodule AcqdatCore.Schema.Metrics.RoleManagerMeta do
     field(:users, :map)
   end
 
-  @optional_params ~w(users)a
+  @required_params ~w(users)a
 
   def changeset(rolemanagermeta, params) do
     rolemanagermeta
-    |> cast(params, @optional_params)
+    |> cast(params, @required_params)
+    |> validate_required(@required_params)
   end
 end
