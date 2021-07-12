@@ -19,6 +19,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
   alias AcqdatCore.DashboardManagement.Schema.WidgetInstance
   alias AcqdatCore.DataInsights.Schema.FactTables
   alias AcqdatCore.DataInsights.Schema.Visualizations
+  alias AcqdatCore.Schema.RoleManagement.User
   alias AcqdatCore.Schema.Metrics
 
   @doc """
@@ -47,6 +48,7 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
     |> entity_manifest()
     |> Map.merge(dashboard_manifest(org.id))
     |> Map.merge(data_insights_manifest(org.id))
+    |> Map.merge(role_manager_manifest(org.id))
   end
 
   # Get projects, assets, asset_types, sensors, sensor_types, gateways,
@@ -156,6 +158,27 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
 
   # Get user information
   defp role_manager_manifest(org_id) do
+
+    user_query =
+      from(
+        user in User,
+        where: user.org_id == ^org_id,
+        select: %{
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+        }
+      )
+    results = parse_user(user_query)
+    %{
+      role_manager: %{
+        users: %{
+          count: results.user_count,
+          metadata: %{data: results.user_meta}
+        }
+      }
+    }
+
   end
 
   # Get database size being used by an organisation
@@ -270,6 +293,20 @@ defmodule AcqdatCore.Metrics.OrgMetrics do
             sensor_count: sensor_count + data.sensor_count,
             sensor_meta: data.sensor_data ++ sensor_meta
         }
+    end)
+  end
+
+  defp parse_user(query) do
+    result = Repo.all(query)
+    acc = %{user_count: 0, user_meta: []}
+
+    Enum.reduce(result, acc, fn data, acc ->
+      %{user_count: user_count, user_meta: user_meta} = acc
+      %{
+        acc
+        | user_count: user_count + 1,
+        user_meta: [%{first_name: data.first_name, last_name: data.last_name, email: data.email} | user_meta]
+      }
     end)
   end
 

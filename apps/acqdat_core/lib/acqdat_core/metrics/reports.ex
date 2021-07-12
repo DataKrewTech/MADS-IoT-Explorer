@@ -250,7 +250,8 @@ defmodule AcqdatCore.Metrics.Reports do
       gateway_count: 0,
       project_count: 0,
       sensor_type_count: 0,
-      sensor_count: 0
+      sensor_count: 0,
+      user_count: 0
     }
 
     start_date = Timex.beginning_of_month(end_date)
@@ -363,6 +364,13 @@ defmodule AcqdatCore.Metrics.Reports do
                   new_report.sensor_count +
                     Map.fetch!(daily_report.metrics.entities.sensors, "count")
             }
+
+            new_report = %{
+              new_report
+              | user_count:
+                  new_report.user_count +
+                    Map.fetch!(daily_report.metrics.role_manager.users, "count")
+            }
           end)
 
         new_report = %{
@@ -423,6 +431,11 @@ defmodule AcqdatCore.Metrics.Reports do
         new_report = %{
           new_report
           | sensor_count: new_report.sensor_count / number_of_days
+        }
+
+        new_report = %{
+          new_report
+          | user_count: new_report.user_count / number_of_days
         }
 
         {:ok, new_report}
