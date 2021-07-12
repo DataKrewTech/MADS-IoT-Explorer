@@ -307,6 +307,7 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     scope "/orgs/:org_id", RoleManagement do
+      resources "/projects", ProjectController, only: [:index, :create, :update, :delete, :show]
       resources "/user_groups", UserGroupController, except: [:new, :edit]
       get "/apis", ExtractedRoutesController, :apis
       post "/group_policies", UserGroupController, :group_policies
@@ -316,6 +317,10 @@ defmodule AcqdatApiWeb.Router do
           only: [:create, :update],
           as: :settings
       end
+
+      get("/projects/:project_id/users", ProjectController, :fetch_project_users)
+      get("/projects/search", ProjectController, :search_projects, as: :search_projects)
+      get("/archived_projects", ProjectController, :archived, as: :archived_projects)
 
       resources "/roles", RoleController, only: [:index]
       get "/search_users", UserController, :search_users
