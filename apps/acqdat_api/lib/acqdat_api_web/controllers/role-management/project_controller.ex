@@ -14,8 +14,6 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
   plug AcqdatApiWeb.Plug.LoadProject
        when action in [:update, :delete, :show, :fetch_project_users]
 
-  plug :put_view, AcqdatApiWeb.EntityManagement.ProjectView when action in [:search_projects]
-
   @doc """
   This piece of code will be useful when we will implement Project role based listing
 
@@ -30,8 +28,6 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
   """
 
   def search_projects(conn, params) do
-    require IEx
-    IEx.pry()
     case conn.status do
       nil ->
         with {:ok, hits} <- ElasticSearch.search_projects(params) do
