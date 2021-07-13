@@ -319,7 +319,7 @@ defmodule AcqdatApiWeb.Router do
       end
 
       get("/projects/:project_id/users", ProjectController, :fetch_project_users)
-      get("/projects/search", ProjectController, :search_projects, as: :search_projects)
+      get("/projects/search", ProjectController, :search_projects, as: :role_management_search_projects)
       get("/archived_projects", ProjectController, :archived, as: :archived_projects)
 
       resources "/roles", RoleController, only: [:index]
