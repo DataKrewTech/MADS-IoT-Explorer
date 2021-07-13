@@ -14,9 +14,7 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
   plug AcqdatApiWeb.Plug.LoadProject
        when action in [:update, :delete, :show, :fetch_project_users]
 
-  plug :put_view,
-       AcqdatApiWeb.EntityManagement.ProjectView
-       when action in [:search_projects, :archived, :index]
+  plug :put_view, AcqdatApiWeb.EntityManagement.ProjectView
 
   @doc """
   This piece of code will be useful when we will implement Project role based listing
