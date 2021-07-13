@@ -9,7 +9,7 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
   import AcqdatApiWeb.Validators.EntityManagement.Project
 
   # plug AcqdatApiWeb.ApiAccessAuth
-  plug AcqdatApiWeb.Plug.LoadOrg
+  plug AcqdatApiWeb.Plug.LoadOrg when action not in [:fetch_count]
 
   plug AcqdatApiWeb.Plug.LoadProject
        when action in [:update, :delete, :show, :fetch_project_users]
