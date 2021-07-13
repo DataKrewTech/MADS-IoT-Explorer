@@ -6,13 +6,20 @@ defmodule AcqdatApi.RoleManagement.UserCredentials do
 
   defdelegate get(id), to: UserCredentials
 
-  def update(cred, %{"user_setting" => user_settings} = params) do
+  def update(cred, %{"user_setting" => user_settings, "id" => id} = params) do
     Multi.new()
     |> Multi.run(:update_credentials, fn _, _changes ->
       UserCredentials.update(cred, params)
     end)
     |> Multi.run(:update_settings, fn _, %{update_credentials: cred} ->
-      UserSetting.update(cred.user_setting, user_settings)
+      case cred.user_setting != nil do
+        true ->
+          UserSetting.update(cred.user_setting, user_settings)
+
+        false ->
+          user_settings = Map.put_new(user_settings, "user_credentials_id", id)
+          UserSetting.create(user_settings)
+      end
     end)
     |> run_transaction()
   end
