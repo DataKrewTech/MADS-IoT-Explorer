@@ -2,6 +2,8 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
   use AcqdatApiWeb, :authorized_controller
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.EntityManagement.Organisation
+  alias AcqdatApi.Image
+  alias AcqdatApi.ImageDeletion
   alias AcqdatApi.EntityManagement.Organisation
   alias AcqdatApiWeb.EntityManagement.OrganisationErrorHelper
   alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
@@ -64,6 +66,10 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
   def update(conn, params) do
     case conn.status do
       nil ->
+        %{assigns: %{org: org}} = conn
+
+        params = Map.put(params, "url", org.url)
+        params = extract_image(conn, org, params)
         case Organisation.update(conn.assigns.org, params) do
           {:ok, organisation} ->
             conn
@@ -182,6 +188,50 @@ defmodule AcqdatApiWeb.EntityManagement.OrganisationController do
         conn
         |> send_error(401, OrganisationErrorHelper.error_message(:unauthorized))
     end
+  end
+
+
+  defp extract_image(conn, org, params) do
+    params = params |> parse_metadata_params()
+
+    case is_nil(params["image"]) do
+      true ->
+        params
+
+      false ->
+        if org.url != nil do
+          ImageDeletion.delete_operation(org.url, "org/#{org.id}")
+        end
+
+        add_image_url(conn, params, org.id)
+    end
+  end
+
+  defp add_image_url(conn, %{"image" => image} = params, entity_id) do
+    scope = "org/#{entity_id}"
+
+    with {:ok, image_name} <- Image.store({image, scope}) do
+      Map.replace!(params, "url", Image.url({image_name, scope}))
+    else
+      {:error, error} -> send_error(conn, 400, error)
+    end
+  end
+
+  defp parse_metadata_params(%{"metadata" => metadata} = params) do
+    metadata =
+      case Jason.decode(metadata) do
+        {:ok, data} ->
+          data
+
+        _ ->
+          []
+      end
+
+    Map.put(params, "metadata", metadata)
+  end
+
+  defp parse_metadata_params(params) do
+    params
   end
 
   defp load_org(%{params: %{"id" => org_id}} = conn, _params) do
