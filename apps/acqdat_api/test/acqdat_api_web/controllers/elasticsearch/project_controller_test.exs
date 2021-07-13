@@ -65,12 +65,15 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     # end
 
     test "search with no hits", %{conn: conn, project: project} do
-      IO.inspect(Routes.role_management_search_projects_path(conn, :search_projects, project.org.id))
       conn =
-        get(conn, Routes.role_management_search_projects_path(conn, :search_projects, project.org.id), %{
-          "label" => "Random Name ?",
-          "is_archived" => false
-        })
+        get(
+          conn,
+          Routes.role_management_search_projects_path(conn, :search_projects, project.org.id),
+          %{
+            "label" => "Random Name ?",
+            "is_archived" => false
+          }
+        )
 
       result = conn |> json_response(200)
 
@@ -145,7 +148,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
   end
 
   describe "archived/2" do
-
     setup :setup_conn
 
     setup do
@@ -162,11 +164,9 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     end
 
     # Command - GET /role_mgmt/orgs/:org_id/archived_projects
-
   end
 
   describe "update/2" do
-
     setup :setup_conn
 
     setup do
@@ -183,7 +183,6 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     end
 
     # Command - PATCH (or PUT?) /role_mgmt/orgs/:org_id/projects/:id
-
   end
 
   # describe "create/2" do

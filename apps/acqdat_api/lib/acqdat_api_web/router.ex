@@ -307,7 +307,7 @@ defmodule AcqdatApiWeb.Router do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
     scope "/orgs/:org_id", RoleManagement do
-      resources "/projects", ProjectController, only: [:index, :create, :update, :delete, :show]
+      resources "/projects", ProjectController, only: [:index, :create, :update, :delete]
       resources "/user_groups", UserGroupController, except: [:new, :edit]
       get "/apis", ExtractedRoutesController, :apis
       post "/group_policies", UserGroupController, :group_policies
@@ -319,7 +319,11 @@ defmodule AcqdatApiWeb.Router do
       end
 
       get("/projects/:project_id/users", ProjectController, :fetch_project_users)
-      get("/projects/search", ProjectController, :search_projects, as: :role_management_search_projects)
+
+      get("/projects/search", ProjectController, :search_projects,
+        as: :role_management_search_projects
+      )
+
       get("/archived_projects", ProjectController, :archived, as: :archived_projects)
 
       resources "/roles", RoleController, only: [:index]
@@ -329,6 +333,8 @@ defmodule AcqdatApiWeb.Router do
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
       resources "/user_credentials", UserCredentialsController, only: [:show, :update]
     end
+
+    post("/fetch-count", RoleManagement.ProjectController, :fetch_count)
   end
 
   ######################### Widgets Manager ####################################

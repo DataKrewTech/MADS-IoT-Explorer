@@ -14,7 +14,8 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
   plug AcqdatApiWeb.Plug.LoadProject
        when action in [:update, :delete, :show, :fetch_project_users]
 
-  plug :put_view, AcqdatApiWeb.EntityManagement.ProjectView when action in [:search_projects]
+  plug :put_view,
+       AcqdatApiWeb.EntityManagement.ProjectView when action in [:search_projects, :archived]
 
   @doc """
   This piece of code will be useful when we will implement Project role based listing
@@ -29,9 +30,32 @@ defmodule AcqdatApiWeb.RoleManagement.ProjectController do
     end
   """
 
+  def fetch_count(conn, %{"type" => entity} = params) do
+    # name_convention = "Elixir.AcqdatCore.Model.EntityManagement." <> entity
+    # module_name = String.to_atom(name_convention)
+    try do
+      {:ok, module_name} = ModuleEnum.dump(entity)
+
+      case module_name.return_count(params) do
+        nil ->
+          conn
+          |> put_status(200)
+          |> json(%{"count" => 0})
+
+        count ->
+          conn
+          |> put_status(200)
+          |> json(%{"count" => count})
+      end
+    rescue
+      e in Ecto.ChangeError ->
+        conn
+        |> put_status(400)
+        |> json(%{"message" => e.message})
+    end
+  end
+
   def search_projects(conn, params) do
-    require IEx
-    IEx.pry()
     case conn.status do
       nil ->
         with {:ok, hits} <- ElasticSearch.search_projects(params) do
