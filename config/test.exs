@@ -23,16 +23,6 @@ config :acqdat_iot, AcqdatIotWeb.Guardian,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-config :sentry,
-  dsn: "https://d50b1bc61203468183a3c5de23e07887@o285155.ingest.sentry.io/5662765",
-  environment_name: :test,
-  enable_source_code_context: true,
-  root_source_code_path: File.cwd!(),
-  tags: %{
-    env: "test"
-  },
-  included_environments: [:test]
-
 # Configure your database
 config :acqdat_core, AcqdatCore.Repo,
   username: "postgres",

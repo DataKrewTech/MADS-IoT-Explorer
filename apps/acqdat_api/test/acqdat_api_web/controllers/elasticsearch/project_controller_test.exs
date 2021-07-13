@@ -12,7 +12,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       project = insert(:project)
       Project.create_index()
       Project.seed_project(project)
-      # :timer.sleep(2500)
+      :timer.sleep(2500)
 
       on_exit(fn ->
         Project.delete_index()
@@ -21,48 +21,48 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       [project: project]
     end
 
-    # test "fails if authorization header not found", %{conn: conn, project: project} do
-    #   bad_access_token = "avcbd123489u"
+    test "fails if authorization header not found", %{conn: conn, project: project} do
+      bad_access_token = "avcbd123489u"
 
-    #   conn =
-    #     conn
-    #     |> put_req_header("authorization", "Bearer #{bad_access_token}")
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{bad_access_token}")
 
-    #   conn =
-    #     get(conn, "/role_mgmt/orgs/#{project.org.id}/projects/search", %{
-    #       "label" => project.name
-    #     })
+      conn =
+        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
+          "label" => project.name
+        })
 
-    #   result = conn |> json_response(403)
+      result = conn |> json_response(403)
 
-    #   assert result == %{
-    #            "detail" => "You are not allowed to perform this action.",
-    #            "source" => nil,
-    #            "status_code" => 403,
-    #            "title" => "Unauthorized"
-    #          }
-    # end
+      assert result == %{
+               "detail" => "You are not allowed to perform this action.",
+               "source" => nil,
+               "status_code" => 403,
+               "title" => "Unauthorized"
+             }
+    end
 
-    # test "search with valid params", %{conn: conn, project: project} do
-    #   conn =
-    #     get(conn, "/role_mgmt/orgs/#{project.org.id}/projects/search", %{
-    #       "label" => project.name,
-    #       "is_archived" => false
-    #     })
+    test "search with valid params", %{conn: conn, project: project} do
+      conn =
+        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
+          "label" => project.name,
+          "is_archived" => false
+        })
 
-    #   %{"projects" => [rproject]} = conn |> json_response(200)
+      %{"projects" => [rproject]} = conn |> json_response(200)
 
-    #   assert rproject["archived"] == project.archived
+      assert rproject["archived"] == project.archived
 
-    #   assert rproject["creator_id"] == project.creator_id
+      assert rproject["creator_id"] == project.creator_id
 
-    #   assert rproject["id"] == project.id
+      assert rproject["id"] == project.id
 
-    #   assert rproject["metadata"] == project.metadata
-    #   assert rproject["name"] == project.name
-    #   assert rproject["slug"] == project.slug
-    #   assert rproject["start_date"] == project.start_date
-    # end
+      assert rproject["metadata"] == project.metadata
+      assert rproject["name"] == project.name
+      assert rproject["slug"] == project.slug
+      assert rproject["start_date"] == project.start_date
+    end
 
     test "search with no hits", %{conn: conn, project: project} do
       conn =
