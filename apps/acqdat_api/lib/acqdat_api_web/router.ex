@@ -60,6 +60,9 @@ defmodule AcqdatApiWeb.Router do
       only: [:create, :update, :delete, :index, :show]
     )
 
+    resources "/user_credentials", RoleManagement.UserCredentialsController,
+      only: [:show, :update]
+
     resources "/uploads", ImageUploadController, only: [:create]
   end
 
@@ -331,7 +334,6 @@ defmodule AcqdatApiWeb.Router do
       put("/users/:id/assets", UserController, :assets, as: :user_assets)
       put("/users/:id/apps", UserController, :apps, as: :user_apps)
       resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
-      resources "/user_credentials", UserCredentialsController, only: [:show, :update]
     end
 
     post("/fetch-count", RoleManagement.ProjectController, :fetch_count)
