@@ -45,7 +45,9 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
 
     test "search with valid params", %{conn: conn, project: project} do
       conn =
-        get(conn, Routes.search_projects_path(conn, :search_projects, project.org.id), %{
+        get(conn,
+        "/role_mgmt/orgs/#{project.org.id}/projects/search",
+        %{
           "label" => project.name,
           "is_archived" => false
         })
@@ -68,7 +70,7 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
       conn =
         get(
           conn,
-          Routes.role_management_search_projects_path(conn, :search_projects, project.org.id),
+          "/role_mgmt/orgs/#{project.org.id}/projects/search",
           %{
             "label" => "Random Name ?",
             "is_archived" => false
@@ -164,6 +166,19 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     end
 
     # Command - GET /role_mgmt/orgs/:org_id/archived_projects
+
+    test "get archived with valid params", %{conn: conn, project: irrelevant_project} do
+      conn = post(conn, "/role_mgmt/orgs/#{irrelevant_project.org.id}/projects", %{
+        "name" => "project204",
+        "org_id" => irrelevant_project.org.id,
+        "archived" => true
+      })
+      result = conn |> json_response(200)
+      assert {:ok, true} = Map.fetch(result, "archived")
+      conn = get(conn, "/role_mgmt/orgs/#{irrelevant_project.org.id}/archived_projects", %{})
+      result = conn |> json_response(200)
+      assert {:ok, 1} = Map.fetch(result, "total_entries")
+    end
   end
 
   describe "update/2" do
@@ -183,76 +198,165 @@ defmodule AcqdatApiWeb.ElasticSearch.ProjectControllerTest do
     end
 
     # Command - PATCH (or PUT?) /role_mgmt/orgs/:org_id/projects/:id
+
+    test "update with wrong project id", %{conn: conn, project: project} do
+      conn = patch(conn, "/role_mgmt/orgs/#{project.org.id}/projects/-1", %{})
+      result = conn |> json_response(404)
+    end
+
+    test "update key (identifying) params", %{conn: conn, project: project} do
+      original_id = project.id
+      conn = patch(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}", %{"id" => 432})
+      result = conn |> json_response(200)
+      assert {:ok, original_id} = Map.fetch(result, "id")
+      conn = patch(conn, "/role_mgmt/orgs/#{project.org.id}/projects/432", %{})
+      result = conn |> json_response(404)
+    end
+
+    test "update with valid params", %{conn: conn, project: project} do
+      assert project.archived == false
+      assert project.description == nil
+      conn = patch(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}", %{"archived" => true, "description" => "testing update"})
+      result = conn |> json_response(200)
+      assert Map.fetch(result, "archived") == {:ok, true}
+      assert Map.fetch(result, "description") == {:ok, "testing update"}
+      conn = get(conn, "/role_mgmt/orgs/#{project.org.id}/archived_projects", %{})
+      result = conn |> json_response(200)
+      assert {:ok, 1} == Map.fetch(result, "total_entries")
+      {_, projects} = Map.fetch(result, "projects")
+      assert Map.fetch(hd(projects), "description") == {:ok, "testing update"}
+    end
   end
 
-  # describe "create/2" do
+  describe "create/2" do
 
-  #   setup :setup_conn
+    setup :setup_conn
 
-  #   setup do
-  #     project = insert(:project)
-  #     Project.create_index()
-  #     Project.seed_project(project)
-  #     :timer.sleep(2500)
+    setup do
+      project = insert(:project)
+      Project.create_index()
+      Project.seed_project(project)
+      :timer.sleep(2500)
 
-  #     on_exit(fn ->
-  #       Project.delete_index()
-  #     end)
+      on_exit(fn ->
+        Project.delete_index()
+      end)
 
-  #     [project: project]
-  #   end
+      [project: project]
+    end
 
-  #   test "creates successfully", %{conn: conn, project: irrelevant_project} do
-  #     conn = post(conn, "/role_mgmt/orgs/#{irrelevant_project.org.id}/projects", %{
-  #       "name" => "project204"
-  #     })
-  #     conn |> json_response(200) |> IO.inspect()
-  #   end
+    test "create without required params", %{conn: conn, project: irrelevant_project} do
+      conn = post(conn, "/role_mgmt/orgs/#{irrelevant_project.org.id}/projects", %{})
+      result = conn |> json_response(400)
+      assert {:ok, 400} == Map.fetch(result, "status_code")
+    end
 
-  # end
+    test "creates successfully", %{conn: conn, project: irrelevant_project} do
+      conn = post(conn, "/role_mgmt/orgs/#{irrelevant_project.org.id}/projects", %{
+        "name" => "project204",
+        "org_id" => irrelevant_project.org.id
+      })
+      result = conn |> json_response(200)
+      assert {:ok, "project204"} == Map.fetch(result, "name")
+      assert {:ok, irrelevant_project.id} == Map.fetch(result, "org_id")
+    end
 
-  # describe "delete/2" do
+    test "create with existing name", %{conn: conn, project: old_project} do
+      conn = post(conn, "/role_mgmt/orgs/#{old_project.org.id}/projects", %{
+        "name" => old_project.name,
+        "org_id" => old_project.org.id
+      })
+      result = conn |> json_response(400)
+      assert {:ok, 400} == Map.fetch(result, "status_code")
+    end
 
-  #   setup :setup_conn
+  end
 
-  #   setup do
-  #     project = insert(:project)
-  #     Project.create_index()
-  #     Project.seed_project(project)
-  #     :timer.sleep(2500)
+  describe "delete/2" do
 
-  #     # on_exit(fn ->
-  #     #   Project.delete_index()
-  #     # end)
+    setup :setup_conn
 
-  #     [project: project]
-  #   end
+    setup do
+      project = insert(:project)
+      Project.create_index()
+      Project.seed_project(project)
+      :timer.sleep(2500)
 
-  #   test "deletes successfully with valid params", %{conn: conn, project: project} do
-  #     conn = delete(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}")
-  #     IO.inspect(conn)
-  #   end
+      on_exit(fn ->
+        Project.delete_index()
+      end)
 
-  # end
+      [project: project]
+    end
 
-  # describe "fetch_project_users/2" do
+    test "delete with bad params", %{conn: conn, project: project} do
+      conn = delete(conn, "/role_mgmt/orgs/#{project.org.id}/projects/-43")
+      result = conn |> json_response(404)
+      assert Map.fetch(result, "status_code") == {:ok, 404}
+    end
 
-  #   setup :setup_conn
+    test "deletes successfully with valid params", %{conn: conn, project: project} do
+      conn = get(conn,
+      "/role_mgmt/orgs/#{project.org.id}/projects/search",
+      %{
+        "label" => project.name,
+        "is_archived" => false
+      })
+      result = conn |> json_response(200)
+      assert Map.fetch(result, "projects") != {:ok, []}
+      assert Map.fetch(result, "total_entries") == {:ok, 1}
+      conn = delete(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}")
+      result = conn |> json_response(200)
+      conn = get(conn,
+      "/role_mgmt/orgs/#{project.org.id}/projects/search",
+      %{
+        "label" => project.name,
+        "is_archived" => false
+      })
+      result = conn |> json_response(200)
+      assert {_, []} = Map.fetch(result, "projects")
+      assert {_, 0} = Map.fetch(result, "total_entries")
+    end
 
-  #   setup do
-  #     project = insert(:project)
-  #     Project.create_index()
-  #     Project.seed_project(project)
-  #     :timer.sleep(2500)
+    test "double delete", %{conn: conn, project: project} do
+      conn = delete(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}")
+      result = conn |> json_response(200)
+      conn = delete(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}")
+      result = conn |> json_response(404)
+      assert Map.fetch(result, "status_code") == {:ok, 404}
+    end
 
-  #     on_exit(fn ->
-  #       Project.delete_index()
-  #     end)
+  end
 
-  #     [project: project]
-  #   end
+  describe "fetch_project_users/2" do
 
-  #   # Command - GET /role_mgmt/orgs/:org_id/projects/:project_id/users
+    setup :setup_conn
 
-  # end
+    setup do
+      project = insert(:project)
+      Project.create_index()
+      Project.seed_project(project)
+      :timer.sleep(2500)
+
+      on_exit(fn ->
+        Project.delete_index()
+      end)
+
+      [project: project]
+    end
+
+    # Command - GET /role_mgmt/orgs/:org_id/projects/:project_id/users
+
+    test "fetch with valid params", %{conn: conn, project: project} do
+      conn = get(conn, "/role_mgmt/orgs/#{project.org.id}/projects/#{project.id}/users", %{})
+      result = conn |> json_response(200)
+      assert Map.fetch(result, "users") != {:ok, []}
+    end
+
+    test "fails with bad project id", %{conn: conn, project: project} do
+      conn = get(conn, "/role_mgmt/orgs/#{project.org.id}/projects/-78/users", %{})
+      result = conn |> json_response(404)
+    end
+
+  end
 end
