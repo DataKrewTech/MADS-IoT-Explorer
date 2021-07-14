@@ -6,10 +6,12 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
   import AcqdatApiWeb.Helpers
   import AcqdatApiWeb.Validators.Alerts.Alert
   alias AcqdatApi.Alerts.Alert
+  alias AcqdatCore.ElasticSearch
   alias AcqdatApiWeb.Alerts.AlertErrorHelper
 
   plug AcqdatApiWeb.Plug.LoadOrg
   plug AcqdatApiWeb.Plug.LoadAlert when action in [:update, :delete, :show]
+  plug :put_view, AcqdatApiWeb.EntityManagement.ProjectView when action in [:fetch_projects]
 
   def update(conn, params) do
     case conn.status do
@@ -27,6 +29,27 @@ defmodule AcqdatApiWeb.Alerts.AlertController do
 
             conn
             |> send_error(400, error)
+        end
+
+      404 ->
+        conn
+        |> send_error(404, AlertErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, AlertErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_projects(conn, params) do
+    case conn.status do
+      nil ->
+        with {:ok, hits} <- ElasticSearch.project_indexing(params) do
+          conn |> put_status(200) |> render("hits.json", %{hits: hits})
+        else
+          {:error, message} ->
+            conn
+            |> send_error(404, AlertErrorHelper.error_message(:elasticsearch, message))
         end
 
       404 ->

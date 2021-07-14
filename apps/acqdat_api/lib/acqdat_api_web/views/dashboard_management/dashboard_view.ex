@@ -88,4 +88,46 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardView do
       selected_panel_color: settings.selected_panel_color
     }
   end
+
+  def render("widgets.json", %{data: data}) do
+    %{
+      data: render_many(data, DashboardView, "widget_data.json")
+    }
+  end
+
+  def render("widget_data.json", %{dashboard: data}) do
+    %{
+      classification: data.classification,
+      count: data.count,
+      widgets: render_many(data.widgets, DashboardView, "widget_details.json")
+    }
+  end
+
+  def render("widget_details.json", %{dashboard: widget}) do
+    %{
+      id: widget["id"],
+      widget_type_id: widget["widget_type_id"],
+      label: widget["label"],
+      classification: widget["classification"],
+      properties: widget["properties"],
+      policies: widget["policies"],
+      category: widget["category"],
+      image_url: widget["image_url"],
+      uuid: widget["uuid"]
+    }
+  end
+
+  def render("all_gateways.json", %{gateways: gateways}) do
+    %{gateways: render_many(gateways, DashboardView, "gist.json")}
+  end
+
+  def render("gist.json", %{dashboard: gateway}) do
+    %{
+      uuid: gateway.uuid,
+      id: gateway.id,
+      name: gateway.name,
+      project_id: gateway.project_id,
+      org_id: gateway.org_id
+    }
+  end
 end

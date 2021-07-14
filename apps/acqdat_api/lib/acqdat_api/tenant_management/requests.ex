@@ -1,4 +1,4 @@
-defmodule AcqdatApi.RoleManagement.Requests do
+defmodule AcqdatApi.TenantManagement.Requests do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Model.RoleManagement.Requests
   alias AcqdatCore.Model.EntityManagement.Organisation

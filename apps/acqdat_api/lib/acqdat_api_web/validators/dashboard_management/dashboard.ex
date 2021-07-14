@@ -11,6 +11,13 @@ defmodule AcqdatApiWeb.Validators.DashboardManagement.Dashboard do
   )
 
   defparams(
+    verify_widget_params(%{
+      page_size: :integer,
+      page_number: :integer
+    })
+  )
+
+  defparams(
     verify_create(%{
       org_id!: :integer,
       name!: :string,

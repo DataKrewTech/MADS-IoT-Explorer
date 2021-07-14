@@ -28,37 +28,6 @@ defmodule AcqdatApiWeb.Router do
   end
 
   scope "/", AcqdatApiWeb do
-    pipe_through(:export_auth)
-    get("/dashboards/:dashboard_uuid", DashboardManagement.DashboardExportController, :export)
-
-    get(
-      "/dashboards/:dashboard_uuid/verify",
-      DashboardManagement.DashboardExportController,
-      :exported_dashboard
-    )
-
-    post(
-      "/details/:dashboard_uuid/panels/:id",
-      DashboardManagement.DashboardExportController,
-      :show
-    )
-
-    get(
-      "/dashboards/:dashboard_uuid/panels/:panel_id/widget_instances/:id",
-      DashboardManagement.DashboardExportController,
-      :fetch_widget_instances
-    )
-
-    post "/dashboards/:dashboard_uuid/reports",
-         DashboardManagement.DashboardExportController,
-         :reports
-
-    get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
-        DashboardManagement.DashboardExportController,
-        :fetch_all_hierarchy
-  end
-
-  scope "/", AcqdatApiWeb do
     pipe_through(:password_reset_auth)
     put("/reset_password", RoleManagement.ForgotPasswordController, :reset_password)
   end
@@ -76,14 +45,10 @@ defmodule AcqdatApiWeb.Router do
 
   scope "/", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-    post "/fetch-count", EntityManagement.EntityController, :fetch_count
-    get "/apis", RoleManagement.ExtractedRoutesController, :apis
+
     post "/validate-token", AuthController, :validate_token
     post "/sign-out", AuthController, :sign_out
     post "/orgs/:org_id/validate_credentials", AuthController, :validate_credentials
-    resources "/requests", RoleManagement.RequestsController, only: [:update, :index]
-
-    resources "/roles", RoleManagement.RoleController, only: [:index]
 
     resources "/orgs", EntityManagement.OrganisationController,
       only: [:show, :create, :index, :update, :delete]
@@ -91,103 +56,246 @@ defmodule AcqdatApiWeb.Router do
     resources "/apps", AppController, only: [:index]
     get("/orgs/:id/apps", EntityManagement.OrganisationController, :get_apps, as: :org_apps)
 
-    # NOTE: Kept widgets resources out of organisation_scope currently
-    get "/widgets/search", Widgets.WidgetController, :search_widget
-
-    get "/widgets/filtered", Widgets.WidgetController, :fetch_all
-
-    resources "/widgets", Widgets.WidgetController,
-      only: [:create, :update, :delete, :index, :show]
-
-    resources "/widget-type", Widgets.WidgetTypeController,
-      only: [:create, :update, :delete, :index, :show]
-
     resources("/digital-twin", DigitalTwinController,
       only: [:create, :update, :delete, :index, :show]
     )
 
-    resources "/uploads", ImageUploadController, only: [:create]
-
     resources "/user_credentials", RoleManagement.UserCredentialsController,
       only: [:show, :update]
+
+    resources "/uploads", ImageUploadController, only: [:create]
   end
 
   # NOTE: Please add resources here, only if they needs to be scoped by organisation
   scope "/orgs/:org_id", AcqdatApiWeb do
     pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
-
-    # user group api
-    resources "/user_groups", RoleManagement.UserGroupController, except: [:new, :edit]
-    post "/group_policies", RoleManagement.UserGroupController, :group_policies
-
-    post(
-      "/dashboards/:dashboard_id/export",
-      DashboardManagement.DashboardExportController,
-      :create
-    )
-
-    put(
-      "/dashboards/:dashboard_id/export/:dashboard_uuid",
-      DashboardManagement.DashboardExportController,
-      :update
-    )
-
-    get(
-      "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
-      DashboardManagement.DashboardExportController,
-      :show_credentials
-    )
-
-    resources "/components", DataCruncher.ComponentsController, only: [:index]
-
-    resources "/users", RoleManagement.UserController, only: [:show, :update, :index, :delete] do
-      resources "/tasks", DataCruncher.TasksController,
-        only: [:create, :index, :show, :update, :delete]
-
-      resources "/settings", RoleManagement.UserSettingController,
-        only: [:create, :update],
-        as: :settings
-
-      resources "/widgets", Widgets.UserWidgetController, only: [:index, :create], as: :widgets
-    end
-
-    get "/search_users", RoleManagement.UserController, :search_users
-
-    scope "/", RoleManagement do
-      put("/users/:id/assets", UserController, :assets, as: :user_assets)
-      put("/users/:id/apps", UserController, :apps, as: :user_apps)
-
-      resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
-    end
-
-    get "/projects/search", EntityManagement.ProjectController, :search_projects,
-      as: :search_projects
-
-    post("/projects/:project_id/entities", EntityManagement.EntityController, :update_hierarchy)
-    get("/projects/:project_id/entities", EntityManagement.EntityController, :fetch_hierarchy)
     get("/entities", EntityManagement.EntityController, :fetch_all_hierarchy)
+  end
 
-    get("/projects/:project_id/users", EntityManagement.ProjectController, :fetch_project_users)
+  ####################### IoT Manager ########################
 
-    get("/archived_projects", EntityManagement.ProjectController, :archived,
-      as: :archived_projects
-    )
+  scope "/iot_mgmt", AcqdatApiWeb do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
 
-    resources "/projects", EntityManagement.ProjectController,
-      only: [:index, :create, :update, :delete, :show]
+    scope "/orgs/:org_id" do
+      get "/projects", IotManager.GatewayController, :fetch_projects
+      get "/gateways/", IotManager.GatewayController, :all_gateways
 
-    scope "/projects/:project_id", IotManager do
-      get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
-      put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
-      resources "/gateways", GatewayController, except: [:new, :edit]
-      post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
-      get("/hierarchy", GatewayController, :hierarchy)
-      get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
+      scope "/projects/:project_id", IotManager do
+        get "/entities", GatewayController, :fetch_project_tree
+        get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
+        put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
+        resources "/gateways", GatewayController, except: [:new, :edit]
+        post "/gateways/:gateway_id/store_commands", GatewayController, :store_commands
+        get("/hierarchy", GatewayController, :hierarchy)
+        get "/gateways/:gateway_id/data_dump_index", GatewayController, :data_dump_index
+      end
+
+      scope "/projects/:project_id", Alerts do
+        resources "/policies", PolicyController, only: [:index]
+        resources "/alert-rules", AlertRulesController, except: [:new, :edit]
+        get "/alert_rule_listing", AlertFilterListingController, :alert_rule_listing
+        get "/alert_apps", AlertFilterListingController, :alert_app_listing
+        get "/alert_status", AlertFilterListingController, :alert_status_listing
+      end
+    end
+  end
+
+  ################### Dashboard management ############################
+
+  scope "/dash_mgmt", AcqdatApiWeb.DashboardManagement do
+    scope "/" do
+      pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+      scope "/orgs/:org_id" do
+        post(
+          "/dashboards/:dashboard_id/export",
+          DashboardExportController,
+          :create
+        )
+
+        put(
+          "/dashboards/:dashboard_id/export/:dashboard_uuid",
+          DashboardExportController,
+          :update
+        )
+
+        get(
+          "/dashboards/:dashboard_id/export/:dashboard_uuid/show_credentials",
+          DashboardExportController,
+          :show_credentials
+        )
+
+        resources "/dashboards", DashboardController, except: [:new, :edit]
+        get "/recent_dashboards", DashboardController, :recent_dashboard
+        post "/dashboards/:id/reports", DashboardController, :reports
+
+        scope "/dashboards/:dashboard_id" do
+          resources "/panels", PanelController, except: [:new, :edit]
+        end
+
+        scope "/panels/:panel_id" do
+          resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
+        end
+
+        get "/command_widget_types",
+            CommandWidgetController,
+            :command_widget_types
+
+        post "/panels/:panel_id/widgets/:widget_id/widget_instances",
+             WidgetInstanceController,
+             :create,
+             as: :create_widget_instances
+
+        get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+            WidgetInstanceController,
+            :show,
+            as: :show_widget_instances
+
+        delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+               WidgetInstanceController,
+               :delete,
+               as: :delete_widget_instances
+
+        put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
+            WidgetInstanceController,
+            :update,
+            as: :update_widget_instances
+
+        get("/entities", DashboardController, :fetch_all_hierarchy)
+        get("/gateways/", DashboardController, :all_gateways)
+      end
+
+      get("/widgets/filtered", DashboardController, :fetch_widgets)
     end
 
-    get "/gateways/", IotManager.GatewayController, :all_gateways
-    # all the alert apis will be scoped here
-    scope "/", Alerts do
+    scope "/" do
+      pipe_through(:export_auth)
+      get("/dashboards/:dashboard_uuid", DashboardExportController, :export)
+
+      get(
+        "/dashboards/:dashboard_uuid/verify",
+        DashboardExportController,
+        :exported_dashboard
+      )
+
+      post(
+        "/details/:dashboard_uuid/panels/:id",
+        DashboardExportController,
+        :show
+      )
+
+      get(
+        "/dashboards/:dashboard_uuid/panels/:panel_id/widget_instances/:id",
+        DashboardExportController,
+        :fetch_widget_instances
+      )
+
+      post "/dashboards/:dashboard_uuid/reports",
+           DashboardExportController,
+           :reports
+
+      get "/orgs/:org_id/dashboards/:dashboard_uuid/hierarchy",
+          DashboardExportController,
+          :fetch_all_hierarchy
+    end
+  end
+
+  ################### Entity management ############################
+
+  scope "/enty_mgmt", AcqdatApiWeb.EntityManagement do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      resources "/projects", ProjectController, only: [:index, :create, :update, :delete, :show]
+
+      post("/projects/:project_id/entities", EntityController, :update_hierarchy)
+      get("/projects/:project_id/entities", EntityController, :fetch_hierarchy)
+
+      scope "/projects/:project_id" do
+        resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
+        get "/assets/search", AssetController, :search_assets, as: :search_assets
+        get "/sensors/search", SensorController, :search_sensors, as: :search_sensors
+
+        get "/sensor_type/search", SensorTypeController, :search_sensor_type,
+          as: :search_sensor_type
+
+        get "/asset_types/search", AssetTypeController, :search_asset_type, as: :search_asset_type
+
+        resources "/assets", AssetController,
+          only: [:create, :show, :update, :delete, :index],
+          as: :assets
+
+        resources "/sensors", SensorController, except: [:new, :edit]
+        resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
+      end
+
+      get("/projects/:project_id/users", ProjectController, :fetch_project_users)
+      get("/projects/search", ProjectController, :search_projects, as: :search_projects)
+      get("/archived_projects", ProjectController, :archived, as: :archived_projects)
+    end
+
+    post("/fetch-count", EntityController, :fetch_count)
+  end
+
+  ################### Data Insights ############################
+
+  scope "/data_inst", AcqdatApiWeb.DataInsights do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      get("/projects", TopologyController, :fetch_projects)
+
+      scope "/projects/:project_id" do
+        resources "/topology", TopologyController, only: [:index]
+        get("/topology_entities", TopologyController, :entities)
+
+        resources "/fact_tables", FactTablesController, except: [:new, :edit] do
+          get("/details", FactTablesController, :details)
+          get("/fetch_headers", FactTablesController, :fetch_headers)
+
+          resources "/visualizations", VisualizationsController, except: [:new, :edit] do
+            post("/export", VisualizationsController, :export)
+          end
+        end
+
+        get("/visualizations/fetch_all_types", VisualizationsController, :fetch_all_types)
+      end
+
+      post("/fetch_token", EntityController, :fetch_token)
+    end
+  end
+
+  ################### Data Cruncher ############################
+
+  scope "/data_crhr", AcqdatApiWeb.DataCruncher do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      resources "/components", ComponentsController, only: [:index]
+      post("/data_cruncher_token", EntityController, :fetch_token)
+      get("/entities", EntityController, :fetch_all_hierarchy)
+
+      scope "/users/:user_id" do
+        resources "/tasks", TasksController, only: [:create, :index, :show, :update, :delete]
+      end
+    end
+  end
+
+  ######################### Tenant Manager ############################
+  scope "/tent_mgmt", AcqdatApiWeb.TenantManagement do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    get "/orgs", RequestsController, :org_index
+    resources "/requests", RequestsController, only: [:update, :index]
+  end
+
+  ######################### Alerts ####################################
+  scope "/alert", AcqdatApiWeb.Alerts do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id" do
+      get "/projects", AlertController, :fetch_projects
       resources "/policies", PolicyController, only: [:index]
       resources "/alert-rules", AlertRulesController, except: [:new, :edit]
       resources "/alert", AlertController, except: [:new, :edit, :create]
@@ -195,85 +303,64 @@ defmodule AcqdatApiWeb.Router do
       get "/alert_apps", AlertFilterListingController, :alert_app_listing
       get "/alert_status", AlertFilterListingController, :alert_status_listing
     end
-
-    get "/projects/:project_id/assets/search", EntityManagement.AssetController, :search_assets,
-      as: :search_assets
-
-    scope "/projects/:project_id", EntityManagement do
-      resources "/asset_types", AssetTypeController, only: [:create, :update, :delete, :index]
-      get "/assets/search", AssetController, :search_assets, as: :search_assets
-      get "/sensors/search", SensorController, :search_sensors, as: :search_sensors
-
-      get "/sensor_type/search", SensorTypeController, :search_sensor_type,
-        as: :search_sensor_type
-
-      get "/asset_types/search", AssetTypeController, :search_asset_type, as: :search_asset_type
-
-      resources "/assets", AssetController,
-        only: [:create, :show, :update, :delete, :index],
-        as: :assets
-
-      resources "/sensors", SensorController, except: [:new, :edit]
-      resources "/sensor_type", SensorTypeController, only: [:create, :index, :delete, :update]
-    end
-
-    scope "/projects/:project_id", DataInsights do
-      resources "/topology", TopologyController, only: [:index]
-      get("/topology_entities", TopologyController, :entities)
-
-      resources "/fact_tables", FactTablesController, except: [:new, :edit] do
-        get("/details", FactTablesController, :details)
-        get("/fetch_headers", FactTablesController, :fetch_headers)
-
-        resources "/visualizations", VisualizationsController, except: [:new, :edit] do
-          post("/export", VisualizationsController, :export)
-        end
-      end
-
-      get("/visualizations/fetch_all_types", VisualizationsController, :fetch_all_types)
-    end
-
-    post("/fetch_token", DataInsights.EntityController, :fetch_token)
-
-    resources "/dashboards", DashboardManagement.DashboardController, except: [:new, :edit]
-    get "/recent_dashboards", DashboardManagement.DashboardController, :recent_dashboard
-    post "/dashboards/:id/reports", DashboardManagement.DashboardController, :reports
-
-    scope "/dashboards/:dashboard_id", DashboardManagement do
-      resources "/panels", PanelController, except: [:new, :edit]
-    end
-
-    scope "/panels/:panel_id", DashboardManagement do
-      resources "/command_widgets", CommandWidgetController, except: [:new, :index, :edit]
-    end
-
-    get "/command_widget_types",
-        DashboardManagement.CommandWidgetController,
-        :command_widget_types
-
-    post "/panels/:panel_id/widgets/:widget_id/widget_instances",
-         DashboardManagement.WidgetInstanceController,
-         :create,
-         as: :create_widget_instances
-
-    get "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-        DashboardManagement.WidgetInstanceController,
-        :show,
-        as: :show_widget_instances
-
-    delete "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-           DashboardManagement.WidgetInstanceController,
-           :delete,
-           as: :delete_widget_instances
-
-    put "/panels/:panel_id/widgets/:widget_id/widget_instances/:id",
-        DashboardManagement.WidgetInstanceController,
-        :update,
-        as: :update_widget_instances
-
-    post("/data_cruncher_token", DataCruncher.EntityController, :fetch_token)
   end
 
+  ######################### Role Manager ####################################
+  scope "/role_mgmt", AcqdatApiWeb do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    scope "/orgs/:org_id", RoleManagement do
+      resources "/projects", ProjectController, only: [:index, :create, :update, :delete]
+      resources "/user_groups", UserGroupController, except: [:new, :edit]
+      get "/apis", ExtractedRoutesController, :apis
+      post "/group_policies", UserGroupController, :group_policies
+
+      resources "/users", UserController, only: [:show, :update, :index, :delete] do
+        resources "/settings", UserSettingController,
+          only: [:create, :update],
+          as: :settings
+      end
+
+      get("/projects/:project_id/users", ProjectController, :fetch_project_users)
+
+      get("/projects/search", ProjectController, :search_projects,
+        as: :role_management_search_projects
+      )
+
+      get("/archived_projects", ProjectController, :archived, as: :archived_projects)
+
+      resources "/roles", RoleController, only: [:index]
+      get "/search_users", UserController, :search_users
+      put("/users/:id/assets", UserController, :assets, as: :user_assets)
+      put("/users/:id/apps", UserController, :apps, as: :user_apps)
+      resources "/invitations", InvitationController, only: [:create, :update, :index, :delete]
+    end
+
+    post("/fetch-count", RoleManagement.ProjectController, :fetch_count)
+  end
+
+  ######################### Widgets Manager ####################################
+  scope "/wigt_mgmt", AcqdatApiWeb.Widgets do
+    pipe_through [:api, :api_bearer_auth, :api_ensure_auth]
+
+    # NOTE: Kept widgets resources out of organisation_scope currently
+    get "/widgets/search", WidgetController, :search_widget
+
+    get "/widgets/filtered", WidgetController, :fetch_all
+
+    resources "/widgets", WidgetController, only: [:create, :update, :delete, :index, :show]
+
+    resources "/widget-type", WidgetTypeController,
+      only: [:create, :update, :delete, :index, :show]
+
+    scope "/orgs/:org_id" do
+      scope "/users/:user_id" do
+        resources "/widgets", UserWidgetController, only: [:index, :create], as: :user_widgets
+      end
+    end
+  end
+
+  ######################### Tool Management ###########################
   # TODO: Need to remove this scope later, and clean test-cases also
   scope "/tl-mgmt", AcqdatApiWeb do
     pipe_through([:api, :api_bearer_auth, :api_ensure_auth])

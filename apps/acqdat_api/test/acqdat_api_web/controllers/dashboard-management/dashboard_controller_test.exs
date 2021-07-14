@@ -494,8 +494,7 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardControllerTest do
 
     test "recent dashboard with valid dashboard id", %{
       conn: conn,
-      dashboard: dashboard,
-      user: user
+      dashboard: dashboard
     } do
       get(
         conn,

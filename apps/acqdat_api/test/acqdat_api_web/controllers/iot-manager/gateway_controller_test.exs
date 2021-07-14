@@ -2,8 +2,10 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
   use ExUnit.Case, async: true
   use AcqdatApiWeb.ConnCase
   use AcqdatCore.DataCase
-  alias AcqdatCore.Test.Support.DataDump
   import AcqdatCore.Support.Factory
+  alias AcqdatCore.Test.Support.DataDump
+  alias AcqdatCore.Model.EntityManagement.Asset
+  alias AcqdatCore.Schema.EntityManagement.Asset, as: AssetSchema
 
   describe "create/2" do
     setup :setup_conn
@@ -344,5 +346,91 @@ defmodule AcqdatApiWeb.IotManager.GatewayControllerTest do
       result = get(conn, Routes.gateway_path(conn, :all_gateways, org.id)) |> json_response(200)
       assert length(result["gateways"]) == 2
     end
+  end
+
+  describe "fetch_project_tree" do
+    setup :setup_conn
+    setup :create_asset_tree
+
+    test "returns the project hierarchy", context do
+      %{org: org, conn: conn, project: project} = context
+
+      result =
+        conn
+        |> get(Routes.gateway_path(conn, :fetch_project_tree, org.id, project.id))
+        |> json_response(200)
+
+      assert Map.has_key?(result, "entities")
+      assert Map.has_key?(result, "type")
+      assert length(result["entities"]) != 0
+    end
+  end
+
+  #################### private functions #########################3
+
+  defp create_asset_tree(_context) do
+    org = insert(:organisation)
+    project = insert(:project, org: org)
+    asset_type = insert(:asset_type)
+    user = insert(:user)
+
+    asset_2 = build_asset_map("asset_2", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_3 = build_asset_map("asset_3", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_4 = build_asset_map("asset_4", org.id, org.name, project.id, user.id, asset_type.id)
+    asset_5 = build_asset_map("asset_5", org.id, org.name, project.id, user.id, asset_type.id)
+
+    # asset tree initialization
+    # asset_1
+    # |- asset_2
+    #    |- asset_4
+    #    |- asset_5
+    # |- asset_3
+
+    {:ok, asset_1} =
+      Asset.add_as_root(
+        build_asset_root_map("asset_1", org.id, org.name, project.id, user.id, asset_type.id)
+      )
+
+    {:ok, asset_2} = Asset.add_as_child(asset_1, asset_2, :child)
+    Asset.add_as_child(asset_1, asset_3, :child)
+    Asset.add_as_child(asset_2, asset_4, :child)
+    Asset.add_as_child(asset_2, asset_5, :child)
+
+    {:ok,
+     %{
+       project: project,
+       org: org
+     }}
+  end
+
+  defp build_asset_root_map(name, org_id, org_name, project_id, creator_id, asset_type_id) do
+    %{
+      name: name,
+      org_id: org_id,
+      org_name: org_name,
+      project_id: project_id,
+      creator_id: creator_id,
+      asset_type_id: asset_type_id,
+      metadata: [],
+      mapped_parameters: [],
+      owner_id: creator_id,
+      properties: [],
+      description: ""
+    }
+  end
+
+  defp build_asset_map(name, org_id, _org_name, project_id, creator_id, asset_type_id) do
+    %AssetSchema{
+      name: name,
+      org_id: org_id,
+      project_id: project_id,
+      creator_id: creator_id,
+      asset_type_id: asset_type_id,
+      metadata: [],
+      mapped_parameters: [],
+      owner_id: creator_id,
+      properties: [],
+      description: ""
+    }
   end
 end

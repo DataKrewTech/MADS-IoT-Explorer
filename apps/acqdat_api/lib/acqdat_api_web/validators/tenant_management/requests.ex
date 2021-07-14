@@ -1,4 +1,4 @@
-defmodule AcqdatApiWeb.Validators.RoleManagement.Requests do
+defmodule AcqdatApiWeb.Validators.TenantManagement.Requests do
   use Params
 
   defparams(

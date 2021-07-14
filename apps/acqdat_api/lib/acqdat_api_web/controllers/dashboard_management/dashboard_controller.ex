@@ -7,9 +7,13 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
   alias AcqdatApi.Helper.Redis
   alias AcqdatApi.Image
   alias AcqdatApi.ImageDeletion
+  alias AcqdatCore.Model.EntityManagement.Organisation, as: OrgModel
+  alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
+  alias AcqdatApi.IotManager.Gateway
 
-  plug AcqdatApiWeb.Plug.LoadOrg when not (action in [:exported_dashboard])
+  plug AcqdatApiWeb.Plug.LoadOrg when not (action in [:exported_dashboard, :fetch_widgets])
   plug AcqdatApiWeb.Plug.LoadDashboard when action in [:show, :update, :delete]
+  plug :put_view, AcqdatApiWeb.EntityManagement.EntityView when action in [:fetch_all_hierarchy]
 
   def index(conn, params) do
     changeset = verify_index_params(params)
@@ -258,6 +262,71 @@ defmodule AcqdatApiWeb.DashboardManagement.DashboardController do
           {:error, message} ->
             send_error(conn, 400, DashboardErrorHelper.error_message(:report_error, message))
         end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_all_hierarchy(conn, %{"org_id" => org_id}) do
+    case conn.status do
+      nil ->
+        {org_id, _} = Integer.parse(org_id)
+
+        case OrgModel.fetch_hierarchy_by_all_projects(org_id) do
+          {:ok, org} ->
+            conn
+            |> put_status(200)
+            |> render("organisation_tree.json", %{org: org})
+
+          {:error, _message} ->
+            conn
+            |> send_error(404, DashboardErrorHelper.error_message(:resource_not_found))
+        end
+
+      404 ->
+        conn
+        |> send_error(404, DashboardErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def fetch_widgets(conn, params) do
+    changeset = verify_widget_params(params)
+
+    case conn.status do
+      nil ->
+        {:extract, {:ok, data}} = {:extract, extract_changeset_data(changeset)}
+        {:list, widgets} = {:list, WidgetModel.get_all_by_classification_not_standard(data)}
+
+        conn
+        |> put_status(200)
+        |> render("widgets.json", %{data: widgets})
+
+      404 ->
+        conn
+        |> send_error(404, DashboardErrorHelper.error_message(:resource_not_found))
+
+      401 ->
+        conn
+        |> send_error(401, DashboardErrorHelper.error_message(:unauthorized))
+    end
+  end
+
+  def all_gateways(conn, params) do
+    case conn.status do
+      nil ->
+        conn
+        |> put_status(200)
+        |> render("all_gateways.json", gateways: Gateway.get_by_org(params["org_id"]))
 
       404 ->
         conn
