@@ -2,16 +2,24 @@ defmodule AcqdatApi.IotManager.Gateway do
   import AcqdatApiWeb.Helpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.IotManager.Gateway
+  alias AcqdatCore.Model.EntityManagement.Sensor
   alias AcqdatCore.IotManager.CommandHandler
 
   defdelegate get_all(data, preloads), to: Gateway
   defdelegate get_by_org(org_id), to: Gateway
   defdelegate delete(gateway), to: Gateway
   defdelegate associate_sensors(gateway, sensor_ids), to: Gateway
+  defdelegate return_sensor_gatewap_mapping(org_id, project_id), to: Sensor
 
   def create(params) do
     params = params_extraction(params)
     Gateway.create(params) |> verify_gateway()
+  end
+
+  def extract_param_uuid(sensors) do
+    Enum.reduce(sensors, %{}, fn sensor, acc ->
+      Map.put_new(acc, sensor.id, sensor.gateway_id)
+    end)
   end
 
   def update(gateway, params) do
@@ -47,7 +55,20 @@ defmodule AcqdatApi.IotManager.Gateway do
     end)
   end
 
-  defp return_uuid_and_parameter_name(key, %{"type" => "value", "value" => value}, acc) do
+  defp return_uuid_and_parameter_name(
+         key,
+         %{"type" => "value", "value" => value, "entity_id" => entity_id},
+         acc
+       ) do
+    value =
+      case length(String.split(value, ".")) do
+        1 ->
+          "#{entity_id}." <> "#{value}"
+
+        _ ->
+          value
+      end
+
     Map.put_new(acc, to_string(value), to_string(key))
   end
 

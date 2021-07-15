@@ -177,6 +177,7 @@ defmodule AcqdatApiWeb.Router do
       only: [:index, :create, :update, :delete, :show]
 
     scope "/projects/:project_id", IotManager do
+      get "/gateways/mapped_sensors", GatewayController, :mapped_sensors
       get "/gateways/search", GatewayController, :search_gateways, as: :search_gateways
       put "/gateways/:gateway_id/associate-sensors", GatewayController, :associate_sensors
       resources "/gateways", GatewayController, except: [:new, :edit]

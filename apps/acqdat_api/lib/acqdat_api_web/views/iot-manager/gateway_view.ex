@@ -8,6 +8,10 @@ defmodule AcqdatApiWeb.IotManager.GatewayView do
 
   @http_url System.get_env("HTTP_URL") || "https://datakrewtech.com/iot/"
 
+  def render("mapped_sensors.json", %{data: data}) do
+    data
+  end
+
   def render("index.json", gateway) do
     %{
       gateways: render_many(gateway.entries, GatewayView, "index_show.json"),
