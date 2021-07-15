@@ -3,7 +3,8 @@ defmodule AcqdatCore.Seed.Widget do
   Holds seeds for initial widgets.
   """
   alias AcqdatCore.Seed.Widgets.{Line, Area, Pie, Bar, LineTimeseries, AreaTimeseries, GaugeSeries, SolidGauge,
-        StockSingleLine, DynamicCard, ImageCard, StaticCard, BasicColumn, StackedColumn, StockColumn, HeatMap, PivotTable}
+        StockSingleLine, DynamicCard, ImageCard, StaticCard, BasicColumn, StackedColumn, StockColumn, HeatMap, PivotTable,
+        DataCard, PercentageCard, UserCard, TableTimeseries}
   alias AcqdatCore.Seed.Helpers.WidgetHelpers
   alias AcqdatCore.Repo
   alias AcqdatCore.Model.Widgets.Widget, as: WidgetModel
@@ -27,12 +28,16 @@ defmodule AcqdatCore.Seed.Widget do
     StockColumn.seed()
     HeatMap.seed()
     PivotTable.seed()
+    DataCard.seed()
+    PercentageCard.seed()
+    UserCard.seed()
+    TableTimeseries.seed()
     WidgetHelpers.seed_in_elastic()
   end
 
   def update_classifications() do
     Repo.transaction(fn ->
-      card_widgets = ["Image Card", "Static Card", "Dynamic Card"]
+      card_widgets = ["Image Card", "Static Card", "Dynamic Card", "Data Card", "Percentage Card", "User Card", "Table Timeseries"]
       update_classifications_of_widgets(card_widgets, "cards")
 
       gauge_widgets = ["solidgauge", "gauge"]
@@ -60,7 +65,11 @@ defmodule AcqdatCore.Seed.Widget do
       "Image Card" => {ImageCard, :card},
       "Static Card" => {StaticCard, :card},
       "Stock Column" => {StockColumn, :column},
-      "HeatMap" => {HeatMap, :heat_map}
+      "HeatMap" => {HeatMap, :heat_map},
+      "Data Card" => {DataCard, :card},
+      "Percentage Card" => {PercentageCard, :card},
+      "User Card" => {UserCard, :card},
+      "Table Timeseries" => {TableTimeseries, :card}
     }
 
     Enum.each(charts, fn {label, value} ->
