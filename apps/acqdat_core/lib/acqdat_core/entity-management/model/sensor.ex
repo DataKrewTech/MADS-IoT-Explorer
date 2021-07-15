@@ -322,72 +322,80 @@ defmodule AcqdatCore.Model.EntityManagement.Sensor do
       Enum.reduce(data_grouped_by_gateway, workbook, fn {gateway_id, value}, acc ->
         {:ok, workbook} = acc
 
-        [header_uuids, header_names] =
-          Enum.reduce(value, [[], []], fn entity, [header_uuids, header_names] ->
-            if Enum.member?(input_params, "#{entity.sensor_id}_#{entity.param_uuid}") do
-              [
-                ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
-                ["#{entity.sensor_name} #{entity.param_name}" | header_names]
-              ]
-            else
-              [header_uuids, header_names]
-            end
-          end)
+        if gateway_id != nil do
+          [header_uuids, header_names] =
+            Enum.reduce(value, [[], []], fn entity, [header_uuids, header_names] ->
+              if Enum.member?(input_params, "#{entity.sensor_id}_#{entity.param_uuid}") do
+                [
+                  ["#{entity.sensor_id}_#{entity.param_uuid}" | header_uuids],
+                  ["#{entity.sensor_name} #{entity.param_name}" | header_names]
+                ]
+              else
+                [header_uuids, header_names]
+              end
+            end)
 
-        header_uuids = Enum.uniq(header_uuids)
-        header_names = Enum.uniq(header_names)
+          header_uuids = Enum.uniq(header_uuids)
+          header_names = Enum.uniq(header_names)
 
-        [%{name: gateway_name}] = Enum.filter(gateway_data, fn data -> data.id == gateway_id end)
+          [%{name: gateway_name}] =
+            Enum.filter(gateway_data, fn data -> data.id == gateway_id end)
 
-        trans =
-          Repo.transaction(
-            fn ->
-              SensorDataDomain.filter_by_date_query_wrt_format(sensor_ids, date_from, date_to)
-              |> Repo.stream(max_rows: 1000)
-              |> Stream.map(fn grouped_data ->
-                [timestamp, sensor_data] = grouped_data
-                rows_len = length(header_uuids)
+          trans =
+            Repo.transaction(
+              fn ->
+                SensorDataDomain.filter_by_date_query_wrt_format(sensor_ids, date_from, date_to)
+                |> Repo.stream(max_rows: 1000)
+                |> Stream.map(fn grouped_data ->
+                  [timestamp, sensor_data] = grouped_data
+                  rows_len = length(header_uuids)
 
-                empty_row = List.duplicate(nil, rows_len)
+                  empty_row = List.duplicate(nil, rows_len)
 
-                res =
-                  Enum.reduce(sensor_data, [], fn {sensor_id, params}, acc ->
-                    res =
-                      Enum.reduce(params, empty_row, fn param, acc1 ->
-                        indx_pos =
-                          Enum.find_index(header_uuids, fn x ->
-                            x == "#{sensor_id}_#{param["uuid"]}"
-                          end)
+                  res =
+                    Enum.reduce(sensor_data, [], fn {sensor_id, params}, acc ->
+                      res =
+                        Enum.reduce(params, empty_row, fn param, acc1 ->
+                          indx_pos =
+                            Enum.find_index(header_uuids, fn x ->
+                              x == "#{sensor_id}_#{param["uuid"]}"
+                            end)
 
-                        if indx_pos != nil,
-                          do: List.replace_at(acc1, indx_pos, param["value"]),
-                          else: acc1
-                      end)
-                  end)
+                          if indx_pos != nil,
+                            do: List.replace_at(acc1, indx_pos, param["value"]),
+                            else: acc1
+                        end)
+                    end)
 
-                res =
-                  if res != empty_row do
-                    ["#{timestamp}" | res]
-                  end
+                  res =
+                    if res != empty_row do
+                      ["#{timestamp}" | res]
+                    end
 
-                res
-              end)
-              |> Enum.filter(&(!is_nil(&1)))
-              |> Enum.to_list()
-              |> gen_xls_sheet(header_names, gateway_name, workbook)
-            end,
-            timeout: :infinity
-          )
+                  res
+                end)
+                |> Enum.filter(&(!is_nil(&1)))
+                |> Enum.to_list()
+                |> gen_xls_sheet(header_names, gateway_name, workbook)
+              end,
+              timeout: :infinity
+            )
 
-        trans
+          trans
+        else
+          acc
+        end
       end)
       |> write_to_xls()
   end
 
   def gen_xls_sheet(data, headers, gateway_name, workbook) do
     headers = ["#{gateway_name} timestamp" | headers]
+    sheet_name = "#{gateway_name} data"
 
-    sheet = %Sheet{name: "GatewayData of #{gateway_name}", rows: [headers] ++ data}
+    sheet_name = String.slice(sheet_name, 0..(32 - String.length(sheet_name)))
+
+    sheet = %Sheet{name: sheet_name, rows: [headers] ++ data}
 
     Workbook.append_sheet(workbook, sheet)
   end
