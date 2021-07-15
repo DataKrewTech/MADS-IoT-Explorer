@@ -198,6 +198,47 @@ defmodule AcqdatCore.Model.IotManager.GatewayTest do
       assert sensor2.gateway_id == gateway.id
       assert sensor3.gateway_id == gateway.id
     end
+
+    test "with nesteed parameter mapping when a sensor is already attached to a gateway",
+         context do
+      %{sensors: [sensor1, sensor2, sensor3, sensor4], gateway: gateway} = context
+      gateway = gateway |> Repo.preload([:sensors])
+      Gateway.associate_sensors(gateway, [sensor1.id, sensor2.id])
+      gateway = Repo.get!(GSchema, gateway.id) |> Repo.preload([:sensors])
+      mapped_parameters = create_nested_parameters(sensor2, sensor3, sensor4)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+      sensor4 = Repo.get!(Sensor, sensor4.id)
+      assert sensor1.gateway_id !== gateway.id
+      assert sensor2.gateway_id == gateway.id
+      assert sensor3.gateway_id == gateway.id
+      assert sensor4.gateway_id == gateway.id
+    end
+
+    @tag timeout: :infinity
+    test "modification of nesteed parameter mapping when a sensor is already attached to a gateway",
+         context do
+      %{sensors: [sensor1, sensor2, sensor3, sensor4], gateway: gateway} = context
+      gateway = gateway |> Repo.preload([:sensors])
+      mapped_parameters = create_nested_parameters(sensor2, sensor3, sensor4)
+      params = %{"mapped_parameters" => mapped_parameters}
+      {:ok, gateway} = Gateway.update(gateway, params)
+      require IEx
+      IEx.pry()
+      Gateway.associate_sensors(gateway, [sensor1.id, sensor2.id, sensor3.id])
+      gateway = Repo.get!(GSchema, gateway.id) |> Repo.preload([:sensors])
+      sensor1 = Repo.get!(Sensor, sensor1.id)
+      sensor2 = Repo.get!(Sensor, sensor2.id)
+      sensor3 = Repo.get!(Sensor, sensor3.id)
+      sensor4 = Repo.get!(Sensor, sensor4.id)
+      assert sensor1.gateway_id == gateway.id
+      assert sensor2.gateway_id == gateway.id
+      assert sensor3.gateway_id == gateway.id
+      assert sensor4.gateway_id !== gateway.id
+    end
   end
 
   describe "tree_mapping/1" do

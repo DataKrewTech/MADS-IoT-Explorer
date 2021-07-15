@@ -167,6 +167,7 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
     case Repo.update(changeset) do
       {:ok, gateway} ->
         GModel.associate_sensors(gateway |> Repo.preload([:sensors]), sensor_ids)
+        gateway = Repo.get!(Gateway, gateway.id) |> Repo.preload([:sensors])
         {:ok, gateway}
 
       {:error, message} ->
@@ -351,6 +352,11 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
           MapSet.to_list(MapSet.difference(requested_sensors, attached_sensors)),
           gateway
         )
+
+        modify_mapped_parameters(
+          gateway,
+          MapSet.to_list(MapSet.difference(attached_sensors, requested_sensors))
+        )
       end)
 
     case result do
@@ -359,6 +365,51 @@ defmodule AcqdatCore.Model.IotManager.Gateway do
 
       {:error, message} ->
         {:error, "Some error occurred while updating list"}
+    end
+  end
+
+  defp modify_mapped_parameters(gateway, detached_sensor_ids) do
+    mapped_parameters =
+      remove_sensor_from_parameters(gateway.mapped_parameters, detached_sensor_ids)
+    require IEx
+    IEx.pry
+
+  end
+
+  defp remove_sensor_from_parameters(mapped_parameters, detached_sensor_ids) do
+    Enum.reduce(mapped_parameters, %{}, fn {key, value}, acc ->
+      case filter_for_sensors(value, detached_sensor_ids) do
+        nil -> acc
+        rparams -> Map.put_new(acc, key, rparams)
+      end
+    end)
+  end
+
+  defp filter_for_sensors(%{"type" => "object", "value" => parameters}, detached_sensor_ids) do
+    Enum.reduce(parameters, %{}, fn {key, value}, accumulator ->
+      case filter_for_sensors(value, detached_sensor_ids) do
+        nil -> accumulator
+        rparams -> Map.put_new(accumulator, key, rparams)
+      end
+    end)
+  end
+
+  defp filter_for_sensors(%{"type" => "list", "value" => value}, detached_sensor_ids) do
+    Enum.reduce(value, [], fn value, accumulator ->
+      case filter_for_sensors(value, detached_sensor_ids) do
+        nil -> accumulator
+        rparams -> accumulator ++ [rparams]
+      end
+    end)
+  end
+
+  defp filter_for_sensors(
+         %{"type" => "value", "entity_id" => entity_id} = params,
+         detached_sensor_ids
+       ) do
+    case Enum.member?(detached_sensor_ids, entity_id) do
+      true -> nil
+      false -> params
     end
   end
 
